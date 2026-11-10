@@ -1,0 +1,200 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "driver.js/dist/driver.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-instrument);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-warn: var(--warn);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Paleta IOBA (mesma família de cores do sistema "relatorio") */
+:root {
+  --background: #f4f6f9;
+  --foreground: #0b1324;
+  --card: #ffffff;
+  --card-foreground: #0b1324;
+  --popover: #ffffff;
+  --popover-foreground: #0b1324;
+  --primary: #1c5cab;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e8f0fb;
+  --secondary: #eef2f8;
+  --secondary-foreground: #14325c;
+  --muted: #f1f4f8;
+  --muted-foreground: #5b6474;
+  --accent: #e8f0fb;
+  --accent-foreground: #14325c;
+  --destructive: #c4361f;
+  --border: #e3e7ee;
+  --input: #dfe4ec;
+  --ring: #1c5cab;
+  /* ordem validada (dataviz validate_palette: CVD e visão normal ok em claro e escuro) */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #6250d6;
+  --chart-5: #eda100;
+  --chart-6: #e87ba4;
+  --chart-7: #008300;
+  --chart-8: #e34948;
+  --up: #0f7b4f;
+  --down: #c4361f;
+  --warn: #b7791f;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1d2939;
+  --sidebar-primary: #1c5cab;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f0fb;
+  --sidebar-accent-foreground: #14325c;
+  --sidebar-border: #e6e9ef;
+  --sidebar-ring: #1c5cab;
+}
+
+.dark {
+  --background: #0b0f17;
+  --foreground: #eef1f6;
+  --card: #131a26;
+  --card-foreground: #eef1f6;
+  --popover: #131a26;
+  --popover-foreground: #eef1f6;
+  --primary: #3987e5;
+  --primary-foreground: #04101f;
+  --primary-soft: #1b2a3d;
+  --secondary: #1a2332;
+  --secondary-foreground: #dbe6f5;
+  --muted: #1a2232;
+  --muted-foreground: #9aa4b5;
+  --accent: #1b2a3d;
+  --accent-foreground: #dbe6f5;
+  --destructive: #ef6b5b;
+  --border: #243044;
+  --input: #2a364b;
+  --ring: #3987e5;
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #9085e9;
+  --chart-5: #c98500;
+  --chart-6: #d55181;
+  --chart-7: #2fa32f;
+  --chart-8: #e66767;
+  --up: #3fb97f;
+  --down: #ef6b5b;
+  --warn: #e0a43a;
+  --sidebar: #0f1520;
+  --sidebar-foreground: #dfe5ee;
+  --sidebar-primary: #3987e5;
+  --sidebar-primary-foreground: #04101f;
+  --sidebar-accent: #1b2a3d;
+  --sidebar-accent-foreground: #dbe6f5;
+  --sidebar-border: #1f2a3b;
+  --sidebar-ring: #3987e5;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "tnum" 1;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Tour guiado (driver.js) no tema do app */
+.driver-popover.trackco-tour {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.18);
+  font-family: var(--font-inter);
+}
+.driver-popover.trackco-tour .driver-popover-title {
+  font-family: var(--font-instrument);
+  font-size: 1.05rem;
+}
+.driver-popover.trackco-tour .driver-popover-description {
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.driver-popover.trackco-tour .driver-popover-arrow-side-left.driver-popover-arrow,
+.driver-popover.trackco-tour .driver-popover-arrow-side-right.driver-popover-arrow,
+.driver-popover.trackco-tour .driver-popover-arrow-side-top.driver-popover-arrow,
+.driver-popover.trackco-tour .driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-color: var(--popover);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+}
+.driver-popover.trackco-tour button {
+  text-shadow: none;
+  border-radius: calc(var(--radius) * 0.6);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 4px 10px;
+}
+.driver-popover.trackco-tour .driver-popover-next-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}

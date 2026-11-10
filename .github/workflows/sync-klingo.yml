@@ -1,0 +1,58 @@
+name: Sincronizar Klingo
+
+on:
+  schedule:
+    - cron: "0 10-22 * * 1-6" # de hora em hora, 07h às 19h em Salvador (UTC-3), segunda a sábado
+    - cron: "0 6 * * *" # 03h em Salvador: reconciliação (meses anteriores)
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "horario (mês atual e anterior) ou reconciliacao (últimos meses)"
+        required: false
+        default: horario
+        type: choice
+        options: [horario, reconciliacao]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-klingo
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TZ: America/Bahia
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: robo/requirements.txt
+
+      - name: Cache do navegador (Playwright)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('robo/requirements.txt') }}
+
+      - name: Instalar dependências
+        run: |
+          pip install -r robo/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Sincronizar
+        env:
+          KLINGO_USUARIO: ${{ secrets.KLINGO_USUARIO }}
+          KLINGO_SENHA: ${{ secrets.KLINGO_SENHA }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          TRACKCO_URL: ${{ vars.TRACKCO_URL || 'https://trackco.ioba.com.br' }}
+          TRACKCO_RECALC_TOKEN: ${{ secrets.TRACKCO_RECALC_TOKEN }}
+          MODO: ${{ github.event.inputs.modo || (github.event.schedule == '0 6 * * *' && 'reconciliacao') || 'horario' }}
+        run: python robo/sync_klingo.py --modo "$MODO"
