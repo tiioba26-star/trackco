@@ -50,17 +50,29 @@ Tudo isso pode ser alterado nas telas **Métricas** e **Planos e regras**, sem c
 
 ### 1. Supabase (mesmo projeto do sistema `relatorio`)
 
-1. Rode as migrations **na ordem**. Pelo SQL Editor do Supabase, cole o conteúdo de cada arquivo de `supabase/migrations/`; ou use `supabase db push`.
-   - Elas criam só o schema `trackco` e **não alteram** nada do `relatorio`.
+1. Rode as migrations. O jeito mais simples é abrir o **SQL Editor** do Supabase, colar o arquivo `supabase/aplicar-tudo.sql` inteiro e clicar em *Run*.
+   - Esse arquivo é gerado a partir de `supabase/migrations/` e roda tudo numa transação.
+   - Também funciona com `supabase db push`.
+   - As migrations criam só o schema `trackco` e **não alteram** nada do `relatorio`.
    - O seed importa de `public.usuarios` a equipe *Comercial* e os admins.
-2. **Exponha o schema** em *Project Settings → Data API → Exposed schemas*: adicione `trackco`.
-3. Pegue as chaves em *Project Settings → API Keys*: URL, *publishable* e *secret*.
+2. **Exponha o schema** em *Project Settings → Data API → Exposed schemas*: adicione `trackco` e salve.
+3. As chaves ficam em *Project Settings → API Keys*. São as mesmas que o relatorio usa (arquivo `relatorio/supabase.toml`).
 
 ### 2. Vercel
 
-1. *Add New → Project* → importe o repositório do GitHub.
-2. Em *Environment Variables*, cadastre as variáveis de `.env.example`.
-3. Em *Settings → Domains*, adicione `trackco.ioba.com.br`. O DNS já está na Vercel.
+1. *Add New → Project* → importe o repositório do GitHub. O `vercel.json` força o framework **Next.js**: se o projeto foi criado como "Other", só os arquivos de `public/` iriam ao ar.
+2. Cadastre as variáveis em *Settings → Environment Variables* (Production e Preview):
+
+| Variável | Valor |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto **sem** `/rest/v1/` (ex.: `https://xxxx.supabase.co`) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Chave `sb_publishable_…` (campo `publishable` do `supabase.toml` do relatorio) |
+| `SUPABASE_SECRET_KEY` | Chave `sb_secret_…` (campo `secret` do `supabase.toml` do relatorio). Só no servidor. |
+| `TRACKCO_RECALC_TOKEN` | Valor aleatório longo, **igual** ao secret de mesmo nome no GitHub |
+| `LOGIN_DOMINIO` | `acesso.iobaoftalmo.com.br`. É o domínio fictício que o relatorio usa para transformar usuário em e-mail. Não mude. |
+
+3. Depois de mudar variáveis, faça *Deployments → … → Redeploy*.
+4. Em *Settings → Domains*, adicione `trackco.ioba.com.br` **neste projeto**. O DNS já aponta para a Vercel.
 
 ### 3. GitHub Actions (robô do Klingo)
 
@@ -69,7 +81,7 @@ No repositório, em *Settings → Secrets and variables → Actions*:
 | Secret | Valor |
 |---|---|
 | `KLINGO_USUARIO` / `KLINGO_SENHA` | Mesmo usuário que o robô do relatorio usa |
-| `SUPABASE_URL` / `SUPABASE_SECRET_KEY` | Do projeto Supabase |
+| `SUPABASE_URL` / `SUPABASE_SECRET_KEY` | A mesma URL (sem `/rest/v1/`) e a mesma secret key cadastradas na Vercel |
 | `TRACKCO_RECALC_TOKEN` | O mesmo valor cadastrado na Vercel |
 
 O robô roda de hora em hora (07h–19h, seg–sáb) e faz uma reconciliação às 03h. Para disparar na mão: *Actions → Sincronizar Klingo → Run workflow*. Para testar localmente sem gravar nada:
@@ -92,7 +104,7 @@ python robo/sync_klingo.py --dry-run --toml ../relatorio/klingo.toml
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha
+# crie .env.local com as variáveis da tabela da seção "2. Vercel"
 npm run dev                  # http://localhost:3000
 npm test                     # motor + migrations/RLS (PGlite) — não toca no Supabase real
 python robo/test_cruzamento.py

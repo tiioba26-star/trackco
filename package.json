@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint src supabase",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sql:combinar": "node scripts/combinar-sql.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

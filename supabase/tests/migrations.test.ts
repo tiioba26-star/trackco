@@ -83,6 +83,13 @@ beforeAll(async () => {
   ]);
 });
 
+describe("aplicar-tudo.sql", () => {
+  it("está atualizado com as migrations (rode npm run sql:combinar)", async () => {
+    const { combinar } = await import("../../scripts/combinar-sql.mjs");
+    expect(readFileSync(join(__dirname, "..", "aplicar-tudo.sql"), "utf8")).toBe(combinar());
+  });
+});
+
 describe("seed", () => {
   it("importa só Comercial + admins do relatorio", async () => {
     const r = await db.query<{ login: string; papel: string }>(`select login, papel from trackco.colaboradores order by login`);
