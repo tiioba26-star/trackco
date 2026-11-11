@@ -26,11 +26,19 @@ export async function entrar(_: EstadoLogin, form: FormData): Promise<EstadoLogi
     return { erro: "Usuário ou senha inválidos." };
   }
 
-  const { data: colab } = await supabase
+  const { data: colab, error: erroColab } = await supabase
     .from("colaboradores")
     .select("id, ativo")
     .eq("auth_id", data.user.id)
     .maybeSingle();
+  if (erroColab) {
+    // senha certa, mas o banco do Trackco não respondeu (ex.: schema "trackco" não exposto na Data API, migrations pendentes)
+    console.error("[login] falha ao consultar trackco.colaboradores:", erroColab.code, erroColab.message);
+    await supabase.auth.signOut();
+    return {
+      erro: `Usuário e senha conferem, mas o banco do Trackco ainda não está configurado (${erroColab.code ?? "erro"}). Avise o administrador.`,
+    };
+  }
   if (!colab || !colab.ativo) {
     await supabase.auth.signOut();
     return { erro: "Seu usuário ainda não tem acesso ao Trackco. Fale com o administrador." };
