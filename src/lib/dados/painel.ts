@@ -126,3 +126,37 @@ export async function alertasGestao(db: Db, competencia: string) {
     competencia,
   };
 }
+
+export interface ValorAnalise {
+  codigo: string;
+  nome: string;
+  unidade: string;
+  total: number;
+  porPessoa: { id: string; valor: number }[];
+}
+
+/** Métricas "somente análise" (ex.: SUS) no mês: só para visualizar, nunca entram na nota. */
+export async function valoresAnalise(
+  db: Db,
+  opcoes: { competencia: string; hoje: string; metricas: Metrica[]; colaboradores: { id: string; login_klingo: string | null }[] },
+): Promise<ValorAnalise[]> {
+  const metricas = opcoes.metricas.filter((m) => m.definicao.somente_analise && m.ativo !== false);
+  if (!metricas.length || !opcoes.colaboradores.length) return [];
+  const comLogin = opcoes.colaboradores.filter((c) => c.login_klingo);
+  const porLogin = new Map(comLogin.map((c) => [c.login_klingo!.toLowerCase(), c.id]));
+  const brutas = await linhasKlingo(db, Array.from(porLogin.keys()), opcoes.competencia);
+  const linhas: Linha[] = brutas.map((l) => ({
+    ...l,
+    chave: l.chave as string,
+    colaborador_id: porLogin.get(String(l.responsavel_login ?? "").toLowerCase()) ?? null,
+  }));
+  const janela = { inicio: inicioCompetencia(opcoes.competencia), fim: fimCompetencia(opcoes.competencia) };
+  const ids = opcoes.colaboradores.map((c) => c.id);
+  return metricas.map((m) => ({
+    codigo: m.codigo,
+    nome: m.nome,
+    unidade: m.unidade,
+    total: calcularMetrica(m.definicao, () => linhas, janela, opcoes.hoje, ids).valor,
+    porPessoa: ids.map((id) => ({ id, valor: calcularMetrica(m.definicao, () => linhas, janela, opcoes.hoje, [id]).valor })),
+  }));
+}

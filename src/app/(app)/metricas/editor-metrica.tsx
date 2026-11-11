@@ -192,11 +192,11 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
     if (t === def.tipo_calculo) return;
     if (t === "taxa") {
       const base = def.tipo_calculo === "simples" ? def : CONTAGEM_PADRAO;
-      const { tipo_calculo: _t, corte: _c, ...cont } = base as DefinicaoMetrica & Contagem;
-      setDef({ tipo_calculo: "taxa", corte: "ontem", numerador: { ...cont }, denominador: { ...cont } });
+      const { tipo_calculo: _t, corte: _c, somente_analise: _s, ...cont } = base as DefinicaoMetrica & Contagem;
+      setDef({ tipo_calculo: "taxa", corte: "ontem", numerador: { ...cont }, denominador: { ...cont }, somente_analise: def.somente_analise });
       setUnidade("%");
     } else {
-      setDef({ tipo_calculo: "simples", corte: "hoje", ...(def.tipo_calculo === "taxa" ? def.numerador : CONTAGEM_PADRAO) });
+      setDef({ tipo_calculo: "simples", corte: "hoje", ...(def.tipo_calculo === "taxa" ? def.numerador : CONTAGEM_PADRAO), somente_analise: def.somente_analise });
       if (unidade === "%") setUnidade("un");
     }
   }
@@ -275,6 +275,18 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={ativo} onCheckedChange={setAtivo} /> Ativa
             </label>
+            <label className="flex items-start gap-2 text-sm md:col-span-2">
+              <Switch
+                checked={!!def.somente_analise}
+                onCheckedChange={(v) => setDef({ ...def, somente_analise: v || undefined })}
+              />
+              <span>
+                <b>Somente análise</b>
+                <span className="block text-xs text-muted-foreground">
+                  Aparece no painel, nos relatórios e na TV, mas nunca entra em metas, nota, prêmios, comissão ou pontos (ex.: SUS).
+                </span>
+              </span>
+            </label>
           </CardContent>
         </Card>
 
@@ -303,7 +315,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
             {def.tipo_calculo === "simples" ? (
               <EditorContagem
                 valor={def}
-                onChange={(c) => setDef({ ...c, tipo_calculo: "simples", corte: def.corte })}
+                onChange={(c) => setDef({ ...c, tipo_calculo: "simples", corte: def.corte, somente_analise: def.somente_analise })}
               />
             ) : (
               <>

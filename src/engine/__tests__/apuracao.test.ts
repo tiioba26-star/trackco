@@ -288,3 +288,40 @@ describe("faixas e carinhas", () => {
     expect(somarDias("2026-10-31", 1)).toBe("2026-11-01");
   });
 });
+
+describe("métricas somente de análise (SUS)", () => {
+  it("nunca entram na nota, mesmo se alguém colocar no plano", () => {
+    const sus: Metrica = {
+      ...AGENDAMENTOS,
+      id: "m-sus",
+      codigo: "agendamentos_sus",
+      definicao: { ...AGENDAMENTOS.definicao, somente_analise: true, filtros: [{ campo: "operadora", op: "contem", valor: "SUS" }] } as Metrica["definicao"],
+    };
+    const plano: DefinicaoPlano = {
+      ...PLANO,
+      indicadores: [
+        { id: "i1", metrica_id: "m-ag", escopo: "individual", aplica_a: "membros", peso: 50, teto_pct: 150, meta_proporcional: false },
+        { id: "isus", metrica_id: "m-sus", escopo: "individual", aplica_a: "membros", peso: 50, teto_pct: 150, meta_proporcional: false },
+      ],
+    };
+    const linhas = [
+      linha({ chave: "p", colaborador_id: "ana", data_agendado_em: "2026-10-05" }),
+      ...Array.from({ length: 50 }, (_, i) => linha({ chave: `s${i}`, colaborador_id: "ana", operadora: "SUS", data_agendado_em: "2026-10-05" })),
+    ];
+    const res = apurarEquipe(
+      entradaBase({
+        plano: { versao_id: "v", definicao: plano },
+        metricas: { "m-ag": AGENDAMENTOS, "m-sus": sus },
+        metas: [
+          { metrica_id: "m-ag", colaborador_id: "ana", valor: 10 },
+          { metrica_id: "m-sus", colaborador_id: "ana", valor: 10 },
+        ],
+        linhas: { klingo_agendamentos: linhas },
+      }),
+    );
+    const ana = res.find((r) => r.colaborador_id === "ana")!;
+    expect(ana.indicadores.map((i) => i.metrica_id)).toEqual(["m-ag"]);
+    expect(ana.nota_pct).toBe(10); // só o Particular (1 de 10), o SUS (500%) não conta
+    expect(ana.memorial.join(" ")).toContain("somente análise");
+  });
+});

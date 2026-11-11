@@ -10,7 +10,7 @@ export const env = {
   supabasePublishableKey: () =>
     obrigatoria("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
   supabaseSecretKey: () => obrigatoria("SUPABASE_SECRET_KEY", process.env.SUPABASE_SECRET_KEY),
-  recalcToken: () => obrigatoria("TRACKCO_RECALC_TOKEN", process.env.TRACKCO_RECALC_TOKEN),
+  recalcToken: () => obrigatoria("TRACKCO_RECALC_TOKEN", process.env.TRACKCO_RECALC_TOKEN?.trim()),
   /** Domínio fictício usado para transformar "usuario" em e-mail no Supabase Auth (mesmo do relatorio). */
   dominioLogin: () => process.env.LOGIN_DOMINIO || "acesso.iobaoftalmo.com.br",
 };

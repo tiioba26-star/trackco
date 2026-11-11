@@ -16,7 +16,7 @@ export default async function PaginaPlano(props: PageProps<"/planos/[id]">) {
   const db = await criarClienteServidor();
   const [{ data: plano }, { data: metricas }, { data: versoes }] = await Promise.all([
     db.from("planos").select("id, nome, descricao, modalidade, status, equipe_id, rascunho, equipes(nome)").eq("id", id).maybeSingle(),
-    db.from("metricas").select("id, nome, unidade").eq("ativo", true).order("nome"),
+    db.from("metricas").select("id, nome, unidade, definicao").eq("ativo", true).order("nome"),
     db
       .from("plano_versoes")
       .select("id, numero, vigente_desde, observacao, publicado_em")
@@ -52,7 +52,9 @@ export default async function PaginaPlano(props: PageProps<"/planos/[id]">) {
           equipe_id: plano.equipe_id,
         }}
         rascunho={plano.rascunho as DefinicaoPlano}
-        metricas={metricas ?? []}
+        metricas={(metricas ?? [])
+          .filter((m) => !(m.definicao as { somente_analise?: boolean })?.somente_analise)
+          .map(({ id, nome, unidade }) => ({ id, nome, unidade }))}
         competencia={atual}
         competenciaAnterior={competenciaAnterior(atual)}
       />

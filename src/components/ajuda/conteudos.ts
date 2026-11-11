@@ -26,6 +26,7 @@ export const AJUDA: Record<string, Ajuda> = {
       "O painel mostra o seu desempenho no mês: quanto você já realizou, qual é a meta, quanto falta por dia e a projeção de fechamento.",
       "Quantitativo = agendamentos que você fez (contam no dia em que você agendou). Qualitativo = consultas que de fato aconteceram (contam no dia em que o paciente foi atendido, mesmo que você tenha agendado em outro mês).",
       "Os dados vêm do Klingo e são atualizados de hora em hora em horário comercial. A hora da última atualização aparece no topo.",
+      "SUS aparece num quadro separado, só para acompanhamento: não conta para metas, nota, prêmios, comissão ou pontos.",
     ],
     dicas: [
       "Achou um número errado? Abra o Extrato, encontre o agendamento e use o botão Contestar.",
@@ -140,10 +141,13 @@ export const AJUDA: Record<string, Ajuda> = {
     resumo: [
       "Metas mensais por pessoa (e, opcionalmente, da equipe). Se a meta da equipe ficar vazia, o sistema usa a soma das metas individuais.",
       "O painel calcula sozinho o ritmo diário necessário e a projeção de fechamento.",
+      "Sugestão pelo histórico: embaixo de cada campo aparece a média dos últimos meses e o último mês da pessoa. Escolha a base (3 ou 6 meses) e o crescimento e clique em 'Preencher com sugestão'. Meses sem atividade (entrada recente, férias) não puxam a média para baixo; quem é novo recebe a média por pessoa da equipe.",
+      "Nada é gravado até você clicar em Salvar metas.",
     ],
     passos: [
       { alvo: "metas-mes", titulo: "Mês", texto: "Escolha o mês." },
-      { alvo: "metas-grade", titulo: "Grade", texto: "Uma linha por pessoa e uma coluna por métrica do plano." },
+      { alvo: "metas-sugestao", titulo: "Sugestão", texto: "Preenche a grade com a média histórica de cada pessoa mais o crescimento escolhido." },
+      { alvo: "metas-grade", titulo: "Grade", texto: "Uma linha por pessoa e uma coluna por métrica do plano. Embaixo de cada campo: média e último mês." },
       { alvo: "metas-copiar", titulo: "Copiar do mês anterior", texto: "Atalho para repetir as metas." },
     ],
   },

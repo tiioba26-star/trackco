@@ -20,7 +20,7 @@ Variáveis de ambiente:
 
 Uso:
   python robo/sync_klingo.py                      # modo horário: mês atual e anterior
-  python robo/sync_klingo.py --modo reconciliacao # madrugada: últimos 4 meses de marcações e 3 de produção
+  python robo/sync_klingo.py --modo reconciliacao # madrugada: últimos 4 meses de marcações e de produção
   python robo/sync_klingo.py --dry-run --toml ../relatorio/klingo.toml   # testa sem gravar nada
 """
 from __future__ import annotations
@@ -263,7 +263,7 @@ def main() -> int:
     sb = Supabase(sb_url or "", sb_chave or "", args.dry_run)
 
     hoje = datetime.now(FUSO).date()
-    n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 3)
+    n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
     meses_ag = meses_ate(hoje, n_ag)
     meses_prod = meses_ate(hoje, n_prod)
     print(f"Modo {args.modo} | marcações: {', '.join(meses_ag)} | produção: {', '.join(meses_prod)}", flush=True)
@@ -352,6 +352,28 @@ def main() -> int:
                 "mensagem": f"{type(e).__name__}: {str(e)[:300]}", "detalhes": detalhes})
         raise
 
+    # 4) pede o recálculo ao Trackco (o resultado fica registrado na execução, visível em "Dados")
+    url, token = os.environ.get("TRACKCO_URL"), (os.environ.get("TRACKCO_RECALC_TOKEN") or "").strip()
+    if args.dry_run:
+        pass
+    elif not url or not token:
+        avisos.append("recálculo não pedido: TRACKCO_URL/TRACKCO_RECALC_TOKEN ausentes")
+    else:
+        detalhes["recalculo"] = {}
+        for comp in meses_ate(hoje, 2)[::-1]:  # mês atual e anterior, um pedido por mês (limite de 60 s da Vercel)
+            try:
+                req = urllib.request.Request(f"{url.rstrip('/')}/api/recalcular", data=json.dumps({"competencia": comp}).encode(),
+                                             method="POST", headers={"authorization": f"Bearer {token}",
+                                                                     "content-type": "application/json", "user-agent": "trackco-robo"})
+                with urllib.request.urlopen(req, timeout=120) as r:
+                    detalhes["recalculo"][comp] = r.status
+                    print(f"Recálculo {comp}: HTTP {r.status}", flush=True)
+            except urllib.error.HTTPError as e:
+                msg = "token não confere com a Vercel" if e.code == 401 else e.read().decode()[:120]
+                avisos.append(f"recálculo {comp} falhou (HTTP {e.code}: {msg})")
+            except Exception as e:
+                avisos.append(f"recálculo {comp} falhou ({type(e).__name__}: {str(e)[:120]})")
+
     status = "ok" if not avisos else ("parcial" if total_ag else "erro")
     if exec_id:
         sb.patch("sync_execucoes", f"id=eq.{exec_id}", {
@@ -362,17 +384,6 @@ def main() -> int:
             "mensagem": "; ".join(avisos)[:1000] or None,
             "detalhes": detalhes,
         })
-
-    # 4) pede o recálculo ao Trackco
-    url, token = os.environ.get("TRACKCO_URL"), os.environ.get("TRACKCO_RECALC_TOKEN")
-    if url and token and not args.dry_run:
-        try:
-            req = urllib.request.Request(f"{url.rstrip('/')}/api/recalcular", data=b"{}", method="POST",
-                                         headers={"authorization": f"Bearer {token}", "content-type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as r:
-                print(f"Recálculo: HTTP {r.status}", flush=True)
-        except Exception as e:
-            print(f"Aviso: recálculo não foi feito ({type(e).__name__}: {str(e)[:120]})", flush=True)
 
     print(f"Concluído: {status} · {total_ag} marcações · {total_cruz} cruzamentos" + (f" · avisos: {avisos}" if avisos else ""))
     return 0 if status != "erro" else 1

@@ -33,14 +33,18 @@ export interface Contagem {
   filtros: Filtro[];
 }
 
-export type DefinicaoMetrica =
+export type DefinicaoMetrica = (
   | ({ tipo_calculo: "simples"; corte?: Corte } & Contagem)
   | {
       tipo_calculo: "taxa";
       corte?: Corte;
       numerador: Contagem;
       denominador: Contagem;
-    };
+    }
+) & {
+  /** Só para análise/visualização (ex.: SUS): nunca entra em metas, nota, prêmios, comissão ou pontos. */
+  somente_analise?: boolean;
+};
 
 export interface Metrica {
   id: string;

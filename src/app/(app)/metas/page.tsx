@@ -8,6 +8,8 @@ import { membrosDaEquipe, planoVigente } from "@/lib/calculo/carregar";
 import { competenciaValida } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import type { Metrica } from "@/engine/tipos";
+import { historicoParaMetas } from "@/lib/dados/sugestoes";
 import { GradeMetas } from "./grade-metas";
 
 export const metadata = { title: "Metas" };
@@ -26,10 +28,13 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
     const [plano, membros, { data: todas }] = await Promise.all([
       planoVigente(db, equipe.id, comp),
       membrosDaEquipe(db, equipe.id, comp),
-      db.from("metricas").select("id, nome, unidade").eq("ativo", true),
+      db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao").eq("ativo", true),
     ]);
+    const nMeses = sp.meses === "6" ? 6 : 3;
     const idsPlano = Array.from(new Set(plano?.definicao.indicadores.map((i) => i.metrica_id) ?? []));
-    const metricas = (todas ?? []).filter((m) => idsPlano.includes(m.id));
+    const metricasPlano = ((todas ?? []) as Metrica[]).filter((m) => idsPlano.includes(m.id));
+    const metricas = metricasPlano.map(({ id, nome, unidade }) => ({ id, nome, unidade }));
+    const historico = plano ? await historicoParaMetas(db, equipe.id, comp, metricasPlano, nMeses) : {};
     const { data: metas } = await db
       .from("metas")
       .select("metrica_id, colaborador_id, equipe_id, valor")
@@ -58,6 +63,8 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
         metricas={metricas}
         pessoas={membros.map((m) => ({ id: m.colaborador_id, nome: m.nome, funcao: m.funcao }))}
         iniciais={iniciais}
+        historico={historico}
+        nMeses={nMeses}
       />
     );
   }

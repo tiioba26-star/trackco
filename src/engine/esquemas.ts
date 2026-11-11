@@ -31,10 +31,17 @@ export const ContagemZ = z
   });
 
 export const DefinicaoMetricaZ = z.union([
-  ContagemZ.and(z.object({ tipo_calculo: z.literal("simples"), corte: z.enum(["hoje", "ontem"]).optional() })),
+  ContagemZ.and(
+    z.object({
+      tipo_calculo: z.literal("simples"),
+      corte: z.enum(["hoje", "ontem"]).optional(),
+      somente_analise: z.boolean().optional(),
+    }),
+  ),
   z.object({
     tipo_calculo: z.literal("taxa"),
     corte: z.enum(["hoje", "ontem"]).optional(),
+    somente_analise: z.boolean().optional(),
     numerador: ContagemZ,
     denominador: ContagemZ,
   }),

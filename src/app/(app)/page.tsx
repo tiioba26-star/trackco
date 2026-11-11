@@ -3,7 +3,7 @@ import Link from "next/link";
 import { NivelBadge, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { GraficoEvolucao } from "@/components/graficos/evolucao";
-import { CartaoIndicador, CartaoNivel, ListaRanking, StatusSync } from "@/components/painel/cartoes";
+import { CartaoAnalise, CartaoIndicador, CartaoNivel, ListaRanking, StatusSync } from "@/components/painel/cartoes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +18,7 @@ import {
   rankingEquipe,
   serieDiaria,
   ultimaSync,
+  valoresAnalise,
 } from "@/lib/dados/painel";
 import { competenciaValida, fmtPct, fmtValor } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -88,9 +89,10 @@ export default async function PaginaPainel(props: PageProps<"/">) {
   const [sync, minhas, metricasRes] = await Promise.all([
     ultimaSync(db),
     minhasApuracoes(db, s.colaborador.id, comp),
-    db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao"),
+    db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao, ativo"),
   ]);
   const metricas = new Map(((metricasRes.data ?? []) as Metrica[]).map((m) => [m.id, m]));
+  const metricasAnalise = Array.from(metricas.values()).filter((m) => m.definicao.somente_analise);
   const minha = minhas.find((a) => a.funcao === "membro");
 
   // equipes que a pessoa gerencia (admin/gestor: todas)
@@ -114,7 +116,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
     const metasSerie = Object.fromEntries(
       minha.resultado.indicadores.map((i) => [metricas.get(i.metrica_id)?.codigo ?? i.metrica_id, i.meta_ajustada]),
     );
-    const [serie, ranking] = await Promise.all([
+    const [serie, ranking, analise] = await Promise.all([
       serieDiaria(db, {
         competencia: comp,
         hoje,
@@ -123,6 +125,12 @@ export default async function PaginaPainel(props: PageProps<"/">) {
         metas: metasSerie,
       }),
       rankingEquipe(db, minha.equipe_id, comp),
+      valoresAnalise(db, {
+        competencia: comp,
+        hoje,
+        metricas: metricasAnalise,
+        colaboradores: [{ id: s.colaborador.id, login_klingo: s.colaborador.login_klingo }],
+      }),
     ]);
     meuBloco = (
       <section className="space-y-4">
@@ -156,6 +164,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
             </CardContent>
           </Card>
         </div>
+        <CartaoAnalise valores={analise} />
       </section>
     );
   }
@@ -179,7 +188,8 @@ export default async function PaginaPainel(props: PageProps<"/">) {
       .map((i) => metricas.get(i.metrica_id))
       .filter((m): m is Metrica => !!m)
       .slice(0, 3);
-    const [serie, alertas] = await Promise.all([
+    const colabsComLogin = (logins ?? []) as { id: string; login_klingo: string | null }[];
+    const [serie, alertas, analiseEquipe] = await Promise.all([
       membros.length
         ? serieDiaria(db, {
             competencia: comp,
@@ -190,7 +200,9 @@ export default async function PaginaPainel(props: PageProps<"/">) {
           })
         : Promise.resolve([]),
       s.vêTudo ? alertasGestao(db, comp) : Promise.resolve(null),
+      valoresAnalise(db, { competencia: comp, hoje, metricas: metricasAnalise, colaboradores: colabsComLogin }),
     ]);
+    const nomesMembros = new Map(membros.map((m) => [m.colaborador_id, m.resultado.nome]));
 
     gestaoBloco = (
       <section className="space-y-4">
@@ -316,6 +328,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
                 </CardContent>
               </Card>
             </div>
+            <CartaoAnalise valores={analiseEquipe} nomes={nomesMembros} />
             <Card>
               <CardHeader>
                 <CardTitle>Membros</CardTitle>

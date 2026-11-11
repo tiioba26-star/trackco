@@ -159,6 +159,11 @@ export function apurarEquipe(entrada: EntradaApuracao): ResultadoApuracao[] {
         memorial.push(`Indicador ${ind.nome ?? ind.id}: métrica não encontrada; ignorado.`);
         continue;
       }
+      if (met.definicao.somente_analise) {
+        // trava de segurança: métricas só de análise (ex.: SUS) nunca contam para nota/recompensa
+        memorial.push(`Indicador ${ind.nome || met.nome}: métrica marcada como "somente análise"; não entra no cálculo.`);
+        continue;
+      }
       const nome = ind.nome || met.nome;
       const conjunto =
         ind.escopo === "individual"

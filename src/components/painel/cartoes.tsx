@@ -166,3 +166,67 @@ export function StatusSync({
     </div>
   );
 }
+
+/** Bloco de métricas só de análise (ex.: SUS). Deixa claro que não conta para metas nem prêmios. */
+export function CartaoAnalise({
+  valores,
+  nomes,
+}: {
+  valores: { codigo: string; nome: string; unidade: string; total: number; porPessoa: { id: string; valor: number }[] }[];
+  nomes?: Map<string, string>;
+}) {
+  if (!valores.length) return null;
+  return (
+    <Card data-tour="analise">
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle>SUS · só acompanhamento</CardTitle>
+          <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            não conta para metas, nota ou prêmios
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-8">
+          {valores.map((v) => (
+            <div key={v.codigo}>
+              <Rotulo>{v.nome}</Rotulo>
+              <div className="font-heading text-3xl font-semibold tabular-nums">{fmtValor(v.total, v.unidade)}</div>
+            </div>
+          ))}
+        </div>
+        {nomes && valores[0].porPessoa.length > 1 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground">
+                  <th className="py-1 font-medium">Pessoa</th>
+                  {valores.map((v) => (
+                    <th key={v.codigo} className="py-1 text-right font-medium">
+                      {v.nome}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {valores[0].porPessoa
+                  .map((p) => p.id)
+                  .sort((a, b) => (valores[0].porPessoa.find((x) => x.id === b)?.valor ?? 0) - (valores[0].porPessoa.find((x) => x.id === a)?.valor ?? 0))
+                  .map((id) => (
+                    <tr key={id} className="border-t">
+                      <td className="py-1.5">{nomes.get(id) ?? "—"}</td>
+                      {valores.map((v) => (
+                        <td key={v.codigo} className="py-1.5 text-right tabular-nums">
+                          {fmtValor(v.porPessoa.find((x) => x.id === id)?.valor ?? 0, v.unidade)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

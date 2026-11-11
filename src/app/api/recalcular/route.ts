@@ -15,7 +15,7 @@ function tokenValido(recebido: string | null): boolean {
 // Chamado pelo robô do Klingo ao final de cada sincronização.
 // POST /api/recalcular  (Authorization: Bearer <TRACKCO_RECALC_TOKEN>)  body opcional: {"competencia":"2026-11"}
 export async function POST(request: Request) {
-  const auth = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? null;
+  const auth = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim() ?? null;
   if (!tokenValido(auth)) return NextResponse.json({ erro: "não autorizado" }, { status: 401 });
 
   let competencia: string | undefined;

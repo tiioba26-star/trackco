@@ -52,7 +52,8 @@ jobs:
           KLINGO_SENHA: ${{ secrets.KLINGO_SENHA }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          TRACKCO_URL: ${{ vars.TRACKCO_URL || 'https://trackco.ioba.com.br' }}
+          # endereço de produção da Vercel (sempre disponível, independente do domínio próprio)
+          TRACKCO_URL: ${{ vars.TRACKCO_URL || 'https://trackco.vercel.app' }}
           TRACKCO_RECALC_TOKEN: ${{ secrets.TRACKCO_RECALC_TOKEN }}
           MODO: ${{ github.event.inputs.modo || (github.event.schedule == '0 6 * * *' && 'reconciliacao') || 'horario' }}
         run: python robo/sync_klingo.py --modo "$MODO"

@@ -969,6 +969,12 @@ end $$;
 revoke all on function trackco.logins_klingo_sem_vinculo(date) from public, anon;
 grant execute on function trackco.logins_klingo_sem_vinculo(date) to authenticated;
 
+-- >>>>>>>>>> 20261111000007_trackco_sus_somente_analise.sql
+-- Trackco · SUS é só para análise e visualização: nunca entra em metas, nota, prêmios, comissão ou pontos.
+update trackco.metricas
+set definicao = definicao || '{"somente_analise": true}'::jsonb
+where codigo in ('agendamentos_sus', 'realizadas_sus');
+
 -- >>>>>>>>>> registro das migrations (compatível com a CLI do Supabase)
 create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);
@@ -978,7 +984,8 @@ insert into supabase_migrations.schema_migrations (version, name) values
   ('20261110000003', 'trackco_klingo_sync'),
   ('20261110000004', 'trackco_seed'),
   ('20261110000005', 'trackco_metas_rpc'),
-  ('20261110000006', 'trackco_logins_sem_vinculo')
+  ('20261110000006', 'trackco_logins_sem_vinculo'),
+  ('20261111000007', 'trackco_sus_somente_analise')
 on conflict (version) do nothing;
 
 commit;

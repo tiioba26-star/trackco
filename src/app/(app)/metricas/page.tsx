@@ -53,6 +53,7 @@ export default async function PaginaMetricas() {
                     <div className="flex flex-wrap justify-end gap-1">
                       <Badge variant={m.tipo === "quantitativa" ? "secondary" : "outline"}>{m.tipo}</Badge>
                       <Badge variant="outline">{m.unidade}</Badge>
+                      {m.definicao.somente_analise && <Badge variant="outline">só análise</Badge>}
                       {!m.ativo && <Badge variant="destructive">inativa</Badge>}
                     </div>
                   </div>

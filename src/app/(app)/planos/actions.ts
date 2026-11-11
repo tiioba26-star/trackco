@@ -14,6 +14,18 @@ import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 type Ret = { ok: boolean; erro?: string };
+
+/** Métricas "somente análise" (ex.: SUS) não podem entrar em plano: não contam para nota, prêmio, R$ ou pontos. */
+async function recusarMetricasDeAnalise(def: DefinicaoPlano) {
+  const db = criarClienteAdmin();
+  const ids = Array.from(new Set(def.indicadores.map((i) => i.metrica_id)));
+  const { data } = await db.from("metricas").select("nome, definicao").in("id", ids);
+  const proibidas = (data ?? []).filter((m) => (m.definicao as { somente_analise?: boolean })?.somente_analise);
+  if (proibidas.length)
+    throw new Error(
+      `${proibidas.map((m) => m.nome).join(", ")}: métrica só de análise, não pode entrar em metas, nota ou recompensas.`,
+    );
+}
 const msg = (e: unknown) => (e instanceof z.ZodError ? e.issues.map((i) => i.message).join(" · ") : (e as Error).message);
 
 const MODALIDADES = ["reconhecimento", "premio", "dinheiro", "pontos", "misto"] as const;
@@ -62,6 +74,7 @@ export async function publicarVersao(id: string, vigenteDesde: string, observaca
     const { data: plano, error } = await db.from("planos").select("id, equipe_id, rascunho, status").eq("id", id).single();
     if (error || !plano) throw new Error("Plano não encontrado.");
     const def = DefinicaoPlanoZ.parse(plano.rascunho);
+    await recusarMetricasDeAnalise(def);
     const { data: ult } = await db
       .from("plano_versoes")
       .select("numero")
@@ -130,6 +143,7 @@ export async function simularPlano(
   try {
     await sessaoAcao({ admin: true });
     const def = DefinicaoPlanoZ.parse(definicao);
+    await recusarMetricasDeAnalise(def);
     const db = criarClienteAdmin();
     const [equipe] = await equipesAtivas(db, [equipeId]);
     if (!equipe) throw new Error("Equipe inativa.");
