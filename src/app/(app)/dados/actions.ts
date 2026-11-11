@@ -103,3 +103,15 @@ export async function excluirLancamento(id: string): Promise<RetornoAcao> {
     return { ok: false, erro: msg(e) };
   }
 }
+
+/** Recalcula um único mês (a tela chama mês a mês para não estourar o tempo da Vercel). */
+export async function recalcularMes(competencia: string): Promise<RetornoAcao & { pessoas?: number }> {
+  try {
+    await sessaoAcao({ admin: true });
+    if (!/^\d{4}-\d{2}$/.test(competencia)) throw new Error("Mês inválido.");
+    const r = await recalcularParcial(competencia);
+    return { ok: true, pessoas: r.equipes.reduce((s, e) => s + e.pessoas, 0) };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}

@@ -325,3 +325,12 @@ describe("métricas somente de análise (SUS)", () => {
     expect(ana.memorial.join(" ")).toContain("somente análise");
   });
 });
+
+describe("configuração", () => {
+  it("normaliza a URL do Supabase com ou sem /rest/v1/", async () => {
+    const { normalizarUrlSupabase } = await import("../../lib/env");
+    expect(normalizarUrlSupabase("https://abc.supabase.co/rest/v1/")).toBe("https://abc.supabase.co");
+    expect(normalizarUrlSupabase(" https://abc.supabase.co/ ")).toBe("https://abc.supabase.co");
+    expect(normalizarUrlSupabase("https://abc.supabase.co")).toBe("https://abc.supabase.co");
+  });
+});

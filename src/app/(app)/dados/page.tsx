@@ -13,7 +13,9 @@ import { formatarDataBR, hojeNoFuso, somarDias } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
 import { fmtDataHora } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { competenciaDe } from "@/engine/datas";
 import { excluirLancamento, importarCsv, lancar, recalcularAgora } from "./actions";
+import { RecalcularPeriodo } from "./recalcular-periodo";
 
 export const metadata = { title: "Dados e lançamentos" };
 
@@ -134,6 +136,16 @@ export default async function PaginaDados() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recalcular um período</CardTitle>
+          <CardDescription>Gera as apurações mês a mês (ex.: todo o histórico desde jan/2025).</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RecalcularPeriodo atual={competenciaDe(hoje)} />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]" data-tour="dados-lanc">
         <Card>

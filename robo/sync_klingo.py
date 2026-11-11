@@ -78,7 +78,7 @@ def meses_ate(fim: date, n: int) -> list[str]:
 # ---------------------------------------------------------------- Supabase (REST)
 class Supabase:
     def __init__(self, url: str, chave: str, dry: bool):
-        self.url = url.rstrip("/")
+        self.url = url.strip().rstrip("/").removesuffix("/rest/v1").rstrip("/")
         self.chave = chave
         self.dry = dry
 
@@ -245,6 +245,7 @@ def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date) -> list[dict
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--modo", choices=["horario", "reconciliacao"], default="horario")
+    ap.add_argument("--desde", help="carga histórica: sincroniza de AAAA-MM até hoje (ex.: 2025-01)")
     ap.add_argument("--toml")
     ap.add_argument("--dry-run", action="store_true", help="não grava nada; só mostra o resumo")
     ap.add_argument("--visivel", action="store_true")
@@ -263,7 +264,15 @@ def main() -> int:
     sb = Supabase(sb_url or "", sb_chave or "", args.dry_run)
 
     hoje = datetime.now(FUSO).date()
-    n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
+    if args.desde:
+        a, m = (int(x) for x in args.desde.split("-"))
+        n = (hoje.year - a) * 12 + hoje.month - m + 1
+        if not 1 <= n <= 60:
+            sys.exit("--desde precisa ser um mês entre 5 anos atrás e hoje (AAAA-MM).")
+        n_ag = n_prod = n
+        args.modo = "historico"
+    else:
+        n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
     meses_ag = meses_ate(hoje, n_ag)
     meses_prod = meses_ate(hoje, n_prod)
     print(f"Modo {args.modo} | marcações: {', '.join(meses_ag)} | produção: {', '.join(meses_prod)}", flush=True)
@@ -360,7 +369,7 @@ def main() -> int:
         avisos.append("recálculo não pedido: TRACKCO_URL/TRACKCO_RECALC_TOKEN ausentes")
     else:
         detalhes["recalculo"] = {}
-        for comp in meses_ate(hoje, 2)[::-1]:  # mês atual e anterior, um pedido por mês (limite de 60 s da Vercel)
+        for comp in meses_ate(hoje, n_ag if args.desde else 2)[::-1]:  # um pedido por mês (limite de 60 s da Vercel)
             try:
                 req = urllib.request.Request(f"{url.rstrip('/')}/api/recalcular", data=json.dumps({"competencia": comp}).encode(),
                                              method="POST", headers={"authorization": f"Bearer {token}",

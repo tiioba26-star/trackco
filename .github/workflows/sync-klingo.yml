@@ -12,6 +12,10 @@ on:
         default: horario
         type: choice
         options: [horario, reconciliacao]
+      desde:
+        description: "Carga histórica: buscar desde AAAA-MM (ex.: 2025-01). Deixe vazio no uso normal."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -23,20 +27,20 @@ concurrency:
 jobs:
   sincronizar:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 90
     env:
       TZ: America/Bahia
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: robo/requirements.txt
 
       - name: Cache do navegador (Playwright)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('robo/requirements.txt') }}
@@ -56,4 +60,10 @@ jobs:
           TRACKCO_URL: ${{ vars.TRACKCO_URL || 'https://trackco.vercel.app' }}
           TRACKCO_RECALC_TOKEN: ${{ secrets.TRACKCO_RECALC_TOKEN }}
           MODO: ${{ github.event.inputs.modo || (github.event.schedule == '0 6 * * *' && 'reconciliacao') || 'horario' }}
-        run: python robo/sync_klingo.py --modo "$MODO"
+          DESDE: ${{ github.event.inputs.desde }}
+        run: |
+          if [ -n "$DESDE" ]; then
+            python robo/sync_klingo.py --desde "$DESDE"
+          else
+            python robo/sync_klingo.py --modo "$MODO"
+          fi

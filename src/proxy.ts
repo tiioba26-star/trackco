@@ -10,8 +10,8 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (PUBLICAS.some((p) => pathname === p || pathname.startsWith(p))) return response;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
   if (!url || !key) return response;
 
   const supabase = createServerClient(url, key, {

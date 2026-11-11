@@ -3,11 +3,13 @@ import Link from "next/link";
 import { NivelBadge, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { GraficoEvolucao } from "@/components/graficos/evolucao";
+import { GraficoMensal } from "@/components/graficos/mensal";
+import { linhasRelatorio, mesesEntre } from "@/lib/dados/relatorios";
 import { CartaoAnalise, CartaoIndicador, CartaoNivel, ListaRanking, StatusSync } from "@/components/painel/cartoes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { competenciaDe, hojeNoFuso } from "@/engine/datas";
+import { competenciaDe, hojeNoFuso, nomeCompetencia } from "@/engine/datas";
 import type { Metrica, ResultadoIndicador } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
 import {
@@ -116,7 +118,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
     const metasSerie = Object.fromEntries(
       minha.resultado.indicadores.map((i) => [metricas.get(i.metrica_id)?.codigo ?? i.metrica_id, i.meta_ajustada]),
     );
-    const [serie, ranking, analise] = await Promise.all([
+    const [serie, ranking, analise, historico] = await Promise.all([
       serieDiaria(db, {
         competencia: comp,
         hoje,
@@ -131,7 +133,25 @@ export default async function PaginaPainel(props: PageProps<"/">) {
         metricas: metricasAnalise,
         colaboradores: [{ id: s.colaborador.id, login_klingo: s.colaborador.login_klingo }],
       }),
+      linhasRelatorio(db, { de: "2025-01", ate: comp, colaboradorId: s.colaborador.id }),
     ]);
+    // histórico mês a mês (resultado oficial do fechamento quando existir)
+    const histMembro = historico.filter((l) => l.funcao === "membro");
+    const indHist = Array.from(
+      new Map(
+        histMembro
+          .flatMap((l) => l.resultado.indicadores)
+          .filter((i) => i.escopo === "individual" && i.unidade !== "%")
+          .map((i) => [i.metrica_id, i.nome]),
+      ),
+    );
+    const mesesHist = histMembro.length ? mesesEntre(histMembro[0].competencia, comp) : [];
+    const serieHist = mesesHist.map((m) => {
+      const l = histMembro.find((x) => x.competencia === m);
+      const ponto: Record<string, string | number> = { mes: nomeCompetencia(m, true) };
+      for (const [id] of indHist) ponto[id] = l?.resultado.indicadores.find((i) => i.metrica_id === id)?.realizado ?? 0;
+      return ponto;
+    });
     meuBloco = (
       <section className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-tour="kpis">
@@ -165,6 +185,35 @@ export default async function PaginaPainel(props: PageProps<"/">) {
           </Card>
         </div>
         <CartaoAnalise valores={analise} />
+        {serieHist.length > 1 && (
+          <Card data-tour="historico">
+            <CardHeader>
+              <CardTitle>Meu histórico</CardTitle>
+              <CardDescription>Realizado mês a mês desde que os dados começaram a ser acompanhados.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <GraficoMensal dados={serieHist} series={indHist.map(([chave, rotulo]) => ({ chave, rotulo }))} />
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {mesesHist.map((m) => {
+                  const l = histMembro.find((x) => x.competencia === m);
+                  return (
+                    <Link
+                      key={m}
+                      href={`/extrato?comp=${m}`}
+                      className="min-w-20 shrink-0 rounded-lg border px-2 py-1.5 text-center text-xs hover:bg-muted"
+                      title="Abrir o extrato do mês"
+                    >
+                      <div className="text-muted-foreground capitalize">{nomeCompetencia(m, true)}</div>
+                      <div className="font-medium" style={{ color: l?.resultado.faixa?.cor }}>
+                        {l?.nota !== null && l?.nota !== undefined ? fmtPct(l.nota) : "—"}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </section>
     );
   }
