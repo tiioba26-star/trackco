@@ -102,8 +102,16 @@ class Supabase:
         except urllib.error.HTTPError as e:
             raise RuntimeError(f"Supabase {metodo} {caminho.split('?')[0]} -> {e.code}: {e.read().decode()[:300]}") from None
 
-    def rpc(self, nome: str, args: dict, query: str = ""):
-        return self._req("POST", f"rpc/{nome}{query}", args)
+    def rpc(self, nome: str, args: dict, query: str = "", tentativas: int = 3):
+        # o banco pode cancelar por tempo-limite em horários de carga: tenta de novo com espera
+        for t in range(1, tentativas + 1):
+            try:
+                return self._req("POST", f"rpc/{nome}{query}", args)
+            except RuntimeError as e:
+                if "57014" not in str(e) or t == tentativas:
+                    raise
+                import time
+                time.sleep(10 * t)
 
     def insert(self, tabela: str, linha: dict):
         return self._req("POST", tabela, linha, {"prefer": "return=representation"})
@@ -246,6 +254,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--modo", choices=["horario", "reconciliacao"], default="horario")
     ap.add_argument("--desde", help="carga histórica: sincroniza de AAAA-MM até hoje (ex.: 2025-01)")
+    ap.add_argument("--meses", help="só estes meses, separados por vírgula (ex.: 2025-07,2025-08)")
     ap.add_argument("--toml")
     ap.add_argument("--dry-run", action="store_true", help="não grava nada; só mostra o resumo")
     ap.add_argument("--visivel", action="store_true")
@@ -275,6 +284,9 @@ def main() -> int:
         n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
     meses_ag = meses_ate(hoje, n_ag)
     meses_prod = meses_ate(hoje, n_prod)
+    if args.meses:
+        meses_ag = meses_prod = sorted(m.strip() for m in args.meses.split(",") if m.strip())
+        args.modo = "historico"
     print(f"Modo {args.modo} | marcações: {', '.join(meses_ag)} | produção: {', '.join(meses_prod)}", flush=True)
 
     exec_id = None
