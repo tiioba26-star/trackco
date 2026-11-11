@@ -249,6 +249,55 @@ def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date) -> list[dict
     return resultado
 
 
+def classificar(marcacoes: list[dict], cruzamento: list[dict], cancelamentos: list[dict], remarcacoes: list[dict],
+                hoje: date) -> list[dict]:
+    """Por que cada marcação não virou consulta (relatórios 47 e 8440 do Klingo).
+
+    - realizada: cruzou com a produção (319)
+    - bloqueio_clinica / remarcada / erro / cancelada: relatório 47 (Status + Motivo do cancelamento)
+    - falta_remarcada / remarcada: relatório 8440 (marcação de origem de uma remarcação; Falta=1 = faltou antes)
+    - nao_realizada: dia já passou e nenhum relatório explica (não compareceu)
+    - None: consulta de hoje ou futura ainda sem desfecho
+    """
+    atendido = {r["chave"]: r["atendido"] for r in cruzamento}
+    c47 = collections.defaultdict(list)
+    for r in cancelamentos:
+        if limpa(r.get("Agendado Para")) and limpa(r.get("Paciente")):
+            c47[(norm(r["Paciente"]), data_de(r["Agendado Para"]))].append(r)
+    r8440 = {}
+    for r in remarcacoes:
+        origem = next((v for k, v in r.items() if k and k.startswith("Origem")), None)
+        if limpa(origem) and limpa(r.get("Paciente")):
+            r8440.setdefault((norm(r["Paciente"]), data_de(origem)), r)
+    out = []
+    for m in marcacoes:
+        if not m.get("data_agendado_para") or not m.get("paciente_nome"):
+            continue
+        para = date.fromisoformat(m["data_agendado_para"])
+        chave = (norm(m["paciente_nome"]), para)
+        situacao, motivo = None, None
+        if atendido.get(m["chave"]) is True:
+            situacao = "realizada"
+        elif chave in c47:
+            r = c47[chave][0]
+            motivo = limpa(r.get("Motivo"))[:200] or None
+            mot = norm(motivo)
+            if limpa(r.get("Status")).lower().startswith("bloq"):
+                situacao = "bloqueio_clinica"
+            elif "REMARC" in mot:
+                situacao = "remarcada"
+            elif mot.startswith("ERRO") or "UNIFICAD" in mot or "DUPLIC" in mot:
+                situacao = "erro"
+            else:
+                situacao = "cancelada"
+        elif chave in r8440:
+            situacao = "falta_remarcada" if limpa(r8440[chave].get("Falta")) == "1" else "remarcada"
+        elif para < hoje:
+            situacao = "nao_realizada"
+        out.append({"chave": m["chave"], "situacao": situacao, "motivo": motivo})
+    return out
+
+
 # ---------------------------------------------------------------- principal
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -358,6 +407,18 @@ def main() -> int:
                     alterados = 0
                     for i in range(0, len(res), 2000):
                         alterados += sb.rpc("klingo_marcar_atendidos", {"p_linhas": res[i:i + 2000]}) or 0
+                    # por que não aconteceu: cancelamentos/bloqueios (47) e remarcações/faltas (8440)
+                    try:
+                        canc = k.relatorio({"id": "47", ":periodo": "lm", ":periodo-mes": m, ":unidade": "", ":operadora": ""})
+                        rem = k.relatorio({"id": "8440", ":periodo1": "lm", ":periodo1-mes": m, ":parm2": "S"})
+                        sit = classificar(marcacoes, res, canc, rem, hoje)
+                        for i in range(0, len(sit), 2000):
+                            sb.rpc("klingo_marcar_situacao", {"p_linhas": sit[i:i + 2000]})
+                        cont = collections.Counter(x["situacao"] for x in sit)
+                        detalhes["meses"].setdefault(m, {})["situacao"] = {str(a): b for a, b in cont.items()}
+                        print(f"  47/8440 {m}: {dict(cont)}", flush=True)
+                    except Exception as e:  # sem os motivos, a conversão continua como antes
+                        avisos.append(f"47/8440 {m}: {type(e).__name__}: {str(e)[:120]}")
                     atendidas = sum(1 for x in res if x["atendido"])
                     total_cruz += len(res)
                     detalhes["meses"].setdefault(m, {})["cruzamento"] = {"verificadas": len(res), "atendidas": atendidas, "alteradas": alterados}

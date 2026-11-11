@@ -117,7 +117,7 @@ export async function membrosDaEquipe(
 }
 
 const COLUNAS_KLINGO =
-  "chave, data_agendado_em, data_agendado_para, data_realizacao, responsavel_login, procedimento, profissional, operadora, qtd, atendido";
+  "chave, data_agendado_em, data_agendado_para, data_realizacao, responsavel_login, procedimento, profissional, operadora, qtd, atendido, situacao, motivo";
 
 /** Linhas do Klingo dos logins informados que tocam a competência por qualquer uma das três datas. */
 export async function linhasKlingo(db: Cliente, logins: string[], competencia: string): Promise<Record<string, unknown>[]> {

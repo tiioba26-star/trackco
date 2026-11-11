@@ -62,6 +62,14 @@ export const FONTES: Record<FonteId, FonteDados> = {
         tipo: "booleano",
         ajuda: "Verdadeiro quando a marcação foi encontrada na produção (319).",
       },
+      {
+        id: "situacao",
+        rotulo: "Situação da marcação",
+        tipo: "texto",
+        ajuda:
+          "realizada, falta, falta_remarcada, remarcada, cancelada, erro, bloqueio_clinica ou nao_realizada (relatórios 47 e 8440 do Klingo).",
+      },
+      { id: "motivo", rotulo: "Motivo do cancelamento", tipo: "texto" },
       { id: "qtd", rotulo: "Quantidade", tipo: "numero" },
       { id: "valor", rotulo: "Valor (R$)", tipo: "numero" },
     ],

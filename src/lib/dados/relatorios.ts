@@ -84,7 +84,7 @@ export interface Quebra {
 export async function quebraKlingo(
   db: Db,
   f: FiltrosRelatorio & { logins?: string[] },
-  campo: "operadora" | "procedimento" | "profissional",
+  campo: "operadora" | "procedimento" | "profissional" | "situacao",
 ): Promise<Quebra[]> {
   if (f.logins && !f.logins.length) return [];
   const montar = () => {

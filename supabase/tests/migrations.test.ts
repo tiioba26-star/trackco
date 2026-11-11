@@ -274,6 +274,20 @@ describe("sincronização do Klingo", () => {
     ).rejects.toThrow(/apenas administradores/);
   });
 
+  it("situação da marcação: robô grava e a conversão ignora remarcações", async () => {
+    const n = await db.query<{ n: number }>(`select trackco.klingo_marcar_situacao($1::jsonb) as n`, [
+      JSON.stringify([{ chave: "k3", situacao: "remarcada", motivo: "Remarcado." }]),
+    ]);
+    expect(n.rows[0].n).toBe(1);
+    const conv = await db.query<{ f: unknown[] }>(`select definicao #> '{denominador,filtros}' as f from trackco.metricas where codigo='conversao'`);
+    expect(JSON.stringify(conv.rows[0].f)).toContain("remarcada");
+    const ana = await como(U.ana, () => db.query(`select situacao, motivo from trackco.klingo_agendamentos`));
+    expect(ana.rows.length).toBe(1); // atendente lê a situação das próprias linhas
+    await expect(
+      como(U.admin, () => db.query(`select trackco.klingo_marcar_situacao('[]'::jsonb)`)),
+    ).rejects.toThrow(/permission denied/);
+  });
+
   it("funções do robô não ficam expostas para usuários logados", async () => {
     await expect(
       como(U.admin, () => db.query(`select trackco.klingo_marcar_atendidos('[]'::jsonb)`)),

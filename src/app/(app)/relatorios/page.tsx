@@ -12,6 +12,7 @@ import { exigirGestaoOuLider } from "@/lib/auth";
 import { linhasRelatorio, mesesEntre, quebraKlingo, type Quebra } from "@/lib/dados/relatorios";
 import { competenciaValida, fmtNum, fmtPct, fmtValor } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { ROTULO_SITUACAO } from "@/lib/situacao";
 
 export const metadata = { title: "Relatórios" };
 
@@ -70,11 +71,12 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
   const logins = (colaboradorId ? pessoas.filter((p) => p.id === colaboradorId) : pessoas)
     .map((p) => p.login_klingo?.toLowerCase())
     .filter((x): x is string => !!x);
-  const [linhas, porOperadora, porProcedimento, porProfissional] = await Promise.all([
+  const [linhas, porOperadora, porProcedimento, porProfissional, porSituacao] = await Promise.all([
     linhasRelatorio(db, filtros),
     quebraKlingo(db, { ...filtros, logins }, "operadora"),
     quebraKlingo(db, { ...filtros, logins }, "procedimento"),
     quebraKlingo(db, { ...filtros, logins }, "profissional"),
+    quebraKlingo(db, { ...filtros, logins }, "situacao"),
   ]);
 
   const meses = mesesEntre(de, ate);
@@ -159,6 +161,10 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
         <ListaQuebra titulo="Por procedimento" dados={porProcedimento} />
         <ListaQuebra titulo="Por profissional" dados={porProfissional} />
       </div>
+      <ListaQuebra
+        titulo="Por situação (por que não aconteceu)"
+        dados={porSituacao.map((q) => ({ ...q, rotulo: ROTULO_SITUACAO[q.rotulo]?.t ?? (q.rotulo === "—" ? "Ainda sem desfecho" : q.rotulo) }))}
+      />
 
       <Card data-tour="rel-tabela">
         <CardHeader>

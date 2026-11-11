@@ -101,7 +101,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
   for (let k = 0; k < chavesKlingo.length; k += 150) {
     const { data } = await db
       .from("klingo_agendamentos")
-      .select("chave, data_agendado_em, data_agendado_para, data_realizacao, paciente_nome, procedimento, profissional, operadora, responsavel_login, atendido")
+      .select("chave, data_agendado_em, data_agendado_para, data_realizacao, paciente_nome, procedimento, profissional, operadora, responsavel_login, atendido, situacao, motivo")
       .in("chave", chavesKlingo.slice(k, k + 150));
     for (const l of data ?? []) porChave.set(l.chave as string, l);
   }

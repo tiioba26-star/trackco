@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { formatarDataBR } from "@/engine/datas";
+import { ROTULO_SITUACAO } from "@/lib/situacao";
 import { cn } from "@/lib/utils";
 import { abrirContestacao } from "./actions";
 
@@ -32,8 +33,11 @@ export interface LinhaOrigem {
   operadora?: string | null;
   responsavel_login?: string | null;
   atendido?: boolean | null;
+  situacao?: string | null;
+  motivo?: string | null;
   descricao?: string | null;
 }
+
 
 const PAPEL: Record<string, string> = { realizado: "conta", numerador: "numerador", denominador: "base" };
 
@@ -157,7 +161,13 @@ export function LinhasOrigem({
                 <TableCell className="hidden max-w-40 truncate lg:table-cell">{l.profissional ?? "—"}</TableCell>
                 <TableCell>{l.operadora ?? "—"}</TableCell>
                 <TableCell>
-                  {l.atendido === true ? (
+                  {l.situacao && l.situacao !== "realizada" && ROTULO_SITUACAO[l.situacao] ? (
+                    <span className={ROTULO_SITUACAO[l.situacao].c} title={l.motivo ?? undefined}>
+                      {ROTULO_SITUACAO[l.situacao].t}
+                      {!ROTULO_SITUACAO[l.situacao].conta && <span className="ml-1 text-[10px]">(fora da conversão)</span>}
+                      {l.motivo && <span className="block text-[11px] text-muted-foreground">{l.motivo}</span>}
+                    </span>
+                  ) : l.atendido === true ? (
                     <span className="text-up">Realizada {l.data_realizacao ? formatarDataBR(l.data_realizacao) : ""}</span>
                   ) : l.atendido === false ? (
                     <span className="text-down">Não realizada</span>
