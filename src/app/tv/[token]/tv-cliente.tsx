@@ -4,7 +4,7 @@ import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { nomeCompetencia } from "@/engine/datas";
-import type { ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
+import type { ConfigTv, ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
 import { AvatarAnimadoTv, RostinhoExpressao } from "./carinha";
 import { ConfetesTv, type DisparoConfete } from "./confetes";
 import { OlhoFundoIoba } from "./olho-fundo";
@@ -32,8 +32,8 @@ const SOMBRAS_BARRAS = [
   "rgba(52, 211, 153, 0.3)",
 ];
 
-// Frases motivacionais e institucionais que rotacionam no rodapé
-const FRASES_RODAPE = [
+// Frases motivacionais e institucionais que rotacionam no rodapé (padrão)
+const FRASES_RODAPE_PADRAO = [
   "Grandes conquistas começam com uma equipe unida.",
   "Cada agendamento aproxima a nossa equipe da superação.",
   "Consistência e dedicação transformam metas em grandes conquistas.",
@@ -42,8 +42,8 @@ const FRASES_RODAPE = [
   "Seguimos crescendo e construindo o nosso melhor resultado.",
 ];
 
-// Subtítulos dinâmicos e corporativos para o cabeçalho
-const SUBTITULOS_CABECALHO = [
+// Subtítulos dinâmicos e corporativos para o cabeçalho (padrão)
+const SUBTITULOS_PADRAO = [
   "Ritmo contínuo, consistência e excelência em cada atendimento",
   "Evolução diária da equipe rumo à superação de metas",
   "Foco no paciente, agilidade e resultados de alto impacto",
@@ -231,6 +231,7 @@ function LinhaBarraTv({
   maxValor,
   isTelaPrincipal,
   unidade,
+  configBarra,
   onDispararConfete,
 }: {
   it: ItemBarra;
@@ -238,6 +239,7 @@ function LinhaBarraTv({
   maxValor: number;
   isTelaPrincipal: boolean;
   unidade?: string;
+  configBarra?: ConfigTv["mensagens_barra"];
   onDispararConfete: (x: number, y: number) => void;
 }) {
   const bolinhaRef = useRef<HTMLDivElement | null>(null);
@@ -253,6 +255,9 @@ function LinhaBarraTv({
 
   const mensagens = useMemo(() => {
     if (it.atingimento !== null && it.atingimento >= 100) {
+      if (configBarra?.meta_batida && configBarra.meta_batida.length > 0) {
+        return configBarra.meta_batida;
+      }
       const superacao = Math.round(it.atingimento - 100);
       const msgs = ["Meta batida! 🎯", "Excelente resultado! ⭐"];
       if (superacao > 0) {
@@ -263,13 +268,19 @@ function LinhaBarraTv({
       return msgs;
     }
     if (it.atingimento !== null && it.atingimento >= 80) {
+      if (configBarra?.quase_la && configBarra.quase_la.length > 0) {
+        return configBarra.quase_la;
+      }
       return ["Falta pouco! 🔥", "Na reta final!", "Excelente resultado!"];
     }
     if (pos === 0 && it.valor > 0) {
       return ["Liderando o ranking! 🌟", "Excelente ritmo!", "Seguimos crescendo!"];
     }
+    if (configBarra?.evoluindo && configBarra.evoluindo.length > 0) {
+      return configBarra.evoluindo;
+    }
     return ["Vamos lá! 💪", "Estamos evoluindo!", "Cada conquista importa!", "Seguimos crescendo!"];
-  }, [it.atingimento, it.valor, pos]);
+  }, [it.atingimento, it.valor, pos, configBarra]);
 
   // Tempo de transição das mensagens dentro da barra:
   // Na tela principal (agendamentos particular): demora mais (15 a 18 segundos)
@@ -385,10 +396,12 @@ function LinhaBarraTv({
 function TelaBarras({
   tela,
   isTelaPrincipal,
+  configBarra,
   onDispararConfete,
 }: {
   tela: TelaTv;
   isTelaPrincipal: boolean;
+  configBarra?: ConfigTv["mensagens_barra"];
   onDispararConfete: (x: number, y: number) => void;
 }) {
   const itens = tela.itens ?? [];
@@ -405,6 +418,7 @@ function TelaBarras({
             maxValor={maxValor}
             isTelaPrincipal={isTelaPrincipal}
             unidade={tela.unidade}
+            configBarra={configBarra}
             onDispararConfete={onDispararConfete}
           />
         ))}
@@ -520,21 +534,35 @@ export function TvCliente({ token }: { token: string }) {
     setDisparoConfete({ id: Date.now() + Math.random(), x, y });
   }, []);
 
+  const frasesRodape = useMemo(() => {
+    if (dados?.config?.frases_rodape && dados.config.frases_rodape.length > 0) {
+      return dados.config.frases_rodape;
+    }
+    return FRASES_RODAPE_PADRAO;
+  }, [dados?.config?.frases_rodape]);
+
+  const subtitulos = useMemo(() => {
+    if (dados?.config?.subtitulos && dados.config.subtitulos.length > 0) {
+      return dados.config.subtitulos;
+    }
+    return SUBTITULOS_PADRAO;
+  }, [dados?.config?.subtitulos]);
+
   // Rotação da frase motivacional do rodapé a cada 8.5 segundos
   useEffect(() => {
     const t = setInterval(() => {
-      setFraseRodapeIdx((prev) => (prev + 1) % FRASES_RODAPE.length);
+      setFraseRodapeIdx((prev) => (prev + 1) % frasesRodape.length);
     }, 8500);
     return () => clearInterval(t);
-  }, []);
+  }, [frasesRodape.length]);
 
   // Rotação do subtítulo a cada 12 segundos
   useEffect(() => {
     const t = setInterval(() => {
-      setSubtituloIdx((prev) => (prev + 1) % SUBTITULOS_CABECALHO.length);
+      setSubtituloIdx((prev) => (prev + 1) % subtitulos.length);
     }, 12000);
     return () => clearInterval(t);
-  }, []);
+  }, [subtitulos.length]);
 
   // Carregamento de dados (demo ou token real)
   useEffect(() => {
@@ -654,7 +682,7 @@ export function TvCliente({ token }: { token: string }) {
                   transition={{ duration: 0.5 }}
                   className="text-[2.1vh] font-medium text-sky-200/70"
                 >
-                  {SUBTITULOS_CABECALHO[subtituloIdx]}
+                  {subtitulos[subtituloIdx % subtitulos.length]}
                 </motion.p>
               </AnimatePresence>
             </div>
@@ -696,6 +724,7 @@ export function TvCliente({ token }: { token: string }) {
               <TelaBarras
                 tela={tela}
                 isTelaPrincipal={isTelaPrincipal}
+                configBarra={dados?.config?.mensagens_barra}
                 onDispararConfete={dispararConfeteEm}
               />
             ) : (
@@ -721,7 +750,7 @@ export function TvCliente({ token }: { token: string }) {
                 transition={{ duration: 0.5 }}
                 className="text-[2.2vh] font-semibold text-slate-200"
               >
-                {FRASES_RODAPE[fraseRodapeIdx]}
+                {frasesRodape[fraseRodapeIdx % frasesRodape.length]}
               </motion.span>
             </AnimatePresence>
           </div>

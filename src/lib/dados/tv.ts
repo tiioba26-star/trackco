@@ -15,6 +15,13 @@ export interface ConfigTv {
   intervalo: number;
   modos: ModoTv[];
   limites: { feliz: number; mega_feliz: number };
+  frases_rodape?: string[];
+  subtitulos?: string[];
+  mensagens_barra?: {
+    meta_batida?: string[];
+    quase_la?: string[];
+    evoluindo?: string[];
+  };
 }
 
 export const CONFIG_TV_PADRAO: ConfigTv = {
@@ -26,6 +33,20 @@ export const CONFIG_TV_PADRAO: ConfigTv = {
     { tipo: "geral", titulo: "Visão Geral da Equipe" },
   ],
   limites: { feliz: 80, mega_feliz: 100 },
+  frases_rodape: [
+    "Grandes conquistas começam com uma equipe unida.",
+    "Cada agendamento aproxima a nossa equipe da superação.",
+    "Consistência e dedicação transformam metas em grandes conquistas.",
+    "Estamos evoluindo juntos, com foco e alta performance.",
+    "Cada conquista importa para o sucesso de todos nós.",
+    "Seguimos crescendo e construindo o nosso melhor resultado.",
+  ],
+  subtitulos: [
+    "Ritmo contínuo, consistência e excelência em cada atendimento",
+    "Evolução diária da equipe rumo à superação de metas",
+    "Foco no paciente, agilidade e resultados de alto impacto",
+    "Dedicação diária construindo grandes realizações",
+  ],
 };
 
 export function gerarToken(): { token: string; hash: string } {

@@ -58,7 +58,7 @@ export const NAV: GrupoNav[] = [
       { href: "/equipes", titulo: "Equipes", icone: UsersRound, perfil: "admin", tour: "nav-equipes" },
       { href: "/colaboradores", titulo: "Colaboradores", icone: Users, perfil: "admin", tour: "nav-colaboradores" },
       { href: "/dados", titulo: "Dados e lançamentos", icone: Database, perfil: "admin", tour: "nav-dados" },
-      { href: "/paineis-tv", titulo: "Painéis de TV", icone: Monitor, perfil: "admin", tour: "nav-tv" },
+      { href: "/paineis-tv", titulo: "Painéis de TV", icone: Monitor, perfil: "lider", tour: "nav-tv" },
       { href: "/auditoria", titulo: "Auditoria", icone: History, perfil: "admin", tour: "nav-auditoria" },
     ],
   },

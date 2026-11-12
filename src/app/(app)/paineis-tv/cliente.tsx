@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, ExternalLink, KeyRound } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, ExternalLink, KeyRound, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { criarPainel, regenerarToken } from "./actions";
+import { Textarea } from "@/components/ui/textarea";
+import type { ConfigTv } from "@/lib/dados/tv";
+import { atualizarPainel, criarPainel, regenerarToken } from "./actions";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
   const url = token ? `${window.location.origin}/tv/${token}` : "";
@@ -30,10 +32,10 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
               toast.success("Link copiado.");
             }}
           >
-            <Copy /> Copiar
+            <Copy className="size-4" /> Copiar
           </Button>
           <Button render={<a href={url} target="_blank" rel="noreferrer" />}>
-            <ExternalLink /> Abrir
+            <ExternalLink className="size-4" /> Abrir
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -42,9 +44,9 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
 }
 
 const MODOS = [
-  ["agendamentos", "Barras · Agendamentos (quantitativo)"],
-  ["realizadas", "Barras · Consultas realizadas (qualitativo)"],
-  ["agendamentos_sus", "Barras · SUS"],
+  ["agendamentos", "Barras · Agendamentos Particular"],
+  ["realizadas", "Barras · Consultas Particular Realizadas"],
+  ["agendamentos_sus", "Barras · SUS Agendamentos"],
   ["geral", "Dashboard geral da equipe"],
 ] as const;
 
@@ -52,6 +54,8 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
+  const [mostrarTextos, setMostrarTextos] = useState(false);
+
   return (
     <>
       <form
@@ -61,13 +65,14 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
             const r = await criarPainel(fd);
             if (r.ok && r.token) {
               setToken(r.token);
+              toast.success("Painel criado com sucesso!");
               router.refresh();
             } else toast.error(r.erro);
           })
         }
       >
         <div className="space-y-1.5">
-          <Label>Nome</Label>
+          <Label>Nome do Painel</Label>
           <Input name="nome" placeholder="TV da recepção comercial" required />
         </div>
         <div className="space-y-1.5">
@@ -100,6 +105,63 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
             <Input type="number" name="mega_feliz" defaultValue={100} />
           </div>
         </div>
+
+        {/* Seção retrátil para personalizar textos da TV */}
+        <div className="border-t pt-3">
+          <button
+            type="button"
+            onClick={() => setMostrarTextos((prev) => !prev)}
+            className="flex w-full items-center justify-between text-xs font-semibold text-primary hover:underline"
+          >
+            <span>Personalizar Frases e Textos da TV</span>
+            {mostrarTextos ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+          </button>
+
+          {mostrarTextos && (
+            <div className="mt-3 space-y-3 rounded-lg border bg-muted/40 p-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Frases do Rodapé (uma por linha)</Label>
+                <Textarea
+                  name="frases_rodape"
+                  rows={3}
+                  className="text-xs font-sans"
+                  placeholder="Grandes conquistas começam com uma equipe unida.&#10;Cada agendamento aproxima a nossa equipe da superação."
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Subtítulos do Topo (um por linha)</Label>
+                <Textarea
+                  name="subtitulos"
+                  rows={2}
+                  className="text-xs font-sans"
+                  placeholder="Ritmo contínuo, consistência e excelência em cada atendimento&#10;Evolução diária da equipe rumo à superação de metas"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Mensagens de Meta Batida (uma por linha)</Label>
+                <Textarea
+                  name="msg_meta_batida"
+                  rows={2}
+                  className="text-xs font-sans"
+                  placeholder="Meta batida! 🎯&#10;Excelente resultado! ⭐"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Mensagens de Incentivo / Vamos lá (uma por linha)</Label>
+                <Textarea
+                  name="msg_evoluindo"
+                  rows={2}
+                  className="text-xs font-sans"
+                  placeholder="Vamos lá! 💪&#10;Estamos evoluindo!&#10;Seguimos crescendo!"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         <p className="text-xs text-muted-foreground">
           Abaixo do limite &quot;feliz&quot; a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de
           comissão ou pontos.
@@ -109,6 +171,186 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
         </Button>
       </form>
       <MostrarLink token={token} onClose={() => setToken(null)} />
+    </>
+  );
+}
+
+export function EditarPainel({
+  painel,
+  equipes,
+}: {
+  painel: {
+    id: string;
+    nome: string;
+    equipes: string[];
+    config: ConfigTv;
+  };
+  equipes: { id: string; nome: string }[];
+}) {
+  const router = useRouter();
+  const [aberto, setAberto] = useState(false);
+  const [pendente, iniciar] = useTransition();
+
+  const cfg = painel.config;
+  const modosAtivos = (cfg.modos ?? []).map((m) => (m.tipo === "barras" ? m.metrica : "geral"));
+
+  const frasesRodapeTexto = (cfg.frases_rodape ?? []).join("\n");
+  const subtitulosTexto = (cfg.subtitulos ?? []).join("\n");
+  const msgMetaBatida = (cfg.mensagens_barra?.meta_batida ?? []).join("\n");
+  const msgQuaseLa = (cfg.mensagens_barra?.quase_la ?? []).join("\n");
+  const msgEvoluindo = (cfg.mensagens_barra?.evoluindo ?? []).join("\n");
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setAberto(true)}>
+        <Pencil className="size-3.5" /> Editar
+      </Button>
+
+      <Dialog open={aberto} onOpenChange={setAberto}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Editar Painel de TV</DialogTitle>
+            <DialogDescription>
+              Ajuste as equipes, limites e personalize os textos que aparecem no topo, rodapé e dentro das barras da TV.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            className="space-y-4"
+            action={(fd) =>
+              iniciar(async () => {
+                const r = await atualizarPainel(painel.id, fd);
+                if (r.ok) {
+                  toast.success(r.mensagem ?? "Painel atualizado!");
+                  setAberto(false);
+                  router.refresh();
+                } else {
+                  toast.error(r.erro);
+                }
+              })
+            }
+          >
+            <div className="space-y-1.5">
+              <Label>Nome do Painel</Label>
+              <Input name="nome" defaultValue={painel.nome} required />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Equipes</Label>
+              {equipes.map((e) => (
+                <label key={e.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="equipes"
+                    value={e.id}
+                    defaultChecked={painel.equipes.includes(e.id)}
+                  />
+                  {e.nome}
+                </label>
+              ))}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Modos de Exibição</Label>
+              {MODOS.map(([v, t]) => (
+                <label key={v} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="modos"
+                    value={v}
+                    defaultChecked={modosAtivos.includes(v)}
+                  />
+                  {t}
+                </label>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1.5">
+                <Label>Troca (s)</Label>
+                <Input type="number" name="intervalo" defaultValue={cfg.intervalo ?? 30} min={10} max={300} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>😊 a partir de</Label>
+                <Input type="number" name="feliz" defaultValue={cfg.limites?.feliz ?? 80} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>🤩 a partir de</Label>
+                <Input type="number" name="mega_feliz" defaultValue={cfg.limites?.mega_feliz ?? 100} />
+              </div>
+            </div>
+
+            {/* Configuração de Textos da TV */}
+            <div className="space-y-3 rounded-lg border bg-muted/30 p-3.5">
+              <div className="text-xs font-semibold text-primary">Textos Personalizados da TV</div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Frases do Rodapé (uma por linha)</Label>
+                <Textarea
+                  name="frases_rodape"
+                  rows={3}
+                  className="text-xs font-sans"
+                  defaultValue={frasesRodapeTexto}
+                  placeholder="Grandes conquistas começam com uma equipe unida.&#10;Cada agendamento aproxima a nossa equipe da superação."
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Subtítulos do Topo (um por linha)</Label>
+                <Textarea
+                  name="subtitulos"
+                  rows={2}
+                  className="text-xs font-sans"
+                  defaultValue={subtitulosTexto}
+                  placeholder="Ritmo contínuo, consistência e excelência em cada atendimento&#10;Evolução diária da equipe rumo à superação de metas"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Mensagens de Meta Batida (uma por linha)</Label>
+                <Textarea
+                  name="msg_meta_batida"
+                  rows={2}
+                  className="text-xs font-sans"
+                  defaultValue={msgMetaBatida}
+                  placeholder="Meta batida! 🎯&#10;Excelente resultado! ⭐"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Mensagens de Quase Lá / Falta Pouco (uma por linha)</Label>
+                <Textarea
+                  name="msg_quase_la"
+                  rows={2}
+                  className="text-xs font-sans"
+                  defaultValue={msgQuaseLa}
+                  placeholder="Falta pouco! 🔥&#10;Na reta final!"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Mensagens de Incentivo / Vamos lá (uma por linha)</Label>
+                <Textarea
+                  name="msg_evoluindo"
+                  rows={2}
+                  className="text-xs font-sans"
+                  defaultValue={msgEvoluindo}
+                  placeholder="Vamos lá! 💪&#10;Estamos evoluindo!&#10;Seguimos crescendo!"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setAberto(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={pendente}>
+                {pendente ? "Salvando…" : "Salvar Alterações"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -131,7 +373,7 @@ export function RegenerarLink({ id }: { id: string }) {
           });
         }}
       >
-        <KeyRound /> Novo link
+        <KeyRound className="size-3.5" /> Novo link
       </Button>
       <MostrarLink token={token} onClose={() => setToken(null)} />
     </>
