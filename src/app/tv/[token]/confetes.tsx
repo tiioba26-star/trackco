@@ -8,6 +8,43 @@ export interface DisparoConfete {
   y: number;
 }
 
+// =========================================================================
+// 🎛️ PAINEL DE CONTROLE DOS PARÂMETROS DO CONFETE
+// Altere os valores abaixo conforme sua preferência visual:
+// =========================================================================
+export const CONFIG_CONFETE = {
+  // Quantidade de partículas geradas a cada estouro
+  totalParticulas: 65,
+
+  // Limite máximo de partículas simultâneas na tela (para não travar TVs ou navegadores)
+  limiteMaximoCanvas: 150,
+
+  // Força do pulo inicial para cima (quanto maior, mais alto ele sobe)
+  forcaExplosaoBase: 7.5,
+  forcaExplosaoVariacao: 6.5,
+
+  // Velocidade de descida (gravidade):
+  // 0.05 a 0.08 = flutua bem devagar como papel de festa
+  // 0.15 a 0.25 = cai mais rápido e pesado
+  gravidade: 0.075,
+
+  // Resistência do ar (desacelera a velocidade horizontal): 0.98 = suave
+  resistenciaAr: 0.985,
+
+  // Oscilação lateral (efeito de zigue-zague flutuante no vento):
+  oscilacaoVento: 0.35,
+
+  // Duração na tela em frames a 60fps (180 frames = ~3.2 a 4 segundos):
+  duracaoMinFrames: 170,
+  duracaoVarFrames: 50,
+
+  // Tamanho das partículas
+  larguraMin: 7,
+  larguraMax: 13,
+  alturaMin: 10,
+  alturaMax: 18,
+};
+
 interface Particula {
   x: number;
   y: number;
@@ -22,14 +59,15 @@ interface Particula {
   forma: "retangulo" | "circulo";
   vida: number;
   vidaMax: number;
+  balancoFase: number;
 }
 
-const CORES_CONFETE = [
+export const CORES_CONFETE = [
   "#38bdf8", // ciano neon
   "#60a5fa", // azul vibrante
   "#a855f7", // violeta neon
   "#34d399", // verde esmeralda
-  "#fbbf24", // dourado
+  "#fbbf24", // dourado festa
   "#f472b6", // rosa neon
   "#ffffff", // branco brilho
 ];
@@ -40,7 +78,6 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
   const animIdRef = useRef<number | null>(null);
   const ultimoIdProcessado = useRef<number>(0);
 
-  // Escuta novos disparos a partir de coordenadas específicas (ex: bolinha de perfil)
   useEffect(() => {
     if (!disparo || disparo.id === ultimoIdProcessado.current) return;
     ultimoIdProcessado.current = disparo.id;
@@ -48,43 +85,42 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Se já houver muitas partículas na tela, não sobrecarregar
-    if (particulasRef.current.length > 50) {
+    // Proteção de sobrecarga
+    if (particulasRef.current.length > CONFIG_CONFETE.limiteMaximoCanvas) {
       return;
     }
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Criar apenas 30 partículas leves por estouro (efeito popper elegante e focado)
     const novasParticulas: Particula[] = [];
-    const total = 32;
 
-    for (let i = 0; i < total; i++) {
-      // Ângulo de explosão com dispersão radial ampla para cima e lados (-150° a -30°)
-      const angulo = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 1.1);
-      const velocidade = 5 + Math.random() * 6;
+    for (let i = 0; i < CONFIG_CONFETE.totalParticulas; i++) {
+      // Ângulo em leque aberto para cima (-160° a -20°)
+      const angulo = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 1.25);
+      const velocidade =
+        CONFIG_CONFETE.forcaExplosaoBase + Math.random() * CONFIG_CONFETE.forcaExplosaoVariacao;
 
       novasParticulas.push({
         x: disparo.x,
         y: disparo.y,
-        w: 6 + Math.random() * 5,
-        h: 9 + Math.random() * 6,
+        w: CONFIG_CONFETE.larguraMin + Math.random() * (CONFIG_CONFETE.larguraMax - CONFIG_CONFETE.larguraMin),
+        h: CONFIG_CONFETE.alturaMin + Math.random() * (CONFIG_CONFETE.alturaMax - CONFIG_CONFETE.alturaMin),
         vx: Math.cos(angulo) * velocidade + (Math.random() - 0.5) * 2,
-        vy: Math.sin(angulo) * velocidade - 1.5,
+        vy: Math.sin(angulo) * velocidade - 2.5,
         rotacao: Math.random() * 360,
-        vRotacao: (Math.random() - 0.5) * 14,
+        vRotacao: (Math.random() - 0.5) * 12,
         cor: CORES_CONFETE[Math.floor(Math.random() * CORES_CONFETE.length)],
         opacidade: 1,
-        forma: Math.random() > 0.4 ? "retangulo" : "circulo",
+        forma: Math.random() > 0.35 ? "retangulo" : "circulo",
         vida: 0,
-        vidaMax: 90 + Math.floor(Math.random() * 35), // Dura cerca de 1.8 a 2.2 segundos a 60fps
+        vidaMax: CONFIG_CONFETE.duracaoMinFrames + Math.floor(Math.random() * CONFIG_CONFETE.duracaoVarFrames),
+        balancoFase: Math.random() * Math.PI * 2,
       });
     }
 
     particulasRef.current.push(...novasParticulas);
 
-    // Iniciar loop de animação se não estiver rodando
     if (!animIdRef.current) {
       const render = () => {
         const ctx = canvas.getContext("2d");
@@ -96,18 +132,24 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
 
         for (const p of particulasRef.current) {
           p.vida++;
-          p.x += p.vx;
+
+          // Gravidade suave (queda mais lenta e realista)
+          p.vy += CONFIG_CONFETE.gravidade;
+          p.vx *= CONFIG_CONFETE.resistenciaAr;
+
+          // Oscilação de folha caindo no vento
+          const vento = Math.sin(p.vida * 0.08 + p.balancoFase) * CONFIG_CONFETE.oscilacaoVento;
+          p.x += p.vx + vento;
           p.y += p.vy;
-          p.vy += 0.18; // gravidade suave
-          p.vx *= 0.98; // desaceleração
+
           p.rotacao += p.vRotacao;
 
-          // Fade out suave na metade final
-          if (p.vida > p.vidaMax - 30) {
-            p.opacidade = Math.max(0, (p.vidaMax - p.vida) / 30);
+          // Fade out gradual nos últimos 45 frames
+          if (p.vida > p.vidaMax - 45) {
+            p.opacidade = Math.max(0, (p.vidaMax - p.vida) / 45);
           }
 
-          if (p.vida < p.vidaMax && p.y < canvas.height + 30 && p.opacidade > 0.03) {
+          if (p.vida < p.vidaMax && p.y < canvas.height + 40 && p.opacidade > 0.02) {
             vivas.push(p);
 
             ctx.save();
