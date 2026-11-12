@@ -20,10 +20,10 @@ export interface ConfigTv {
 export const CONFIG_TV_PADRAO: ConfigTv = {
   intervalo: 30,
   modos: [
-    { tipo: "barras", metrica: "agendamentos", titulo: "Agendamentos do mês" },
-    { tipo: "barras", metrica: "realizadas", titulo: "Consultas realizadas" },
-    { tipo: "barras", metrica: "agendamentos_sus", titulo: "SUS · agendamentos" },
-    { tipo: "geral", titulo: "Visão geral da equipe" },
+    { tipo: "barras", metrica: "agendamentos", titulo: "Agendamentos Particular" },
+    { tipo: "barras", metrica: "realizadas", titulo: "Consultas Particular Realizadas" },
+    { tipo: "barras", metrica: "agendamentos_sus", titulo: "SUS · Agendamentos" },
+    { tipo: "geral", titulo: "Visão Geral da Equipe" },
   ],
   limites: { feliz: 80, mega_feliz: 100 },
 };

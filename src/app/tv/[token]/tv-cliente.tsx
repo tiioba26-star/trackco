@@ -1,14 +1,15 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { nomeCompetencia } from "@/engine/datas";
-import type { PayloadTv, TelaTv } from "@/lib/dados/tv";
+import type { ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
 import { AvatarAnimadoTv, RostinhoExpressao } from "./carinha";
-import { ConfetesTv } from "./confetes";
+import { ConfetesTv, type DisparoConfete } from "./confetes";
+import { OlhoFundoIoba } from "./olho-fundo";
 
-// Gradientes horizontais para as barras conforme posição (inspirados na imagem de referência)
+// Gradientes horizontais para as barras conforme posição
 const GRADIENTES_BARRAS = [
   "linear-gradient(90deg, #1d4ed8 0%, #2563eb 45%, #38bdf8 100%)", // 1º Azul vibrante para ciano brilhante
   "linear-gradient(90deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%)", // 2º Ciano piscina
@@ -49,6 +50,28 @@ const SUBTITULOS_CABECALHO = [
   "Dedicação diária construindo grandes realizações",
 ];
 
+/** Normaliza os nomes das abas conforme solicitado */
+function normalizarTituloTela(tituloOriginal: string): string {
+  const t = tituloOriginal.toLowerCase();
+  if (t.includes("agendamento") && !t.includes("sus")) return "Agendamentos Particular";
+  if (t.includes("realizada") || t.includes("consulta")) return "Consultas Particular Realizadas";
+  if (t.includes("sus")) return "SUS · Agendamentos";
+  if (t.includes("geral") || t.includes("visão")) return "Visão Geral da Equipe";
+  return tituloOriginal;
+}
+
+/** Determina o tempo de exibição de cada tela */
+function tempoDaTela(tela: TelaTv | undefined): number {
+  if (!tela) return 30_000;
+  const tit = (tela.titulo ?? "").toLowerCase();
+  // 1 minuto (60s) APENAS na tela principal de Agendamentos Particular
+  if (tela.tipo === "barras" && tit.includes("agendamento") && !tit.includes("sus")) {
+    return 60_000;
+  }
+  // 30 segundos em todas as outras
+  return 30_000;
+}
+
 /** /tv/demo: dados fictícios que crescem sozinhos para ver o layout em ação */
 function dadosDemo(passo: number): PayloadTv {
   const base = [100, 78, 53, 28, 15];
@@ -73,24 +96,24 @@ function dadosDemo(passo: number): PayloadTv {
     equipes: ["Equipe Comercial"],
     competencia: new Date().toISOString().slice(0, 7),
     atualizado_em: new Date().toISOString(),
-    config: { intervalo: 16, modos: [], limites: { feliz: 80, mega_feliz: 120 } },
+    config: { intervalo: 30, modos: [], limites: { feliz: 80, mega_feliz: 120 } },
     telas: [
-      { tipo: "barras", titulo: "Agendamentos do Mês", unidade: "un", itens: itens(1) },
-      { tipo: "barras", titulo: "Consultas Realizadas", unidade: "un", itens: itens(0.7) },
+      { tipo: "barras", titulo: "Agendamentos Particular", unidade: "un", itens: itens(1) },
+      { tipo: "barras", titulo: "Consultas Particular Realizadas", unidade: "un", itens: itens(0.7) },
       { tipo: "barras", titulo: "SUS · Agendamentos", unidade: "un", itens: itens(0.4) },
       {
         tipo: "geral",
-        titulo: "Visão Geral da Equipe",
+        titulo: "Visão Geral · Particular",
         geral: {
           indicadores: [
-            { titulo: "Agendamentos", realizado: 274 + passo * 18, meta: 300, pct: ((274 + passo * 18) / 300) * 100, unidade: "un" },
-            { titulo: "Consultas realizadas", realizado: 174 + passo * 10, meta: 180, pct: ((174 + passo * 10) / 180) * 100, unidade: "un" },
-            { titulo: "Taxa de conversão", realizado: 63.5, meta: null, pct: null, unidade: "%" },
-            { titulo: "SUS · agendamentos", realizado: 64 + passo * 5, meta: null, pct: null, unidade: "un" },
+            { titulo: "Agendamentos Particular", realizado: 274 + passo * 18, meta: 300, pct: ((274 + passo * 18) / 300) * 100, unidade: "un" },
+            { titulo: "Consultas Particular Realizadas", realizado: 174 + passo * 10, meta: 180, pct: ((174 + passo * 10) / 180) * 100, unidade: "un" },
+            { titulo: "Taxa de Conversão", realizado: 63.5, meta: null, pct: null, unidade: "%" },
+            { titulo: "Retorno de Pacientes", realizado: 78.2, meta: null, pct: null, unidade: "%" },
           ],
           series: [
-            { chave: "agendamentos", rotulo: "Agendamentos" },
-            { chave: "realizadas", rotulo: "Consultas realizadas" },
+            { chave: "agendamentos", rotulo: "Agendamentos Particular" },
+            { chave: "realizadas", rotulo: "Consultas Particular" },
           ],
           serie: Array.from({ length: 30 }, (_, d) => ({
             dia: String(d + 1).padStart(2, "0"),
@@ -98,6 +121,29 @@ function dadosDemo(passo: number): PayloadTv {
             realizadas: d < hoje ? Math.round((d + 1) * 5.6) : null,
           })),
           carinhas: { mega_feliz: 2, feliz: 2, neutra: 1 },
+          pessoas: 5,
+        },
+      },
+      {
+        tipo: "geral",
+        titulo: "Visão Geral · Total Geral (SUS e Particular)",
+        geral: {
+          indicadores: [
+            { titulo: "Total Geral de Agendamentos", realizado: 338 + passo * 23, meta: 360, pct: ((338 + passo * 23) / 360) * 100, unidade: "un" },
+            { titulo: "Total de Consultas Realizadas", realizado: 238 + passo * 15, meta: 240, pct: ((238 + passo * 15) / 240) * 100, unidade: "un" },
+            { titulo: "SUS · Agendamentos", realizado: 64 + passo * 5, meta: null, pct: null, unidade: "un" },
+            { titulo: "SUS · Consultas Realizadas", realizado: 64 + passo * 5, meta: null, pct: null, unidade: "un" },
+          ],
+          series: [
+            { chave: "total_agend", rotulo: "Total Agendamentos" },
+            { chave: "total_cons", rotulo: "Total Consultas" },
+          ],
+          serie: Array.from({ length: 30 }, (_, d) => ({
+            dia: String(d + 1).padStart(2, "0"),
+            total_agend: d < hoje ? Math.round((d + 1) * 11.5) : null,
+            total_cons: d < hoje ? Math.round((d + 1) * 7.9) : null,
+          })),
+          carinhas: { mega_feliz: 3, feliz: 1, neutra: 1 },
           pessoas: 5,
         },
       },
@@ -122,69 +168,10 @@ function useRelogio() {
   return agora;
 }
 
-/** Mensagem motivacional/estágio dinâmica exibida discretamente dentro da barra */
-function TextoDinamicoBarra({
-  atingimento,
-  valor,
-  pos,
-}: {
-  atingimento: number | null;
-  valor: number;
-  pos: number;
-}) {
-  const [indiceMsg, setIndiceMsg] = useState(0);
-
-  const mensagens = useMemo(() => {
-    if (atingimento !== null && atingimento >= 100) {
-      const superacao = Math.round(atingimento - 100);
-      const msgs = ["Meta batida! 🎯", "Excelente resultado! ⭐"];
-      if (superacao > 0) {
-        msgs.push(`Meta superada (+${superacao}%) 🚀`);
-      }
-      return msgs;
-    }
-    if (atingimento !== null && atingimento >= 80) {
-      return ["Falta pouco! 🔥", "Na reta final!", "Excelente resultado!"];
-    }
-    if (pos === 0 && valor > 0) {
-      return ["Liderando o ranking! 🌟", "Excelente ritmo!", "Seguimos crescendo!"];
-    }
-    return ["Vamos lá! 💪", "Estamos evoluindo!", "Cada conquista importa!", "Seguimos crescendo!"];
-  }, [atingimento, valor, pos]);
-
-  useEffect(() => {
-    const tempo = 6500 + (pos % 3) * 1200;
-    const interval = setInterval(() => {
-      setIndiceMsg((prev) => (prev + 1) % mensagens.length);
-    }, tempo);
-    return () => clearInterval(interval);
-  }, [mensagens.length, pos]);
-
-  const mensagemAtual = mensagens[indiceMsg % mensagens.length];
-
-  return (
-    <div className="flex h-full items-center overflow-hidden pl-5 pr-2 select-none">
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={mensagemAtual}
-          initial={{ opacity: 0, y: 3 }}
-          animate={{ opacity: 0.95, y: 0 }}
-          exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.4 }}
-          className="truncate text-[1.85vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
-        >
-          {mensagemAtual}
-        </motion.span>
-      </AnimatePresence>
-    </div>
-  );
-}
-
-/** Ícone de Troféu Neon estilizado com contorno brilhante (idêntico à referência) */
+/** Ícone de Troféu Neon estilizado com contorno brilhante */
 function IconeTrofeuNeon() {
   return (
     <div className="relative flex items-center justify-center">
-      {/* Glow externo */}
       <div className="absolute inset-0 rounded-full bg-sky-400/20 blur-xl" />
       <svg
         width="60"
@@ -194,7 +181,6 @@ function IconeTrofeuNeon() {
         xmlns="http://www.w3.org/2000/svg"
         className="relative drop-shadow-[0_0_14px_rgba(56,189,248,0.7)]"
       >
-        {/* Taça principal */}
         <path
           d="M18 12 H46 V24 C46 32 39 38 32 38 C25 38 18 32 18 24 Z"
           stroke="#38bdf8"
@@ -202,7 +188,6 @@ function IconeTrofeuNeon() {
           fill="rgba(56, 189, 248, 0.12)"
           strokeLinejoin="round"
         />
-        {/* Asa esquerda */}
         <path
           d="M18 16 H12 C9.5 16 8 18 8 21 C8 26 12 28 18 28"
           stroke="#38bdf8"
@@ -210,7 +195,6 @@ function IconeTrofeuNeon() {
           strokeLinecap="round"
           fill="none"
         />
-        {/* Asa direita */}
         <path
           d="M46 16 H52 C54.5 16 56 18 56 21 C56 26 52 28 46 28"
           stroke="#38bdf8"
@@ -218,11 +202,8 @@ function IconeTrofeuNeon() {
           strokeLinecap="round"
           fill="none"
         />
-        {/* Haste central */}
         <path d="M32 38 V48" stroke="#38bdf8" strokeWidth="3.5" strokeLinecap="round" />
-        {/* Base */}
         <path d="M22 48 H42 V54 H22 Z" stroke="#38bdf8" strokeWidth="3" fill="rgba(56, 189, 248, 0.2)" strokeLinejoin="round" />
-        {/* Estrela de destaque no centro da taça */}
         <path
           d="M32 18 L33.8 21.8 L38 22.4 L35 25.3 L35.7 29.5 L32 27.5 L28.3 29.5 L29 25.3 L26 22.4 L30.2 21.8 Z"
           fill="#38bdf8"
@@ -243,84 +224,181 @@ function IconeTendencia() {
   );
 }
 
+/** Componente de cada Linha do Ranking */
+function LinhaBarraTv({
+  it,
+  pos,
+  maxValor,
+  isTelaPrincipal,
+  unidade,
+  onDispararConfete,
+}: {
+  it: ItemBarra;
+  pos: number;
+  maxValor: number;
+  isTelaPrincipal: boolean;
+  unidade?: string;
+  onDispararConfete: (x: number, y: number) => void;
+}) {
+  const bolinhaRef = useRef<HTMLDivElement | null>(null);
+  const [indiceMsg, setIndiceMsg] = useState(0);
+
+  const gradiente = GRADIENTES_BARRAS[pos % GRADIENTES_BARRAS.length];
+  const corAvatar = CORES_AVATAR[pos % CORES_AVATAR.length];
+  const sombra = SOMBRAS_BARRAS[pos % SOMBRAS_BARRAS.length];
+
+  // Escala dinâmica: proporcional ao maior valor atual do ranking
+  const pctLargura = Math.max(14, (it.valor / maxValor) * 72);
+
+  const mensagens = useMemo(() => {
+    if (it.atingimento !== null && it.atingimento >= 100) {
+      const superacao = Math.round(it.atingimento - 100);
+      const msgs = ["Meta batida! 🎯", "Excelente resultado! ⭐"];
+      if (superacao > 0) {
+        msgs.push(`Meta superada (+${superacao}%) 🚀`);
+      } else {
+        msgs.push("Meta atingida! 🏆");
+      }
+      return msgs;
+    }
+    if (it.atingimento !== null && it.atingimento >= 80) {
+      return ["Falta pouco! 🔥", "Na reta final!", "Excelente resultado!"];
+    }
+    if (pos === 0 && it.valor > 0) {
+      return ["Liderando o ranking! 🌟", "Excelente ritmo!", "Seguimos crescendo!"];
+    }
+    return ["Vamos lá! 💪", "Estamos evoluindo!", "Cada conquista importa!", "Seguimos crescendo!"];
+  }, [it.atingimento, it.valor, pos]);
+
+  // Tempo de transição das mensagens dentro da barra:
+  // Na tela principal (agendamentos particular): demora mais (15 a 18 segundos) conforme pedido!
+  // Nas outras telas: 9 a 11 segundos
+  useEffect(() => {
+    const duracaoMsg = isTelaPrincipal ? 15000 + (pos % 3) * 1500 : 9000 + (pos % 3) * 1200;
+    const interval = setInterval(() => {
+      setIndiceMsg((prev) => (prev + 1) % mensagens.length);
+    }, duracaoMsg);
+    return () => clearInterval(interval);
+  }, [isTelaPrincipal, mensagens.length, pos]);
+
+  const mensagemAtual = mensagens[indiceMsg % mensagens.length];
+
+  // Dispara confetes a partir da bolinha quando a mensagem for "Meta batida!" ou "Meta superada!"
+  useEffect(() => {
+    if (mensagemAtual.includes("Meta batida") || mensagemAtual.includes("Meta superada")) {
+      if (bolinhaRef.current) {
+        const rect = bolinhaRef.current.getBoundingClientRect();
+        onDispararConfete(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    }
+  }, [mensagemAtual, onDispararConfete]);
+
+  return (
+    <motion.li
+      layout
+      transition={{ type: "spring", stiffness: 120, damping: 20 }}
+      className="relative flex items-center"
+    >
+      {/* Posição solta (1º, 2º, 3º...) - sem balão/box em volta */}
+      <div className="w-[5.2vw] flex-shrink-0 text-left">
+        <span
+          className={`text-[3.6vh] font-bold tracking-tight tabular-nums select-none ${
+            pos === 0
+              ? "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
+              : pos === 1
+                ? "text-sky-100"
+                : "text-white/80"
+          }`}
+        >
+          {pos + 1}º
+        </span>
+      </div>
+
+      {/* Estrutura da Barra: Corpo arredondado na esquerda, Bolinha NA PONTA, e Número FORA da barra */}
+      <div className="relative flex flex-1 items-center">
+        <div className="flex items-center" style={{ width: "100%" }}>
+          {/* Grupo da barra que cresce continuamente */}
+          <motion.div
+            className="flex items-center"
+            initial={{ width: "120px" }}
+            animate={{ width: `${pctLargura}%` }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Corpo da barra com gradiente (termina na bolinha, sem ultrapassar) */}
+            <div
+              className="relative flex h-[58px] flex-1 items-center overflow-hidden rounded-l-full pl-5 pr-2"
+              style={{
+                background: gradiente,
+                boxShadow: `0 4px 20px -2px ${sombra}`,
+              }}
+            >
+              {/* Texto dinâmico dentro da barra preenchida */}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={mensagemAtual}
+                  initial={{ opacity: 0, y: 3 }}
+                  animate={{ opacity: 0.95, y: 0 }}
+                  exit={{ opacity: 0, y: -3 }}
+                  transition={{ duration: 0.4 }}
+                  className="truncate text-[1.85vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] select-none"
+                >
+                  {mensagemAtual}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            {/* Bolinha de perfil / carinha posicionada exatamente NA PONTA da barra */}
+            <div
+              ref={bolinhaRef}
+              className="-ml-5 relative z-20 flex-shrink-0 flex items-center justify-center"
+            >
+              <AvatarAnimadoTv
+                tipo={it.carinha}
+                cor={corAvatar}
+                tamanho={56}
+                posicao={pos}
+                atingimento={it.atingimento}
+              />
+            </div>
+          </motion.div>
+
+          {/* Número total de agendamentos FORA DA BARRA, colado logo ao lado da bolinha */}
+          <span className="ml-3.5 text-[3.8vh] font-black text-white tabular-nums tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] flex-shrink-0">
+            {fmt(it.valor, unidade)}
+          </span>
+        </div>
+      </div>
+    </motion.li>
+  );
+}
+
 /** Visualização principal do Ranking em Barras */
-function TelaBarras({ tela }: { tela: TelaTv }) {
+function TelaBarras({
+  tela,
+  isTelaPrincipal,
+  onDispararConfete,
+}: {
+  tela: TelaTv;
+  isTelaPrincipal: boolean;
+  onDispararConfete: (x: number, y: number) => void;
+}) {
   const itens = tela.itens ?? [];
   const maxValor = Math.max(1, ...itens.map((i) => i.valor));
 
   return (
     <LayoutGroup>
       <ul className="flex flex-1 flex-col justify-center gap-[2.4vh] py-[1.5vh]">
-        {itens.map((it, pos) => {
-          const gradiente = GRADIENTES_BARRAS[pos % GRADIENTES_BARRAS.length];
-          const corAvatar = CORES_AVATAR[pos % CORES_AVATAR.length];
-          const sombra = SOMBRAS_BARRAS[pos % SOMBRAS_BARRAS.length];
-
-          // Comprimento proporcional dinâmico ao maior valor atual do ranking (max ~76% da tela para deixar margem confortável para o número colado)
-          const pctLargura = Math.max(12, (it.valor / maxValor) * 75);
-
-          return (
-            <motion.li
-              key={it.id}
-              layout
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              className="relative flex items-center"
-            >
-              {/* Posição solta (1º, 2º, 3º...) - sem balão/box em volta, como pedido */}
-              <div className="w-[5.2vw] flex-shrink-0 text-left">
-                <span
-                  className={`text-[3.6vh] font-bold tracking-tight tabular-nums select-none ${
-                    pos === 0
-                      ? "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]"
-                      : pos === 1
-                        ? "text-sky-100"
-                        : "text-white/80"
-                  }`}
-                >
-                  {pos + 1}º
-                </span>
-              </div>
-
-              {/* Área da Barra: SEM nenhuma barra/trilha cinza de fundo! */}
-              <div className="relative flex flex-1 items-center">
-                {/* A barra que cresce continuamente para a direita */}
-                <motion.div
-                  className="relative flex items-center h-[58px] rounded-full"
-                  style={{
-                    background: gradiente,
-                    boxShadow: `0 4px 20px -2px ${sombra}`,
-                  }}
-                  initial={{ width: "80px" }}
-                  animate={{ width: `${pctLargura}%` }}
-                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {/* Mensagem motivacional dinâmica dentro da barra preenchida */}
-                  {pctLargura > 18 && (
-                    <div className="flex-1 overflow-hidden pr-8">
-                      <TextoDinamicoBarra atingimento={it.atingimento} valor={it.valor} pos={pos} />
-                    </div>
-                  )}
-
-                  {/* Ponta da barra: Avatar animado na extremidade + Número de agendamentos colado */}
-                  <div className="absolute -right-7 top-1/2 -translate-y-1/2 z-20 flex items-center">
-                    <AvatarAnimadoTv
-                      tipo={it.carinha}
-                      cor={corAvatar}
-                      tamanho={56}
-                      posicao={pos}
-                      atingimento={it.atingimento}
-                    />
-
-                    {/* Número total de agendamentos COLADO perto do círculo */}
-                    <span className="ml-3.5 text-[3.8vh] font-black text-white tabular-nums tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
-                      {fmt(it.valor, tela.unidade)}
-                    </span>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.li>
-          );
-        })}
+        {itens.map((it, pos) => (
+          <LinhaBarraTv
+            key={it.id}
+            it={it}
+            pos={pos}
+            maxValor={maxValor}
+            isTelaPrincipal={isTelaPrincipal}
+            unidade={tela.unidade}
+            onDispararConfete={onDispararConfete}
+          />
+        ))}
 
         {!itens.length && (
           <li className="flex flex-1 items-center justify-center text-center text-[3vh] text-sky-200/50">
@@ -425,10 +503,15 @@ export function TvCliente({ token }: { token: string }) {
   const [indice, setIndice] = useState(0);
   const [fraseRodapeIdx, setFraseRodapeIdx] = useState(0);
   const [subtituloIdx, setSubtituloIdx] = useState(0);
-  const [dispararConfetes, setDispararConfetes] = useState(false);
+  const [disparoConfete, setDisparoConfete] = useState<DisparoConfete | null>(null);
   const agora = useRelogio();
 
-  // Rotação da frase motivacional do rodapé a cada 8 segundos
+  // Disparar confetes a partir de uma coordenada (x, y) específica (ex: bolinha da pessoa)
+  const dispararConfeteEm = (x: number, y: number) => {
+    setDisparoConfete({ id: Date.now() + Math.random(), x, y });
+  };
+
+  // Rotação da frase motivacional do rodapé a cada 8.5 segundos
   useEffect(() => {
     const t = setInterval(() => {
       setFraseRodapeIdx((prev) => (prev + 1) % FRASES_RODAPE.length);
@@ -444,29 +527,6 @@ export function TvCliente({ token }: { token: string }) {
     return () => clearInterval(t);
   }, []);
 
-  // Efeito de confetes quando alguém bate a meta
-  useEffect(() => {
-    if (!dados) return;
-    const temAlguemComMetaBatida = dados.telas.some((t) =>
-      t.itens?.some((i) => i.carinha === "mega_feliz" || (i.atingimento !== null && i.atingimento >= 100))
-    );
-
-    if (temAlguemComMetaBatida) {
-      setDispararConfetes(true);
-      const timer = setTimeout(() => setDispararConfetes(false), 5000);
-      // Salva periódica de confetes a cada 75s se a meta continuar batida
-      const intervaloConfetes = setInterval(() => {
-        setDispararConfetes(true);
-        setTimeout(() => setDispararConfetes(false), 5000);
-      }, 75000);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(intervaloConfetes);
-      };
-    }
-  }, [dados]);
-
   // Carregamento de dados (demo ou token real)
   useEffect(() => {
     if (token === "demo") {
@@ -474,7 +534,7 @@ export function TvCliente({ token }: { token: string }) {
       const t0 = setTimeout(() => {
         const params = new URLSearchParams(window.location.search);
         const inicial = Number(params.get("tela") ?? "1") - 1;
-        if (inicial > 0 && inicial < 4) setIndice(inicial);
+        if (inicial > 0 && inicial < 5) setIndice(inicial);
         setDados(dadosDemo(0));
       }, 0);
       const t = setInterval(() => setDados(dadosDemo(++passo % 8)), 5000);
@@ -495,7 +555,12 @@ export function TvCliente({ token }: { token: string }) {
         if (!r.ok) throw new Error(String(r.status));
         const d = (await r.json()) as PayloadTv;
         if (vivo) {
-          setDados(d);
+          // Normaliza os títulos das telas se necessário
+          const telasNormalizadas = d.telas.map((tl) => ({
+            ...tl,
+            titulo: normalizarTituloTela(tl.titulo),
+          }));
+          setDados({ ...d, telas: telasNormalizadas });
           setErro(null);
         }
       } catch {
@@ -511,32 +576,38 @@ export function TvCliente({ token }: { token: string }) {
   }, [token]);
 
   const telas = useMemo(() => dados?.telas ?? [], [dados]);
-  const intervalo = Math.max(10, dados?.config.intervalo ?? 30) * 1000;
-
-  useEffect(() => {
-    if (telas.length < 1) return;
-    const t = setInterval(() => {
-      setIndice((i) => (i + 1) % telas.length);
-    }, intervalo);
-    return () => clearInterval(t);
-  }, [telas.length, intervalo]);
-
   const tela = telas[indice % Math.max(1, telas.length)];
+
+  // ROTAÇÃO DINÂMICA DE TELAS:
+  // 60 segundos na tela principal (Agendamentos Particular)
+  // 30 segundos nas demais telas
+  useEffect(() => {
+    if (telas.length <= 1) return;
+    const tempo = tempoDaTela(tela);
+    const t = setTimeout(() => {
+      setIndice((i) => (i + 1) % telas.length);
+    }, tempo);
+    return () => clearTimeout(t);
+  }, [indice, telas, tela]);
+
+  const isTelaPrincipal = useMemo(() => {
+    if (!tela) return false;
+    const tit = (tela.titulo ?? "").toLowerCase();
+    return tela.tipo === "barras" && tit.includes("agendamento") && !tit.includes("sus");
+  }, [tela]);
 
   return (
     <main className="fixed inset-0 flex cursor-none flex-col overflow-hidden bg-[#030914] px-[3.5vw] py-[3.2vh] text-white select-none">
-      {/* Confetes animados em canvas quando houver meta batida */}
-      <ConfetesTv disparar={dispararConfetes} />
+      {/* Confetes animados em canvas disparados especificamente da bolinha do perfil de quem bateu meta */}
+      <ConfetesTv disparo={disparoConfete} />
 
-      {/* Camada de Fundo Estilizado idêntica à referência (Glows neon e reflexos tecnológicos) */}
+      {/* Camada de Fundo Estilizado idêntica à referência (Olho no fundo + Glows neon e reflexos) */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         {/* Gradiente radial de profundidade central */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_35%,#0a1d3f_0%,#040c1d_55%,#020611_100%)]" />
 
-        {/* Efeito circular tecnológico no canto superior direito (inspirado na íris da imagem de referência) */}
-        <div className="absolute -top-[16vw] -right-[16vw] h-[52vw] w-[52vw] rounded-full border border-sky-500/10 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.14)_0%,rgba(14,165,233,0.04)_40%,transparent_70%)] blur-2xl" />
-        <div className="absolute -top-[8vw] -right-[8vw] h-[36vw] w-[36vw] rounded-full border border-sky-400/15" />
-        <div className="absolute -top-[2vw] -right-[2vw] h-[24vw] w-[24vw] rounded-full border border-cyan-400/20" />
+        {/* Olho Humano Tecnológico no Fundo Meio Apagado (Identidade Visual IOBA) */}
+        <OlhoFundoIoba />
 
         {/* Glow neon azul sutil no canto inferior direito */}
         <div className="absolute -bottom-[15vh] -right-[10vw] h-[40vh] w-[45vw] rounded-full bg-blue-600/10 blur-3xl" />
@@ -544,9 +615,8 @@ export function TvCliente({ token }: { token: string }) {
         <div className="absolute -bottom-[20vh] -left-[10vw] h-[40vh] w-[40vw] rounded-full bg-cyan-600/10 blur-3xl" />
       </div>
 
-      {/* CABEÇALHO (Header executivo corporativo idêntico à referência com hora) */}
+      {/* CABEÇALHO */}
       <header className="relative z-10 flex items-center justify-between">
-        {/* Esquerda: Troféu Neon + Linha Divisória + Título & Subtítulo */}
         <div className="flex items-center gap-5">
           <IconeTrofeuNeon />
 
@@ -583,7 +653,7 @@ export function TvCliente({ token }: { token: string }) {
           </div>
         </div>
 
-        {/* Direita: Relógio grande e nítido + Data por extenso */}
+        {/* Relógio grande e nítido + Data por extenso */}
         <div className="text-right">
           <div className="text-[5.4vh] font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_15px_rgba(56,189,248,0.4)]">
             {agora
@@ -614,18 +684,24 @@ export function TvCliente({ token }: { token: string }) {
             key={`${indice}-${tela.titulo}`}
             className="animate-in fade-in flex flex-1 flex-col duration-700 motion-reduce:animate-none"
           >
-            {tela.tipo === "barras" ? <TelaBarras tela={tela} /> : <TelaGeral tela={tela} />}
+            {tela.tipo === "barras" ? (
+              <TelaBarras
+                tela={tela}
+                isTelaPrincipal={isTelaPrincipal}
+                onDispararConfete={dispararConfeteEm}
+              />
+            ) : (
+              <TelaGeral tela={tela} />
+            )}
           </div>
         )}
       </div>
 
-      {/* RODAPÉ: Mensagem dinâmica que muda com frequência + Linha de gradiente */}
+      {/* RODAPÉ */}
       <footer className="relative z-10 mt-[2vh] flex flex-col gap-2">
-        {/* Linha horizontal com gradiente brilhante azul/ciano na base */}
         <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
 
         <div className="flex items-center justify-between pt-1">
-          {/* Mensagem dinâmica com ícone de crescimento */}
           <div className="flex items-center gap-3">
             <IconeTendencia />
             <AnimatePresence mode="wait">
@@ -642,7 +718,6 @@ export function TvCliente({ token }: { token: string }) {
             </AnimatePresence>
           </div>
 
-          {/* Paginação discreta das telas e marca */}
           <div className="flex items-center gap-3">
             {telas.length > 1 && (
               <div className="flex items-center gap-1.5">
