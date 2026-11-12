@@ -250,8 +250,8 @@ function LinhaBarraTv({
   const corAvatar = CORES_AVATAR[pos % CORES_AVATAR.length];
   const sombra = SOMBRAS_BARRAS[pos % SOMBRAS_BARRAS.length];
 
-  // Escala dinâmica: proporcional ao maior valor atual do ranking
-  const pctLargura = Math.max(16, (it.valor / maxValor) * 72);
+  // Escala dinâmica: proporcional ao maior valor atual do ranking (mínimo de 22% e 260px para que o texto caiba perfeitamente sem cortar)
+  const pctLargura = Math.max(22, (it.valor / maxValor) * 72);
 
   const mensagens = useMemo(() => {
     if (it.atingimento !== null && it.atingimento >= 100) {
@@ -341,14 +341,14 @@ function LinhaBarraTv({
 
       {/* Estrutura da Barra: Barra arredondada (rounded-full) com perfil NA FRENTE na ponta e número FORA */}
       <div className="relative flex flex-1 items-center">
-        {/* A barra colorida que cresce dinamicamente */}
+        {/* A barra colorida que cresce dinamicamente (com tamanho mínimo para garantir a leitura do texto) */}
         <motion.div
-          className="relative flex items-center h-[58px] rounded-full"
+          className="relative flex items-center h-[58px] min-w-[260px] rounded-full"
           style={{
             background: gradiente,
             boxShadow: `0 4px 20px -2px ${sombra}`,
           }}
-          initial={{ width: "120px" }}
+          initial={{ width: "260px" }}
           animate={{ width: `${pctLargura}%` }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -361,7 +361,7 @@ function LinhaBarraTv({
                 animate={{ opacity: 0.95, y: 0 }}
                 exit={{ opacity: 0, y: -3 }}
                 transition={{ duration: 0.4 }}
-                className="truncate text-[1.85vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
+                className="truncate whitespace-nowrap text-[1.75vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
               >
                 {mensagemAtual}
               </motion.span>
