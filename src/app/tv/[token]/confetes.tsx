@@ -14,19 +14,19 @@ export interface DisparoConfete {
 // =========================================================================
 export const CONFIG_CONFETE = {
   // Quantidade de partículas geradas a cada estouro
-  totalParticulas: 75,
+  totalParticulas: 65,
 
   // Limite máximo de partículas simultâneas na tela (para não travar TVs ou navegadores)
   limiteMaximoCanvas: 150,
 
   // Força do pulo inicial para cima (quanto maior, mais alto ele sobe)
-  forcaExplosaoBase: 2.5,
+  forcaExplosaoBase: 3.5,
   forcaExplosaoVariacao: 2.5,
 
   // Velocidade de descida (gravidade):
   // 0.05 a 0.08 = flutua bem devagar como papel de festa
   // 0.15 a 0.25 = cai mais rápido e pesado
-  gravidade: 0.08,
+  gravidade: 0.1,
 
   // Resistência do ar (desacelera a velocidade horizontal): 0.98 = suave
   resistenciaAr: 0.98,
@@ -35,7 +35,7 @@ export const CONFIG_CONFETE = {
   oscilacaoVento: 0.35,
 
   // Duração na tela em frames a 60fps (180 frames = ~3.2 a 4 segundos):
-  duracaoMinFrames: 150,
+  duracaoMinFrames: 120,
   duracaoVarFrames: 50,
 
   // Tamanho das partículas
