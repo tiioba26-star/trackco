@@ -16,6 +16,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { competenciaDe } from "@/engine/datas";
 import { excluirLancamento, importarCsv, lancar, recalcularAgora } from "./actions";
 import { RecalcularPeriodo } from "./recalcular-periodo";
+import { Dica } from "@/components/ajuda/dica";
 
 export const metadata = { title: "Dados e lançamentos" };
 
@@ -32,7 +33,7 @@ export default async function PaginaDados() {
       .order("data", { ascending: false })
       .limit(30),
     db.from("colaboradores").select("id, nome").eq("ativo", true).order("nome"),
-    db.from("klingo_agendamentos").select("chave", { count: "exact", head: true }),
+    db.from("klingo_agendamentos").select("chave", { count: "estimated", head: true }),
   ]);
   type S = {
     id: number;
@@ -218,12 +219,12 @@ export default async function PaginaDados() {
                     <Input type="date" name="data" defaultValue={hoje} required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Valor</Label>
+                    <div className="flex items-center gap-1"><Label>Valor</Label><Dica id="lanc.valor" /></div>
                     <Input name="valor" inputMode="decimal" required />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Tipo</Label>
+                  <div className="flex items-center gap-1"><Label>Tipo</Label><Dica id="lanc.tipo" /></div>
                   <Input name="tipo" defaultValue="avaliacao_lider" required />
                 </div>
                 <div className="space-y-1.5">

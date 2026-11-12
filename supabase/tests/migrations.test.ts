@@ -98,7 +98,7 @@ describe("seed", () => {
   });
   it("cria métricas, plano ativo e versão 1", async () => {
     const m = await db.query(`select codigo from trackco.metricas`);
-    expect(m.rows.length).toBe(6);
+    expect(m.rows.length).toBe(7); // 6 do seed + "marcadas_para" (migration 0010)
     const v = await db.query<{ n: number }>(`select count(*)::int as n from trackco.plano_versoes`);
     expect(v.rows[0].n).toBe(1);
   });

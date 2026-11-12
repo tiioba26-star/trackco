@@ -11,6 +11,7 @@ import { formatarDataBR, hojeNoFuso } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { adicionarMembro, alterarVinculo, salvarEquipe } from "../actions";
+import { Dica } from "@/components/ajuda/dica";
 
 export const metadata = { title: "Equipe" };
 
@@ -164,7 +165,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 <Input name="descricao" defaultValue={e.descricao ?? ""} />
               </div>
               <div className="space-y-1.5">
-                <Label>O que cada membro vê dos colegas</Label>
+                <div className="flex items-center gap-1"><Label>O que cada membro vê dos colegas</Label><Dica id="eq.visibilidade" /></div>
                 <NativeSelect name="visibilidade_ranking" defaultValue={e.visibilidade_ranking}>
                   <option value="aberto">Ranking aberto (nomes e números)</option>
                   <option value="posicoes">Só posições e níveis (sem números dos colegas)</option>
@@ -172,7 +173,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">
-                <Label>Dias de trabalho (para dias úteis e meta proporcional)</Label>
+                <div className="flex items-center gap-1"><Label>Dias de trabalho (para dias úteis e meta proporcional)</Label><Dica id="eq.dias" /></div>
                 <div className="flex flex-wrap gap-2">
                   {DIAS.map(([n, t]) => (
                     <label key={n} className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm">
@@ -183,7 +184,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Etapas do fechamento</Label>
+                <div className="flex items-center gap-1"><Label>Etapas do fechamento</Label><Dica id="eq.etapas" /></div>
                 <div className="space-y-1.5 text-sm">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" name="etapas" value="contestacao" defaultChecked={e.etapas_aprovacao.includes("contestacao")} />
@@ -200,7 +201,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Prazo de contestação (dias)</Label>
+                <div className="flex items-center gap-1"><Label>Prazo de contestação (dias)</Label><Dica id="eq.prazo" /></div>
                 <Input type="number" name="prazo_contestacao_dias" min={0} max={31} defaultValue={e.prazo_contestacao_dias} className="w-28" />
               </div>
               <label className="flex items-center gap-2 text-sm">

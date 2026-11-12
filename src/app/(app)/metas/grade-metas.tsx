@@ -4,6 +4,7 @@ import { Copy, Lightbulb, Save, Wand2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Dica } from "@/components/ajuda/dica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -33,7 +34,7 @@ function sugerir(h: HistoricoMeta | undefined, crescimento: number, unidade: str
   return unidade === "%" ? Math.round(Math.min(100, v) * 10) / 10 : Math.ceil(v);
 }
 
-function Dica({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; unidade: string; nMeses: number }) {
+function DicaHistorico({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; unidade: string; nMeses: number }) {
   if (!h || h.base === "sem_dados") return <div className="mt-1 text-[11px] text-muted-foreground">sem histórico</div>;
   if (h.base === "media_equipe")
     return (
@@ -129,14 +130,14 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
           <Lightbulb className="size-4 text-primary" /> Sugestão pelo histórico
         </div>
         <div className="space-y-1">
-          <div className="text-[11px] text-muted-foreground">Base</div>
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground">Base <Dica id="metas.base" /></div>
           <NativeSelect value={String(nMeses)} onChange={(e) => trocarMeses(e.target.value)} className="w-40">
             <option value="3">média de 3 meses</option>
             <option value="6">média de 6 meses</option>
           </NativeSelect>
         </div>
         <div className="space-y-1">
-          <div className="text-[11px] text-muted-foreground">Crescimento</div>
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground">Crescimento <Dica id="metas.crescimento" /></div>
           <NativeSelect value={String(crescimento)} onChange={(e) => setCrescimento(Number(e.target.value))} className="w-32">
             {[0, 5, 10, 15, 20, 30].map((g) => (
               <option key={g} value={g}>
@@ -192,14 +193,14 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                       placeholder={p.funcao === "membro" ? String(sugerir(historico[chave(m.id, p.id)], crescimento, m.unidade) ?? "—") : "—"}
                       onChange={(e) => set(chave(m.id, p.id), e.target.value)}
                     />
-                    {p.funcao === "membro" && <Dica h={historico[chave(m.id, p.id)]} unidade={m.unidade} nMeses={nMeses} />}
+                    {p.funcao === "membro" && <DicaHistorico h={historico[chave(m.id, p.id)]} unidade={m.unidade} nMeses={nMeses} />}
                   </TableCell>
                 ))}
               </TableRow>
             ))}
             <TableRow className="bg-muted/40">
               <TableCell>
-                <div className="font-medium">Meta da equipe</div>
+                <div className="flex items-center gap-1 font-medium">Meta da equipe <Dica id="metas.equipe" /></div>
                 <div className="text-xs text-muted-foreground">usada nos indicadores de escopo equipe (líder)</div>
               </TableCell>
               {metricas.map((m) => (

@@ -541,12 +541,11 @@ export function TvCliente({ token }: { token: string }) {
     return FRASES_RODAPE_PADRAO;
   }, [dados?.config?.frases_rodape]);
 
-  const subtitulos = useMemo(() => {
-    if (dados?.config?.subtitulos && dados.config.subtitulos.length > 0) {
-      return dados.config.subtitulos;
-    }
-    return SUBTITULOS_PADRAO;
-  }, [dados?.config?.subtitulos]);
+  const subtitulosConfig = dados?.config?.subtitulos;
+  const subtitulos = useMemo(
+    () => (subtitulosConfig && subtitulosConfig.length > 0 ? subtitulosConfig : SUBTITULOS_PADRAO),
+    [subtitulosConfig],
+  );
 
   // Rotação da frase motivacional do rodapé a cada 8.5 segundos
   useEffect(() => {

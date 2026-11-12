@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Condicao, DefinicaoPlano, Faixa, Indicador, TipoRecompensa } from "@/engine/tipos";
 import { fmtPct } from "@/lib/formato";
 import { alterarStatusPlano, publicarVersao, salvarRascunho, simularPlano, type LinhaSimulacao } from "../actions";
+import { Dica } from "@/components/ajuda/dica";
 
 const novoId = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -59,6 +60,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
   const [sim, setSim] = useState<LinhaSimulacao[] | null>(null);
   const [simulando, setSimulando] = useState(false);
   const [publicar, setPublicar] = useState(false);
+  const [publicando, setPublicando] = useState(false);
   const [vigente, setVigente] = useState(competencia);
   const [obs, setObs] = useState("");
 
@@ -90,13 +92,20 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
   }
 
   async function confirmarPublicacao() {
-    if (!(await salvar())) return;
-    const r = await publicarVersao(plano.id, vigente, obs);
-    if (r.ok) {
-      toast.success("Nova versão publicada.");
-      setPublicar(false);
-      router.refresh();
-    } else toast.error(r.erro);
+    if (publicando) return; // trava contra cliques repetidos (antes cada clique publicava uma versão)
+    setPublicando(true);
+    try {
+      if (!(await salvar())) return;
+      const r = await publicarVersao(plano.id, vigente, obs);
+      if (r.ok) {
+        setPublicar(false);
+        setObs("");
+        toast.success("Nova versão publicada. O painel do mês já foi recalculado.");
+        router.refresh();
+      } else toast.error(r.erro);
+    } finally {
+      setPublicando(false);
+    }
   }
 
   async function status(s: "ativo" | "arquivado") {
@@ -116,11 +125,11 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
             <Input value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label>Descrição</Label>
+            <div className="flex items-center gap-1"><Label>Descrição</Label><Dica id="cond.descricao" /></div>
             <Input value={descricao} onChange={(e) => setDescricao(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label>Modalidade</Label>
+            <div className="flex items-center gap-1"><Label>Modalidade</Label><Dica id="plano.modalidade" /></div>
             <NativeSelect value={modalidade} onChange={(e) => setModalidade(e.target.value)}>
               <option value="reconhecimento">Reconhecimento</option>
               <option value="premio">Prêmios</option>
@@ -145,7 +154,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
           {def.indicadores.map((ind, i) => (
             <div key={ind.id} className="grid gap-3 rounded-xl border p-3 md:grid-cols-6">
               <div className="space-y-1.5 md:col-span-2">
-                <Label>Métrica</Label>
+                <div className="flex items-center gap-1"><Label>Métrica</Label><Dica id="ind.metrica" /></div>
                 <NativeSelect value={ind.metrica_id} onChange={(e) => setInd(i, { metrica_id: e.target.value })}>
                   <option value="">Escolha…</option>
                   {metricas.map((m) => (
@@ -156,18 +165,18 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 </NativeSelect>
               </div>
               <div className="space-y-1.5 md:col-span-2">
-                <Label>Nome no extrato (opcional)</Label>
+                <div className="flex items-center gap-1"><Label>Nome no extrato (opcional)</Label><Dica id="ind.nome" /></div>
                 <Input value={ind.nome ?? ""} onChange={(e) => setInd(i, { nome: e.target.value || undefined })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Escopo</Label>
+                <div className="flex items-center gap-1"><Label>Escopo</Label><Dica id="ind.escopo" /></div>
                 <NativeSelect value={ind.escopo} onChange={(e) => setInd(i, { escopo: e.target.value as Indicador["escopo"] })}>
                   <option value="individual">Individual</option>
                   <option value="equipe">Equipe (agregado)</option>
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">
-                <Label>Aplica-se a</Label>
+                <div className="flex items-center gap-1"><Label>Aplica-se a</Label><Dica id="ind.aplica_a" /></div>
                 <NativeSelect value={ind.aplica_a} onChange={(e) => setInd(i, { aplica_a: e.target.value as Indicador["aplica_a"] })}>
                   <option value="membros">Membros</option>
                   <option value="lider">Líder</option>
@@ -175,21 +184,21 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">
-                <Label>Peso</Label>
+                <div className="flex items-center gap-1"><Label>Peso</Label><Dica id="ind.peso" /></div>
                 <Input type="number" min={0} value={ind.peso} onChange={(e) => setInd(i, { peso: Number(e.target.value) })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Teto (%)</Label>
+                <div className="flex items-center gap-1"><Label>Teto (%)</Label><Dica id="ind.teto" /></div>
                 <Input type="number" min={1} value={ind.teto_pct} onChange={(e) => setInd(i, { teto_pct: Number(e.target.value) })} />
               </div>
               <label className="flex items-center gap-2 self-end pb-1.5 text-sm md:col-span-2">
                 <Switch checked={ind.meta_proporcional} onCheckedChange={(v) => setInd(i, { meta_proporcional: v })} />
-                Meta proporcional aos dias trabalhados
+                Meta proporcional aos dias trabalhados <Dica id="ind.proporcional" />
               </label>
               {ind.escopo === "equipe" ? (
                 <label className="flex items-center gap-2 self-end pb-1.5 text-sm">
                   <Switch checked={!!ind.incluir_lider} onCheckedChange={(v) => setInd(i, { incluir_lider: v })} />
-                  Incluir produção do líder
+                  Incluir produção do líder <Dica id="ind.incluir_lider" />
                 </label>
               ) : (
                 <div />
@@ -247,11 +256,11 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
             .map(({ f, i }) => (
               <div key={f.id} className="grid items-end gap-3 rounded-xl border p-3 md:grid-cols-[90px_90px_1fr_60px_1fr_1fr_auto]">
                 <div className="space-y-1.5">
-                  <Label>De (%)</Label>
+                  <div className="flex items-center gap-1"><Label>De (%)</Label><Dica id="faixa.de_ate" /></div>
                   <Input type="number" value={f.de_pct} onChange={(e) => setFx(i, { de_pct: Number(e.target.value) })} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Até (%)</Label>
+                  <div className="flex items-center gap-1"><Label>Até (%)</Label><Dica id="faixa.de_ate" /></div>
                   <Input
                     type="number"
                     value={f.ate_pct ?? ""}
@@ -260,11 +269,11 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Nível</Label>
+                  <div className="flex items-center gap-1"><Label>Nível</Label><Dica id="faixa.nivel" /></div>
                   <Input value={f.nivel} onChange={(e) => setFx(i, { nivel: e.target.value })} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Cor</Label>
+                  <div className="flex items-center gap-1"><Label>Cor</Label><Dica id="faixa.cor" /></div>
                   <input
                     type="color"
                     value={f.cor ?? "#1c5cab"}
@@ -274,7 +283,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Recompensa</Label>
+                  <div className="flex items-center gap-1"><Label>Recompensa</Label><Dica id="faixa.recompensa" /></div>
                   <NativeSelect
                     value={f.recompensa?.tipo ?? ""}
                     onChange={(e) =>
@@ -354,11 +363,11 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
           {def.condicoes.map((c, i) => (
             <div key={c.id} className="grid items-end gap-3 rounded-xl border p-3 md:grid-cols-[1.4fr_1fr_120px_80px_100px_1fr_auto]">
               <div className="space-y-1.5">
-                <Label>Descrição</Label>
+                <div className="flex items-center gap-1"><Label>Descrição</Label><Dica id="cond.descricao" /></div>
                 <Input value={c.descricao} onChange={(e) => setCd(i, { descricao: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Indicador</Label>
+                <div className="flex items-center gap-1"><Label>Indicador</Label><Dica id="cond.indicador" /></div>
                 <NativeSelect value={c.indicador_id} onChange={(e) => setCd(i, { indicador_id: e.target.value })}>
                   {def.indicadores.map((ind) => (
                     <option key={ind.id} value={ind.id}>
@@ -368,7 +377,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">
-                <Label>Base</Label>
+                <div className="flex items-center gap-1"><Label>Base</Label><Dica id="cond.base" /></div>
                 <NativeSelect value={c.base} onChange={(e) => setCd(i, { base: e.target.value as Condicao["base"] })}>
                   <option value="realizado">Realizado</option>
                   <option value="atingimento">Atingimento %</option>
@@ -387,7 +396,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 <Input type="number" value={c.valor} onChange={(e) => setCd(i, { valor: Number(e.target.value) })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Se não atender</Label>
+                <div className="flex items-center gap-1"><Label>Se não atender</Label><Dica id="cond.efeito" /></div>
                 <NativeSelect value={c.efeito} onChange={(e) => setCd(i, { efeito: e.target.value as Condicao["efeito"] })}>
                   <option value="bloquear_recompensa">Bloquear recompensa</option>
                   <option value="limitar_nivel">Limitar nível</option>
@@ -443,7 +452,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
       <Card data-tour="plano-simular">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FlaskConical className="size-5" /> Simulador
+            <FlaskConical className="size-5" /> Simulador <Dica id="plano.simular" />
           </CardTitle>
           <CardDescription>Aplica o rascunho (como está na tela) a um mês com dados reais e compara com o plano vigente.</CardDescription>
         </CardHeader>
@@ -505,7 +514,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         </Button>
       </div>
 
-      <Dialog open={publicar} onOpenChange={setPublicar}>
+      <Dialog open={publicar} onOpenChange={(o) => !publicando && setPublicar(o)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Publicar nova versão</DialogTitle>
@@ -516,7 +525,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label>Vale a partir de</Label>
+              <div className="flex items-center gap-1"><Label>Vale a partir de</Label><Dica id="plano.vigente" /></div>
               <Input type="month" value={vigente} onChange={(e) => setVigente(e.target.value)} />
             </div>
             <div className="space-y-1.5">
@@ -525,10 +534,12 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPublicar(false)}>
+            <Button variant="outline" onClick={() => setPublicar(false)} disabled={publicando}>
               Cancelar
             </Button>
-            <Button onClick={confirmarPublicacao}>Publicar</Button>
+            <Button onClick={confirmarPublicacao} disabled={publicando}>
+              {publicando ? "Publicando e recalculando…" : "Publicar"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

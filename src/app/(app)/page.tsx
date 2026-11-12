@@ -4,6 +4,8 @@ import { NivelBadge, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { GraficoEvolucao } from "@/components/graficos/evolucao";
 import { GraficoMensal } from "@/components/graficos/mensal";
+import { GraficoComparativo } from "@/components/graficos/comparativo";
+import { metricaMarcadasPara, type ResultadoAnalise, serieAnalise } from "@/lib/dados/analise";
 import { linhasRelatorio, mesesEntre } from "@/lib/dados/relatorios";
 import { CartaoAnalise, CartaoIndicador, CartaoNivel, ListaRanking, StatusSync } from "@/components/painel/cartoes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -95,6 +97,56 @@ export default async function PaginaPainel(props: PageProps<"/">) {
   ]);
   const metricas = new Map(((metricasRes.data ?? []) as Metrica[]).map((m) => [m.id, m]));
   const metricasAnalise = Array.from(metricas.values()).filter((m) => m.definicao.somente_analise);
+  const metMarcadas = metricaMarcadasPara(Array.from(metricas.values()));
+  const metRealizadas = Array.from(metricas.values()).find((m) => m.codigo === "realizadas") ?? null;
+  const coorte = (colaboradores: { id: string; login_klingo: string | null }[]) =>
+    metMarcadas && metRealizadas && colaboradores.length
+      ? serieAnalise(db, {
+          a: metMarcadas,
+          b: metRealizadas,
+          colaboradores,
+          granularidade: "dia",
+          de: comp,
+          ate: comp,
+          acumulado: false,
+          hoje,
+        })
+      : Promise.resolve(null);
+  const cartaoCoorte = (r: ResultadoAnalise | null, link: string) =>
+    r && metMarcadas && metRealizadas ? (
+      <Card data-tour="coorte">
+        <CardHeader>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <CardTitle>Consultas do mês: marcadas × realizadas</CardTitle>
+              <CardDescription>
+                Pela data da consulta: quantas estavam marcadas para cada dia e quantas aconteceram. Dias claros ainda vão acontecer.
+              </CardDescription>
+            </div>
+            <Link href={link} className="text-sm text-primary hover:underline">
+              Personalizar na Análise →
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-6 text-sm">
+            <div>
+              <span className="text-muted-foreground">Marcadas para o mês </span>
+              <b className="tabular-nums">{fmtValor(r.totalA)}</b>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Realizadas </span>
+              <b className="tabular-nums">{fmtValor(r.totalB)}</b>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Realizadas ÷ marcadas </span>
+              <b className="tabular-nums">{r.totalA ? fmtPct((r.totalB / r.totalA) * 100) : "—"}</b>
+            </div>
+          </div>
+          <GraficoComparativo dados={r.pontos} rotuloA={metMarcadas.nome} unidadeA="un" rotuloB={metRealizadas.nome} unidadeB="un" altura={240} />
+        </CardContent>
+      </Card>
+    ) : null;
   const minha = minhas.find((a) => a.funcao === "membro");
 
   // equipes que a pessoa gerencia (admin/gestor: todas)
@@ -113,12 +165,12 @@ export default async function PaginaPainel(props: PageProps<"/">) {
     const metricasSerie = minha.resultado.indicadores
       .filter((i) => i.unidade !== "%" && i.escopo === "individual")
       .map((i) => metricas.get(i.metrica_id))
-      .filter((m): m is Metrica => !!m)
+      .filter((m): m is Metrica => !!m && m.tipo === "quantitativa")
       .slice(0, 3);
     const metasSerie = Object.fromEntries(
       minha.resultado.indicadores.map((i) => [metricas.get(i.metrica_id)?.codigo ?? i.metrica_id, i.meta_ajustada]),
     );
-    const [serie, ranking, analise, historico] = await Promise.all([
+    const [serie, ranking, analise, historico, coorteMinha] = await Promise.all([
       serieDiaria(db, {
         competencia: comp,
         hoje,
@@ -134,6 +186,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
         colaboradores: [{ id: s.colaborador.id, login_klingo: s.colaborador.login_klingo }],
       }),
       linhasRelatorio(db, { de: "2025-01", ate: comp, colaboradorId: s.colaborador.id }),
+      coorte([{ id: s.colaborador.id, login_klingo: s.colaborador.login_klingo }]),
     ]);
     // histórico mês a mês (resultado oficial do fechamento quando existir)
     const histMembro = historico.filter((l) => l.funcao === "membro");
@@ -163,8 +216,10 @@ export default async function PaginaPainel(props: PageProps<"/">) {
         <div className="grid gap-4 lg:grid-cols-3">
           <Card className="lg:col-span-2" data-tour="evolucao">
             <CardHeader>
-              <CardTitle>Evolução no mês</CardTitle>
-              <CardDescription>Acumulado dia a dia. A linha tracejada é o ritmo necessário para bater a meta.</CardDescription>
+              <CardTitle>Agendamentos feitos no mês</CardTitle>
+              <CardDescription>
+                Seu esforço: agendamentos acumulados pelo dia em que você marcou. A linha tracejada é o ritmo para bater a meta.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {serie.length ? (
@@ -184,6 +239,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
             </CardContent>
           </Card>
         </div>
+        {cartaoCoorte(coorteMinha, `/analise?a=marcadas_para&b=realizadas&g=dia&mes=${comp}`)}
         <CartaoAnalise valores={analise} />
         {serieHist.length > 1 && (
           <Card data-tour="historico">
@@ -235,10 +291,10 @@ export default async function PaginaPainel(props: PageProps<"/">) {
     const metricasSerie = agregados
       .filter((i) => i.unidade !== "%")
       .map((i) => metricas.get(i.metrica_id))
-      .filter((m): m is Metrica => !!m)
+      .filter((m): m is Metrica => !!m && m.tipo === "quantitativa")
       .slice(0, 3);
     const colabsComLogin = (logins ?? []) as { id: string; login_klingo: string | null }[];
-    const [serie, alertas, analiseEquipe] = await Promise.all([
+    const [serie, alertas, analiseEquipe, coorteEquipe] = await Promise.all([
       membros.length
         ? serieDiaria(db, {
             competencia: comp,
@@ -250,6 +306,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
         : Promise.resolve([]),
       s.vêTudo ? alertasGestao(db, comp) : Promise.resolve(null),
       valoresAnalise(db, { competencia: comp, hoje, metricas: metricasAnalise, colaboradores: colabsComLogin }),
+      coorte(colabsComLogin),
     ]);
     const nomesMembros = new Map(membros.map((m) => [m.colaborador_id, m.resultado.nome]));
 
@@ -335,8 +392,8 @@ export default async function PaginaPainel(props: PageProps<"/">) {
             <div className="grid gap-4 lg:grid-cols-5">
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>Evolução da equipe</CardTitle>
-                  <CardDescription>Soma dos membros, acumulada no mês.</CardDescription>
+                  <CardTitle>Agendamentos feitos pela equipe</CardTitle>
+                  <CardDescription>Esforço do mês: soma dos membros, pelo dia em que marcaram (acumulado).</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {serie.length ? (
@@ -377,6 +434,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
                 </CardContent>
               </Card>
             </div>
+            {cartaoCoorte(coorteEquipe, `/analise?a=marcadas_para&b=realizadas&g=dia&mes=${comp}&equipe=${equipeSel.id}`)}
             <CartaoAnalise valores={analiseEquipe} nomes={nomesMembros} />
             <Card>
               <CardHeader>

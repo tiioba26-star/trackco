@@ -51,8 +51,10 @@ export async function historicoParaMetas(
   // valores[metrica][pessoa] = lista de valores por mês (só meses com atividade)
   const valores = new Map<string, Map<string, number[]>>();
   const ultimo = new Map<string, Map<string, number>>();
+  // os meses são carregados em paralelo; o cálculo abaixo é só em memória
+  const brutasPorMes = await Promise.all(meses.map((mes) => linhasKlingo(db, Array.from(porLogin.keys()), mes)));
   for (const [idx, mes] of meses.entries()) {
-    const brutas = await linhasKlingo(db, Array.from(porLogin.keys()), mes);
+    const brutas = brutasPorMes[idx];
     const linhas: Linha[] = brutas.map((l) => ({
       ...l,
       chave: l.chave as string,

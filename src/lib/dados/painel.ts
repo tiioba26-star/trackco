@@ -3,7 +3,17 @@ import type { Db } from "@/lib/supabase/tipos";
 import { datasEntre, fimCompetencia, inicioCompetencia, menorData } from "@/engine/datas";
 import { calcularMetrica } from "@/engine/metricas";
 import type { Linha, Metrica, ResultadoApuracao } from "@/engine/tipos";
-import { linhasKlingo } from "@/lib/calculo/carregar";
+import { cache } from "react";
+import { linhasKlingo as linhasKlingoBruto } from "@/lib/calculo/carregar";
+
+/** Mesma consulta pedida por vários quadros da página: busca uma vez por requisição. */
+const linhasKlingoCache = cache((db: Db, logins: string, competencia: string) =>
+  linhasKlingoBruto(db, logins ? logins.split(",") : [], competencia),
+);
+export const linhasKlingoCacheado = (db: Db, logins: string[], competencia: string) =>
+  linhasKlingoCache(db, [...logins].map((l) => l.toLowerCase()).sort().join(","), competencia);
+const linhasKlingo = (db: Db, logins: string[], competencia: string) =>
+  linhasKlingoCache(db, [...logins].map((l) => l.toLowerCase()).sort().join(","), competencia);
 
 export interface ApuracaoRow {
   id: string;

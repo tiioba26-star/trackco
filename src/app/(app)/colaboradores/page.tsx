@@ -10,6 +10,7 @@ import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarColaborador } from "./actions";
 import { EditarColaborador } from "./editar";
+import { Dica } from "@/components/ajuda/dica";
 
 export const metadata = { title: "Colaboradores" };
 
@@ -108,15 +109,15 @@ export default async function PaginaColaboradores() {
                 <Input name="nome" required />
               </div>
               <div className="space-y-1.5">
-                <Label>Usuário de acesso</Label>
+                <div className="flex items-center gap-1"><Label>Usuário de acesso</Label><Dica id="colab.usuario" /></div>
                 <Input name="login" required autoCapitalize="none" placeholder="ex.: maria.souza" />
               </div>
               <div className="space-y-1.5">
-                <Label>Login no Klingo</Label>
+                <div className="flex items-center gap-1"><Label>Login no Klingo</Label><Dica id="colab.klingo" /></div>
                 <Input name="login_klingo" list="logins-klingo" autoCapitalize="none" />
               </div>
               <div className="space-y-1.5">
-                <Label>Perfil</Label>
+                <div className="flex items-center gap-1"><Label>Perfil</Label><Dica id="colab.perfil" /></div>
                 <NativeSelect name="papel" defaultValue="colaborador">
                   <option value="colaborador">Colaborador</option>
                   <option value="gestor">Gestor</option>

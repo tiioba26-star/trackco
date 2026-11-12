@@ -120,24 +120,34 @@ const COLUNAS_KLINGO =
   "chave, data_agendado_em, data_agendado_para, data_realizacao, responsavel_login, procedimento, profissional, operadora, qtd, atendido, situacao, motivo";
 
 /** Linhas do Klingo dos logins informados que tocam a competência por qualquer uma das três datas. */
+/**
+ * Linhas do Klingo dos logins informados que tocam a competência por qualquer uma das três datas.
+ * São 3 consultas (uma por campo de data, cada uma usando o próprio índice) com paginação por chave,
+ * em paralelo, juntadas sem repetição. Um único "OR" das três datas ficava lento com o histórico grande.
+ */
 export async function linhasKlingo(db: Cliente, logins: string[], competencia: string): Promise<Record<string, unknown>[]> {
   if (!logins.length) return [];
   const ini = inicioCompetencia(competencia);
   const fim = fimCompetencia(competencia);
-  const filtroDatas = [
-    `and(data_agendado_em.gte.${ini},data_agendado_em.lte.${fim})`,
-    `and(data_agendado_para.gte.${ini},data_agendado_para.lte.${fim})`,
-    `and(data_realizacao.gte.${ini},data_realizacao.lte.${fim})`,
-  ].join(",");
-  return buscarTodos((de, ate) =>
-    db
-      .from("klingo_agendamentos")
-      .select(COLUNAS_KLINGO)
-      .in("responsavel_login", logins.map((l) => l.toLowerCase()))
-      .or(filtroDatas)
-      .order("chave")
-      .range(de, ate),
-  );
+  const lista = Array.from(new Set(logins.map((l) => l.toLowerCase())));
+  // ordenar pelo próprio campo de data faz o banco usar o índice da data (ordenar só por "chave"
+  // o levava a percorrer a tabela inteira pela chave primária)
+  const porCampo = (campo: string) =>
+    buscarTodos<Record<string, unknown>>((de, ate) =>
+      db
+        .from("klingo_agendamentos")
+        .select(COLUNAS_KLINGO)
+        .in("responsavel_login", lista)
+        .gte(campo, ini)
+        .lte(campo, fim)
+        .order(campo)
+        .order("chave")
+        .range(de, ate),
+    );
+  const partes = await Promise.all(["data_agendado_em", "data_agendado_para", "data_realizacao"].map(porCampo));
+  const unicas = new Map<string, Record<string, unknown>>();
+  for (const parte of partes) for (const l of parte) unicas.set(String(l.chave), l);
+  return Array.from(unicas.values());
 }
 
 export interface OpcoesEntrada {

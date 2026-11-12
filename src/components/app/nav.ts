@@ -7,6 +7,7 @@ import {
   Gauge,
   History,
   LayoutDashboard,
+  LineChart,
   type LucideIcon,
   MessageSquareWarning,
   Monitor,
@@ -38,6 +39,7 @@ export const NAV: GrupoNav[] = [
     itens: [
       { href: "/", titulo: "Painel", icone: LayoutDashboard, perfil: "todos", tour: "nav-painel" },
       { href: "/extrato", titulo: "Extrato", icone: FileText, perfil: "todos", tour: "nav-extrato" },
+      { href: "/analise", titulo: "Análise", icone: LineChart, perfil: "todos", tour: "nav-analise" },
       { href: "/contestacoes", titulo: "Contestações", icone: MessageSquareWarning, perfil: "todos", tour: "nav-contestacoes" },
     ],
   },

@@ -60,6 +60,21 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "contestar", titulo: "Contestar", texto: "Abra uma contestação quando algo estiver errado. Ela fica registrada e é respondida pelo líder ou admin." },
     ],
   },
+  "/analise": {
+    titulo: "Análise",
+    resumo: [
+      "Aqui você monta a análise que quiser: escolhe duas métricas, o período, se quer ver por dia ou por mês e se quer o acumulado.",
+      "Para comparar quantidade com resultado, compare coisas da mesma data: 'Consultas marcadas para o período' (pela data da consulta) × 'Consultas realizadas' (pela data em que aconteceu). Assim outubro é comparado com outubro, dia a dia.",
+      "'Agendamentos' conta pelo dia em que o atendente marcou (o esforço do mês), mesmo que a consulta seja em outro mês. É útil para ver produtividade, mas não para medir conversão.",
+      "Na visão por dia, os dias que ainda não chegaram aparecem mais claros: mostram o que já está marcado para eles.",
+      "As métricas disponíveis vêm da tela Métricas. Criou uma nova lá? Ela aparece aqui automaticamente.",
+    ],
+    passos: [
+      { alvo: "analise-atalhos", titulo: "Atalhos", texto: "Análises prontas. Clique para carregar." },
+      { alvo: "analise-parametros", titulo: "Parâmetros", texto: "Monte sua própria análise: métricas, período, dia ou mês, acumulado, equipe ou pessoa." },
+      { alvo: "analise-grafico", titulo: "Gráfico", texto: "Barras por dia/mês; no modo acumulado, linhas. Passe o mouse para ver os números." },
+    ],
+  },
   "/contestacoes": {
     titulo: "Contestações",
     resumo: [

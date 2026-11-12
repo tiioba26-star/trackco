@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Separator } from "@/components/ui/separator";
 import { atualizarColaborador, redefinirSenha } from "./actions";
+import { Dica } from "@/components/ajuda/dica";
 
 export function EditarColaborador({
   c,
@@ -34,11 +35,11 @@ export function EditarColaborador({
               <Input name="nome" defaultValue={c.nome} required />
             </div>
             <div className="space-y-1.5">
-              <Label>Login no Klingo (campo Responsável)</Label>
+              <div className="flex items-center gap-1"><Label>Login no Klingo (campo Responsável)</Label><Dica id="colab.klingo" /></div>
               <Input name="login_klingo" defaultValue={c.login_klingo ?? ""} list="logins-klingo" />
             </div>
             <div className="space-y-1.5">
-              <Label>Perfil</Label>
+              <div className="flex items-center gap-1"><Label>Perfil</Label><Dica id="colab.perfil" /></div>
               <NativeSelect name="papel" defaultValue={c.papel}>
                 <option value="colaborador">Colaborador</option>
                 <option value="gestor">Gestor (vê tudo, não configura)</option>

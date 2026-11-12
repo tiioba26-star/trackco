@@ -90,7 +90,12 @@ export async function publicarVersao(id: string, vigenteDesde: string, observaca
       observacao: observacao || null,
       publicado_por: s.colaborador.id,
     });
-    if (e2) throw new Error(e2.message);
+    if (e2)
+      throw new Error(
+        e2.code === "23505"
+          ? "Esta mesma regra já está publicada com essa data de início. Mude algo no rascunho ou a data antes de publicar de novo."
+          : e2.message,
+      );
     if (plano.status === "ativo") {
       const atual = competenciaDe(hojeNoFuso());
       await recalcularParcial(atual, [plano.equipe_id]);

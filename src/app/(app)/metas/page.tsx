@@ -6,6 +6,7 @@ import { competenciaAnterior, competenciaDe, hojeNoFuso, inicioCompetencia } fro
 import { exigirAdmin } from "@/lib/auth";
 import { membrosDaEquipe, planoVigente } from "@/lib/calculo/carregar";
 import { competenciaValida } from "@/lib/formato";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import type { Metrica } from "@/engine/tipos";
@@ -34,7 +35,8 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
     const idsPlano = Array.from(new Set(plano?.definicao.indicadores.map((i) => i.metrica_id) ?? []));
     const metricasPlano = ((todas ?? []) as Metrica[]).filter((m) => idsPlano.includes(m.id));
     const metricas = metricasPlano.map(({ id, nome, unidade }) => ({ id, nome, unidade }));
-    const historico = plano ? await historicoParaMetas(db, equipe.id, comp, metricasPlano, nMeses) : {};
+    // página exclusiva de admin (exigirAdmin acima): o histórico lê direto, sem o custo das regras por linha
+    const historico = plano ? await historicoParaMetas(criarClienteAdmin(), equipe.id, comp, metricasPlano, nMeses) : {};
     const { data: metas } = await db
       .from("metas")
       .select("metrica_id, colaborador_id, equipe_id, valor")

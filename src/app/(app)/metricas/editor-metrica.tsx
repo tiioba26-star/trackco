@@ -18,6 +18,7 @@ import { descreverContagem } from "@/engine/metricas";
 import type { Contagem, DefinicaoMetrica, FonteId, Metrica, OperadorFiltro } from "@/engine/tipos";
 import { fmtValor } from "@/lib/formato";
 import { salvarMetrica, testarMetrica, type ResultadoTeste } from "./actions";
+import { Dica } from "@/components/ajuda/dica";
 
 const CONTAGEM_PADRAO: Contagem = {
   fonte: "klingo_agendamentos",
@@ -46,7 +47,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
       {titulo && <Rotulo>{titulo}</Rotulo>}
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-1.5">
-          <Label>Fonte de dados</Label>
+          <div className="flex items-center gap-1"><Label>Fonte de dados</Label><Dica id="met.fonte" /></div>
           <NativeSelect
             value={valor.fonte}
             onChange={(e) => {
@@ -62,7 +63,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
           </NativeSelect>
         </div>
         <div className="space-y-1.5">
-          <Label>Como agregar</Label>
+          <div className="flex items-center gap-1"><Label>Como agregar</Label><Dica id="met.agregacao" /></div>
           <NativeSelect value={valor.agregacao} onChange={(e) => set({ agregacao: e.target.value as Contagem["agregacao"] })}>
             <option value="contar">Contar registros</option>
             <option value="somar">Somar um campo</option>
@@ -87,7 +88,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
         )}
       </div>
       <div className="space-y-1.5">
-        <Label>Conta no mês pela data</Label>
+        <div className="flex items-center gap-1"><Label>Conta no mês pela data</Label><Dica id="met.campo_data" /></div>
         <NativeSelect value={valor.campo_data} onChange={(e) => set({ campo_data: e.target.value })}>
           {camposDeData(valor.fonte).map((c) => (
             <option key={c.id} value={c.id}>
@@ -99,7 +100,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
       </div>
 
       <div className="space-y-2">
-        <Label>Filtros (todos precisam ser verdadeiros)</Label>
+        <div className="flex items-center gap-1"><Label>Filtros (todos precisam ser verdadeiros)</Label><Dica id="met.filtros" /></div>
         {valor.filtros.map((f, i) => {
           const campo = campoDaFonte(valor.fonte, f.campo);
           const ops = OPERADORES_POR_TIPO[campo?.tipo ?? "texto"];
@@ -249,7 +250,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Código</Label>
+              <div className="flex items-center gap-1"><Label>Código</Label><Dica id="met.codigo" /></div>
               <Input value={codigo} onChange={(e) => setCodigo(slug(e.target.value))} placeholder="agendamentos" />
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -257,14 +258,14 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
               <Textarea rows={2} value={descricao ?? ""} onChange={(e) => setDescricao(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Análise</Label>
+              <div className="flex items-center gap-1"><Label>Análise</Label><Dica id="met.analise" /></div>
               <NativeSelect value={tipo} onChange={(e) => setTipo(e.target.value as Metrica["tipo"])}>
                 <option value="quantitativa">Quantitativa (volume)</option>
                 <option value="qualitativa">Qualitativa (resultado/qualidade)</option>
               </NativeSelect>
             </div>
             <div className="space-y-1.5">
-              <Label>Unidade</Label>
+              <div className="flex items-center gap-1"><Label>Unidade</Label><Dica id="met.unidade" /></div>
               <NativeSelect value={unidade} onChange={(e) => setUnidade(e.target.value as Metrica["unidade"])}>
                 <option value="un">Unidades</option>
                 <option value="%">Percentual (%)</option>
@@ -281,7 +282,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
                 onCheckedChange={(v) => setDef({ ...def, somente_analise: v || undefined })}
               />
               <span>
-                <b>Somente análise</b>
+                <b>Somente análise</b> <Dica id="met.somente_analise" />
                 <span className="block text-xs text-muted-foreground">
                   Aparece no painel, nos relatórios e na TV, mas nunca entra em metas, nota, prêmios, comissão ou pontos (ex.: SUS).
                 </span>
@@ -298,14 +299,14 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
           <CardContent className="space-y-4">
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Tipo de cálculo</Label>
+                <div className="flex items-center gap-1"><Label>Tipo de cálculo</Label><Dica id="met.tipo_calculo" /></div>
                 <NativeSelect value={def.tipo_calculo} onChange={(e) => mudarTipoCalculo(e.target.value as "simples" | "taxa")}>
                   <option value="simples">Contagem / soma</option>
                   <option value="taxa">Taxa (numerador ÷ denominador)</option>
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">
-                <Label>No mês em andamento, contar até</Label>
+                <div className="flex items-center gap-1"><Label>No mês em andamento, contar até</Label><Dica id="met.corte" /></div>
                 <NativeSelect value={def.corte ?? "hoje"} onChange={(e) => setDef({ ...def, corte: e.target.value as "hoje" | "ontem" })}>
                   <option value="hoje">Hoje (atualiza durante o dia)</option>
                   <option value="ontem">Ontem (só dias fechados)</option>
