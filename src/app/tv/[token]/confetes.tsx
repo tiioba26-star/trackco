@@ -38,40 +38,47 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particulasRef = useRef<Particula[]>([]);
   const animIdRef = useRef<number | null>(null);
+  const ultimoIdProcessado = useRef<number>(0);
 
   // Escuta novos disparos a partir de coordenadas específicas (ex: bolinha de perfil)
   useEffect(() => {
-    if (!disparo) return;
+    if (!disparo || disparo.id === ultimoIdProcessado.current) return;
+    ultimoIdProcessado.current = disparo.id;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Se já houver muitas partículas na tela, não sobrecarregar
+    if (particulasRef.current.length > 50) {
+      return;
+    }
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Criar ~65 partículas explodindo da coordenada (disparo.x, disparo.y)
+    // Criar apenas 30 partículas leves por estouro (efeito popper elegante e focado)
     const novasParticulas: Particula[] = [];
-    const total = 70;
+    const total = 32;
 
     for (let i = 0; i < total; i++) {
-      // Ângulo de explosão com dispersão radial ampla e preferência para cima e lados
-      const angulo = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 1.3);
-      const velocidade = 6 + Math.random() * 9;
+      // Ângulo de explosão com dispersão radial ampla para cima e lados (-150° a -30°)
+      const angulo = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 1.1);
+      const velocidade = 5 + Math.random() * 6;
 
       novasParticulas.push({
         x: disparo.x,
         y: disparo.y,
-        w: 8 + Math.random() * 7,
-        h: 11 + Math.random() * 9,
-        vx: Math.cos(angulo) * velocidade + (Math.random() - 0.5) * 3,
-        vy: Math.sin(angulo) * velocidade - 2,
+        w: 6 + Math.random() * 5,
+        h: 9 + Math.random() * 6,
+        vx: Math.cos(angulo) * velocidade + (Math.random() - 0.5) * 2,
+        vy: Math.sin(angulo) * velocidade - 1.5,
         rotacao: Math.random() * 360,
-        vRotacao: (Math.random() - 0.5) * 16,
+        vRotacao: (Math.random() - 0.5) * 14,
         cor: CORES_CONFETE[Math.floor(Math.random() * CORES_CONFETE.length)],
         opacidade: 1,
-        forma: Math.random() > 0.35 ? "retangulo" : "circulo",
+        forma: Math.random() > 0.4 ? "retangulo" : "circulo",
         vida: 0,
-        vidaMax: 160 + Math.floor(Math.random() * 60),
+        vidaMax: 90 + Math.floor(Math.random() * 35), // Dura cerca de 1.8 a 2.2 segundos a 60fps
       });
     }
 
@@ -91,16 +98,16 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
           p.vida++;
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.14; // gravidade suave
-          p.vx *= 0.985; // resistência do ar
+          p.vy += 0.18; // gravidade suave
+          p.vx *= 0.98; // desaceleração
           p.rotacao += p.vRotacao;
 
-          // Fade out nos últimos 40 frames
-          if (p.vida > p.vidaMax - 40) {
-            p.opacidade = Math.max(0, (p.vidaMax - p.vida) / 40);
+          // Fade out suave na metade final
+          if (p.vida > p.vidaMax - 30) {
+            p.opacidade = Math.max(0, (p.vidaMax - p.vida) / 30);
           }
 
-          if (p.vida < p.vidaMax && p.y < canvas.height + 40 && p.opacidade > 0.02) {
+          if (p.vida < p.vidaMax && p.y < canvas.height + 30 && p.opacidade > 0.03) {
             vivas.push(p);
 
             ctx.save();
@@ -135,7 +142,6 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
     }
   }, [disparo]);
 
-  // Redimensionamento
   useEffect(() => {
     const onResize = () => {
       if (canvasRef.current) {
@@ -146,7 +152,10 @@ export function ConfetesTv({ disparo }: { disparo: DisparoConfete | null }) {
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
-      if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
+      if (animIdRef.current) {
+        cancelAnimationFrame(animIdRef.current);
+        animIdRef.current = null;
+      }
     };
   }, []);
 

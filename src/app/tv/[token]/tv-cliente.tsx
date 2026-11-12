@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { nomeCompetencia } from "@/engine/datas";
 import type { ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
@@ -241,6 +241,7 @@ function LinhaBarraTv({
   onDispararConfete: (x: number, y: number) => void;
 }) {
   const bolinhaRef = useRef<HTMLDivElement | null>(null);
+  const jaDisparouRef = useRef(false);
   const [indiceMsg, setIndiceMsg] = useState(0);
 
   const gradiente = GRADIENTES_BARRAS[pos % GRADIENTES_BARRAS.length];
@@ -248,7 +249,7 @@ function LinhaBarraTv({
   const sombra = SOMBRAS_BARRAS[pos % SOMBRAS_BARRAS.length];
 
   // Escala dinâmica: proporcional ao maior valor atual do ranking
-  const pctLargura = Math.max(14, (it.valor / maxValor) * 72);
+  const pctLargura = Math.max(16, (it.valor / maxValor) * 72);
 
   const mensagens = useMemo(() => {
     if (it.atingimento !== null && it.atingimento >= 100) {
@@ -271,10 +272,10 @@ function LinhaBarraTv({
   }, [it.atingimento, it.valor, pos]);
 
   // Tempo de transição das mensagens dentro da barra:
-  // Na tela principal (agendamentos particular): demora mais (15 a 18 segundos) conforme pedido!
+  // Na tela principal (agendamentos particular): demora mais (15 a 18 segundos)
   // Nas outras telas: 9 a 11 segundos
   useEffect(() => {
-    const duracaoMsg = isTelaPrincipal ? 15000 + (pos % 3) * 1500 : 9000 + (pos % 3) * 1200;
+    const duracaoMsg = isTelaPrincipal ? 15000 + (pos % 3) * 1500 : 9500 + (pos % 3) * 1200;
     const interval = setInterval(() => {
       setIndiceMsg((prev) => (prev + 1) % mensagens.length);
     }, duracaoMsg);
@@ -283,13 +284,26 @@ function LinhaBarraTv({
 
   const mensagemAtual = mensagens[indiceMsg % mensagens.length];
 
-  // Dispara confetes a partir da bolinha quando a mensagem for "Meta batida!" ou "Meta superada!"
+  // Dispara confetes UMA ÚNICA VEZ e com cooldown de 40s quando a mensagem mudar para "Meta batida"
+  const ultimaMsgRef = useRef(mensagemAtual);
   useEffect(() => {
-    if (mensagemAtual.includes("Meta batida") || mensagemAtual.includes("Meta superada")) {
+    const mudouParaMeta =
+      (mensagemAtual.includes("Meta batida") || mensagemAtual.includes("Meta superada")) &&
+      !ultimaMsgRef.current.includes("Meta batida") &&
+      !ultimaMsgRef.current.includes("Meta superada");
+
+    ultimaMsgRef.current = mensagemAtual;
+
+    if (mudouParaMeta && !jaDisparouRef.current) {
+      jaDisparouRef.current = true;
       if (bolinhaRef.current) {
         const rect = bolinhaRef.current.getBoundingClientRect();
         onDispararConfete(rect.left + rect.width / 2, rect.top + rect.height / 2);
       }
+      const timer = setTimeout(() => {
+        jaDisparouRef.current = false;
+      }, 40000);
+      return () => clearTimeout(timer);
     }
   }, [mensagemAtual, onDispararConfete]);
 
@@ -314,59 +328,54 @@ function LinhaBarraTv({
         </span>
       </div>
 
-      {/* Estrutura da Barra: Corpo arredondado na esquerda, Bolinha NA PONTA, e Número FORA da barra */}
+      {/* Estrutura da Barra: Barra arredondada (rounded-full) com perfil NA FRENTE na ponta e número FORA */}
       <div className="relative flex flex-1 items-center">
-        <div className="flex items-center" style={{ width: "100%" }}>
-          {/* Grupo da barra que cresce continuamente */}
-          <motion.div
-            className="flex items-center"
-            initial={{ width: "120px" }}
-            animate={{ width: `${pctLargura}%` }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        {/* A barra colorida que cresce dinamicamente */}
+        <motion.div
+          className="relative flex items-center h-[58px] rounded-full"
+          style={{
+            background: gradiente,
+            boxShadow: `0 4px 20px -2px ${sombra}`,
+          }}
+          initial={{ width: "120px" }}
+          animate={{ width: `${pctLargura}%` }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {/* Mensagem motivacional dentro da barra preenchida (com recuo para não encostar no avatar) */}
+          <div className="flex-1 overflow-hidden pl-5 pr-14 select-none">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={mensagemAtual}
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 0.95, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                transition={{ duration: 0.4 }}
+                className="truncate text-[1.85vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]"
+              >
+                {mensagemAtual}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+
+          {/* Bolinha de perfil / carinha: NA FRENTE (z-30), encaixada perfeitamente na ponta direita da barra */}
+          <div
+            ref={bolinhaRef}
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center"
           >
-            {/* Corpo da barra com gradiente (termina na bolinha, sem ultrapassar) */}
-            <div
-              className="relative flex h-[58px] flex-1 items-center overflow-hidden rounded-l-full pl-5 pr-2"
-              style={{
-                background: gradiente,
-                boxShadow: `0 4px 20px -2px ${sombra}`,
-              }}
-            >
-              {/* Texto dinâmico dentro da barra preenchida */}
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={mensagemAtual}
-                  initial={{ opacity: 0, y: 3 }}
-                  animate={{ opacity: 0.95, y: 0 }}
-                  exit={{ opacity: 0, y: -3 }}
-                  transition={{ duration: 0.4 }}
-                  className="truncate text-[1.85vh] font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] select-none"
-                >
-                  {mensagemAtual}
-                </motion.span>
-              </AnimatePresence>
-            </div>
+            <AvatarAnimadoTv
+              tipo={it.carinha}
+              cor={corAvatar}
+              tamanho={52}
+              posicao={pos}
+              atingimento={it.atingimento}
+            />
+          </div>
 
-            {/* Bolinha de perfil / carinha posicionada exatamente NA PONTA da barra */}
-            <div
-              ref={bolinhaRef}
-              className="-ml-5 relative z-20 flex-shrink-0 flex items-center justify-center"
-            >
-              <AvatarAnimadoTv
-                tipo={it.carinha}
-                cor={corAvatar}
-                tamanho={56}
-                posicao={pos}
-                atingimento={it.atingimento}
-              />
-            </div>
-          </motion.div>
-
-          {/* Número total de agendamentos FORA DA BARRA, colado logo ao lado da bolinha */}
-          <span className="ml-3.5 text-[3.8vh] font-black text-white tabular-nums tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] flex-shrink-0">
+          {/* Número total de agendamentos: FORA da barra, colado logo à direita */}
+          <span className="absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 text-[3.8vh] font-black text-white tabular-nums tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] whitespace-nowrap select-none">
             {fmt(it.valor, unidade)}
           </span>
-        </div>
+        </motion.div>
       </div>
     </motion.li>
   );
@@ -506,10 +515,10 @@ export function TvCliente({ token }: { token: string }) {
   const [disparoConfete, setDisparoConfete] = useState<DisparoConfete | null>(null);
   const agora = useRelogio();
 
-  // Disparar confetes a partir de uma coordenada (x, y) específica (ex: bolinha da pessoa)
-  const dispararConfeteEm = (x: number, y: number) => {
+  // Disparar confetes a partir de uma coordenada (x, y) específica (estável com useCallback)
+  const dispararConfeteEm = useCallback((x: number, y: number) => {
     setDisparoConfete({ id: Date.now() + Math.random(), x, y });
-  };
+  }, []);
 
   // Rotação da frase motivacional do rodapé a cada 8.5 segundos
   useEffect(() => {
@@ -555,7 +564,6 @@ export function TvCliente({ token }: { token: string }) {
         if (!r.ok) throw new Error(String(r.status));
         const d = (await r.json()) as PayloadTv;
         if (vivo) {
-          // Normaliza os títulos das telas se necessário
           const telasNormalizadas = d.telas.map((tl) => ({
             ...tl,
             titulo: normalizarTituloTela(tl.titulo),
@@ -598,7 +606,7 @@ export function TvCliente({ token }: { token: string }) {
 
   return (
     <main className="fixed inset-0 flex cursor-none flex-col overflow-hidden bg-[#030914] px-[3.5vw] py-[3.2vh] text-white select-none">
-      {/* Confetes animados em canvas disparados especificamente da bolinha do perfil de quem bateu meta */}
+      {/* Confetes animados em canvas disparados pontualmente da bolinha do perfil de quem bateu meta */}
       <ConfetesTv disparo={disparoConfete} />
 
       {/* Camada de Fundo Estilizado idêntica à referência (Olho no fundo + Glows neon e reflexos) */}
