@@ -20,8 +20,8 @@ export const CONFIG_CONFETE = {
   limiteMaximoCanvas: 150,
 
   // Força do pulo inicial para cima (quanto maior, mais alto ele sobe)
-  forcaExplosaoBase: 5.5,
-  forcaExplosaoVariacao: 5.5,
+  forcaExplosaoBase: 2.5,
+  forcaExplosaoVariacao: 2.5,
 
   // Velocidade de descida (gravidade):
   // 0.05 a 0.08 = flutua bem devagar como papel de festa
