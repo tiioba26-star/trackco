@@ -53,9 +53,9 @@ const SUBTITULOS_PADRAO = [
 /** Normaliza os nomes das abas conforme solicitado */
 function normalizarTituloTela(tituloOriginal: string): string {
   const t = tituloOriginal.toLowerCase();
-  if (t.includes("agendamento") && !t.includes("sus")) return "Agendamentos Particular";
+  if (t.includes("sus")) return t.includes("realizada") ? "SUS · Realizadas" : "SUS · Agendamentos";
+  if (t.includes("agendamento")) return "Agendamentos Particular";
   if (t.includes("realizada") || t.includes("consulta")) return "Consultas Particular Realizadas";
-  if (t.includes("sus")) return "SUS · Agendamentos";
   if (t.includes("geral") || t.includes("visão")) return "Visão Geral da Equipe";
   return tituloOriginal;
 }

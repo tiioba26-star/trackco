@@ -7,7 +7,9 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { descreverRecompensa } from "@/engine/apuracao";
 import { competenciaDe, formatarDataBR, hojeNoFuso, inicioCompetencia, nomeCompetencia } from "@/engine/datas";
+import type { DefinicaoMetrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
+import { explicarMetrica } from "@/lib/explicar-metrica";
 import { buscarTodos } from "@/lib/calculo/carregar";
 import type { ApuracaoRow } from "@/lib/dados/painel";
 import { carinhaEmoji, competenciaValida, fmtDataHora, fmtPct, fmtValor } from "@/lib/formato";
@@ -80,7 +82,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
           .eq("id", ap.plano_versao_id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
-    db.from("metricas").select("id, nome, descricao"),
+    db.from("metricas").select("id, nome, descricao, definicao"),
     buscarTodos<{ metrica_id: string; origem: string; origem_chave: string; papel: string }>((de, ate) =>
       db
         .from("apuracao_itens")
@@ -92,7 +94,9 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
   const versao = versaoRes.data as
     | { numero: number; vigente_desde: string; observacao: string | null; planos: { nome: string; modalidade: string } | null }
     | null;
-  const nomeMetrica = new Map(((metricasRes.data ?? []) as { id: string; nome: string }[]).map((m) => [m.id, m.nome]));
+  const metricasLista = (metricasRes.data ?? []) as { id: string; nome: string; definicao: DefinicaoMetrica }[];
+  const nomeMetrica = new Map(metricasLista.map((m) => [m.id, m.nome]));
+  const comoConta = new Map(metricasLista.map((m) => [m.id, explicarMetrica(m.definicao)]));
 
   // linhas de origem (Klingo e lançamentos)
   const chavesKlingo = Array.from(new Set(itens.filter((i) => i.origem === "klingo_agendamentos").map((i) => i.origem_chave)));
@@ -208,6 +212,19 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
                       {i.escopo === "equipe" ? "agregado da equipe" : "individual"}
                       {i.denominador !== undefined ? ` · ${fmtValor(i.numerador ?? 0)} ÷ ${fmtValor(i.denominador)}` : ""}
                     </div>
+                    {comoConta.get(i.metrica_id) && (
+                      <div className="mt-1 max-w-md text-xs leading-snug text-muted-foreground">
+                        <span className="font-medium text-foreground/80">Como é contado: </span>
+                        {comoConta.get(i.metrica_id)}
+                        {i.denominador !== undefined && i.denominador > 0 && (
+                          <>
+                            {" "}
+                            Neste mês: <b className="text-foreground">{fmtValor(i.numerador ?? 0)}</b> de{" "}
+                            <b className="text-foreground">{fmtValor(i.denominador)}</b>.
+                          </>
+                        )}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{i.peso}</TableCell>
                   <TableCell className="text-right tabular-nums">{fmtValor(i.realizado - i.ajuste_total, i.unidade)}</TableCell>

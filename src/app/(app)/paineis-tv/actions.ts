@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sessaoAcao } from "@/lib/auth";
-import { CONFIG_TV_PADRAO, gerarToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
+import { gerarToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 type Ret = { ok: boolean; erro?: string; token?: string; mensagem?: string };
@@ -18,6 +18,25 @@ function extrairLinhas(valor: FormDataEntryValue | null): string[] | undefined {
   return linhas.length ? linhas : undefined;
 }
 
+/** Converte os modos marcados (ids de métricas ou "geral") na lista guardada no painel, na ordem da tela. */
+async function montarModos(escolhidos: string[]): Promise<ModoTv[]> {
+  const db = criarClienteAdmin();
+  const { data } = await db.from("metricas").select("id, nome, unidade").eq("ativo", true);
+  const porId = new Map((data ?? []).map((m) => [m.id as string, m as { id: string; nome: string; unidade: string }]));
+  const modos: ModoTv[] = [];
+  for (const v of escolhidos) {
+    if (v === "geral") {
+      modos.push({ tipo: "geral", titulo: "Visão Geral da Equipe" });
+      continue;
+    }
+    const m = porId.get(v);
+    if (!m || m.unidade === "R$" || m.unidade === "pts") continue; // nunca dinheiro/pontos na TV
+    modos.push({ tipo: "barras", metrica: m.id, titulo: m.nome });
+  }
+  if (!modos.length) throw new Error("Escolha pelo menos um modo de exibição.");
+  return modos;
+}
+
 export async function criarPainel(fd: FormData): Promise<Ret> {
   try {
     const s = await sessaoAcao({ lider: true });
@@ -28,11 +47,7 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const escolhidos = fd.getAll("modos").map(String);
-    const modos: ModoTv[] = CONFIG_TV_PADRAO.modos.filter((m) =>
-      escolhidos.includes(m.tipo === "barras" ? m.metrica : "geral"),
-    );
-    if (!modos.length) throw new Error("Escolha pelo menos um modo de exibição.");
+    const modos = await montarModos(fd.getAll("modos").map(String));
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -80,11 +95,7 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const escolhidos = fd.getAll("modos").map(String);
-    const modos: ModoTv[] = CONFIG_TV_PADRAO.modos.filter((m) =>
-      escolhidos.includes(m.tipo === "barras" ? m.metrica : "geral"),
-    );
-    if (!modos.length) throw new Error("Escolha pelo menos um modo de exibição.");
+    const modos = await montarModos(fd.getAll("modos").map(String));
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -144,6 +155,24 @@ export async function alternarPainel(id: string, ativo: boolean): Promise<Ret> {
     if (error) throw new Error(error.message);
     revalidatePath("/paineis-tv");
     return { ok: true, mensagem: ativo ? "Painel ativado." : "Painel desativado: o link parou de funcionar." };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
+export async function excluirPainel(id: string): Promise<Ret> {
+  try {
+    const s = await sessaoAcao({ lider: true });
+    const db = criarClienteAdmin();
+    const { data: painel } = await db.from("paineis_tv").select("equipes").eq("id", id).maybeSingle();
+    if (!painel) throw new Error("Painel não encontrado.");
+    // líder só exclui painéis das equipes que lidera
+    if (!s.vêTudo && !(painel.equipes as string[]).every((e) => s.lidera.includes(e)))
+      throw new Error("Você só pode excluir painéis das equipes que lidera.");
+    const { error } = await db.from("paineis_tv").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/paineis-tv");
+    return { ok: true, mensagem: "Painel excluído: o link parou de funcionar." };
   } catch (e) {
     return { ok: false, erro: msg(e) };
   }

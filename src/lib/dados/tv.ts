@@ -5,6 +5,7 @@ import { competenciaDe, datasEntre, fimCompetencia, hojeNoFuso, inicioCompetenci
 import { calcularMetrica } from "@/engine/metricas";
 import type { Linha, Metrica } from "@/engine/tipos";
 import { linhasKlingo, membrosDaEquipe } from "@/lib/calculo/carregar";
+import { resolverMetrica } from "@/lib/metricas-papel";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Modo TV: link público sem login. NUNCA devolve nome, foto, iniciais, login, R$, comissão ou pontos.
@@ -117,7 +118,8 @@ export async function dadosTv(token: string): Promise<PayloadTv | null> {
     db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao").eq("ativo", true),
     db.from("sync_execucoes").select("finalizado_em").eq("status", "ok").order("iniciado_em", { ascending: false }).limit(1).maybeSingle(),
   ]);
-  const metricas = new Map(((metricasRows ?? []) as Metrica[]).map((m) => [m.codigo, m]));
+  const listaMetricas = (metricasRows ?? []) as Metrica[];
+  const metricaDo = (ref: string) => resolverMetrica(listaMetricas, ref);
   const equipeIds = (equipes ?? []).map((e) => e.id);
 
   // membros de todas as equipes do painel
@@ -152,7 +154,7 @@ export async function dadosTv(token: string): Promise<PayloadTv | null> {
   const telas: TelaTv[] = [];
   for (const modo of config.modos) {
     if (modo.tipo === "barras") {
-      const m = metricas.get(modo.metrica);
+      const m = metricaDo(modo.metrica);
       if (!m || m.unidade === "R$" || m.unidade === "pts") continue; // nunca dinheiro/pontos na TV
       const itens: ItemBarra[] = unicos.map((p) => {
         const valor = calcularMetrica(m.definicao, () => linhas, janela, hoje, [p.colaborador_id]).valor;
@@ -164,7 +166,7 @@ export async function dadosTv(token: string): Promise<PayloadTv | null> {
     } else {
       const codigos = config.modos.filter((x): x is Extract<ModoTv, { tipo: "barras" }> => x.tipo === "barras").map((x) => x.metrica);
       const usadas = codigos
-        .map((c) => metricas.get(c))
+        .map((c) => metricaDo(c))
         .filter((m): m is Metrica => !!m && m.unidade !== "R$" && m.unidade !== "pts");
       const indicadores = usadas.map((m) => {
         const realizado = calcularMetrica(m.definicao, () => linhas, janela, hoje, ids).valor;

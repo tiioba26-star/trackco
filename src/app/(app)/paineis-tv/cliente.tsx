@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Copy, ExternalLink, KeyRound, Pencil } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, ExternalLink, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ConfigTv } from "@/lib/dados/tv";
-import { atualizarPainel, criarPainel, regenerarToken } from "./actions";
+import { atualizarPainel, criarPainel, excluirPainel, regenerarToken } from "./actions";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
   const url = token ? `${window.location.origin}/tv/${token}` : "";
@@ -43,14 +43,24 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
   );
 }
 
-const MODOS = [
-  ["agendamentos", "Barras · Agendamentos Particular"],
-  ["realizadas", "Barras · Consultas Particular Realizadas"],
-  ["agendamentos_sus", "Barras · SUS Agendamentos"],
-  ["geral", "Dashboard geral da equipe"],
-] as const;
+/** Métricas que podem virar barras na TV (nunca R$ ou pontos). */
+export type OpcaoModo = { valor: string; rotulo: string; padrao: boolean };
 
-export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[] }) {
+function ListaModos({ opcoes, marcados }: { opcoes: OpcaoModo[]; marcados?: string[] }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>Modos (alternam na ordem)</Label>
+      {opcoes.map((o) => (
+        <label key={o.valor} className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="modos" value={o.valor} defaultChecked={marcados ? marcados.includes(o.valor) : o.padrao} />{" "}
+          {o.rotulo}
+        </label>
+      ))}
+    </div>
+  );
+}
+
+export function NovoPainel({ equipes, modos }: { equipes: { id: string; nome: string }[]; modos: OpcaoModo[] }) {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
@@ -83,14 +93,7 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
             </label>
           ))}
         </div>
-        <div className="space-y-1.5">
-          <Label>Modos (alternam na ordem)</Label>
-          {MODOS.map(([v, t]) => (
-            <label key={v} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="modos" value={v} defaultChecked /> {t}
-            </label>
-          ))}
-        </div>
+        <ListaModos opcoes={modos} />
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1.5">
             <Label>Troca a cada (s)</Label>
@@ -178,7 +181,9 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
 export function EditarPainel({
   painel,
   equipes,
+  modos,
 }: {
+  modos: OpcaoModo[];
   painel: {
     id: string;
     nome: string;
@@ -250,20 +255,7 @@ export function EditarPainel({
               ))}
             </div>
 
-            <div className="space-y-1.5">
-              <Label>Modos de Exibição</Label>
-              {MODOS.map(([v, t]) => (
-                <label key={v} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    name="modos"
-                    value={v}
-                    defaultChecked={modosAtivos.includes(v)}
-                  />
-                  {t}
-                </label>
-              ))}
-            </div>
+            <ListaModos opcoes={modos} marcados={modosAtivos} />
 
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1.5">
@@ -349,6 +341,51 @@ export function EditarPainel({
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+export function ExcluirPainel({ id, nome }: { id: string; nome: string }) {
+  const router = useRouter();
+  const [aberto, setAberto] = useState(false);
+  const [pendente, iniciar] = useTransition();
+  return (
+    <>
+      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setAberto(true)}>
+        <Trash2 className="size-3.5" /> Excluir
+      </Button>
+      <Dialog open={aberto} onOpenChange={(o) => !pendente && setAberto(o)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir o painel &quot;{nome}&quot;?</DialogTitle>
+            <DialogDescription>
+              O link para de funcionar na hora e o painel some da lista. Isso não pode ser desfeito. Se quiser só pausar, use
+              &quot;Desativar&quot;.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" disabled={pendente} onClick={() => setAberto(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={pendente}
+              onClick={() =>
+                iniciar(async () => {
+                  const r = await excluirPainel(id);
+                  if (r.ok) {
+                    toast.success(r.mensagem ?? "Painel excluído.");
+                    setAberto(false);
+                    router.refresh();
+                  } else toast.error(r.erro);
+                })
+              }
+            >
+              {pendente ? "Excluindo…" : "Excluir painel"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

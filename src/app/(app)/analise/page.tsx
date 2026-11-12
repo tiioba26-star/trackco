@@ -13,6 +13,7 @@ import type { Metrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
 import { type Granularidade, metricaMarcadasPara, serieAnalise, usaSoKlingo } from "@/lib/dados/analise";
 import { competenciaValida, fmtPct, fmtValor } from "@/lib/formato";
+import { resolverMetrica } from "@/lib/metricas-papel";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -40,8 +41,11 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   ]);
   const todas = ((metRows ?? []) as Metrica[]).filter((m) => usaSoKlingo(m.definicao));
   const marcadas = metricaMarcadasPara(todas);
-  const metricas = marcadas && !todas.some((m) => m.codigo === "marcadas_para") ? [marcadas, ...todas] : todas;
-  const porCodigo = new Map(metricas.map((m) => [m.codigo, m]));
+  const metricas = marcadas && !todas.some((m) => m.id === marcadas.id) ? [marcadas, ...todas] : todas;
+  // presets e links antigos usam códigos "clássicos": resolve pelo papel se a métrica foi renomeada
+  const achar = (ref: string) => resolverMetrica(metricas, ref);
+  const codigoDe = (ref: string) => achar(ref)?.codigo ?? ref;
+  const presets = PRESETS.map((p) => ({ ...p, a: codigoDe(p.a), b: p.b ? codigoDe(p.b) : "" }));
 
   const gestao = s.vêTudo || s.lidera.length > 0;
   const pessoas = (pessoasRows ?? []) as { id: string; nome: string; login_klingo: string | null }[];
@@ -53,8 +57,8 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const mes = competenciaValida(sp.mes) ?? atual;
   const ate = competenciaValida(sp.ate) ?? atual;
   const de = competenciaValida(sp.de) ?? competenciaAnterior(ate, 11);
-  const a = porCodigo.get(String(sp.a ?? "marcadas_para")) ?? metricas[0];
-  const b = sp.b === "" ? null : (porCodigo.get(String(sp.b ?? "realizadas")) ?? null);
+  const a = achar(String(sp.a ?? "marcadas_para")) ?? metricas[0];
+  const b = sp.b === "" ? null : (achar(String(sp.b ?? "realizadas")) ?? null);
   const equipe = equipes.find((e) => e.id === sp.equipe) ?? equipes[0];
   const pessoa = pessoas.find((p) => p.id === sp.pessoa);
 
@@ -99,7 +103,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
       />
 
       <div className="flex flex-wrap gap-1.5" data-tour="analise-atalhos">
-        {PRESETS.map((p) => {
+        {presets.map((p) => {
           const ativo = a?.codigo === p.a && (b?.codigo ?? "") === p.b && g === p.g && (acumulado ? "1" : "0") === p.acum;
           return (
             <Link
@@ -231,7 +235,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
                     {resultado.totalA ? fmtPct((resultado.totalB / resultado.totalA) * 100) : "—"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {a.codigo === "marcadas_para" && b.codigo === "realizadas"
+                    {a.id === achar("marcadas_para")?.id && b.id === achar("realizadas")?.id
                       ? "das consultas marcadas para o período, quantas aconteceram (dias futuros ainda contam como marcadas)"
                       : "proporção entre as duas"}
                   </div>

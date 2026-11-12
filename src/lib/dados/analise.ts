@@ -3,6 +3,7 @@ import { competenciaAnterior, datasEntre, fimCompetencia, inicioCompetencia, nom
 import { calcularMetrica } from "@/engine/metricas";
 import type { DefinicaoMetrica, Linha, Metrica } from "@/engine/tipos";
 import { linhasKlingoCacheado as linhasKlingo } from "@/lib/dados/painel";
+import { metricaPorPapel } from "@/lib/metricas-papel";
 import type { Db } from "@/lib/supabase/tipos";
 
 export type Granularidade = "dia" | "mes";
@@ -30,9 +31,9 @@ export function usaSoKlingo(d: DefinicaoMetrica): boolean {
 
 /** "Marcadas para o período": a métrica cadastrada ou, se ainda não existir, a base da taxa de conversão. */
 export function metricaMarcadasPara(metricas: Metrica[]): Metrica | null {
-  const cadastrada = metricas.find((m) => m.codigo === "marcadas_para");
+  const cadastrada = metricaPorPapel(metricas, "marcadas_para");
   if (cadastrada) return cadastrada;
-  const conv = metricas.find((m) => m.codigo === "conversao");
+  const conv = metricaPorPapel(metricas, "conversao");
   if (!conv || conv.definicao.tipo_calculo !== "taxa") return null;
   return {
     id: "marcadas_para",

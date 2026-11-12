@@ -1,5 +1,7 @@
 import { AlertTriangle, BarChart3, MessageSquareWarning, UserX } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { CarregandoPagina } from "@/components/app/carregando-pagina";
 import { NivelBadge, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { GraficoEvolucao } from "@/components/graficos/evolucao";
@@ -25,6 +27,7 @@ import {
   valoresAnalise,
 } from "@/lib/dados/painel";
 import { competenciaValida, fmtPct, fmtValor } from "@/lib/formato";
+import { metricaPorPapel } from "@/lib/metricas-papel";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +84,16 @@ function agregarEquipe(membros: ApuracaoRow[]): ResultadoIndicador[] {
   });
 }
 
-export default async function PaginaPainel(props: PageProps<"/">) {
+/** Fronteira própria: ao voltar para o Painel, o esqueleto aparece na hora em vez de travar na página anterior. */
+export default function PaginaPainel(props: PageProps<"/">) {
+  return (
+    <Suspense fallback={<CarregandoPagina variante="painel" />}>
+      <ConteudoPainel {...props} />
+    </Suspense>
+  );
+}
+
+async function ConteudoPainel(props: PageProps<"/">) {
   const s = await exigirSessao();
   const sp = await props.searchParams;
   const hoje = hojeNoFuso();
@@ -98,7 +110,7 @@ export default async function PaginaPainel(props: PageProps<"/">) {
   const metricas = new Map(((metricasRes.data ?? []) as Metrica[]).map((m) => [m.id, m]));
   const metricasAnalise = Array.from(metricas.values()).filter((m) => m.definicao.somente_analise);
   const metMarcadas = metricaMarcadasPara(Array.from(metricas.values()));
-  const metRealizadas = Array.from(metricas.values()).find((m) => m.codigo === "realizadas") ?? null;
+  const metRealizadas = metricaPorPapel(Array.from(metricas.values()), "realizadas");
   const coorte = (colaboradores: { id: string; login_klingo: string | null }[]) =>
     metMarcadas && metRealizadas && colaboradores.length
       ? serieAnalise(db, {
