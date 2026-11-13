@@ -1,11 +1,14 @@
 "use client";
 
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { clienteRealtime, type ComandoTv, type EstadoTv } from "@/lib/controle-tv";
 import type { ConfigTv, ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
 import { AvatarPosicaoTv, corDaPosicao } from "./carinha";
 import { ConfetesTv, type DisparoConfete } from "./confetes";
 import { OlhoFundoIoba } from "./olho-fundo";
+import { TelaGrafico, TelaMulti } from "./graficos-tv";
 import { FaixaRecordes, TelaDestaques, TelaEquipe, TelaParticipacao } from "./telas-extras";
 
 // Gradientes horizontais para as barras conforme posição
@@ -78,19 +81,27 @@ function dadosDemo(passo: number): PayloadTv {
       })
       .sort((a, b) => b.valor - a.valor);
   const telas: TelaTv[] = [];
-  for (const sus of [false, true])
-    for (const p of periodos) {
-      const itens = ranking(p.f * (sus ? 0.35 : 1));
-      telas.push({
-        tipo: "barras",
-        titulo: sus ? "SUS · Agendamentos válidos" : "Agendamentos válidos · Particular",
-        periodo: p,
-        unidade: "un",
-        itens,
-        total: itens.reduce((s, i) => s + i.valor, 0),
-        totalBruto: itens.reduce((s, i) => s + (i.bruto ?? i.valor), 0),
-      });
-    }
+  for (const p of periodos) {
+    const itens = ranking(p.f);
+    telas.push({
+      tipo: "barras",
+      titulo: "Agendamentos válidos · Particular",
+      periodo: p,
+      unidade: "un",
+      itens,
+      total: itens.reduce((s, i) => s + i.valor, 0),
+      totalBruto: itens.reduce((s, i) => s + (i.bruto ?? i.valor), 0),
+    });
+  }
+  telas.push({
+    tipo: "multi",
+    titulo: "SUS · Agendamentos válidos",
+    unidade: "un",
+    colunas: periodos.map((p) => {
+      const itens = ranking(p.f * 3.5);
+      return { periodo: p, itens, total: itens.reduce((s, i) => s + i.valor, 0), totalBruto: itens.reduce((s, i) => s + (i.bruto ?? i.valor), 0) };
+    }),
+  });
   ranking(1).forEach((it, i) =>
     telas.push({
       tipo: "pessoa",
@@ -119,39 +130,93 @@ function dadosDemo(passo: number): PayloadTv {
         brutoSus: Math.round((64 + passo * 5) * p.f * 1.05),
         realizadasParticular: { equipe: Math.round(174 * p.f), clinica: Math.round(410 * p.f) },
         realizadasSus: { equipe: Math.round(40 * p.f), clinica: Math.round(290 * p.f) },
+        linha14: {
+          dias: Array.from({ length: 14 }, (_, k) => `${String(k + 31 - 14 + 1).padStart(2, "0")}/10`),
+          particular: [0, 22, 32, 19, 26, 9, 0, 30, 28, 26, 31, 19, 24, 18],
+          sus: [0, 176, 194, 136, 155, 4, 0, 213, 144, 123, 195, 157, 160, 120],
+        },
       },
     });
-  for (const p of periodos.slice(1)) {
-    telas.push({
-      tipo: "barras",
-      titulo: "Quem mais melhorou · válidos Particular",
+  telas.push({
+    tipo: "multi",
+    titulo: "Quem mais melhorou · válidos Particular",
+    unidade: "%",
+    mais: true,
+    colunas: periodos.slice(1).map((p, k) => ({
       periodo: p,
-      comparadoCom: "o mesmo ponto do período anterior",
-      unidade: "%",
-      mais: true,
-      segundos: 20,
-      mensagens: ["Evoluindo! 📈", "Superando a si mesma!"],
+      comparadoCom: ["os 7 dias antes", "outubro até o dia 13", "setembro"][k],
+      vazio: "Ninguém cresceu ainda neste período",
       itens: [
-        { id: "5154", valor: 42.5, detalhe: "57 agora · 40 antes", atingimento: null, carinha: "feliz" },
-        { id: "1307", valor: 18.2, detalhe: "78 agora · 66 antes", atingimento: null, carinha: "feliz" },
-        { id: "7720", valor: 6.1, detalhe: "53 agora · 50 antes", atingimento: null, carinha: "neutra" },
-      ],
-    });
-    telas.push({
-      tipo: "barras",
-      titulo: "Melhor comparecimento · Particular",
+        { id: "5154", valor: 42.5 - k * 9, detalhe: "57 agora · 40 antes", atingimento: null, carinha: "feliz" as const },
+        { id: "1307", valor: 18.2 + k * 4, detalhe: "78 agora · 66 antes", atingimento: null, carinha: "feliz" as const },
+        { id: "7720", valor: 6.1, detalhe: "53 agora · 50 antes", atingimento: null, carinha: "neutra" as const },
+      ].sort((x, y) => y.valor - x.valor),
+    })),
+  });
+  telas.push({
+    tipo: "multi",
+    titulo: "Melhor comparecimento · Particular",
+    unidade: "%",
+    colunas: periodos.slice(1).map((p, k) => ({
       periodo: p,
-      unidade: "%",
-      segundos: 20,
-      mensagens: ["Paciente que veio! ✅", "Agendamento de qualidade"],
       itens: [
-        { id: "7720", valor: 81.3, detalhe: "39 de 48 vieram", atingimento: null, carinha: "mega_feliz" },
-        { id: "4821", valor: 74.6, detalhe: "50 de 67 vieram", atingimento: null, carinha: "feliz" },
-        { id: "1307", valor: 70.1, detalhe: "54 de 77 vieram", atingimento: null, carinha: "feliz" },
-        { id: "2968", valor: 62.5, detalhe: "10 de 16 vieram", atingimento: null, carinha: "neutra" },
+        { id: "7720", valor: 81.3 - k * 3, detalhe: "39 de 48 vieram", atingimento: null, carinha: "mega_feliz" as const },
+        { id: "4821", valor: 74.6, detalhe: "50 de 67 vieram", atingimento: null, carinha: "feliz" as const },
+        { id: "1307", valor: 70.1 + k * 2, detalhe: "54 de 77 vieram", atingimento: null, carinha: "feliz" as const },
+        { id: "2968", valor: 62.5, detalhe: "10 de 16 vieram", atingimento: null, carinha: "neutra" as const },
+      ].sort((x, y) => y.valor - x.valor),
+    })),
+  });
+  const seno = (k: number, base: number, amp: number) => Math.round(base + amp * Math.sin(k * 1.3) + (k % 3) * 2);
+  const calendario = Array.from({ length: 30 }, (_, k) => {
+    const dow = ((k + 6) % 7) + 1; // 01/11/2026 é domingo
+    return { data: `2026-11-${String(k + 1).padStart(2, "0")}`, dia: k + 1, semana: Math.floor((k + 6) / 7), dow, valor: k < 13 ? (dow === 7 ? 0 : seno(k, 18, 7)) : null, hoje: k === 12 };
+  });
+  telas.push({
+    tipo: "grafico",
+    titulo: "Mês dia a dia · válidos Particular",
+    periodo: periodos[2],
+    grafico: {
+      tipo: "mes_dia_a_dia",
+      mes: "novembro",
+      mesAnterior: "outubro",
+      dias: Array.from({ length: 31 }, (_, k) => ({ d: String(k + 1).padStart(2, "0"), atual: calendario[k] && k < 13 ? calendario[k].valor : null, anterior: seno(k + 2, 16, 6) })),
+      calendario,
+      totalAtual: calendario.reduce((t, d) => t + (d.valor ?? 0), 0),
+      totalAnteriorMesmoPonto: 213,
+    },
+  });
+  const semanas = Array.from({ length: 26 }, (_, k) => ({ rotulo: `${String(((k * 7) % 28) + 1).padStart(2, "0")}/${String(5 + Math.floor(k / 4.3)).padStart(2, "0")}`, k }));
+  telas.push({
+    tipo: "grafico",
+    titulo: "Últimas 26 semanas · agendamentos válidos",
+    periodo: { nome: "26 semanas", datas: "18/05 a 13/11", emAndamento: true },
+    grafico: { tipo: "semanas", semanas: semanas.map((s) => ({ rotulo: s.rotulo, particular: seno(s.k, 105, 18), sus: seno(s.k + 4, 340, 60) })) },
+  });
+  telas.push({
+    tipo: "grafico",
+    titulo: "Comparecimento por semana · Particular",
+    periodo: { nome: "26 semanas", datas: "18/05 a 12/11", emAndamento: true },
+    grafico: { tipo: "comparecimento_semanas", semanas: semanas.map((s) => ({ rotulo: s.rotulo, taxa: seno(s.k, 70, 6), marcadas: 120 })), media: 70.4 },
+  });
+  telas.push({
+    tipo: "grafico",
+    titulo: "Melhor dia da semana · válidos Particular",
+    periodo: { nome: "Últimas 12 semanas", datas: "17/08 a 08/11", emAndamento: false },
+    grafico: {
+      tipo: "dia_semana",
+      de: "17/08",
+      ate: "08/11",
+      dias: [
+        { rotulo: "Seg", media: 24.3, total: 292 },
+        { rotulo: "Ter", media: 21.8, total: 262 },
+        { rotulo: "Qua", media: 19.6, total: 235 },
+        { rotulo: "Qui", media: 18.9, total: 227 },
+        { rotulo: "Sex", media: 15.2, total: 182 },
+        { rotulo: "Sáb", media: 4.1, total: 49 },
       ],
-    });
-  }
+    },
+  });
   telas.push({
     tipo: "participacao",
     titulo: "Comercial × outras equipes",
@@ -576,6 +641,65 @@ export function TvCliente({ token }: { token: string }) {
 
   const ir = useCallback((delta: number) => setIndice((i) => (((i % total) + delta) % total + total) % total), [total]);
 
+  // ---- controle remoto (celular/PC): comandos e estado pelo Supabase Realtime (WebSocket) ----
+  const canalTv = dados?.canal;
+  const canalRef = useRef<RealtimeChannel | null>(null);
+  const estadoRef = useRef<EstadoTv | null>(null);
+  const acoesRef = useRef({ ir, pausado, total });
+  const [avisoControle, setAvisoControle] = useState<{ id: number; texto: string } | null>(null);
+  const enviarEstado = useCallback(() => {
+    if (canalRef.current && estadoRef.current) void canalRef.current.send({ type: "broadcast", event: "estado", payload: estadoRef.current });
+  }, []);
+  useEffect(() => {
+    acoesRef.current = { ir, pausado, total };
+    estadoRef.current = {
+      atual,
+      total: telas.length,
+      pausado,
+      titulo: tela?.titulo ?? "",
+      periodo: tela?.periodo ? `${tela.periodo.nome} · ${tela.periodo.datas}` : tela?.pessoa ? `#${tela.pessoa.codigo}` : null,
+      telas: telas.map((t) => `${t.titulo}${t.periodo ? ` · ${t.periodo.nome}` : t.pessoa ? ` · #${t.pessoa.codigo}` : ""}`),
+    };
+    enviarEstado();
+  }, [atual, pausado, telas, tela, ir, total, enviarEstado]);
+  useEffect(() => {
+    if (!canalTv) return;
+    const sb = clienteRealtime();
+    const ch = sb.channel(canalTv, { config: { broadcast: { self: false } } });
+    const avisar = (texto: string) => setAvisoControle({ id: Date.now(), texto });
+    ch.on("broadcast", { event: "cmd" }, ({ payload }) => {
+      const c = payload as ComandoTv;
+      const a = acoesRef.current;
+      if (c.acao === "anterior") {
+        a.ir(-1);
+        avisar("◀ Tela anterior");
+      } else if (c.acao === "proxima") {
+        a.ir(1);
+        avisar("Próxima tela ▶");
+      } else if (c.acao === "alternar") {
+        setPausado(!a.pausado);
+        avisar(a.pausado ? "▶ Rodando" : "⏸ Pausado pelo controle");
+      } else if (c.acao === "ir" && Number.isInteger(c.indice) && c.indice >= 0 && c.indice < a.total) {
+        setIndice(c.indice);
+        avisar("Tela escolhida no controle");
+      }
+    })
+      .on("broadcast", { event: "ping" }, () => enviarEstado())
+      .subscribe((st) => {
+        if (st === "SUBSCRIBED") enviarEstado();
+      });
+    canalRef.current = ch;
+    return () => {
+      canalRef.current = null;
+      void sb.removeChannel(ch);
+    };
+  }, [canalTv, enviarEstado]);
+  useEffect(() => {
+    if (!avisoControle) return;
+    const t = setTimeout(() => setAvisoControle(null), 1800);
+    return () => clearTimeout(t);
+  }, [avisoControle]);
+
   // rotação automática (o "pausar" trava só o carrossel; os dados continuam atualizando)
   useEffect(() => {
     if (pausado || telas.length <= 1 || !tela) return;
@@ -683,6 +807,20 @@ export function TvCliente({ token }: { token: string }) {
 
       <FaixaRecordes recordes={dados?.recordes ?? []} onNovo={confeteDoRecorde} />
 
+      <AnimatePresence>
+        {avisoControle && (
+          <motion.div
+            key={avisoControle.id}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="pointer-events-none fixed top-[2vh] left-1/2 z-50 -translate-x-1/2 rounded-full border border-sky-300/40 bg-sky-950/90 px-5 py-1.5 text-[2.2vh] font-bold text-sky-100 shadow-lg"
+          >
+            📱 {avisoControle.texto}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="relative z-10 mt-[2vh] flex flex-1 flex-col">
         {tela && (
           <div key={`${atual}-${tela.titulo}`} className="flex flex-1 flex-col duration-700 animate-in fade-in motion-reduce:animate-none">
@@ -690,6 +828,10 @@ export function TvCliente({ token }: { token: string }) {
               <TelaBarras tela={tela} configBarra={dados?.config?.mensagens_barra} onDispararConfete={dispararConfeteEm} />
             ) : tela.tipo === "pessoa" ? (
               <TelaPessoa tela={tela} />
+            ) : tela.tipo === "multi" ? (
+              <TelaMulti tela={tela} />
+            ) : tela.tipo === "grafico" ? (
+              <TelaGrafico tela={tela} />
             ) : tela.tipo === "participacao" ? (
               <TelaParticipacao tela={tela} />
             ) : tela.tipo === "destaques" ? (

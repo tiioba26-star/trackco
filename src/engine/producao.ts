@@ -42,7 +42,7 @@ export interface Producao {
   agendouRemarcadas: number;
   /** das marcações feitas, bloqueios da clínica e erros de cadastro */
   agendouOutras: number;
-  /** agendou − remarcadas − bloqueios/erros: cada paciente conta uma vez */
+  /** agendou − remarcadas − bloqueios/erros: a marcação remarcada sai, fica só a nova */
   agendouValidos: number;
   /** consultas marcadas PARA os dias do período (pelo dia da consulta), já sem remarcadas/bloqueios/erros */
   marcadasPara: number;

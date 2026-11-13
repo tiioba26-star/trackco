@@ -107,7 +107,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
         <Grande>
           <Contagem valor={numeros.validos} />
         </Grande>
-        <Linha>pacientes válidos (cada paciente conta uma vez)</Linha>
+        <Linha>pacientes válidos (remarcação não conta duas vezes)</Linha>
         {numeros.crescimento !== null && numeros.crescimento > 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
             <Selo>📈 +{n(numeros.crescimento)}% em relação a {d.mesAnterior}</Selo>

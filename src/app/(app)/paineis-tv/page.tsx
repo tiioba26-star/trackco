@@ -7,7 +7,7 @@ import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
 import { fmtDataHora } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { alternarPainel } from "./actions";
-import { EditarPainel, ExcluirPainel, NovoPainel, RegenerarLink } from "./cliente";
+import { BotaoControle, EditarPainel, ExcluirPainel, NovoPainel, RegenerarLink } from "./cliente";
 
 export const metadata = { title: "Painéis de TV" };
 
@@ -50,6 +50,7 @@ export default async function PaginaPaineis() {
                     <div className="text-xs text-muted-foreground">Último acesso: {fmtDataHora(p.ultimo_acesso)}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
+                    {p.ativo && <BotaoControle id={p.id} />}
                     <EditarPainel
                       painel={{
                         id: p.id,

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { TelaTv } from "@/lib/dados/tv";
 import { TacaPosicao } from "./carinha";
+import { Linha14 } from "./graficos-tv";
 
 // Telas da TV além do ranking e da tela por pessoa: equipe (Particular × SUS), pizza com as outras
 // equipes, destaques do mês passado e a faixa de recorde batido.
@@ -34,12 +35,14 @@ function ColunaCategoria({
   bruto,
   realizadas,
   clinica,
+  linha,
 }: {
   cat: "particular" | "sus";
   agendamentos: number;
   bruto?: number;
   realizadas: number;
   clinica: number | null;
+  linha?: { dias: string[]; valores: number[] };
 }) {
   const c = COR[cat];
   const pct = clinica ? Math.min(100, (realizadas / clinica) * 100) : null;
@@ -81,6 +84,11 @@ function ColunaCategoria({
           )}
         </div>
       </div>
+      {linha && linha.valores.length > 1 && (
+        <div className="mt-auto border-t border-white/10 pt-[1.2vh]">
+          <Linha14 valores={linha.valores} dias={linha.dias} cor={c.texto} />
+        </div>
+      )}
     </div>
   );
 }
@@ -95,8 +103,16 @@ export function TelaEquipe({ tela }: { tela: TelaTv }) {
         bruto={e.brutoParticular}
         realizadas={e.realizadasParticular.equipe}
         clinica={e.realizadasParticular.clinica}
+        linha={e.linha14 && { dias: e.linha14.dias, valores: e.linha14.particular }}
       />
-      <ColunaCategoria cat="sus" agendamentos={e.agendamentosSus} bruto={e.brutoSus} realizadas={e.realizadasSus.equipe} clinica={e.realizadasSus.clinica} />
+      <ColunaCategoria
+        cat="sus"
+        agendamentos={e.agendamentosSus}
+        bruto={e.brutoSus}
+        realizadas={e.realizadasSus.equipe}
+        clinica={e.realizadasSus.clinica}
+        linha={e.linha14 && { dias: e.linha14.dias, valores: e.linha14.sus }}
+      />
     </div>
   );
 }

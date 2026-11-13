@@ -10,46 +10,90 @@ export type BlocoTv =
   | "pessoas"
   | "equipe"
   | "participacao"
+  | "mes_dia_a_dia"
+  | "semanas"
+  | "comparecimento_semanas"
+  | "dia_semana"
+  | "consultas_dia_a_dia"
+  | "doze_meses"
   | "destaques_mes";
 
-export const BLOCOS_TV: { bloco: BlocoTv; rotulo: string; descricao: string; segundos: number }[] = [
+/** padrao = já vem ligado em painel novo (os outros ficam disponíveis para ligar no editar). */
+export const BLOCOS_TV: { bloco: BlocoTv; rotulo: string; descricao: string; segundos: number; padrao: boolean }[] = [
   {
     bloco: "ranking_particular",
     rotulo: "Ranking · Agendamentos Particular",
     descricao: "Quem mais marcou pacientes válidos (sem remarcações), pessoa por pessoa, com o total ao lado. Uma tela por período.",
     segundos: 30,
+    padrao: true,
   },
-  { bloco: "ranking_sus", rotulo: "Ranking · Agendamentos SUS", descricao: "Mesma coisa para o SUS (só acompanhamento).", segundos: 25 },
+  { bloco: "ranking_sus", rotulo: "Ranking · Agendamentos SUS", descricao: "Uma tela só, com todos os períodos lado a lado (só acompanhamento).", segundos: 25, padrao: true },
   {
     bloco: "melhorou",
     rotulo: "Quem mais melhorou",
-    descricao: "Crescimento de agendamentos válidos contra o mesmo ponto do período anterior. Só aparece quem cresceu.",
+    descricao: "Crescimento de agendamentos válidos contra o mesmo ponto do período anterior. Uma tela só, com os períodos lado a lado; só aparece quem cresceu.",
     segundos: 20,
+    padrao: true,
   },
   {
     bloco: "comparecimento",
     rotulo: "Melhor comparecimento",
-    descricao: "De cada 100 consultas marcadas, quantas aconteceram (só dias que já passaram, mínimo de 10 consultas).",
+    descricao: "De cada 100 consultas marcadas, quantas aconteceram (mínimo de 10). Uma tela só, com os períodos lado a lado.",
     segundos: 20,
+    padrao: true,
   },
-  { bloco: "pessoas", rotulo: "Marcadas × realizadas por pessoa", descricao: "Uma tela por pessoa, do 1º ao último do ranking do mês.", segundos: 12 },
-  { bloco: "equipe", rotulo: "Equipe por período", descricao: "Particular e SUS lado a lado: agendamentos e consultas realizadas × total da clínica.", segundos: 25 },
+  { bloco: "pessoas", rotulo: "Marcadas × realizadas por pessoa", descricao: "Uma tela por pessoa, do 1º ao último do ranking do mês.", segundos: 12, padrao: true },
+  {
+    bloco: "equipe",
+    rotulo: "Equipe por período",
+    descricao: "Particular e SUS lado a lado: agendamentos, consultas realizadas × total da clínica e a linha dos últimos 14 dias.",
+    segundos: 25,
+    padrao: true,
+  },
   {
     bloco: "participacao",
     rotulo: "Comercial × outras equipes (pizza)",
     descricao: "Que fatia de todas as marcações da clínica cada equipe fez: hoje, 7 dias, mês e mês passado.",
     segundos: 25,
+    padrao: true,
   },
-  { bloco: "destaques_mes", rotulo: "Destaques do mês passado", descricao: "Fechamento do mês anterior com os destaques de cada categoria. Fica o mês inteiro.", segundos: 30 },
+  {
+    bloco: "mes_dia_a_dia",
+    rotulo: "Gráfico · mês dia a dia",
+    descricao: "Agendamentos válidos por dia: este mês × mês passado, e o calendário por semana (que dia da semana rende mais).",
+    segundos: 25,
+    padrao: true,
+  },
+  { bloco: "semanas", rotulo: "Gráfico · últimas 26 semanas", descricao: "Agendamentos válidos Particular e SUS, semana a semana (cerca de 6 meses).", segundos: 20, padrao: true },
+  {
+    bloco: "comparecimento_semanas",
+    rotulo: "Gráfico · comparecimento por semana",
+    descricao: "Taxa de comparecimento Particular nas últimas 26 semanas, com a média como referência.",
+    segundos: 20,
+    padrao: true,
+  },
+  { bloco: "dia_semana", rotulo: "Gráfico · melhor dia da semana", descricao: "Média de agendamentos válidos por dia da semana nos últimos 3 meses.", segundos: 20, padrao: true },
+  {
+    bloco: "consultas_dia_a_dia",
+    rotulo: "Gráfico · consultas do mês dia a dia",
+    descricao: "Pela data da consulta: marcadas × compareceram, com os dias que ainda vão chegar.",
+    segundos: 20,
+    padrao: false,
+  },
+  { bloco: "doze_meses", rotulo: "Gráfico · 12 meses × meta", descricao: "Agendamentos válidos da equipe mês a mês, com a linha da meta.", segundos: 20, padrao: false },
+  { bloco: "destaques_mes", rotulo: "Destaques do mês passado", descricao: "Fechamento do mês anterior com os destaques de cada categoria. Fica o mês inteiro.", segundos: 30, padrao: true },
 ];
 
 /** Blocos que entraram depois: painéis antigos ganham estes automaticamente (podem desmarcar). */
-const BLOCOS_NOVOS_V3: BlocoTv[] = ["melhorou", "comparecimento", "participacao", "destaques_mes"];
+const BLOCOS_NOVOS: Record<3 | 4, BlocoTv[]> = {
+  3: ["melhorou", "comparecimento", "participacao", "destaques_mes"],
+  4: ["mes_dia_a_dia", "semanas", "comparecimento_semanas", "dia_semana"],
+};
 
 export type ModoTv = { tipo: "bloco"; bloco: BlocoTv };
 
 export interface ConfigTv {
-  versao?: 2 | 3;
+  versao?: 2 | 3 | 4;
   /** tempo padrão de cada tela (s), para blocos sem tempo próprio */
   intervalo: number;
   /** tempo de cada tipo de tela (s) */
@@ -67,10 +111,10 @@ export interface ConfigTv {
 }
 
 export const CONFIG_TV_PADRAO: ConfigTv = {
-  versao: 3,
+  versao: 4,
   intervalo: 30,
   tempos: Object.fromEntries(BLOCOS_TV.map((b) => [b.bloco, b.segundos])),
-  modos: BLOCOS_TV.map((b) => ({ tipo: "bloco", bloco: b.bloco })),
+  modos: BLOCOS_TV.filter((b) => b.padrao).map((b) => ({ tipo: "bloco", bloco: b.bloco })),
   periodos: [...PERIODOS_RAPIDOS],
   limites: { feliz: 80, mega_feliz: 100 },
   frases_rodape: [
@@ -92,21 +136,22 @@ export const CONFIG_TV_PADRAO: ConfigTv = {
 /** Painéis criados antes dos blocos (versão 1) passam a usar os blocos novos, mantendo textos e limites. */
 export function normalizarConfig(bruta: Partial<ConfigTv> | null | undefined): ConfigTv {
   const cfg = { ...CONFIG_TV_PADRAO, ...(bruta ?? {}) } as ConfigTv;
-  if (bruta?.versao !== 2 && bruta?.versao !== 3) {
+  const v = bruta?.versao;
+  if (v !== 2 && v !== 3 && v !== 4) {
     cfg.modos = CONFIG_TV_PADRAO.modos;
     cfg.periodos = CONFIG_TV_PADRAO.periodos;
-  } else if (bruta.versao === 2) {
+  } else {
+    const novos = [...(v < 3 ? BLOCOS_NOVOS[3] : []), ...(v < 4 ? BLOCOS_NOVOS[4] : [])];
     const tem = new Set((cfg.modos ?? []).map((m) => m.bloco));
-    cfg.modos = [...(cfg.modos ?? []), ...BLOCOS_NOVOS_V3.filter((b) => !tem.has(b)).map((bloco) => ({ tipo: "bloco" as const, bloco }))];
+    cfg.modos = [...(cfg.modos ?? []), ...novos.filter((b) => !tem.has(b)).map((bloco) => ({ tipo: "bloco" as const, bloco }))];
   }
-  cfg.versao = 3;
-  cfg.tempos = { ...CONFIG_TV_PADRAO.tempos, ...(bruta?.versao === 3 ? (bruta.tempos ?? {}) : {}) };
+  cfg.versao = 4;
+  cfg.tempos = { ...CONFIG_TV_PADRAO.tempos, ...(v === 3 || v === 4 ? (bruta?.tempos ?? {}) : {}) };
   cfg.modos = (cfg.modos ?? []).filter((m) => m.tipo === "bloco" && BLOCOS_TV.some((b) => b.bloco === m.bloco));
   cfg.periodos = (cfg.periodos ?? PERIODOS_RAPIDOS).filter((p) => PERIODOS_RAPIDOS.includes(p));
   if (!cfg.periodos.length) cfg.periodos = [...PERIODOS_RAPIDOS];
   return cfg;
 }
-
 
 /** Quantos segundos uma tela deste bloco fica na TV. */
 export function segundosDoBloco(cfg: ConfigTv, bloco: BlocoTv): number {

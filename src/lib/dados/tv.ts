@@ -1,10 +1,12 @@
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
 import { carinhaPara, type Carinha } from "@/engine/apuracao";
-import { competenciaAnterior, competenciaDe, datasEntre, diaDaSemanaISO, fimCompetencia, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
+import { competenciaAnterior, competenciaDe, datasEntre, diaDaSemanaISO, fimCompetencia, hojeNoFuso, inicioCompetencia, somarDias } from "@/engine/datas";
 import { destaquesDoMes, rankingComparecimento, rankingMelhorou } from "@/engine/destaques";
 import { diaMes, janelaAnterior, janelaRapida, type JanelaPeriodo, nomeMes } from "@/engine/periodos";
 import { calcularRecordes } from "@/engine/recordes";
+import { calendarioDoMes, type DiaCalendario, mediaPorDiaDaSemana, somaPorMes, somaPorSemana, validosPorDia } from "@/engine/series";
+import { seriesLongas } from "@/lib/dados/series-tv";
 import { type BlocoTv, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
 import { type Fatia, ontem, participacaoPorEquipe, recordesAnteriores } from "@/lib/dados/participacao";
 import type { Categoria, Producao } from "@/engine/producao";
@@ -12,6 +14,7 @@ import type { Metrica } from "@/engine/tipos";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import { codigosTv } from "@/lib/codigo-tv";
 import { linhasDasPessoas, producaoDe, realizadasDaClinica, realizadasNoPeriodo, regrasDaCategoria } from "@/lib/dados/producao";
+import { producaoPorDia } from "@/engine/producao";
 import { metricaPorPapel } from "@/lib/metricas-papel";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
@@ -24,6 +27,15 @@ export type { BlocoTv, ConfigTv, ModoTv } from "@/lib/tv-config";
 export function gerarToken(): { token: string; hash: string } {
   const token = randomBytes(24).toString("base64url");
   return { token, hash: hashToken(token) };
+}
+
+/**
+ * Nome do canal do controle remoto de um painel. Sai de um segredo do servidor: só quem abre a TV
+ * (pelo link) ou o controle (logado, com acesso ao painel) recebe o nome.
+ */
+export function canalControle(painelId: string): string {
+  const segredo = process.env.SUPABASE_SECRET_KEY ?? "trackco";
+  return `tv-ctrl-${createHmac("sha256", segredo).update(`controle|${painelId}`).digest("hex").slice(0, 32)}`;
 }
 
 export function hashToken(token: string): string {
@@ -49,8 +61,38 @@ export interface PeriodoTela {
   emAndamento: boolean;
 }
 
+/** Uma coluna da tela "todos os períodos lado a lado". */
+export interface ColunaTv {
+  periodo: PeriodoTela;
+  itens: ItemBarra[];
+  total?: number;
+  totalBruto?: number;
+  comparadoCom?: string;
+  /** texto quando a coluna não tem ninguém (ex.: ninguém cresceu ainda) */
+  vazio?: string;
+}
+
+export type GraficoTv =
+  | {
+      tipo: "mes_dia_a_dia";
+      mes: string;
+      mesAnterior: string;
+      dias: { d: string; atual: number | null; anterior: number | null }[];
+      calendario: DiaCalendario[];
+      totalAtual: number;
+      totalAnteriorMesmoPonto: number;
+    }
+  | { tipo: "consultas_dia_a_dia"; mes: string; dias: { d: string; marcadas: number; compareceram: number | null; futuro: boolean }[] }
+  | { tipo: "semanas"; semanas: { rotulo: string; particular: number; sus: number }[] }
+  | { tipo: "comparecimento_semanas"; semanas: { rotulo: string; taxa: number | null; marcadas: number }[]; media: number | null }
+  | { tipo: "dia_semana"; de: string; ate: string; dias: { rotulo: string; media: number; total: number }[] }
+  | { tipo: "doze_meses"; meses: { rotulo: string; validos: number; meta: number | null }[] };
+
 export interface TelaTv {
-  tipo: "barras" | "pessoa" | "equipe" | "participacao" | "destaques";
+  tipo: "barras" | "pessoa" | "equipe" | "participacao" | "destaques" | "multi" | "grafico";
+  /** tela "todos os períodos lado a lado" */
+  colunas?: ColunaTv[];
+  grafico?: GraficoTv;
   titulo: string;
   /** bloco de origem (tempo e ordem) */
   bloco?: BlocoTv;
@@ -92,6 +134,8 @@ export interface TelaTv {
     /** total marcado (com remarcações, bloqueios e erros) */
     brutoParticular?: number;
     brutoSus?: number;
+    /** válidos por dia nos últimos 14 dias */
+    linha14?: { dias: string[]; particular: number[]; sus: number[] };
     realizadasParticular: { equipe: number; clinica: number | null };
     realizadasSus: { equipe: number; clinica: number | null };
   };
@@ -106,6 +150,8 @@ export interface PayloadTv {
   telas: TelaTv[];
   /** recordes pessoais batidos agora (faixa comemorativa) */
   recordes?: string[];
+  /** canal do controle remoto */
+  canal?: string;
 }
 
 const periodoTela = (j: JanelaPeriodo): PeriodoTela => ({ nome: j.nome, datas: j.datas, emAndamento: j.emAndamento });
@@ -150,7 +196,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
     db.from("equipes").select("id, nome, dias_trabalho").in("id", painel.equipes as string[]).eq("ativo", true),
     db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao, ativo").eq("ativo", true),
     db.from("sync_execucoes").select("finalizado_em").eq("status", "ok").order("iniciado_em", { ascending: false }).limit(1).maybeSingle(),
-    codigosTv(),
+    codigosTv(hoje),
   ]);
   const metricas = (metricasRows ?? []) as Metrica[];
   const equipeIds = (equipes ?? []).map((e) => e.id);
@@ -243,6 +289,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
   for (const bloco of blocos) {
     if (bloco === "ranking_particular" || bloco === "ranking_sus") {
       const cat: Categoria = bloco === "ranking_sus" ? "sus" : "particular";
+      const colunas: ColunaTv[] = [];
       for (const j of janelas) {
         const p = prod(cat, j);
         if (!p) continue;
@@ -260,18 +307,23 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
             };
           })
           .sort((a, b) => b.valor - a.valor || (b.bruto ?? 0) - (a.bruto ?? 0) || a.id.localeCompare(b.id));
+        if (cat === "sus") {
+          colunas.push({ periodo: periodoTela(j), itens, total: p.total.agendouValidos, totalBruto: p.total.agendou });
+          continue;
+        }
         telas.push({
           tipo: "barras",
           bloco,
-          titulo: cat === "sus" ? "SUS · Agendamentos válidos" : "Agendamentos válidos · Particular",
+          titulo: "Agendamentos válidos · Particular",
           periodo: periodoTela(j),
-          destaque: cat === "particular" && j.periodo === "mes",
+          destaque: j.periodo === "mes",
           unidade: "un",
           itens,
           total: p.total.agendouValidos,
           totalBruto: p.total.agendou,
         });
       }
+      if (colunas.length) telas.push({ tipo: "multi", bloco, titulo: "SUS · Agendamentos válidos", unidade: "un", colunas });
     } else if (bloco === "pessoas") {
       // ordem: ranking de agendamentos Particular do mês, do 1º ao último
       const mes = janelaRapida("mes", hoje);
@@ -300,6 +352,10 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
         });
       });
     } else if (bloco === "equipe") {
+      const dias14 = datasEntre(somarDias(hoje, -13), hoje);
+      const vp = regras.particular ? validosPorDia(linhas, regras.particular, dias14[0], hoje) : new Map<string, number>();
+      const vs = regras.sus ? validosPorDia(linhas, regras.sus, dias14[0], hoje) : new Map<string, number>();
+      const linha14 = { dias: dias14.map(diaMes), particular: dias14.map((d) => vp.get(d) ?? 0), sus: dias14.map((d) => vs.get(d) ?? 0) };
       janelas.forEach((j, k) => {
         const pp = prod("particular", j);
         const ps = prod("sus", j);
@@ -316,6 +372,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
             agendamentosSus: ps?.total.agendouValidos ?? 0,
             brutoParticular: pp?.total.agendou ?? 0,
             brutoSus: ps?.total.agendou ?? 0,
+            linha14,
             realizadasParticular: {
               equipe: regras.particular ? realizadasNoPeriodo(linhas, regras.particular, ids, j.inicio, j.fim) : 0,
               clinica: clinPart,
@@ -335,42 +392,39 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
   const nomePainel = (equipes ?? []).map((e) => e.nome).join(" + ") || painel.nome;
   for (const bloco of blocos) {
     if (bloco === "melhorou" && rp) {
-      for (const j of janelas) {
-        if (j.periodo === "hoje") continue; // um dia só oscila demais para falar em "melhorou"
-        const ant = janelaAnterior(j, hoje);
-        const lista = rankingMelhorou(
-          producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa,
-          producaoDe(linhas, rp, ids, { inicio: ant.inicio, fim: ant.fim }, hoje).porPessoa,
-          ids,
-        );
-        if (!lista.length) continue;
-        telas.push({
-          tipo: "barras",
-          bloco,
-          titulo: "Quem mais melhorou · válidos Particular",
-          periodo: periodoTela(j),
-          comparadoCom: ant.nome,
-          unidade: "%",
-          mais: true,
-          mensagens: ["Evoluindo! 📈", "Superando a si mesma!", "Crescimento de verdade!"],
-          itens: lista.map((x) => ({ id: codigoDe(x.id), valor: x.pct, detalhe: `${x.atual} agora · ${x.anterior} antes`, atingimento: null, carinha: carinhaMes(x.id) })),
+      const colunas: ColunaTv[] = janelas
+        .filter((j) => j.periodo !== "hoje") // um dia só oscila demais para falar em "melhorou"
+        .map((j) => {
+          const ant = janelaAnterior(j, hoje);
+          const lista = rankingMelhorou(
+            producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa,
+            producaoDe(linhas, rp, ids, { inicio: ant.inicio, fim: ant.fim }, hoje).porPessoa,
+            ids,
+          );
+          return {
+            periodo: periodoTela(j),
+            comparadoCom: ant.nome,
+            vazio: "Ninguém cresceu ainda neste período",
+            itens: lista.map((x) => ({ id: codigoDe(x.id), valor: x.pct, detalhe: `${x.atual} agora · ${x.anterior} antes`, atingimento: null, carinha: carinhaMes(x.id) })),
+          };
         });
-      }
+      if (colunas.length)
+        telas.push({ tipo: "multi", bloco, titulo: "Quem mais melhorou · válidos Particular", unidade: "%", mais: true, colunas });
     } else if (bloco === "comparecimento" && rp) {
-      for (const j of janelas) {
-        if (j.periodo === "hoje") continue; // o dia de hoje ainda não terminou
-        const lista = rankingComparecimento(producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa, ids);
-        if (!lista.length) continue;
-        telas.push({
-          tipo: "barras",
-          bloco,
-          titulo: "Melhor comparecimento · Particular",
+      const colunas: ColunaTv[] = janelas
+        .filter((j) => j.periodo !== "hoje") // o dia de hoje ainda não terminou
+        .map((j) => ({
           periodo: periodoTela(j),
-          unidade: "%",
-          mensagens: ["Paciente que veio! ✅", "Agendamento de qualidade", "Confirmar faz diferença!"],
-          itens: lista.map((x) => ({ id: codigoDe(x.id), valor: x.taxa, detalhe: `${x.vieram} de ${x.marcadas} vieram`, atingimento: null, carinha: carinhaMes(x.id) })),
-        });
-      }
+          vazio: "Ainda sem 10 consultas encerradas",
+          itens: rankingComparecimento(producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa, ids).map((x) => ({
+            id: codigoDe(x.id),
+            valor: x.taxa,
+            detalhe: `${x.vieram} de ${x.marcadas} vieram`,
+            atingimento: null,
+            carinha: carinhaMes(x.id),
+          })),
+        }));
+      if (colunas.length) telas.push({ tipo: "multi", bloco, titulo: "Melhor comparecimento · Particular", unidade: "%", colunas });
     } else if (bloco === "participacao") {
       const logins = todosDaEquipe.map((m) => m.login_klingo).filter((l): l is string => !!l);
       const fatias = await participacaoPorEquipe(db, nomePainel, logins, janelas);
@@ -380,6 +434,110 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
         titulo: `${nomePainel} × outras equipes`,
         participacao: janelas.map((j, k) => ({ nome: j.nome, datas: j.datas, fatias: fatias[k] })),
       });
+    } else if (bloco === "mes_dia_a_dia" && rp) {
+      const porDia = validosPorDia(linhas, rp, inicioCompetencia(compAnt), hoje);
+      const dAtual = datasEntre(inicioCompetencia(comp), fimCompetencia(comp));
+      const dAnt = datasEntre(inicioCompetencia(compAnt), fimCompetencia(compAnt));
+      const n = Math.max(dAtual.length, dAnt.length);
+      const dias = Array.from({ length: n }, (_, k) => ({
+        d: String(k + 1).padStart(2, "0"),
+        atual: dAtual[k] && dAtual[k] <= hoje ? (porDia.get(dAtual[k]) ?? 0) : null,
+        anterior: dAnt[k] ? (porDia.get(dAnt[k]) ?? 0) : null,
+      }));
+      const ate = Number(hoje.slice(8));
+      telas.push({
+        tipo: "grafico",
+        bloco,
+        titulo: "Mês dia a dia · válidos Particular",
+        periodo: periodoTela(janelaRapida("mes", hoje)),
+        grafico: {
+          tipo: "mes_dia_a_dia",
+          mes: nomeMes(comp),
+          mesAnterior: nomeMes(compAnt),
+          dias,
+          calendario: calendarioDoMes(comp, porDia, hoje),
+          totalAtual: dias.slice(0, ate).reduce((t, x) => t + (x.atual ?? 0), 0),
+          totalAnteriorMesmoPonto: dias.slice(0, ate).reduce((t, x) => t + (x.anterior ?? 0), 0),
+        },
+      });
+    } else if (bloco === "consultas_dia_a_dia" && rp) {
+      const dAtual = datasEntre(inicioCompetencia(comp), fimCompetencia(comp));
+      telas.push({
+        tipo: "grafico",
+        bloco,
+        titulo: "Consultas do mês dia a dia · Particular",
+        periodo: periodoTela(janelaRapida("mes", hoje)),
+        grafico: {
+          tipo: "consultas_dia_a_dia",
+          mes: nomeMes(comp),
+          dias: producaoPorDia(linhas, rp, ids, dAtual, hoje).map((x) => ({
+            d: x.dia.slice(8),
+            marcadas: x.marcadas,
+            compareceram: x.futuro ? null : x.compareceram,
+            futuro: x.futuro,
+          })),
+        },
+      });
+    } else if ((bloco === "semanas" || bloco === "comparecimento_semanas" || bloco === "dia_semana" || bloco === "doze_meses") && rp) {
+      const sl = await seriesLongas(db, unicos.map((x) => ({ id: x.colaborador_id, login_klingo: x.login_klingo })), regras, hoje);
+      const part = new Map(sl.particular);
+      const rot = (seg: string) => diaMes(seg);
+      if (bloco === "semanas") {
+        const pS = somaPorSemana(part, sl.semanas);
+        const sS = somaPorSemana(new Map(sl.sus), sl.semanas);
+        telas.push({
+          tipo: "grafico",
+          bloco,
+          titulo: "Últimas 26 semanas · agendamentos válidos",
+          periodo: { nome: "26 semanas", datas: `${diaMes(sl.semanas[0])} a ${diaMes(hoje)}`, emAndamento: true },
+          grafico: { tipo: "semanas", semanas: sl.semanas.map((s2, k) => ({ rotulo: rot(s2), particular: pS[k], sus: sS[k] })) },
+        });
+      } else if (bloco === "comparecimento_semanas") {
+        const com = sl.comparecimento;
+        const m = com.reduce((t, x) => t + x.marcadas, 0);
+        const v = com.reduce((t, x) => t + x.vieram, 0);
+        telas.push({
+          tipo: "grafico",
+          bloco,
+          titulo: "Comparecimento por semana · Particular",
+          periodo: { nome: "26 semanas", datas: `${diaMes(sl.semanas[0])} a ${diaMes(somarDias(hoje, -1))}`, emAndamento: true },
+          grafico: {
+            tipo: "comparecimento_semanas",
+            semanas: sl.semanas.map((s2, k) => ({ rotulo: rot(s2), taxa: com[k]?.taxa ?? null, marcadas: com[k]?.marcadas ?? 0 })),
+            media: m >= 10 ? Math.round((v / m) * 1000) / 10 : null,
+          },
+        });
+      } else if (bloco === "dia_semana") {
+        const de = sl.semanas[sl.semanas.length - 13];
+        const ate = somarDias(sl.semanas[sl.semanas.length - 1], -1); // só semanas completas
+        telas.push({
+          tipo: "grafico",
+          bloco,
+          titulo: "Melhor dia da semana · válidos Particular",
+          periodo: { nome: "Últimas 12 semanas", datas: `${diaMes(de)} a ${diaMes(ate)}`, emAndamento: false },
+          grafico: { tipo: "dia_semana", de: diaMes(de), ate: diaMes(ate), dias: mediaPorDiaDaSemana(part, de, ate) },
+        });
+      } else {
+        const meses = somaPorMes(part);
+        const comps = Array.from({ length: 12 }, (_, k) => competenciaAnterior(comp, 11 - k));
+        const { data: metasEq } = await db
+          .from("metas")
+          .select("competencia, valor")
+          .is("colaborador_id", null)
+          .in("equipe_id", equipeIds)
+          .eq("metrica_id", validos?.id ?? "00000000-0000-0000-0000-000000000000");
+        const metaDe = (c: string) => {
+          const ms = (metasEq ?? []).filter((x) => String(x.competencia).startsWith(c));
+          return ms.length ? ms.reduce((t, x) => t + Number(x.valor), 0) : null;
+        };
+        telas.push({
+          tipo: "grafico",
+          bloco,
+          titulo: "12 meses × meta · válidos Particular",
+          periodo: { nome: "12 meses", datas: `${nomeMes(comps[0])}/${comps[0].slice(2, 4)} a ${nomeMes(comp)}/${comp.slice(2, 4)}`, emAndamento: true },
+          grafico: { tipo: "doze_meses", meses: comps.map((c) => ({ rotulo: `${nomeMes(c).slice(0, 3)}/${c.slice(2, 4)}`, validos: meses.get(c) ?? 0, meta: metaDe(c) })) },
+        });
+      }
     } else if (bloco === "destaques_mes" && rp) {
       const d = destaquesDoMes(linhas, rp, ids, compAnt, competenciaAnterior(compAnt), hoje);
       const nota = new Map<string, number>();
@@ -443,5 +601,6 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
     config,
     telas: ordenadas,
     recordes,
+    canal: canalControle(painel.id),
   };
 }

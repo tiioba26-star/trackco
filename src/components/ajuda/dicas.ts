@@ -79,7 +79,7 @@ export const DICAS = {
   "pn.agendou":
     "Total de marcações feitas DENTRO do período, pelo dia em que a marcação foi feita (não importa para quando é a consulta). Inclui as que depois viraram remarcação, bloqueios da clínica e erros: por isso é maior que 'válidos'.",
   "pn.validos":
-    "O número de verdade: pacientes marcados DENTRO do período, pelo dia em que a marcação foi feita, sem as marcações que depois foram remarcadas (o mesmo paciente ganhou outra marcação), bloqueios da clínica e erros de cadastro. Cada paciente conta uma vez. É o que vale no ranking. Ex.: marcou hoje uma consulta para dezembro → conta hoje.",
+    "O número de verdade: pacientes marcados DENTRO do período, pelo dia em que a marcação foi feita, sem as marcações que depois foram remarcadas (o mesmo paciente ganhou outra marcação), bloqueios da clínica e erros de cadastro. Cada marcação conta uma vez: a que foi remarcada sai e fica só a nova (dois procedimentos diferentes contam 2). É o que vale no ranking. Ex.: marcou hoje uma consulta para dezembro → conta hoje.",
   "pn.confirmar":
     "Consultas que você marcou para o próximo dia com atendimento. Ligue, confirme e marque aqui: 'Confirmou' ou 'Não atendeu'. Só você vê os nomes. Com o tempo, o Trackco mostra se as confirmadas faltam menos.",
   "pn.recordes":
@@ -95,7 +95,7 @@ export const DICAS = {
   "pn.desmarcaram": "O paciente desmarcou e não remarcou (cancelamento que não foi remarcação, bloqueio ou erro).",
   "pn.aguardando": "Consultas de hoje ou de dias futuros: ainda não dá para saber se o paciente vem.",
   "pn.codigo":
-    "Seu código na TV. A TV nunca mostra nomes: cada pessoa aparece por um número de 4 dígitos. Só você (e a gestão) sabe que este é o seu.",
+    "Seu código na TV hoje. A TV nunca mostra nomes: cada pessoa aparece por um número de 4 dígitos, que MUDA TODO DIA (assim ninguém decora o da colega). Para se achar na TV, confira aqui o de hoje.",
   "pn.sus": "SUS é só para acompanhar: não conta para meta, nota, prêmios, comissão ou pontos.",
   "pn.periodo":
     "Escolha de quando são os números. 'Mês' vai do dia 1º até agora; 'Mês passado' é o mês anterior inteiro. A comparação (▲▼) é sempre com o mesmo ponto do período anterior.",

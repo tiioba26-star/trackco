@@ -20,7 +20,7 @@ export interface Ajuda {
 const GLOSSARIO: Ajuda["glossario"] = [
   {
     termo: "Agendou (válidos)",
-    texto: "O número principal: pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data), sem remarcações, bloqueios da clínica e erros. Cada paciente conta uma vez. É o que vale no ranking.",
+    texto: "O número principal: pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data), sem remarcações, bloqueios da clínica e erros. Cada marcação conta uma vez: a que foi remarcada sai e fica só a nova (dois procedimentos diferentes contam 2). É o que vale no ranking.",
   },
   {
     termo: "Total marcado e remarques",
@@ -67,12 +67,12 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "retrospectiva", titulo: "Retrospectiva do mês", texto: "O fechamento do mês passado, em histórias: seus números, seu melhor dia, conquistas e recordes. Fica disponível o mês inteiro." },
       { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Últimos 7 dias, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
       { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora)." },
-      { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos. Este é o seu." },
+      { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos, que muda todo dia. Este é o seu de hoje." },
       { alvo: "posicao", titulo: "Sua posição", texto: "Um ícone discreto: pódio para 1º, 2º e 3º lugar em agendamentos no período; medalha de menção honrosa do 4º em diante." },
       { alvo: "ritmo", titulo: "2. Ritmo da meta", texto: "Quanto já foi feito, onde deveria estar hoje (o tracinho) e quanto falta por dia útil para bater a meta do mês." },
       { alvo: "confirmar", titulo: "Confirmar amanhã", texto: "Os pacientes que você marcou para o próximo dia com consultas. Ligue na véspera e marque quem confirmou: é o que mais evita falta." },
       { alvo: "recordes", titulo: "Seus recordes", texto: "Seu melhor dia, seu melhor mês e seu melhor comparecimento nos últimos 12 meses. Quando estiver perto de bater, aparece quanto falta." },
-      { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita, sem remarcações, bloqueios e erros (cada paciente uma vez). Embaixo: o total marcado, com as remarcações." },
+      { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita, sem remarcações, bloqueios e erros (a remarcada sai, fica só a nova). Embaixo: o total marcado, com as remarcações." },
       { alvo: "kpi-marcadas", titulo: "4. Consultas marcadas para o período", texto: "Agora pela DATA DA CONSULTA: consultas que caem no período. No mês atual inclui as que ainda vão acontecer." },
       { alvo: "kpi-compareceram", titulo: "5. Compareceram", texto: "Dessas consultas, quantos pacientes vieram." },
       { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). É a 'conversão'. O ▲▼ compara com o mesmo ponto do período anterior." },
@@ -265,15 +265,19 @@ export const AJUDA: Record<string, Ajuda> = {
   "/paineis-tv": {
     titulo: "Painéis de TV",
     resumo: [
-      "Crie links públicos (sem login) para deixar numa TV. Nunca aparecem nomes, fotos, iniciais, comissão ou pontos: cada pessoa é um código de 4 dígitos (ela vê o próprio código no Painel).",
+      "Crie links públicos (sem login) para deixar numa TV. Nunca aparecem nomes, fotos, iniciais, comissão ou pontos: cada pessoa é um código de 4 dígitos que muda todo dia (ela vê o código do dia no próprio Painel).",
       "Telas: rankings de agendamentos válidos Particular e SUS, 'Quem mais melhorou' e 'Melhor comparecimento' (outras formas de ganhar além do volume), uma tela por pessoa, a equipe com Particular e SUS lado a lado, a pizza com as outras equipes da clínica e os destaques do mês passado. Cada tela mostra o período e as datas.",
       "Cada tipo de tela tem o seu tempo (em segundos), ao lado da caixinha no editar. A tela por pessoa vem mais curta.",
       "Quando alguém bate um recorde pessoal (do dia ou do mês), aparece uma faixa dourada em todas as telas, com confete.",
       "O ícone de cada pessoa alterna entre perfil, carinha e a posição numa tacinha: 1º ouro, 2º prata, 3º bronze; do 4º em diante, branco.",
       "Na TV: ← → trocam de tela, espaço (ou P) pausa a rotação, e os pontinhos do rodapé levam direto a uma tela. Pausado, os números continuam atualizando.",
+      "Controle remoto: o botão 'Controle remoto' abre três botões (anterior, pausar/continuar, próxima) no PC ou no celular. Os comandos chegam na TV em menos de meio segundo, sem mouse nem teclado na TV.",
       "O link só aparece uma vez ao criar. Se vazar, gere outro, desative ou exclua o painel.",
     ],
-    passos: [{ alvo: "tv-novo", titulo: "Novo painel", texto: "Escolha equipes, tipos de tela, períodos e o intervalo." }],
+    passos: [
+      { alvo: "tv-novo", titulo: "Novo painel", texto: "Escolha equipes, tipos de tela, períodos e quanto tempo cada tela fica." },
+      { alvo: "tv-controle", titulo: "Controle remoto", texto: "Abra no PC ou no celular para pausar e passar as telas da TV." },
+    ],
   },
   "/auditoria": {
     titulo: "Auditoria",

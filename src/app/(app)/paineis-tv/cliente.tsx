@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Copy, ExternalLink, KeyRound, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, ExternalLink, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -444,5 +444,23 @@ export function RegenerarLink({ id }: { id: string }) {
       </Button>
       <MostrarLink token={token} onClose={() => setToken(null)} />
     </>
+  );
+}
+
+/** Abre o controle remoto da TV: janelinha no PC, a própria tela no celular. */
+export function BotaoControle({ id }: { id: string }) {
+  return (
+    <Button
+      size="sm"
+      data-tour="tv-controle"
+      onClick={() => {
+        const url = `/controle-tv/${id}`;
+        const pc = window.matchMedia("(min-width: 768px) and (pointer: fine)").matches;
+        const janela = pc ? window.open(url, `controle-${id}`, "popup,width=420,height=760") : null;
+        if (!janela) window.location.href = url;
+      }}
+    >
+      <Gamepad2 className="size-4" /> Controle remoto
+    </Button>
   );
 }

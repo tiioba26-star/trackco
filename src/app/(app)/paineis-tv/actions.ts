@@ -56,7 +56,7 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
-      versao: 3,
+      versao: 4,
       intervalo,
       tempos,
       modos,
@@ -107,7 +107,7 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
-      versao: 3,
+      versao: 4,
       intervalo,
       tempos,
       modos,

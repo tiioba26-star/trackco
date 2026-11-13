@@ -5,19 +5,12 @@ import type { RegrasProducao } from "@/engine/producao";
 import type { Linha } from "@/engine/tipos";
 import { buscarTodos } from "@/lib/calculo/carregar";
 import type { Pessoa } from "@/lib/dados/producao";
+import { lembrar } from "@/lib/memoria";
 import type { Db } from "@/lib/supabase/tipos";
 
 // Dados "da clínica inteira" para a TV. Mudam devagar, então ficam em memória por alguns minutos
 // (a TV pede de novo a cada minuto; sem isso seriam dezenas de contagens por minuto).
 
-const memoria = new Map<string, { ate: number; valor: unknown }>();
-async function lembrar<T>(chave: string, ms: number, fn: () => Promise<T>): Promise<T> {
-  const m = memoria.get(chave);
-  if (m && m.ate > Date.now()) return m.valor as T;
-  const valor = await fn();
-  memoria.set(chave, { ate: Date.now() + ms, valor });
-  return valor;
-}
 
 export interface Fatia {
   equipe: string;

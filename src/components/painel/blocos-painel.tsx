@@ -51,7 +51,7 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
         tour="kpi-agendou"
         descricao={
           <>
-            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta. Cada paciente conta uma vez.
+            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta. A marcação que virou remarque sai; fica só a nova.
           </>
         }
         variacao={<Variacao atual={t.agendouValidos} anterior={a.total.agendouValidos} nome={a.nome} />}
@@ -177,7 +177,7 @@ export async function BlocoMeu({
     resumoPeriodo(db, { pessoas: eu, metricas, janela, hoje, categoria: "sus" }),
     comp ? minhasApuracoes(db, s.colaborador.id, comp) : Promise.resolve([]),
     minhaPosicao(s.colaborador.id, equipeId, metricas, janela, hoje),
-    codigosTv(),
+    codigosTv(hoje),
     linhasRelatorio(db, { de: competenciaAnterior(mesAtual, 11), ate: mesAtual, colaboradorId: s.colaborador.id }),
   ]);
   const minha = aps.find((a) => a.funcao === "membro");
@@ -213,7 +213,7 @@ export async function BlocoMeu({
         <h3 className="text-lg font-semibold">Seu desempenho</h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 rounded-md border bg-card px-2 py-1" data-tour="codigo">
-            Seu código na TV <b className="font-mono text-sm text-foreground">#{codigos.get(s.colaborador.id) ?? "----"}</b>
+            Seu código na TV hoje <b className="font-mono text-sm text-foreground">#{codigos.get(s.colaborador.id) ?? "----"}</b>
             <Dica id="pn.codigo" />
           </span>
           {posicao && <IconePosicao posicao={posicao.posicao} de={posicao.de} periodo={janela.nome.toLowerCase()} />}
