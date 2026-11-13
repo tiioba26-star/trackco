@@ -2,9 +2,13 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { Cabecalho } from "@/components/app/cabecalho";
+import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { exigirSessao } from "@/lib/auth";
+import { hojeNoFuso } from "@/engine/datas";
+import { exigirSessao, type Sessao } from "@/lib/auth";
+import { formularioPendente } from "@/lib/dados/formularios";
+import { criarClienteServidor } from "@/lib/supabase/server";
 
 /** Esqueleto mostrado enquanto a sessão e os dados carregam (shell estático do Cache Components). */
 function CarregandoApp() {
@@ -22,6 +26,14 @@ function CarregandoApp() {
       </div>
     </div>
   );
+}
+
+/** Pesquisa obrigatória da rodada, se houver. Carrega à parte: nunca atrasa a página. */
+async function BloqueioFormulario({ s }: { s: Sessao }) {
+  const db = await criarClienteServidor();
+  const pendente = await formularioPendente(db, s, hojeNoFuso());
+  if (!pendente) return null;
+  return <FormularioObrigatorio formulario={pendente.formulario} rodada={pendente.rodada} admin={s.ehAdmin} />;
 }
 
 async function Shell({ children }: { children: React.ReactNode }) {
@@ -47,6 +59,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
           </Suspense>
         </div>
       </SidebarInset>
+      <Suspense fallback={null}>
+        <BloqueioFormulario s={s} />
+      </Suspense>
     </SidebarProvider>
   );
 }

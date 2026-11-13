@@ -42,6 +42,24 @@ describe("métricas por papel", () => {
     expect(metricaPorPapel(METRICAS, "marcadas_para")).toBeNull();
   });
 
+  it("separa agendamentos (total) de agendamentos válidos (sem remarques), qualquer que seja a ordem", () => {
+    const fora = { campo: "situacao", op: "nao_em" as const, valor: ["remarcada", "falta_remarcada", "bloqueio_clinica", "erro"] };
+    const validos: Metrica = {
+      id: "5",
+      codigo: "validos_x",
+      nome: "Válidos",
+      tipo: "quantitativa",
+      unidade: "un",
+      definicao: { tipo_calculo: "simples", ...k("data_agendado_em", [particular, fora]) },
+    };
+    for (const lista of [[validos, ...METRICAS], [...METRICAS, validos]]) {
+      expect(metricaPorPapel(lista, "agendamentos")?.id).toBe("1");
+      expect(metricaPorPapel(lista, "agendamentos_validos")?.id).toBe("5");
+    }
+    expect(metricaPorPapel(METRICAS, "agendamentos_validos")).toBeNull();
+    expect(resolverMetrica([validos, ...METRICAS], "agendamentos_validos")?.id).toBe("5");
+  });
+
   it("resolve por id, por código e por código antigo (painéis de TV antigos)", () => {
     expect(resolverMetrica(METRICAS, "3")?.codigo).toBe("realizadasparticular");
     expect(resolverMetrica(METRICAS, "agendamentos_sus")?.id).toBe("2");

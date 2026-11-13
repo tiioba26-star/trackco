@@ -5,7 +5,7 @@ import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 export type BlocoTv = "ranking_particular" | "ranking_sus" | "pessoas" | "equipe";
 
 export const BLOCOS_TV: { bloco: BlocoTv; rotulo: string; descricao: string }[] = [
-  { bloco: "ranking_particular", rotulo: "Ranking · Agendamentos Particular", descricao: "Quem mais marcou, pessoa por pessoa (uma tela por período)." },
+  { bloco: "ranking_particular", rotulo: "Ranking · Agendamentos Particular", descricao: "Quem mais marcou pacientes válidos (sem remarcações), pessoa por pessoa, com o total ao lado. Uma tela por período." },
   { bloco: "ranking_sus", rotulo: "Ranking · Agendamentos SUS", descricao: "Mesma coisa para o SUS (só acompanhamento)." },
   { bloco: "pessoas", rotulo: "Marcadas × realizadas por pessoa", descricao: "Uma tela por pessoa, do 1º ao último do ranking do mês." },
   { bloco: "equipe", rotulo: "Equipe por período", descricao: "Totais da equipe e consultas realizadas × total da clínica." },

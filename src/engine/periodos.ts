@@ -9,7 +9,7 @@ export interface JanelaPeriodo {
   periodo: PeriodoRapido | "personalizado";
   inicio: string;
   fim: string;
-  /** "Hoje", "Esta semana", "Novembro até agora", "Outubro (mês passado)" */
+  /** "Hoje", "Últimos 7 dias", "Novembro até agora", "Outubro (mês passado)" */
   nome: string;
   /** "sex, 13/11", "09/11 a 13/11", "01/11 a 13/11" */
   datas: string;
@@ -50,8 +50,9 @@ export function janelaRapida(periodo: PeriodoRapido, hoje: string): JanelaPeriod
     case "hoje":
       return { periodo, inicio: hoje, fim: hoje, fimPara: hoje, nome: "Hoje", datas: textoDatas(hoje, hoje), emAndamento: true };
     case "semana": {
-      const inicio = somarDias(hoje, 1 - diaDaSemanaISO(hoje)); // segunda-feira
-      return { periodo, inicio, fim: hoje, fimPara: somarDias(inicio, 6), nome: "Esta semana", datas: textoDatas(inicio, hoje), emAndamento: true };
+      // "semana" na URL e nas configs da TV; na tela: hoje e os 6 dias antes, sem depender de segunda-feira
+      const inicio = somarDias(hoje, -6);
+      return { periodo, inicio, fim: hoje, fimPara: hoje, nome: "Últimos 7 dias", datas: textoDatas(inicio, hoje), emAndamento: true };
     }
     case "mes": {
       const inicio = inicioCompetencia(comp);
@@ -114,7 +115,7 @@ export function mesesDaJanela(inicio: string, fim: string): string[] {
 
 /**
  * Período anterior "no mesmo ponto", para comparar de forma justa:
- * hoje → mesmo dia da semana passada; semana → semana passada até o mesmo dia;
+ * hoje → mesmo dia da semana passada; últimos 7 dias → os 7 dias antes deles;
  * mês corrente → mês anterior até o mesmo dia; mês fechado → mês anterior inteiro.
  */
 export function janelaAnterior(j: JanelaPeriodo, hoje: string): { inicio: string; fim: string; nome: string } {
@@ -123,7 +124,9 @@ export function janelaAnterior(j: JanelaPeriodo, hoje: string): { inicio: string
     return { inicio: d, fim: d, nome: `${SEMANA[diaDaSemanaISO(d) - 1]} passada (${diaMes(d)})` };
   }
   if (j.periodo === "semana") {
-    return { inicio: somarDias(j.inicio, -7), fim: somarDias(j.fim, -7), nome: "semana passada até o mesmo dia" };
+    const inicio = somarDias(j.inicio, -7);
+    const fim = somarDias(j.fim, -7);
+    return { inicio, fim, nome: `7 dias antes (${textoDatas(inicio, fim, hoje.slice(0, 4))})` };
   }
   const ehMesInteiro = j.inicio.slice(8) === "01" && (j.fim === fimCompetencia(j.inicio) || j.periodo === "mes");
   if (ehMesInteiro) {

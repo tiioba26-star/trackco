@@ -8,7 +8,7 @@ const HOJE = "2026-11-13"; // sexta
 describe("período anterior no mesmo ponto (comparação justa)", () => {
   it("dia, semana, mês corrente, mês fechado e período escolhido", () => {
     expect(janelaAnterior(janelaRapida("hoje", HOJE), HOJE)).toMatchObject({ inicio: "2026-11-06", fim: "2026-11-06" });
-    expect(janelaAnterior(janelaRapida("semana", HOJE), HOJE)).toMatchObject({ inicio: "2026-11-02", fim: "2026-11-06" });
+    expect(janelaAnterior(janelaRapida("semana", HOJE), HOJE)).toMatchObject({ inicio: "2026-10-31", fim: "2026-11-06", nome: "7 dias antes (31/10 a 06/11)" });
     expect(janelaAnterior(janelaRapida("mes", HOJE), HOJE)).toMatchObject({ inicio: "2026-10-01", fim: "2026-10-13", nome: "outubro até o dia 13" });
     expect(janelaAnterior(janelaRapida("mes", "2026-03-31"), "2026-03-31")).toMatchObject({ fim: "2026-02-28" });
     expect(janelaAnterior(janelaRapida("mes_passado", HOJE), HOJE)).toMatchObject({ inicio: "2026-09-01", fim: "2026-09-30" });
@@ -17,9 +17,9 @@ describe("período anterior no mesmo ponto (comparação justa)", () => {
 });
 
 describe("períodos com datas por extenso", () => {
-  it("hoje, semana (desde segunda), mês até agora e mês passado", () => {
+  it("hoje, últimos 7 dias, mês até agora e mês passado", () => {
     expect(janelaRapida("hoje", HOJE)).toMatchObject({ inicio: HOJE, fim: HOJE, nome: "Hoje", datas: "sex, 13/11" });
-    expect(janelaRapida("semana", HOJE)).toMatchObject({ inicio: "2026-11-09", fim: HOJE, datas: "09/11 a 13/11" });
+    expect(janelaRapida("semana", HOJE)).toMatchObject({ inicio: "2026-11-07", fim: HOJE, fimPara: HOJE, nome: "Últimos 7 dias", datas: "07/11 a 13/11" });
     expect(janelaRapida("mes", HOJE)).toMatchObject({ inicio: "2026-11-01", fim: HOJE, nome: "Novembro até agora", datas: "01/11 a 13/11" });
     expect(janelaRapida("mes_passado", HOJE)).toMatchObject({
       inicio: "2026-10-01",
@@ -29,8 +29,8 @@ describe("períodos com datas por extenso", () => {
     });
   });
 
-  it("semana que começa no mês anterior e meses de outro ano", () => {
-    expect(janelaRapida("semana", "2026-12-02").inicio).toBe("2026-11-30");
+  it("7 dias que começam no mês anterior e meses de outro ano", () => {
+    expect(janelaRapida("semana", "2026-12-02").inicio).toBe("2026-11-26");
     expect(mesesDaJanela("2026-11-30", "2026-12-02")).toEqual(["2026-11", "2026-12"]);
     expect(janelaDoMes("2025-03", HOJE)).toMatchObject({ nome: "Março de 2025", datas: "01/03/2025 a 31/03/2025" });
     expect(textoDatas("2026-01-05", "2026-01-05")).toBe("seg, 05/01");

@@ -19,12 +19,12 @@ export interface Ajuda {
 /** Os mesmos termos aparecem no Painel, na TV, no Extrato e na Análise. */
 const GLOSSARIO: Ajuda["glossario"] = [
   {
-    termo: "Agendou",
-    texto: "Pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data). É o esforço.",
+    termo: "Agendou (válidos)",
+    texto: "O número principal: pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data), sem remarcações, bloqueios da clínica e erros. Cada paciente conta uma vez. É o que vale no ranking.",
   },
   {
-    termo: "Remarques e válidos",
-    texto: "Toda remarcação vira uma marcação nova no Klingo. 'Válidos' tira as remarcações, bloqueios da clínica e erros: cada paciente conta uma vez.",
+    termo: "Total marcado e remarques",
+    texto: "Toda remarcação vira uma marcação nova no Klingo. O 'total' conta todas, inclusive remarcações, bloqueios e erros; por isso é maior que 'válidos'. Aparece sempre ao lado, para comparar.",
   },
   {
     termo: "Consultas marcadas para o período",
@@ -36,7 +36,7 @@ const GLOSSARIO: Ajuda["glossario"] = [
     texto: "Compareceram ÷ consultas marcadas, só em dias que já passaram. Ex.: 72% = de cada 100 consultas marcadas, 72 aconteceram.",
   },
   { termo: "Faltaram / desmarcaram", texto: "Faltou = o dia passou e o paciente não veio. Desmarcou = cancelou e não remarcou." },
-  { termo: "▲ ▼ comparação", texto: "Sempre com o mesmo ponto do período anterior: mês até o dia 13 × mês passado até o dia 13; semana até sexta × semana passada até sexta." },
+  { termo: "▲ ▼ comparação", texto: "Sempre com o mesmo ponto do período anterior: mês até o dia 13 × mês passado até o dia 13; últimos 7 dias × os 7 dias antes deles; hoje × o mesmo dia da semana passada." },
   { termo: "Nível e nota", texto: "Resultado do mês pelas regras do plano (pesos e faixas). Só existe para meses; veja o cálculo no Extrato." },
   { termo: "SUS", texto: "Só para acompanhar. Nunca entra em meta, nota, prêmio, comissão ou pontos." },
 ];
@@ -51,7 +51,7 @@ export const AJUDA: Record<string, Ajuda> = {
     titulo: "Painel",
     resumo: [
       "O Painel responde três perguntas: quanto foi feito, o que aconteceu com as consultas e se o ritmo está bom para a meta.",
-      "Comece pelo PERÍODO no topo (Hoje, Semana, Mês, Mês passado ou outro mês). A linha 'Mostrando' diz exatamente quais datas estão sendo contadas, e todos os números da tela seguem essa escolha.",
+      "Comece pelo PERÍODO no topo (Hoje, Últimos 7 dias, Mês, Mês passado ou outro mês). A linha 'Mostrando' diz exatamente quais datas estão sendo contadas, e todos os números da tela seguem essa escolha.",
       "Existem duas datas diferentes, e é isso que mais confunde: 'Agendou' conta pelo dia em que a pessoa MARCOU; 'Consultas marcadas para o período', 'Compareceram' e a taxa contam pelo DIA DA CONSULTA.",
       "Os dados vêm do Klingo de hora em hora em horário comercial. O horário da última atualização fica no canto de cima.",
       "Atendentes veem só os próprios números (e o próprio código da TV). Líderes e administradores veem também a equipe, pessoa por pessoa.",
@@ -64,21 +64,23 @@ export const AJUDA: Record<string, Ajuda> = {
     glossario: GLOSSARIO,
     passos: [
       ...PASSOS_MENU,
-      { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Semana, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
+      { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Últimos 7 dias, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
       { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora)." },
       { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos. Este é o seu." },
       { alvo: "posicao", titulo: "Sua posição", texto: "Um ícone discreto: pódio para 1º, 2º e 3º lugar em agendamentos no período; medalha de menção honrosa do 4º em diante." },
       { alvo: "ritmo", titulo: "2. Ritmo da meta", texto: "Quanto já foi feito, onde deveria estar hoje (o tracinho) e quanto falta por dia útil para bater a meta do mês." },
-      { alvo: "kpi-agendou", titulo: "3. Agendou", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita. Embaixo: quantos foram remarcações e quantos são válidos (cada paciente uma vez)." },
+      { alvo: "confirmar", titulo: "Confirmar amanhã", texto: "Os pacientes que você marcou para o próximo dia com consultas. Ligue na véspera e marque quem confirmou: é o que mais evita falta." },
+      { alvo: "recordes", titulo: "Seus recordes", texto: "Seu melhor dia, seu melhor mês e seu melhor comparecimento nos últimos 12 meses. Quando estiver perto de bater, aparece quanto falta." },
+      { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita, sem remarcações, bloqueios e erros (cada paciente uma vez). Embaixo: o total marcado, com as remarcações." },
       { alvo: "kpi-marcadas", titulo: "4. Consultas marcadas para o período", texto: "Agora pela DATA DA CONSULTA: consultas que caem no período. No mês atual inclui as que ainda vão acontecer." },
       { alvo: "kpi-compareceram", titulo: "5. Compareceram", texto: "Dessas consultas, quantos pacientes vieram." },
       { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). É a 'conversão'. O ▲▼ compara com o mesmo ponto do período anterior." },
       { alvo: "destino", titulo: "7. O que aconteceu com as consultas", texto: "Cada consulta marcada para o período termina em: compareceu, faltou, desmarcou ou ainda vai acontecer. É onde dá para agir (ex.: confirmar na véspera)." },
       { alvo: "sus", titulo: "SUS", texto: "Só acompanhamento: não conta para meta, nota ou prêmios." },
-      { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantas marcações foram feitas em cada dia. Mostra os dias fortes e fracos." },
+      { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantas marcações foram feitas em cada dia: válidos × total. Mostra os dias fortes e fracos e onde as remarcações pesaram." },
       { alvo: "grafico-consultas", titulo: "9. Consultas de cada dia", texto: "Pelo dia da consulta: marcadas × compareceram. Barras claras são dias que ainda vão chegar." },
       { alvo: "categoria", titulo: "Particular ou SUS", texto: "Troca todos os números da equipe entre Particular e SUS." },
-      { alvo: "tabela-producao", titulo: "10. Produção por pessoa", texto: "Responde: quanto cada uma agendou no período, quanto foi remarque, quantas consultas estavam marcadas para o período e o que aconteceu com elas. Cada coluna tem o seu ?." },
+      { alvo: "tabela-producao", titulo: "10. Produção por pessoa", texto: "Responde: quanto cada uma agendou no período (total), quanto foi remarque, quantos são válidos, quantas consultas estavam marcadas para o período e o que aconteceu com elas. Cada coluna tem o seu ?." },
       { alvo: "grafico-remarques", titulo: "Agendou × válidos", texto: "A diferença entre as barras é o 'número inflado' por remarcações, bloqueios e erros." },
       { alvo: "grafico-pessoas", titulo: "Marcadas × compareceram", texto: "Quem converte melhor as consultas que marca." },
       { alvo: "historico", titulo: "Histórico", texto: "Resultado oficial mês a mês. Toque num mês para abrir o extrato com o cálculo." },
@@ -239,6 +241,24 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "dados-sync", titulo: "Sincronizações", texto: "Histórico das execuções do robô." },
       { alvo: "dados-recalc", titulo: "Recalcular", texto: "Atualiza as apurações do mês atual e do anterior." },
       { alvo: "dados-lanc", titulo: "Lançamentos", texto: "Notas e registros manuais usados por métricas da fonte 'Lançamentos'." },
+    ],
+  },
+  "/formularios": {
+    titulo: "Formulários",
+    resumo: [
+      "Pesquisas curtas e obrigatórias. No dia marcado, no primeiro acesso, o site fica desfocado com a pesquisa por cima até a pessoa responder. Quem não entrar no dia responde quando entrar.",
+      "Já vêm dois modelos prontos (desligados): 'Facilidade de uso (SUS)', a cada 3 meses, que dá uma nota de 0 a 100 (média de mercado 68), e o 'Pulso do mês', com 4 perguntas sobre clareza, justiça e utilidade.",
+      "Anônimo (recomendado): você vê quem já respondeu, mas não o que cada um respondeu. Sem medo de represália, as respostas são mais sinceras.",
+      "Pode ter vários formulários ligados ao mesmo tempo: aparece um de cada vez. Desligar tira o bloqueio na hora.",
+    ],
+    dicas: [
+      "Poucas perguntas, uma ideia por pergunta e sempre uma aberta ('o que você mudaria?').",
+      "Mostre para a equipe o que mudou por causa das respostas: é o que faz as pessoas continuarem respondendo com sinceridade.",
+      "Como admin, a pesquisa não bloqueia as telas de Formulários, para você poder corrigir um formulário com problema.",
+    ],
+    passos: [
+      { alvo: "form-novo", titulo: "Novo formulário", texto: "Comece de um modelo pronto ou em branco." },
+      { alvo: "form-cartao", titulo: "Cada formulário", texto: "Liga/desliga, quando abre, quantos já responderam na rodada e os resultados." },
     ],
   },
   "/paineis-tv": {

@@ -91,7 +91,8 @@ function aplicarFiltros(q: Consulta, filtros: Filtro[]): Consulta {
         q = q.ilike(f.campo, v[0] ?? "");
         break;
       case "diferente":
-        q = q.not(f.campo, "ilike", v[0] ?? "");
+        // "não é X" inclui quem está vazio (no banco, NOT ILIKE descartaria os nulos)
+        q = q.or(`${f.campo}.is.null,${f.campo}.not.ilike.${JSON.stringify(v[0] ?? "")}`);
         break;
       case "contem":
         q = q.ilike(f.campo, `%${v[0] ?? ""}%`);
@@ -100,7 +101,8 @@ function aplicarFiltros(q: Consulta, filtros: Filtro[]): Consulta {
         q = q.in(f.campo, v);
         break;
       case "nao_em":
-        q = q.not(f.campo, "in", `(${v.map((x) => `"${x.replace(/"/g, "")}"`).join(",")})`);
+        // idem: situação vazia (consulta ainda não verificada) continua contando
+        q = q.or(`${f.campo}.is.null,${f.campo}.not.in.(${v.map((x) => `"${x.replace(/"/g, "")}"`).join(",")})`);
         break;
       case "verdadeiro":
         q = q.eq(f.campo, true);
@@ -190,7 +192,8 @@ export async function minhaPosicao(
   );
   const ids = membros.map((m) => m.colaborador_id);
   const p = producaoDe(linhas, regras, ids, { inicio: janela.inicio, fim: janela.fim }, hoje);
-  const meu = p.porPessoa.get(colaboradorId)?.agendou ?? 0;
-  const naFrente = ids.filter((id) => (p.porPessoa.get(id)?.agendou ?? 0) > meu).length;
+  // mesmo critério do ranking da TV: agendamentos válidos (remarcar não sobe posição)
+  const meu = p.porPessoa.get(colaboradorId)?.agendouValidos ?? 0;
+  const naFrente = ids.filter((id) => (p.porPessoa.get(id)?.agendouValidos ?? 0) > meu).length;
   return { posicao: naFrente + 1, de: ids.length };
 }

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const ABAS: { p: PeriodoRapido; rotulo: string }[] = [
   { p: "hoje", rotulo: "Hoje" },
-  { p: "semana", rotulo: "Semana" },
+  { p: "semana", rotulo: "Últimos 7 dias" },
   { p: "mes", rotulo: "Mês" },
   { p: "mes_passado", rotulo: "Mês passado" },
 ];

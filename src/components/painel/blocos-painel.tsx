@@ -1,13 +1,16 @@
 import { AlertTriangle, BarChart3, MessageSquareWarning, UserX } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Dica } from "@/components/ajuda/dica";
 import type { ChaveDica } from "@/components/ajuda/dicas";
 import { NivelBadge, Vazio } from "@/components/app/blocos";
 import { GraficoComparativo } from "@/components/graficos/comparativo";
 import { GraficoMensal } from "@/components/graficos/mensal";
 import { BarraDestino, CartaoKpi, CartaoRitmo, IconePosicao, Variacao } from "@/components/painel/periodo";
+import { CartaoConfirmar, CartaoRecordes } from "@/components/painel/rotina";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { competenciaAnterior, competenciaDe, fimCompetencia, nomeCompetencia } from "@/engine/datas";
 import { diaMes, type JanelaPeriodo } from "@/engine/periodos";
@@ -42,20 +45,27 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-tour="kpis">
       <CartaoKpi
-        titulo={voce ? "Você agendou" : "A equipe agendou"}
-        valor={t.agendou}
-        dica="pn.agendou"
+        titulo={voce ? "Você agendou (válidos)" : "A equipe agendou (válidos)"}
+        valor={t.agendouValidos}
+        dica="pn.validos"
         tour="kpi-agendou"
         descricao={
           <>
-            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta.
+            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta. Cada paciente conta uma vez.
           </>
         }
-        variacao={<Variacao atual={t.agendou} anterior={a.total.agendou} nome={a.nome} />}
+        variacao={<Variacao atual={t.agendouValidos} anterior={a.total.agendouValidos} nome={a.nome} />}
         rodape={
           <span className="inline-flex flex-wrap items-center gap-1">
-            {fmtValor(t.agendouRemarcadas)} viraram remarcação <Dica id="pn.remarques" /> · <b className="text-foreground">{fmtValor(t.agendouValidos)}</b> válidos
-            <Dica id="pn.validos" />
+            Total marcado <b className="text-foreground">{fmtValor(t.agendou)}</b>
+            <Dica id="pn.agendou" />
+            {t.agendou > t.agendouValidos && (
+              <>
+                · {fmtValor(t.agendouRemarcadas)} remarcações
+                {t.agendouOutras > 0 && ` e ${fmtValor(t.agendouOutras)} bloqueios/erros`}
+                <Dica id="pn.remarques" />
+              </>
+            )}
           </span>
         }
       />
@@ -104,16 +114,20 @@ function GraficosDia({ r, quem }: { r: ResumoPeriodo; quem: "voce" | "equipe" })
     <div className="grid gap-4 lg:grid-cols-2">
       <Card data-tour="grafico-agendou">
         <CardHeader>
-          <CardTitle>Agendamentos feitos por dia</CardTitle>
+          <CardTitle>Agendamentos feitos por dia: válidos × total</CardTitle>
           <CardDescription>
-            Quantos pacientes {quem === "voce" ? "você marcou" : "a equipe marcou"} em cada dia (pelo dia em que marcou). É o esforço do dia.
+            Quantos pacientes {quem === "voce" ? "você marcou" : "a equipe marcou"} em cada dia (pelo dia em que marcou). A diferença entre as barras são
+            remarcações, bloqueios e erros.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <GraficoComparativo
-            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), a: d.futuro ? null : d.agendou, b: null, futuro: d.futuro }))}
-            rotuloA="Agendou"
+            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), a: d.futuro ? null : d.validos, b: d.futuro ? null : d.agendou, futuro: d.futuro }))}
+            rotuloA="Válidos"
             unidadeA="un"
+            rotuloB="Total marcado"
+            unidadeB="un"
+            corB="var(--muted-foreground)"
             altura={220}
           />
         </CardContent>
@@ -168,7 +182,11 @@ export async function BlocoMeu({
   ]);
   const minha = aps.find((a) => a.funcao === "membro");
   const agend = metricaPorPapel(metricas, "agendamentos");
-  const indAgend = minha?.resultado.indicadores.find((i) => i.metrica_id === agend?.id);
+  const validos = metricaPorPapel(metricas, "agendamentos_validos");
+  // o plano pode medir o total ou os válidos: o ritmo segue o que estiver no plano
+  const indAgend =
+    minha?.resultado.indicadores.find((i) => i.metrica_id === validos?.id) ?? minha?.resultado.indicadores.find((i) => i.metrica_id === agend?.id);
+  const ritmoEmValidos = !!validos && indAgend?.metrica_id === validos.id;
   const dias = minha?.resultado.dias;
 
   // histórico: realizado mês a mês (últimos 12 meses)
@@ -204,7 +222,7 @@ export async function BlocoMeu({
 
       {indAgend?.meta_ajustada && dias ? (
         <CartaoRitmo
-          titulo={`Meta de agendamentos · ${nomeCompetencia(comp!)}`}
+          titulo={`Meta de agendamentos ${ritmoEmValidos ? "válidos" : "(total, como no plano)"} · ${nomeCompetencia(comp!)}`}
           realizado={indAgend.realizado}
           meta={indAgend.meta_ajustada}
           esperadoHoje={dias.uteis_total ? (indAgend.meta_ajustada * dias.uteis_decorridos) / dias.uteis_total : null}
@@ -227,6 +245,15 @@ export async function BlocoMeu({
           Ainda não há meta de agendamentos para {nomeCompetencia(comp)}. Os números abaixo valem do mesmo jeito.
         </p>
       ) : null}
+
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-56 rounded-xl" />}>
+          <CartaoConfirmar db={db} s={s} hoje={hoje} />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-56 rounded-xl" />}>
+          <CartaoRecordes db={db} s={s} metricas={metricas} hoje={hoje} />
+        </Suspense>
+      </div>
 
       {particular ? (
         <>
@@ -318,7 +345,7 @@ function CartaoSus({ p }: { p: Producao }) {
 
 type ColunaNumerica = Exclude<keyof Producao, "conversao">;
 const COLUNAS: { k: ColunaNumerica | "conversao"; t: string; dica: ChaveDica }[] = [
-  { k: "agendou", t: "Agendou", dica: "pn.agendou" },
+  { k: "agendou", t: "Agendou (total)", dica: "pn.agendou" },
   { k: "agendouRemarcadas", t: "Remarques", dica: "pn.remarques" },
   { k: "agendouValidos", t: "Válidos", dica: "pn.validos" },
   { k: "marcadasPara", t: "Marcadas p/ período", dica: "pn.marcadas" },

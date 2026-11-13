@@ -98,7 +98,7 @@ describe("seed", () => {
   });
   it("cria métricas, plano ativo e versão 1", async () => {
     const m = await db.query(`select codigo from trackco.metricas`);
-    expect(m.rows.length).toBe(7); // 6 do seed + "marcadas_para" (migration 0010)
+    expect(m.rows.length).toBe(8); // 6 do seed + "marcadas_para" (0010) + "agendamentos_validos" (0011)
     const v = await db.query<{ n: number }>(`select count(*)::int as n from trackco.plano_versoes`);
     expect(v.rows[0].n).toBe(1);
   });
@@ -292,5 +292,62 @@ describe("sincronização do Klingo", () => {
     await expect(
       como(U.admin, () => db.query(`select trackco.klingo_marcar_atendidos('[]'::jsonb)`)),
     ).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe("confirmar amanhã", () => {
+  it("atendente marca só as consultas que ela marcou; líder lê as da equipe", async () => {
+    await como(U.ana, () => db.query(`select trackco.marcar_confirmacao('k1', 'confirmado')`));
+    await expect(como(U.ana, () => db.query(`select trackco.marcar_confirmacao('k2', 'confirmado')`))).rejects.toThrow(/não foi marcada por você/);
+    await expect(como(U.ana, () => db.query(`insert into trackco.confirmacoes (chave, colaborador_id, resultado) select 'k1', id, 'confirmado' from trackco.colaboradores limit 1`))).rejects.toThrow(
+      /permission denied/,
+    );
+    const bia = await como(U.bia, () => db.query(`select chave from trackco.confirmacoes`));
+    expect(bia.rows.length).toBe(0);
+    const leo = await como(U.leo, () => db.query<{ resultado: string }>(`select resultado from trackco.confirmacoes`));
+    expect(leo.rows.map((r) => r.resultado)).toEqual(["confirmado"]);
+    await como(U.ana, () => db.query(`select trackco.marcar_confirmacao('k1', null)`));
+    const fim = await db.query(`select 1 from trackco.confirmacoes`);
+    expect(fim.rows.length).toBe(0);
+  });
+});
+
+describe("formulários obrigatórios", () => {
+  it("nascem dois modelos desligados; só admin edita", async () => {
+    const f = await como(U.ana, () => db.query<{ titulo: string; ativo: boolean }>(`select titulo, ativo from trackco.formularios order by criado_em`));
+    expect(f.rows.length).toBe(2);
+    expect(f.rows.every((r) => !r.ativo)).toBe(true);
+    const r = await como(U.ana, () => db.query(`update trackco.formularios set ativo = true returning id`));
+    expect(r.rows.length).toBe(0); // RLS: atendente não liga
+    await como(U.admin, () => db.query(`update trackco.formularios set ativo = true where modelo = 'sus'`));
+  });
+
+  it("responde uma vez por rodada; anônimo não guarda quem; só gestão lê as respostas", async () => {
+    const id = (await db.query<{ id: string }>(`select id from trackco.formularios where modelo = 'sus'`)).rows[0].id;
+    const responder = (u: string, rodada = "2026-11") =>
+      como(u, () => db.query<{ ok: boolean }>(`select trackco.responder_formulario($1, $2, $3::jsonb) as ok`, [id, rodada, JSON.stringify({ sus1: 4 })]));
+    expect((await responder(U.ana)).rows[0].ok).toBe(true);
+    expect((await responder(U.ana)).rows[0].ok).toBe(false); // de novo na mesma rodada: ignora
+    expect((await responder(U.ana, "2026-12")).rows[0].ok).toBe(true);
+    await expect(responder(U.ana, "qualquer")).rejects.toThrow(/rodada inválida/);
+
+    const resp = await db.query<{ colaborador_id: string | null; equipe_id: string | null }>(`select colaborador_id, equipe_id from trackco.formulario_respostas`);
+    expect(resp.rows.length).toBe(2);
+    expect(resp.rows.every((r) => r.colaborador_id === null && r.equipe_id !== null)).toBe(true);
+
+    const anaVe = await como(U.ana, () => db.query(`select 1 from trackco.formulario_respostas`));
+    expect(anaVe.rows.length).toBe(0);
+    const anaEnvios = await como(U.ana, () => db.query(`select rodada from trackco.formulario_envios`));
+    expect(anaEnvios.rows.length).toBe(2); // vê os próprios envios (para saber que já respondeu)
+    const adminVe = await como(U.admin, () => db.query(`select 1 from trackco.formulario_respostas`));
+    expect(adminVe.rows.length).toBe(2);
+    await expect(como(U.ana, () => db.query(`insert into trackco.formulario_envios (formulario_id, rodada, colaborador_id) select $1, '2027-01', id from trackco.colaboradores limit 1`, [id]))).rejects.toThrow(
+      /permission denied/,
+    );
+  });
+
+  it("formulário desligado não aceita resposta", async () => {
+    const id = (await db.query<{ id: string }>(`select id from trackco.formularios where modelo is null`)).rows[0].id;
+    await expect(como(U.bia, () => db.query(`select trackco.responder_formulario($1, '2026-11', '{}'::jsonb)`, [id]))).rejects.toThrow(/não está ativo/);
   });
 });

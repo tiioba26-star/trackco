@@ -1,6 +1,7 @@
 import {
   BarChart3,
   ClipboardCheck,
+  ClipboardList,
   Database,
   FileText,
   Flag,
@@ -61,6 +62,7 @@ export const NAV: GrupoNav[] = [
       { href: "/colaboradores", titulo: "Colaboradores", icone: Users, perfil: "admin", tour: "nav-colaboradores" },
       { href: "/dados", titulo: "Dados e lançamentos", icone: Database, perfil: "admin", tour: "nav-dados" },
       { href: "/paineis-tv", titulo: "Painéis de TV", icone: Monitor, perfil: "lider", tour: "nav-tv" },
+      { href: "/formularios", titulo: "Formulários", icone: ClipboardList, perfil: "admin", tour: "nav-formularios" },
       { href: "/auditoria", titulo: "Auditoria", icone: History, perfil: "admin", tour: "nav-auditoria" },
     ],
   },

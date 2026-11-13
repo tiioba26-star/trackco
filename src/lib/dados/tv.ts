@@ -4,7 +4,7 @@ import { carinhaPara, type Carinha } from "@/engine/apuracao";
 import { competenciaAnterior, competenciaDe, datasEntre, diaDaSemanaISO, fimCompetencia, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
 import { janelaRapida, type JanelaPeriodo } from "@/engine/periodos";
 import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
-import type { Categoria } from "@/engine/producao";
+import type { Categoria, Producao } from "@/engine/producao";
 import type { Metrica } from "@/engine/tipos";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import { codigosTv } from "@/lib/codigo-tv";
@@ -30,7 +30,10 @@ export function hashToken(token: string): string {
 export interface ItemBarra {
   /** código de 4 dígitos da pessoa (estável, para animar as barras) */
   id: string;
+  /** agendamentos válidos (é o que ordena o ranking) */
   valor: number;
+  /** total marcado, com remarcações, bloqueios e erros */
+  bruto?: number;
   atingimento: number | null;
   carinha: Carinha;
 }
@@ -50,8 +53,9 @@ export interface TelaTv {
   destaque?: boolean;
   unidade?: string;
   itens?: ItemBarra[];
-  /** soma da equipe no canto (ranking) */
+  /** soma da equipe no canto (ranking): válidos e total marcado */
   total?: number;
+  totalBruto?: number;
   pessoa?: {
     codigo: string;
     posicao: number;
@@ -62,6 +66,9 @@ export interface TelaTv {
     pessoas: number;
     agendamentosParticular: number;
     agendamentosSus: number;
+    /** total marcado (com remarcações, bloqueios e erros) */
+    brutoParticular?: number;
+    brutoSus?: number;
     realizadasParticular: { equipe: number; clinica: number | null };
     realizadasSus: { equipe: number; clinica: number | null };
   };
@@ -133,6 +140,8 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
   const janelas = config.periodos!.map((p) => janelaRapida(p, hoje));
   const inicioDados = janelas.reduce((m, j) => (j.inicio < m ? j.inicio : m), inicioCompetencia(comp));
   const agend = metricaPorPapel(metricas, "agendamentos");
+  const validos = metricaPorPapel(metricas, "agendamentos_validos");
+  const idsMeta = [agend?.id, validos?.id].filter(Boolean) as string[];
   const regras = { particular: regrasDaCategoria(metricas, "particular"), sus: regrasDaCategoria(metricas, "sus") };
 
   const [linhas, { data: metas }, { data: aps }] = await Promise.all([
@@ -142,16 +151,27 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
       inicioDados,
       hoje,
     ),
-    ids.length && agend
-      ? db.from("metas").select("colaborador_id, competencia, valor").eq("metrica_id", agend.id).in("competencia", [inicioCompetencia(comp), inicioCompetencia(compAnt)]).in("colaborador_id", ids)
+    ids.length && idsMeta.length
+      ? db
+          .from("metas")
+          .select("metrica_id, colaborador_id, competencia, valor")
+          .in("metrica_id", idsMeta)
+          .in("competencia", [inicioCompetencia(comp), inicioCompetencia(compAnt)])
+          .in("colaborador_id", ids)
       : Promise.resolve({ data: [] }),
     ids.length
       ? db.from("apuracoes").select("colaborador_id, nota").eq("tipo", "parcial").eq("competencia", inicioCompetencia(comp)).in("colaborador_id", ids)
       : Promise.resolve({ data: [] }),
   ]);
   const notaDe = new Map((aps ?? []).map((a) => [a.colaborador_id as string, a.nota === null ? null : Number(a.nota)]));
-  const metaDe = (id: string, c: string) =>
-    Number((metas ?? []).find((m) => m.colaborador_id === id && String(m.competencia).startsWith(c))?.valor ?? 0) || null;
+  // a meta pode estar no total ou nos válidos (o que o plano usar naquele mês); se tiver nos dois, vale a dos válidos
+  const metaEmValidos = (c: string) => !!validos && (metas ?? []).some((m) => m.metrica_id === validos.id && String(m.competencia).startsWith(c));
+  const metaDe = (id: string, c: string) => {
+    const metrica = metaEmValidos(c) ? validos!.id : agend?.id;
+    return Number((metas ?? []).find((m) => m.metrica_id === metrica && m.colaborador_id === id && String(m.competencia).startsWith(c))?.valor ?? 0) || null;
+  };
+  /** o número comparado com a meta: válidos ou total, conforme onde a meta foi lançada */
+  const paraMeta = (p: Producao | undefined, c: string) => (metaEmValidos(c) ? (p?.agendouValidos ?? 0) : (p?.agendou ?? 0));
   const uteisMes = diasDeTrabalho(inicioCompetencia(comp), fimCompetencia(comp), diasTrabalho);
 
   /** % da meta de agendamentos no período (meta do mês proporcional aos dias de trabalho do período). */
@@ -193,26 +213,29 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
       for (const j of janelas) {
         const p = prod(cat, j);
         if (!p) continue;
+        const compJ = j.periodo === "mes_passado" ? compAnt : comp;
         const itens: ItemBarra[] = ids
           .map((id) => {
-            const valor = p.porPessoa.get(id)?.agendou ?? 0;
-            const ating = cat === "particular" ? atingimento(id, valor, j) : null;
+            const pp = p.porPessoa.get(id);
+            const ating = cat === "particular" ? atingimento(id, paraMeta(pp, compJ), j) : null;
             return {
               id: codigoDe(id),
-              valor,
+              valor: pp?.agendouValidos ?? 0,
+              bruto: pp?.agendou ?? 0,
               atingimento: ating,
               carinha: ating !== null ? carinhaPara(ating, config.limites) : carinhaMes(id),
             };
           })
-          .sort((a, b) => b.valor - a.valor || a.id.localeCompare(b.id));
+          .sort((a, b) => b.valor - a.valor || (b.bruto ?? 0) - (a.bruto ?? 0) || a.id.localeCompare(b.id));
         telas.push({
           tipo: "barras",
-          titulo: cat === "sus" ? "SUS · Agendamentos" : "Agendamentos Particular",
+          titulo: cat === "sus" ? "SUS · Agendamentos válidos" : "Agendamentos válidos · Particular",
           periodo: periodoTela(j),
           destaque: cat === "particular" && j.periodo === "mes",
           unidade: "un",
           itens,
-          total: p.total.agendou,
+          total: p.total.agendouValidos,
+          totalBruto: p.total.agendou,
         });
       }
     } else if (bloco === "pessoas") {
@@ -220,10 +243,11 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
       const mes = janelaRapida("mes", hoje);
       const pm = prod("particular", mes);
       if (!pm) continue;
-      const ordem = [...ids].sort((a, b) => (pm.porPessoa.get(b)?.agendou ?? 0) - (pm.porPessoa.get(a)?.agendou ?? 0) || codigoDe(a).localeCompare(codigoDe(b)));
+      const v = (id: string) => pm.porPessoa.get(id)?.agendouValidos ?? 0;
+      const ordem = [...ids].sort((a, b) => v(b) - v(a) || codigoDe(a).localeCompare(codigoDe(b)));
       const porPeriodo = janelas.map((j) => ({ j, p: prod("particular", j) }));
       ordem.forEach((id, i) => {
-        const ating = atingimento(id, pm.porPessoa.get(id)?.agendou ?? 0, mes);
+        const ating = atingimento(id, paraMeta(pm.porPessoa.get(id), comp), mes);
         telas.push({
           tipo: "pessoa",
           titulo: "Consultas marcadas × realizadas",
@@ -252,8 +276,10 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
           periodo: periodoTela(j),
           equipe: {
             pessoas: ids.length,
-            agendamentosParticular: pp?.total.agendou ?? 0,
-            agendamentosSus: ps?.total.agendou ?? 0,
+            agendamentosParticular: pp?.total.agendouValidos ?? 0,
+            agendamentosSus: ps?.total.agendouValidos ?? 0,
+            brutoParticular: pp?.total.agendou ?? 0,
+            brutoSus: ps?.total.agendou ?? 0,
             realizadasParticular: {
               equipe: regras.particular ? realizadasNoPeriodo(linhas, regras.particular, ids, j.inicio, j.fim) : 0,
               clinica: clinPart,

@@ -154,6 +154,7 @@ export function somarProducao(lista: Producao[]): Producao {
 export interface PontoDia {
   dia: string;
   agendou: number;
+  validos: number;
   marcadas: number;
   compareceram: number;
   futuro: boolean;
@@ -171,6 +172,6 @@ export function producaoPorDia(
   const minhas = linhas.filter((l) => l.colaborador_id && quem.has(l.colaborador_id));
   return dias.map((d) => {
     const t = somarProducao(Array.from(contarProducao(minhas, regras, { inicio: d, fim: d }, hoje).values()));
-    return { dia: d, agendou: d > hoje ? 0 : t.agendou, marcadas: t.marcadasPara, compareceram: t.compareceram, futuro: d > hoje };
+    return { dia: d, agendou: d > hoje ? 0 : t.agendou, validos: d > hoje ? 0 : t.agendouValidos, marcadas: t.marcadasPara, compareceram: t.compareceram, futuro: d > hoje };
   });
 }

@@ -77,9 +77,13 @@ export const DICAS = {
 
   // ---------- Painel (o que cada número conta) ----------
   "pn.agendou":
-    "Quantos pacientes você marcou DENTRO do período, pelo dia em que você fez a marcação — não importa para quando é a consulta. Ex.: marcou hoje uma consulta para dezembro → conta hoje.",
+    "Total de marcações feitas DENTRO do período, pelo dia em que a marcação foi feita (não importa para quando é a consulta). Inclui as que depois viraram remarcação, bloqueios da clínica e erros: por isso é maior que 'válidos'.",
   "pn.validos":
-    "Agendamentos sem repetição: tira as marcações que depois foram remarcadas (o mesmo paciente ganhou outra marcação), bloqueios da clínica e erros de cadastro. Assim cada paciente conta uma vez.",
+    "O número de verdade: pacientes marcados DENTRO do período, pelo dia em que a marcação foi feita, sem as marcações que depois foram remarcadas (o mesmo paciente ganhou outra marcação), bloqueios da clínica e erros de cadastro. Cada paciente conta uma vez. É o que vale no ranking. Ex.: marcou hoje uma consulta para dezembro → conta hoje.",
+  "pn.confirmar":
+    "Consultas que você marcou para o próximo dia com atendimento. Ligue, confirme e marque aqui: 'Confirmou' ou 'Não atendeu'. Só você vê os nomes. Com o tempo, o Trackco mostra se as confirmadas faltam menos.",
+  "pn.recordes":
+    "Seus melhores resultados nos últimos 12 meses: o dia e o mês com mais agendamentos válidos e o mês com maior comparecimento (só meses fechados, com pelo menos 20 consultas). Remarcação não conta.",
   "pn.remarques":
     "Marcações feitas no período que depois foram remarcadas para outra data. Cada remarcação gera uma marcação nova no Klingo, então o número de 'agendou' sobe sem ter paciente novo.",
   "pn.marcadas":

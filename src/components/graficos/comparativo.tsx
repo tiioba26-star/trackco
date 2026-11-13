@@ -89,6 +89,7 @@ export function GraficoComparativo({
   unidadeB,
   linhas = false,
   altura = 260,
+  corB = "var(--chart-3)",
 }: {
   dados: PontoComparativo[];
   rotuloA: string;
@@ -97,9 +98,11 @@ export function GraficoComparativo({
   unidadeB?: string | null;
   linhas?: boolean;
   altura?: number;
+  /** cor da 2ª série (padrão verde; use neutra quando a série não for "resultado") */
+  corB?: string;
 }) {
   const sA = { chave: "a" as const, rotulo: rotuloA, cor: "var(--chart-1)" };
-  const sB = rotuloB ? { chave: "b" as const, rotulo: rotuloB, cor: "var(--chart-3)" } : null;
+  const sB = rotuloB ? { chave: "b" as const, rotulo: rotuloB, cor: corB } : null;
   if (!sB || unidadeA === unidadeB) {
     return <Grafico dados={dados} series={sB ? [sA, sB] : [sA]} linhas={linhas} altura={altura} />;
   }

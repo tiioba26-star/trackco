@@ -65,10 +65,12 @@ export function OlhoFundoIoba() {
           const rad = (ang * Math.PI) / 180;
           const r1 = 65 + (i % 3) * 8;
           const r2 = 135 - (i % 2) * 6;
-          const x1 = 250 + Math.cos(rad) * r1;
-          const y1 = 250 + Math.sin(rad) * r1;
-          const x2 = 250 + Math.cos(rad) * r2;
-          const y2 = 250 + Math.sin(rad) * r2;
+          // arredonda: servidor e navegador calculam seno/cosseno com diferenças na última casa (erro de hidratação)
+          const r = (v: number) => Math.round(v * 100) / 100;
+          const x1 = r(250 + Math.cos(rad) * r1);
+          const y1 = r(250 + Math.sin(rad) * r1);
+          const x2 = r(250 + Math.cos(rad) * r2);
+          const y2 = r(250 + Math.sin(rad) * r2);
           return (
             <line
               key={i}
@@ -78,7 +80,7 @@ export function OlhoFundoIoba() {
               y2={y2}
               stroke={i % 2 === 0 ? "#7dd3fc" : "#0284c7"}
               strokeWidth={i % 3 === 0 ? "2.2" : "1.2"}
-              strokeOpacity={0.45 + (i % 4) * 0.1}
+              strokeOpacity={Math.round((0.45 + (i % 4) * 0.1) * 100) / 100}
             />
           );
         })}

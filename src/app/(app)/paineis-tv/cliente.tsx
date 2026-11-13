@@ -46,7 +46,7 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
 
 const ROTULO_PERIODO: Record<PeriodoRapido, string> = {
   hoje: "Hoje",
-  semana: "Semana (desde segunda)",
+  semana: "Últimos 7 dias (hoje e os 6 dias antes)",
   mes: "Mês atual até agora",
   mes_passado: "Mês passado",
 };

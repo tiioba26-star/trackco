@@ -58,7 +58,7 @@ function dadosDemo(passo: number): PayloadTv {
   const cresc = [4, 5, 3, 6, 2];
   const periodos = [
     { nome: "Hoje", datas: "sex, 13/11", emAndamento: true, f: 0.06 },
-    { nome: "Esta semana", datas: "09/11 a 13/11", emAndamento: true, f: 0.3 },
+    { nome: "Últimos 7 dias", datas: "07/11 a 13/11", emAndamento: true, f: 0.3 },
     { nome: "Novembro até agora", datas: "01/11 a 13/11", emAndamento: true, f: 1 },
     { nome: "Outubro (mês passado)", datas: "01/10 a 31/10", emAndamento: false, f: 2.1 },
   ];
@@ -70,6 +70,7 @@ function dadosDemo(passo: number): PayloadTv {
         return {
           id: codigos[i],
           valor,
+          bruto: valor + Math.round(valor * (0.06 + i * 0.03)),
           atingimento: ating,
           carinha: (ating >= 120 ? "mega_feliz" : ating >= 80 ? "feliz" : "neutra") as ItemBarra["carinha"],
         };
@@ -81,11 +82,12 @@ function dadosDemo(passo: number): PayloadTv {
       const itens = ranking(p.f * (sus ? 0.35 : 1));
       telas.push({
         tipo: "barras",
-        titulo: sus ? "SUS · Agendamentos" : "Agendamentos Particular",
+        titulo: sus ? "SUS · Agendamentos válidos" : "Agendamentos válidos · Particular",
         periodo: p,
         unidade: "un",
         itens,
         total: itens.reduce((s, i) => s + i.valor, 0),
+        totalBruto: itens.reduce((s, i) => s + (i.bruto ?? i.valor), 0),
       });
     }
   ranking(1).forEach((it, i) =>
@@ -112,6 +114,8 @@ function dadosDemo(passo: number): PayloadTv {
         pessoas: 5,
         agendamentosParticular: Math.round((274 + passo * 18) * p.f),
         agendamentosSus: Math.round((64 + passo * 5) * p.f),
+        brutoParticular: Math.round((274 + passo * 18) * p.f * 1.12),
+        brutoSus: Math.round((64 + passo * 5) * p.f * 1.05),
         realizadasParticular: { equipe: Math.round(174 * p.f), clinica: Math.round(410 * p.f) },
         realizadasSus: { equipe: Math.round(40 * p.f), clinica: Math.round(290 * p.f) },
       },
@@ -281,8 +285,13 @@ function LinhaBarraTv({
           <div ref={bolinhaRef} className="absolute top-1/2 right-1 z-30 flex -translate-y-1/2 items-center justify-center">
             <AvatarPosicaoTv tipo={it.carinha} posicao={posicao} tamanho={52} />
           </div>
-          <span className="absolute top-1/2 left-[calc(100%+14px)] -translate-y-1/2 text-[3.8vh] font-black tracking-tight whitespace-nowrap text-white tabular-nums drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] select-none">
-            {fmt(it.valor, unidade)}
+          <span className="absolute top-1/2 left-[calc(100%+14px)] flex -translate-y-1/2 flex-col leading-none whitespace-nowrap select-none">
+            <span className="text-[3.8vh] font-black tracking-tight text-white tabular-nums drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+              {fmt(it.valor, unidade)}
+            </span>
+            {it.bruto !== undefined && it.bruto > it.valor && (
+              <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">de {fmt(it.bruto)} no total</span>
+            )}
           </span>
         </motion.div>
       </div>
@@ -305,10 +314,13 @@ function TelaBarras({
     <div className="relative flex flex-1 flex-col">
       {tela.total !== undefined && (
         <div className="absolute top-0 right-0 z-10 text-right">
-          <div className="text-[1.8vh] font-semibold tracking-wider text-sky-200/60 uppercase">Total da equipe</div>
+          <div className="text-[1.8vh] font-semibold tracking-wider text-sky-200/60 uppercase">Total da equipe · válidos</div>
           <div className="text-[5.2vh] leading-none font-black text-white tabular-nums drop-shadow-[0_0_18px_rgba(56,189,248,0.45)]">
             {fmt(tela.total)}
           </div>
+          {tela.totalBruto !== undefined && tela.totalBruto > tela.total && (
+            <div className="mt-[0.6vh] text-[1.7vh] font-semibold text-sky-200/60 tabular-nums">{fmt(tela.totalBruto)} marcados no total</div>
+          )}
         </div>
       )}
       <LayoutGroup>
@@ -447,8 +459,16 @@ function TelaEquipe({ tela }: { tela: TelaTv }) {
   const e = tela.equipe!;
   return (
     <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-[2.4vh] py-[1.5vh]">
-      <CartaoNumero rotulo="Agendamentos Particular" valor={e.agendamentosParticular} detalhe={`marcados pela equipe (${e.pessoas} pessoas) no período`} />
-      <CartaoNumero rotulo="Agendamentos SUS" valor={e.agendamentosSus} detalhe="marcados pela equipe no período · só acompanhamento" />
+      <CartaoNumero
+        rotulo="Agendamentos válidos Particular"
+        valor={e.agendamentosParticular}
+        detalhe={`marcados pela equipe (${e.pessoas} pessoas) no período${e.brutoParticular && e.brutoParticular > e.agendamentosParticular ? ` · ${fmt(e.brutoParticular)} no total, com remarcações` : ""}`}
+      />
+      <CartaoNumero
+        rotulo="Agendamentos válidos SUS"
+        valor={e.agendamentosSus}
+        detalhe={`marcados pela equipe no período${e.brutoSus && e.brutoSus > e.agendamentosSus ? ` · ${fmt(e.brutoSus)} no total` : ""} · só acompanhamento`}
+      />
       <CartaoParticipacao rotulo="Consultas Particular realizadas" equipe={e.realizadasParticular.equipe} clinica={e.realizadasParticular.clinica} />
       <CartaoParticipacao rotulo="Consultas SUS realizadas" equipe={e.realizadasSus.equipe} clinica={e.realizadasSus.clinica} />
     </div>

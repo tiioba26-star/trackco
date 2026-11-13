@@ -8,6 +8,7 @@ import type { Contagem, Metrica } from "@/engine/tipos";
  */
 export type PapelMetrica =
   | "agendamentos"
+  | "agendamentos_validos"
   | "realizadas"
   | "conversao"
   | "marcadas_para"
@@ -15,6 +16,8 @@ export type PapelMetrica =
   | "realizadas_sus";
 
 const ehKlingo = (c: Contagem) => c.fonte === "klingo_agendamentos";
+/** Tira remarcações/bloqueios/erros pela situação: é a versão "válidos" de uma contagem. */
+const filtraSituacao = (c: Contagem) => c.filtros.some((f) => f.campo === "situacao");
 
 function combina(m: Metrica, papel: PapelMetrica): boolean {
   const d = m.definicao;
@@ -23,7 +26,9 @@ function combina(m: Metrica, papel: PapelMetrica): boolean {
   if (d.tipo_calculo !== "simples" || !ehKlingo(d)) return false;
   switch (papel) {
     case "agendamentos":
-      return !analise && d.campo_data === "data_agendado_em";
+      return !analise && d.campo_data === "data_agendado_em" && !filtraSituacao(d);
+    case "agendamentos_validos":
+      return !analise && d.campo_data === "data_agendado_em" && filtraSituacao(d);
     case "realizadas":
       return !analise && d.campo_data === "data_realizacao";
     case "marcadas_para":
@@ -52,4 +57,4 @@ export function resolverMetrica(metricas: Metrica[], ref: string): Metrica | nul
   );
 }
 
-const PAPEIS: PapelMetrica[] = ["agendamentos", "realizadas", "conversao", "marcadas_para", "agendamentos_sus", "realizadas_sus"];
+const PAPEIS: PapelMetrica[] = ["agendamentos", "agendamentos_validos", "realizadas", "conversao", "marcadas_para", "agendamentos_sus", "realizadas_sus"];
