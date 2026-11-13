@@ -218,3 +218,90 @@ export function Carinha({
 }) {
   return <RostinhoExpressao tipo={tipo} cor={cor} tamanho={tamanho} />;
 }
+
+/** Cor da posição: 1º ouro, 2º prata, 3º bronze, do 4º em diante branco. */
+export function corDaPosicao(posicao: number): string {
+  return posicao === 1 ? "#f5c542" : posicao === 2 ? "#d9e1ea" : posicao === 3 ? "#d08a4c" : "#ffffff";
+}
+
+/** Tacinha com o número da posição dentro. */
+export function TacaPosicao({ posicao, tamanho = 54 }: { posicao: number; tamanho?: number }) {
+  const cor = corDaPosicao(posicao);
+  const fundo = useId();
+  return (
+    <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" fill="none" className="drop-shadow-[0_4px_14px_rgba(0,0,0,0.8)]">
+      <defs>
+        <radialGradient id={fundo} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#1e3a68" />
+          <stop offset="70%" stopColor="#0b172a" />
+          <stop offset="100%" stopColor="#050c18" />
+        </radialGradient>
+      </defs>
+      <circle cx="32" cy="32" r="29" fill={`url(#${fundo})`} stroke={cor} strokeWidth="3" />
+      {/* taça */}
+      <path d="M20 15 H44 V25 C44 32.5 38.6 37 32 37 C25.4 37 20 32.5 20 25 Z" fill={cor} fillOpacity="0.95" />
+      <path d="M20 18 H15.5 C14 18 13 19.2 13 21 C13 25 16 27 20 27.2" stroke={cor} strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M44 18 H48.5 C50 18 51 19.2 51 21 C51 25 48 27 44 27.2" stroke={cor} strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M32 37 V43" stroke={cor} strokeWidth="3" strokeLinecap="round" />
+      <path d="M24.5 43.5 H39.5 V48.5 H24.5 Z" fill={cor} fillOpacity="0.95" />
+      <text
+        x="32"
+        y="30.5"
+        textAnchor="middle"
+        fontSize={posicao > 9 ? 11 : 14}
+        fontWeight="900"
+        fill="#0b172a"
+        fontFamily="system-ui, sans-serif"
+      >
+        {posicao}
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * Ícone da pessoa na TV: alterna entre o perfil, a carinha e a posição na tacinha.
+ * O anel tem a cor da posição (ouro, prata, bronze; do 4º em diante, branco).
+ */
+export function AvatarPosicaoTv({
+  tipo,
+  posicao,
+  tamanho = 54,
+}: {
+  tipo: TipoCarinha;
+  posicao: number;
+  tamanho?: number;
+}) {
+  const [modo, setModo] = useState<"perfil" | "carinha" | "posicao">("perfil");
+  const cor = corDaPosicao(posicao);
+
+  useEffect(() => {
+    // tempos levemente diferentes por posição para os ícones não trocarem todos juntos
+    const espera = modo === "perfil" ? 7000 + (posicao % 4) * 1300 : 4200 + (posicao % 3) * 600;
+    const t = setTimeout(() => setModo((m) => (m === "perfil" ? "carinha" : m === "carinha" ? "posicao" : "perfil")), espera);
+    return () => clearTimeout(t);
+  }, [modo, posicao]);
+
+  return (
+    <div className="relative flex items-center justify-center select-none" style={{ width: tamanho, height: tamanho }}>
+      {posicao === 1 && (
+        <span aria-hidden className="absolute inset-[-6px] animate-pulse rounded-full bg-[#f5c542]/25 blur-md motion-reduce:animate-none" />
+      )}
+      <motion.div
+        key={modo}
+        initial={{ scale: 0.85, opacity: 0, rotateY: 90 }}
+        animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="relative flex items-center justify-center"
+      >
+        {modo === "perfil" ? (
+          <AvatarAnonimo cor={cor} tamanho={tamanho} />
+        ) : modo === "carinha" ? (
+          <RostinhoExpressao tipo={tipo} cor={cor} tamanho={tamanho} />
+        ) : (
+          <TacaPosicao posicao={posicao} tamanho={tamanho} />
+        )}
+      </motion.div>
+    </div>
+  );
+}

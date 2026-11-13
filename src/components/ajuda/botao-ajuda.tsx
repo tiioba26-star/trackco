@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/sheet";
 import { ajudaPara, type PassoTour } from "./conteudos";
 
-const CHAVE_VISTO = "trackco:tour-visto";
+// v2: o Painel mudou; todo mundo vê o tour novo uma vez
+const CHAVE_VISTO = "trackco:tour-visto-v2";
 
 export function iniciarTour(passos: PassoTour[]) {
   const steps: DriveStep[] = passos
@@ -75,6 +76,19 @@ export function BotaoAjuda() {
             {ajuda.resumo.map((p) => (
               <p key={p}>{p}</p>
             ))}
+            {ajuda.glossario?.length ? (
+              <div className="space-y-2">
+                <div className="font-medium">Como ler os números</div>
+                <dl className="space-y-2 rounded-lg border p-3">
+                  {ajuda.glossario.map((g) => (
+                    <div key={g.termo}>
+                      <dt className="font-medium">{g.termo}</dt>
+                      <dd className="text-muted-foreground">{g.texto}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : null}
             {ajuda.dicas?.length ? (
               <div className="space-y-2 rounded-lg border bg-primary-soft/60 p-3">
                 <div className="flex items-center gap-2 font-medium">

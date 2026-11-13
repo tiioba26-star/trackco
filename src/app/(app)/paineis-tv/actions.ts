@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sessaoAcao } from "@/lib/auth";
-import { gerarToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
+import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
+import { BLOCOS_TV, gerarToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 type Ret = { ok: boolean; erro?: string; token?: string; mensagem?: string };
@@ -18,23 +19,15 @@ function extrairLinhas(valor: FormDataEntryValue | null): string[] | undefined {
   return linhas.length ? linhas : undefined;
 }
 
-/** Converte os modos marcados (ids de métricas ou "geral") na lista guardada no painel, na ordem da tela. */
-async function montarModos(escolhidos: string[]): Promise<ModoTv[]> {
-  const db = criarClienteAdmin();
-  const { data } = await db.from("metricas").select("id, nome, unidade").eq("ativo", true);
-  const porId = new Map((data ?? []).map((m) => [m.id as string, m as { id: string; nome: string; unidade: string }]));
-  const modos: ModoTv[] = [];
-  for (const v of escolhidos) {
-    if (v === "geral") {
-      modos.push({ tipo: "geral", titulo: "Visão Geral da Equipe" });
-      continue;
-    }
-    const m = porId.get(v);
-    if (!m || m.unidade === "R$" || m.unidade === "pts") continue; // nunca dinheiro/pontos na TV
-    modos.push({ tipo: "barras", metrica: m.id, titulo: m.nome });
-  }
-  if (!modos.length) throw new Error("Escolha pelo menos um modo de exibição.");
-  return modos;
+/** Blocos e períodos marcados no formulário, na ordem da tela. */
+function lerModos(fd: FormData): { modos: ModoTv[]; periodos: PeriodoRapido[] } {
+  const blocos = fd.getAll("blocos").map(String);
+  const modos: ModoTv[] = BLOCOS_TV.filter((b) => blocos.includes(b.bloco)).map((b) => ({ tipo: "bloco", bloco: b.bloco }));
+  if (!modos.length) throw new Error("Escolha pelo menos um tipo de tela.");
+  const marcados = fd.getAll("periodos").map(String);
+  const periodos = PERIODOS_RAPIDOS.filter((p) => marcados.includes(p));
+  if (!periodos.length) throw new Error("Escolha pelo menos um período.");
+  return { modos, periodos };
 }
 
 export async function criarPainel(fd: FormData): Promise<Ret> {
@@ -47,7 +40,7 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const modos = await montarModos(fd.getAll("modos").map(String));
+    const { modos, periodos } = lerModos(fd);
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -56,8 +49,10 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
+      versao: 2,
       intervalo,
       modos,
+      periodos,
       limites: { feliz, mega_feliz: mega },
       ...(frases_rodape ? { frases_rodape } : {}),
       ...(subtitulos ? { subtitulos } : {}),
@@ -95,7 +90,7 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const modos = await montarModos(fd.getAll("modos").map(String));
+    const { modos, periodos } = lerModos(fd);
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -104,8 +99,10 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
+      versao: 2,
       intervalo,
       modos,
+      periodos,
       limites: { feliz, mega_feliz: mega },
       ...(frases_rodape ? { frases_rodape } : {}),
       ...(subtitulos ? { subtitulos } : {}),

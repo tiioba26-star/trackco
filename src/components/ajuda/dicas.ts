@@ -74,6 +74,27 @@ export const DICAS = {
   // ---------- Dados ----------
   "lanc.tipo": "Código do lançamento que a métrica procura (ex.: avaliacao_lider para a nota do líder, checklist_limpeza para a limpeza).",
   "lanc.valor": "O número lançado: uma nota (ex.: 8,5), uma quantidade (ex.: 1) ou um valor.",
+
+  // ---------- Painel (o que cada número conta) ----------
+  "pn.agendou":
+    "Quantos pacientes você marcou DENTRO do período, pelo dia em que você fez a marcação — não importa para quando é a consulta. Ex.: marcou hoje uma consulta para dezembro → conta hoje.",
+  "pn.validos":
+    "Agendamentos sem repetição: tira as marcações que depois foram remarcadas (o mesmo paciente ganhou outra marcação), bloqueios da clínica e erros de cadastro. Assim cada paciente conta uma vez.",
+  "pn.remarques":
+    "Marcações feitas no período que depois foram remarcadas para outra data. Cada remarcação gera uma marcação nova no Klingo, então o número de 'agendou' sobe sem ter paciente novo.",
+  "pn.marcadas":
+    "Consultas cuja DATA DA CONSULTA cai no período e que foram marcadas por você (em qualquer dia). No mês atual inclui as que ainda vão acontecer. Remarcadas, bloqueios da clínica e erros ficam de fora.",
+  "pn.compareceram": "Das consultas marcadas para o período, quantas o paciente realmente veio (cruzado com o faturamento do Klingo).",
+  "pn.conversao":
+    "Taxa de comparecimento (também chamada de conversão): de cada 100 consultas que você marcou para dias que JÁ PASSARAM no período, quantas aconteceram. O dia de hoje só entra amanhã, quando já acabou.",
+  "pn.faltaram": "O dia da consulta passou e o paciente não veio (e não remarcou).",
+  "pn.desmarcaram": "O paciente desmarcou e não remarcou (cancelamento que não foi remarcação, bloqueio ou erro).",
+  "pn.aguardando": "Consultas de hoje ou de dias futuros: ainda não dá para saber se o paciente vem.",
+  "pn.codigo":
+    "Seu código na TV. A TV nunca mostra nomes: cada pessoa aparece por um número de 4 dígitos. Só você (e a gestão) sabe que este é o seu.",
+  "pn.sus": "SUS é só para acompanhar: não conta para meta, nota, prêmios, comissão ou pontos.",
+  "pn.periodo":
+    "Escolha de quando são os números. 'Mês' vai do dia 1º até agora; 'Mês passado' é o mês anterior inteiro. A comparação (▲▼) é sempre com o mesmo ponto do período anterior.",
 } as const;
 
 export type ChaveDica = keyof typeof DICAS;

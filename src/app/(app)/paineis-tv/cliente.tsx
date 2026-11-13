@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { ConfigTv } from "@/lib/dados/tv";
+import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
+import { BLOCOS_TV, type ConfigTv, normalizarConfig } from "@/lib/tv-config";
 import { atualizarPainel, criarPainel, excluirPainel, regenerarToken } from "./actions";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
@@ -43,24 +44,50 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
   );
 }
 
-/** Métricas que podem virar barras na TV (nunca R$ ou pontos). */
-export type OpcaoModo = { valor: string; rotulo: string; padrao: boolean };
+const ROTULO_PERIODO: Record<PeriodoRapido, string> = {
+  hoje: "Hoje",
+  semana: "Semana (desde segunda)",
+  mes: "Mês atual até agora",
+  mes_passado: "Mês passado",
+};
 
-function ListaModos({ opcoes, marcados }: { opcoes: OpcaoModo[]; marcados?: string[] }) {
+/** Tipos de tela e períodos. Cada tipo vira uma tela por período (ou uma por pessoa). */
+function ListaModos({ config }: { config?: ConfigTv }) {
+  const cfg = normalizarConfig(config);
+  const blocos = cfg.modos.map((m) => m.bloco);
   return (
-    <div className="space-y-1.5">
-      <Label>Modos (alternam na ordem)</Label>
-      {opcoes.map((o) => (
-        <label key={o.valor} className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="modos" value={o.valor} defaultChecked={marcados ? marcados.includes(o.valor) : o.padrao} />{" "}
-          {o.rotulo}
-        </label>
-      ))}
-    </div>
+    <>
+      <div className="space-y-1.5">
+        <Label>Telas (alternam nesta ordem)</Label>
+        {BLOCOS_TV.map((b) => (
+          <label key={b.bloco} className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="blocos" value={b.bloco} defaultChecked={blocos.includes(b.bloco)} className="mt-1" />
+            <span>
+              {b.rotulo}
+              <span className="block text-xs text-muted-foreground">{b.descricao}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <div className="space-y-1.5">
+        <Label>Períodos</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {PERIODOS_RAPIDOS.map((p) => (
+            <label key={p} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="periodos" value={p} defaultChecked={cfg.periodos!.includes(p)} /> {ROTULO_PERIODO[p]}
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Com tudo marcado são 8 rankings (Particular e SUS × 4 períodos), uma tela por pessoa e 4 telas da equipe. Na TV: ← → trocam
+          de tela e a barra de espaço pausa.
+        </p>
+      </div>
+    </>
   );
 }
 
-export function NovoPainel({ equipes, modos }: { equipes: { id: string; nome: string }[]; modos: OpcaoModo[] }) {
+export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[] }) {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
@@ -93,7 +120,7 @@ export function NovoPainel({ equipes, modos }: { equipes: { id: string; nome: st
             </label>
           ))}
         </div>
-        <ListaModos opcoes={modos} />
+        <ListaModos />
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1.5">
             <Label>Troca a cada (s)</Label>
@@ -181,9 +208,7 @@ export function NovoPainel({ equipes, modos }: { equipes: { id: string; nome: st
 export function EditarPainel({
   painel,
   equipes,
-  modos,
 }: {
-  modos: OpcaoModo[];
   painel: {
     id: string;
     nome: string;
@@ -197,7 +222,6 @@ export function EditarPainel({
   const [pendente, iniciar] = useTransition();
 
   const cfg = painel.config;
-  const modosAtivos = (cfg.modos ?? []).map((m) => (m.tipo === "barras" ? m.metrica : "geral"));
 
   const frasesRodapeTexto = (cfg.frases_rodape ?? []).join("\n");
   const subtitulosTexto = (cfg.subtitulos ?? []).join("\n");
@@ -255,7 +279,7 @@ export function EditarPainel({
               ))}
             </div>
 
-            <ListaModos opcoes={modos} marcados={modosAtivos} />
+            <ListaModos config={painel.config} />
 
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1.5">

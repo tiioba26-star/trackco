@@ -19,13 +19,63 @@ import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Análise" };
 
-const PRESETS = [
-  { rotulo: "Marcadas para × Realizadas (dia a dia)", a: "marcadas_para", b: "realizadas", g: "dia", acum: "0" },
-  { rotulo: "Marcadas para × Realizadas (acumulado)", a: "marcadas_para", b: "realizadas", g: "dia", acum: "1" },
-  { rotulo: "Agendamentos feitos × Realizadas (por mês)", a: "agendamentos", b: "realizadas", g: "mes", acum: "0" },
-  { rotulo: "Particular × SUS (agendamentos, por mês)", a: "agendamentos", b: "agendamentos_sus", g: "mes", acum: "0" },
-  { rotulo: "Taxa de conversão (por mês)", a: "conversao", b: "", g: "mes", acum: "0" },
-];
+/** Perguntas prontas: cada uma já sabe quais métricas, período e visão usar. */
+const PERGUNTAS = [
+  {
+    id: "consultas-mes",
+    pergunta: "As consultas marcadas para este mês estão acontecendo?",
+    explica: "Dia a dia do mês: quantas consultas estavam marcadas para cada dia × quantas aconteceram.",
+    a: "marcadas_para",
+    b: "realizadas",
+    g: "dia",
+    acum: "0",
+  },
+  {
+    id: "mes-formando",
+    pergunta: "Como o mês está se formando?",
+    explica: "O mesmo, somando dia após dia (acumulado): mostra a distância entre o marcado e o que aconteceu.",
+    a: "marcadas_para",
+    b: "realizadas",
+    g: "dia",
+    acum: "1",
+  },
+  {
+    id: "agendamentos-12m",
+    pergunta: "Estamos agendando mais ou menos que antes?",
+    explica: "Agendamentos feitos em cada mês, nos últimos 12 meses.",
+    a: "agendamentos",
+    b: "",
+    g: "mes",
+    acum: "0",
+  },
+  {
+    id: "esforco-resultado",
+    pergunta: "O esforço vira consulta?",
+    explica: "Por mês: agendamentos feitos × consultas que aconteceram.",
+    a: "agendamentos",
+    b: "realizadas",
+    g: "mes",
+    acum: "0",
+  },
+  {
+    id: "comparecimento",
+    pergunta: "A taxa de comparecimento está melhorando?",
+    explica: "Por mês: de cada 100 consultas marcadas, quantas aconteceram (conversão).",
+    a: "conversao",
+    b: "",
+    g: "mes",
+    acum: "0",
+  },
+  {
+    id: "particular-sus",
+    pergunta: "Quanto é Particular e quanto é SUS?",
+    explica: "Por mês: agendamentos Particular × agendamentos SUS.",
+    a: "agendamentos",
+    b: "agendamentos_sus",
+    g: "mes",
+    acum: "0",
+  },
+] as const;
 
 export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const s = await exigirSessao();
@@ -42,23 +92,25 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const todas = ((metRows ?? []) as Metrica[]).filter((m) => usaSoKlingo(m.definicao));
   const marcadas = metricaMarcadasPara(todas);
   const metricas = marcadas && !todas.some((m) => m.id === marcadas.id) ? [marcadas, ...todas] : todas;
-  // presets e links antigos usam códigos "clássicos": resolve pelo papel se a métrica foi renomeada
+  // perguntas prontas e links antigos usam códigos "clássicos": resolve pelo papel se a métrica foi renomeada
   const achar = (ref: string) => resolverMetrica(metricas, ref);
-  const codigoDe = (ref: string) => achar(ref)?.codigo ?? ref;
-  const presets = PRESETS.map((p) => ({ ...p, a: codigoDe(p.a), b: p.b ? codigoDe(p.b) : "" }));
+  const modo: "prontas" | "livre" = sp.modo === "livre" ? "livre" : "prontas";
+  const pergunta = PERGUNTAS.find((q) => q.id === sp.q) ?? PERGUNTAS[0];
 
   const gestao = s.vêTudo || s.lidera.length > 0;
   const pessoas = (pessoasRows ?? []) as { id: string; nome: string; login_klingo: string | null }[];
   type Eq = { id: string; nome: string; equipe_membros: { colaborador_id: string; fim: string | null }[] };
   const equipes = ((equipesRows ?? []) as unknown as Eq[]).filter((e) => s.vêTudo || s.lidera.includes(e.id));
 
-  const g: Granularidade = sp.g === "mes" ? "mes" : "dia";
-  const acumulado = sp.acum === "1";
+  const g: Granularidade = modo === "prontas" ? pergunta.g : sp.g === "mes" ? "mes" : "dia";
+  const acumulado = modo === "prontas" ? pergunta.acum === "1" : sp.acum === "1";
   const mes = competenciaValida(sp.mes) ?? atual;
   const ate = competenciaValida(sp.ate) ?? atual;
   const de = competenciaValida(sp.de) ?? competenciaAnterior(ate, 11);
-  const a = achar(String(sp.a ?? "marcadas_para")) ?? metricas[0];
-  const b = sp.b === "" ? null : (achar(String(sp.b ?? "realizadas")) ?? null);
+  const refA = modo === "prontas" ? pergunta.a : String(sp.a ?? "marcadas_para");
+  const refB = modo === "prontas" ? pergunta.b : sp.b === "" ? "" : String(sp.b ?? "realizadas");
+  const a = achar(refA) ?? metricas[0];
+  const b = refB === "" ? null : (achar(refB) ?? null);
   const equipe = equipes.find((e) => e.id === sp.equipe) ?? equipes[0];
   const pessoa = pessoas.find((p) => p.id === sp.pessoa);
 
@@ -99,27 +151,95 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
     <div className="space-y-6">
       <CabecalhoPagina
         titulo="Análise"
-        descricao="Compare quaisquer duas métricas no tempo, por dia ou por mês. Para comparar quantidade com resultado, use 'Marcadas para' × 'Realizadas': as duas contam pela data da consulta."
+        descricao="Para investigar: escolha uma pergunta pronta ou monte a sua. Uma coisa de cada vez."
       />
 
-      <div className="flex flex-wrap gap-1.5" data-tour="analise-atalhos">
-        {presets.map((p) => {
-          const ativo = a?.codigo === p.a && (b?.codigo ?? "") === p.b && g === p.g && (acumulado ? "1" : "0") === p.acum;
-          return (
-            <Link
-              key={p.rotulo}
-              href={`/analise?${qs({ a: p.a, b: p.b, g: p.g, acum: p.acum })}`}
-              className={cn("rounded-full border px-3 py-1 text-sm", ativo ? "bg-primary text-primary-foreground" : "hover:bg-muted")}
-            >
-              {p.rotulo}
-            </Link>
-          );
-        })}
+      <div className="grid gap-2 sm:grid-cols-2" role="tablist" aria-label="Como analisar" data-tour="analise-modo">
+        {(
+          [
+            ["prontas", "Perguntas prontas", "Escolha uma pergunta e veja a resposta. Ideal para o dia a dia."],
+            ["livre", "Montar a minha análise", "Escolha as métricas, o período e a visão. Para quem quer ir fundo."],
+          ] as const
+        ).map(([m, t, d]) => (
+          <Link
+            key={m}
+            role="tab"
+            aria-selected={modo === m}
+            href={`/analise?${new URLSearchParams({ modo: m, ...(equipe ? { equipe: equipe.id } : {}), ...(pessoa ? { pessoa: pessoa.id } : {}) }).toString()}`}
+            className={cn(
+              "rounded-xl border p-3 transition-colors",
+              modo === m ? "border-primary bg-primary-soft ring-1 ring-primary/30" : "bg-card hover:bg-muted/60",
+            )}
+          >
+            <div className="font-medium">{t}</div>
+            <div className="text-sm text-muted-foreground">{d}</div>
+          </Link>
+        ))}
       </div>
 
-      <Card data-tour="analise-parametros">
-        <CardContent>
-          <form action="/analise" className="grid items-end gap-3 md:grid-cols-3 xl:grid-cols-6">
+      {modo === "prontas" ? (
+        <>
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3" data-tour="analise-atalhos">
+            {PERGUNTAS.map((q) => (
+              <Link
+                key={q.id}
+                href={`/analise?${qs({ modo: "prontas", q: q.id })}`}
+                className={cn(
+                  "rounded-lg border px-3 py-2.5 text-sm transition-colors",
+                  q.id === pergunta.id ? "border-primary bg-primary-soft" : "bg-card hover:bg-muted/60",
+                )}
+              >
+                <div className="font-medium">{q.pergunta}</div>
+                <div className="text-xs text-muted-foreground">{q.explica}</div>
+              </Link>
+            ))}
+          </div>
+          {(gestao || g === "dia") && (
+            <Card data-tour="analise-parametros">
+              <CardContent>
+                <form action="/analise" className="flex flex-wrap items-end gap-3">
+                  <input type="hidden" name="modo" value="prontas" />
+                  <input type="hidden" name="q" value={pergunta.id} />
+                  {g === "dia" ? (
+                    <div className="space-y-1.5">
+                      <Label>Mês</Label>
+                      <Input type="month" name="mes" defaultValue={mes} />
+                    </div>
+                  ) : (
+                    <>
+                      <input type="hidden" name="de" value={de} />
+                      <input type="hidden" name="ate" value={ate} />
+                    </>
+                  )}
+                  {gestao && (
+                    <div className="min-w-56 space-y-1.5">
+                      <Label>Quem</Label>
+                      <NativeSelect name="pessoa" defaultValue={pessoa?.id ?? ""}>
+                        <option value="">Equipe {equipe?.nome ?? ""} (todos)</option>
+                        {pessoas
+                          .filter((p) => !equipe || equipe.equipe_membros.some((m) => m.colaborador_id === p.id))
+                          .map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.nome}
+                            </option>
+                          ))}
+                      </NativeSelect>
+                      {equipe && <input type="hidden" name="equipe" value={equipe.id} />}
+                    </div>
+                  )}
+                  <button type="submit" className={buttonVariants({ variant: "outline" })}>
+                    Ver
+                  </button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      ) : (
+        <Card data-tour="analise-parametros">
+          <CardContent>
+            <form action="/analise" className="grid items-end gap-3 md:grid-cols-3 xl:grid-cols-6">
+              <input type="hidden" name="modo" value="livre" />
             <div className="space-y-1.5">
               <div className="flex items-center gap-1">
                 <Label>Métrica A</Label>
@@ -198,9 +318,10 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
                 Aplicar
               </button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       {resultado && a ? (
         <>

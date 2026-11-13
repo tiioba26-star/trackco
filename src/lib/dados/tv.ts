@@ -1,54 +1,22 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { carinhaPara, type Carinha } from "@/engine/apuracao";
-import { competenciaDe, datasEntre, fimCompetencia, hojeNoFuso, inicioCompetencia, menorData } from "@/engine/datas";
-import { calcularMetrica } from "@/engine/metricas";
-import type { Linha, Metrica } from "@/engine/tipos";
-import { linhasKlingo, membrosDaEquipe } from "@/lib/calculo/carregar";
-import { resolverMetrica } from "@/lib/metricas-papel";
+import { competenciaAnterior, competenciaDe, datasEntre, diaDaSemanaISO, fimCompetencia, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
+import { janelaRapida, type JanelaPeriodo } from "@/engine/periodos";
+import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
+import type { Categoria } from "@/engine/producao";
+import type { Metrica } from "@/engine/tipos";
+import { membrosDaEquipe } from "@/lib/calculo/carregar";
+import { codigosTv } from "@/lib/codigo-tv";
+import { linhasDasPessoas, producaoDe, realizadasDaClinica, realizadasNoPeriodo, regrasDaCategoria } from "@/lib/dados/producao";
+import { metricaPorPapel } from "@/lib/metricas-papel";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Modo TV: link público sem login. NUNCA devolve nome, foto, iniciais, login, R$, comissão ou pontos.
+// Cada pessoa aparece só pelo código de 4 dígitos (ela vê o próprio código no Painel).
 
-export type ModoTv = { tipo: "barras"; metrica: string; titulo: string } | { tipo: "geral"; titulo: string };
-
-export interface ConfigTv {
-  intervalo: number;
-  modos: ModoTv[];
-  limites: { feliz: number; mega_feliz: number };
-  frases_rodape?: string[];
-  subtitulos?: string[];
-  mensagens_barra?: {
-    meta_batida?: string[];
-    quase_la?: string[];
-    evoluindo?: string[];
-  };
-}
-
-export const CONFIG_TV_PADRAO: ConfigTv = {
-  intervalo: 30,
-  modos: [
-    { tipo: "barras", metrica: "agendamentos", titulo: "Agendamentos Particular" },
-    { tipo: "barras", metrica: "realizadas", titulo: "Consultas Particular Realizadas" },
-    { tipo: "barras", metrica: "agendamentos_sus", titulo: "SUS · Agendamentos" },
-    { tipo: "geral", titulo: "Visão Geral da Equipe" },
-  ],
-  limites: { feliz: 80, mega_feliz: 100 },
-  frases_rodape: [
-    "Grandes conquistas começam com uma equipe unida.",
-    "Cada agendamento aproxima a nossa equipe da superação.",
-    "Consistência e dedicação transformam metas em grandes conquistas.",
-    "Estamos evoluindo juntos, com foco e alta performance.",
-    "Cada conquista importa para o sucesso de todos nós.",
-    "Seguimos crescendo e construindo o nosso melhor resultado.",
-  ],
-  subtitulos: [
-    "Ritmo contínuo, consistência e excelência em cada atendimento",
-    "Evolução diária da equipe rumo à superação de metas",
-    "Foco no paciente, agilidade e resultados de alto impacto",
-    "Dedicação diária construindo grandes realizações",
-  ],
-};
+export { BLOCOS_TV, CONFIG_TV_PADRAO, normalizarConfig } from "@/lib/tv-config";
+export type { BlocoTv, ConfigTv, ModoTv } from "@/lib/tv-config";
 
 export function gerarToken(): { token: string; hash: string } {
   const token = randomBytes(24).toString("base64url");
@@ -60,23 +28,42 @@ export function hashToken(token: string): string {
 }
 
 export interface ItemBarra {
-  id: string; // anônimo, estável no dia (para animar as barras)
+  /** código de 4 dígitos da pessoa (estável, para animar as barras) */
+  id: string;
   valor: number;
   atingimento: number | null;
   carinha: Carinha;
 }
 
+export interface PeriodoTela {
+  nome: string;
+  datas: string;
+  emAndamento: boolean;
+}
+
 export interface TelaTv {
-  tipo: "barras" | "geral";
+  tipo: "barras" | "pessoa" | "equipe";
   titulo: string;
+  /** de quando são os números desta tela */
+  periodo?: PeriodoTela;
+  /** a tela fica o dobro do tempo (ranking principal) */
+  destaque?: boolean;
   unidade?: string;
   itens?: ItemBarra[];
-  geral?: {
-    indicadores: { titulo: string; realizado: number; meta: number | null; pct: number | null; unidade: string }[];
-    serie: { dia: string; [k: string]: number | string | null }[];
-    series: { chave: string; rotulo: string }[];
-    carinhas: Record<Carinha, number>;
+  /** soma da equipe no canto (ranking) */
+  total?: number;
+  pessoa?: {
+    codigo: string;
+    posicao: number;
+    carinha: Carinha;
+    periodos: { nome: string; datas: string; marcadas: number; realizadas: number }[];
+  };
+  equipe?: {
     pessoas: number;
+    agendamentosParticular: number;
+    agendamentosSus: number;
+    realizadasParticular: { equipe: number; clinica: number | null };
+    realizadasSus: { equipe: number; clinica: number | null };
   };
 }
 
@@ -89,8 +76,11 @@ export interface PayloadTv {
   telas: TelaTv[];
 }
 
-function anonimo(colabId: string, painelId: string, dia: string): string {
-  return createHash("sha256").update(`${painelId}|${dia}|${colabId}`).digest("hex").slice(0, 10);
+const periodoTela = (j: JanelaPeriodo): PeriodoTela => ({ nome: j.nome, datas: j.datas, emAndamento: j.emAndamento });
+
+/** Dias de trabalho no intervalo (sem feriados: é só para a meta proporcional da TV). */
+function diasDeTrabalho(inicio: string, fim: string, dias: number[]): number {
+  return datasEntre(inicio, fim).filter((d) => dias.includes(diaDaSemanaISO(d))).length;
 }
 
 export async function dadosTv(token: string): Promise<PayloadTv | null> {
@@ -107,100 +97,173 @@ export async function dadosTv(token: string): Promise<PayloadTv | null> {
   if (!painel.ultimo_acesso || Date.now() - new Date(painel.ultimo_acesso).getTime() > 10 * 60_000) {
     await db.from("paineis_tv").update({ ultimo_acesso: new Date().toISOString() }).eq("id", painel.id);
   }
+  return payloadDoPainel(painel as PainelRow);
+}
 
-  const config: ConfigTv = { ...CONFIG_TV_PADRAO, ...(painel.config as Partial<ConfigTv>) };
-  const hoje = hojeNoFuso();
+interface PainelRow {
+  id: string;
+  nome: string;
+  equipes: string[];
+  config: unknown;
+}
+
+/** Monta as telas de um painel (separado do token para poder testar com dados reais). */
+export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): Promise<PayloadTv> {
+  const db = criarClienteAdmin();
+  const config = normalizarConfig(painel.config as Partial<ConfigTv>);
   const comp = competenciaDe(hoje);
-  const ini = inicioCompetencia(comp);
+  const compAnt = competenciaAnterior(comp);
 
-  const [{ data: equipes }, { data: metricasRows }, { data: sync }] = await Promise.all([
-    db.from("equipes").select("id, nome").in("id", painel.equipes as string[]).eq("ativo", true),
-    db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao").eq("ativo", true),
+  const [{ data: equipes }, { data: metricasRows }, { data: sync }, codigos] = await Promise.all([
+    db.from("equipes").select("id, nome, dias_trabalho").in("id", painel.equipes as string[]).eq("ativo", true),
+    db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao, ativo").eq("ativo", true),
     db.from("sync_execucoes").select("finalizado_em").eq("status", "ok").order("iniciado_em", { ascending: false }).limit(1).maybeSingle(),
+    codigosTv(),
   ]);
-  const listaMetricas = (metricasRows ?? []) as Metrica[];
-  const metricaDo = (ref: string) => resolverMetrica(listaMetricas, ref);
+  const metricas = (metricasRows ?? []) as Metrica[];
   const equipeIds = (equipes ?? []).map((e) => e.id);
+  const diasTrabalho = ((equipes ?? [])[0]?.dias_trabalho as number[] | undefined) ?? [1, 2, 3, 4, 5];
 
-  // membros de todas as equipes do painel
-  const membros = (
-    await Promise.all(equipeIds.map((id) => membrosDaEquipe(db, id, comp)))
-  )
-    .flat()
-    .filter((m) => m.funcao === "membro");
+  // membros (sem o líder) de todas as equipes do painel
+  const membros = (await Promise.all(equipeIds.map((id) => membrosDaEquipe(db, id, comp)))).flat().filter((m) => m.funcao === "membro");
   const unicos = Array.from(new Map(membros.map((m) => [m.colaborador_id, m])).values());
   const ids = unicos.map((m) => m.colaborador_id);
-  const porLogin = new Map(unicos.filter((m) => m.login_klingo).map((m) => [m.login_klingo!.toLowerCase(), m.colaborador_id]));
+  const codigoDe = (id: string) => codigos.get(id) ?? "0000";
 
-  const [brutas, { data: metas }, { data: aps }] = await Promise.all([
-    linhasKlingo(db, Array.from(porLogin.keys()), comp),
-    ids.length
-      ? db.from("metas").select("metrica_id, colaborador_id, equipe_id, valor").eq("competencia", ini)
+  const janelas = config.periodos!.map((p) => janelaRapida(p, hoje));
+  const inicioDados = janelas.reduce((m, j) => (j.inicio < m ? j.inicio : m), inicioCompetencia(comp));
+  const agend = metricaPorPapel(metricas, "agendamentos");
+  const regras = { particular: regrasDaCategoria(metricas, "particular"), sus: regrasDaCategoria(metricas, "sus") };
+
+  const [linhas, { data: metas }, { data: aps }] = await Promise.all([
+    linhasDasPessoas(
+      db,
+      unicos.map((m) => ({ id: m.colaborador_id, login_klingo: m.login_klingo })),
+      inicioDados,
+      hoje,
+    ),
+    ids.length && agend
+      ? db.from("metas").select("colaborador_id, competencia, valor").eq("metrica_id", agend.id).in("competencia", [inicioCompetencia(comp), inicioCompetencia(compAnt)]).in("colaborador_id", ids)
       : Promise.resolve({ data: [] }),
     ids.length
-      ? db.from("apuracoes").select("colaborador_id, nota").eq("tipo", "parcial").eq("competencia", ini).in("colaborador_id", ids)
+      ? db.from("apuracoes").select("colaborador_id, nota").eq("tipo", "parcial").eq("competencia", inicioCompetencia(comp)).in("colaborador_id", ids)
       : Promise.resolve({ data: [] }),
   ]);
-  const linhas: Linha[] = brutas.map((l) => ({
-    ...l,
-    chave: l.chave as string,
-    colaborador_id: porLogin.get(String(l.responsavel_login ?? "").toLowerCase()) ?? null,
-  }));
   const notaDe = new Map((aps ?? []).map((a) => [a.colaborador_id as string, a.nota === null ? null : Number(a.nota)]));
-  const janela = { inicio: ini, fim: fimCompetencia(comp) };
-  const metaDe = (metricaId: string, colab: string) =>
-    (metas ?? []).find((m) => m.metrica_id === metricaId && m.colaborador_id === colab)?.valor as number | undefined;
+  const metaDe = (id: string, c: string) =>
+    Number((metas ?? []).find((m) => m.colaborador_id === id && String(m.competencia).startsWith(c))?.valor ?? 0) || null;
+  const uteisMes = diasDeTrabalho(inicioCompetencia(comp), fimCompetencia(comp), diasTrabalho);
+
+  /** % da meta de agendamentos no período (meta do mês proporcional aos dias de trabalho do período). */
+  const atingimento = (id: string, valor: number, j: JanelaPeriodo): number | null => {
+    if (j.periodo === "mes_passado") {
+      const meta = metaDe(id, compAnt);
+      return meta ? Math.round((valor / meta) * 1000) / 10 : null;
+    }
+    const meta = metaDe(id, comp);
+    if (!meta) return j.periodo === "mes" ? (notaDe.get(id) ?? null) : null;
+    const fracao = j.periodo === "mes" ? 1 : diasDeTrabalho(j.inicio, j.fim, diasTrabalho) / Math.max(1, uteisMes);
+    const metaPeriodo = meta * fracao;
+    return metaPeriodo > 0 ? Math.round((valor / metaPeriodo) * 1000) / 10 : null;
+  };
+  const carinhaMes = (id: string) => carinhaPara(notaDe.get(id) ?? null, config.limites);
+
+  // produção de cada período (até agora), por categoria
+  const prod = (cat: Categoria, j: JanelaPeriodo) => {
+    const r = regras[cat];
+    return r ? producaoDe(linhas, r, ids, { inicio: j.inicio, fim: j.fim }, hoje) : null;
+  };
 
   const telas: TelaTv[] = [];
-  for (const modo of config.modos) {
-    if (modo.tipo === "barras") {
-      const m = metricaDo(modo.metrica);
-      if (!m || m.unidade === "R$" || m.unidade === "pts") continue; // nunca dinheiro/pontos na TV
-      const itens: ItemBarra[] = unicos.map((p) => {
-        const valor = calcularMetrica(m.definicao, () => linhas, janela, hoje, [p.colaborador_id]).valor;
-        const meta = metaDe(m.id, p.colaborador_id);
-        const ating = meta ? Math.round((valor / Number(meta)) * 1000) / 10 : (notaDe.get(p.colaborador_id) ?? null);
-        return { id: anonimo(p.colaborador_id, painel.id, hoje), valor, atingimento: ating, carinha: carinhaPara(ating, config.limites) };
+  const blocos = config.modos.map((m) => m.bloco);
+
+  // total de consultas realizadas na clínica inteira, por período (só se o bloco "equipe" estiver ligado)
+  const clinica = blocos.includes("equipe")
+    ? await Promise.all(
+        janelas.map(async (j) => ({
+          particular: regras.particular ? await realizadasDaClinica(db, regras.particular, j.inicio, j.fim) : null,
+          sus: regras.sus ? await realizadasDaClinica(db, regras.sus, j.inicio, j.fim) : null,
+        })),
+      )
+    : [];
+
+  for (const bloco of blocos) {
+    if (bloco === "ranking_particular" || bloco === "ranking_sus") {
+      const cat: Categoria = bloco === "ranking_sus" ? "sus" : "particular";
+      for (const j of janelas) {
+        const p = prod(cat, j);
+        if (!p) continue;
+        const itens: ItemBarra[] = ids
+          .map((id) => {
+            const valor = p.porPessoa.get(id)?.agendou ?? 0;
+            const ating = cat === "particular" ? atingimento(id, valor, j) : null;
+            return {
+              id: codigoDe(id),
+              valor,
+              atingimento: ating,
+              carinha: ating !== null ? carinhaPara(ating, config.limites) : carinhaMes(id),
+            };
+          })
+          .sort((a, b) => b.valor - a.valor || a.id.localeCompare(b.id));
+        telas.push({
+          tipo: "barras",
+          titulo: cat === "sus" ? "SUS · Agendamentos" : "Agendamentos Particular",
+          periodo: periodoTela(j),
+          destaque: cat === "particular" && j.periodo === "mes",
+          unidade: "un",
+          itens,
+          total: p.total.agendou,
+        });
+      }
+    } else if (bloco === "pessoas") {
+      // ordem: ranking de agendamentos Particular do mês, do 1º ao último
+      const mes = janelaRapida("mes", hoje);
+      const pm = prod("particular", mes);
+      if (!pm) continue;
+      const ordem = [...ids].sort((a, b) => (pm.porPessoa.get(b)?.agendou ?? 0) - (pm.porPessoa.get(a)?.agendou ?? 0) || codigoDe(a).localeCompare(codigoDe(b)));
+      const porPeriodo = janelas.map((j) => ({ j, p: prod("particular", j) }));
+      ordem.forEach((id, i) => {
+        const ating = atingimento(id, pm.porPessoa.get(id)?.agendou ?? 0, mes);
+        telas.push({
+          tipo: "pessoa",
+          titulo: "Consultas marcadas × realizadas",
+          pessoa: {
+            codigo: codigoDe(id),
+            posicao: i + 1,
+            carinha: ating !== null ? carinhaPara(ating, config.limites) : carinhaMes(id),
+            periodos: porPeriodo.map(({ j, p }) => ({
+              nome: j.nome,
+              datas: j.datas,
+              marcadas: p?.porPessoa.get(id)?.marcadasPara ?? 0,
+              realizadas: p?.porPessoa.get(id)?.compareceram ?? 0,
+            })),
+          },
+        });
       });
-      telas.push({ tipo: "barras", titulo: modo.titulo || m.nome, unidade: m.unidade, itens: itens.sort((a, b) => b.valor - a.valor) });
-    } else {
-      const codigos = config.modos.filter((x): x is Extract<ModoTv, { tipo: "barras" }> => x.tipo === "barras").map((x) => x.metrica);
-      const usadas = codigos
-        .map((c) => metricaDo(c))
-        .filter((m): m is Metrica => !!m && m.unidade !== "R$" && m.unidade !== "pts");
-      const indicadores = usadas.map((m) => {
-        const realizado = calcularMetrica(m.definicao, () => linhas, janela, hoje, ids).valor;
-        const metaEquipe = (metas ?? []).find((x) => x.metrica_id === m.id && equipeIds.includes(x.equipe_id as string))?.valor;
-        const somaInd = ids.reduce((s, id) => s + Number(metaDe(m.id, id) ?? 0), 0);
-        const meta = metaEquipe ? Number(metaEquipe) : somaInd || null;
-        return {
-          titulo: m.nome,
-          realizado,
-          meta,
-          pct: meta && m.unidade !== "%" ? Math.round((realizado / meta) * 1000) / 10 : null,
-          unidade: m.unidade,
-        };
-      });
-      const limite = menorData(janela.fim, hoje);
-      const serieMetricas = usadas.filter((m) => m.unidade !== "%").slice(0, 2);
-      const serie = datasEntre(ini, janela.fim).map((dia) => {
-        const p: { dia: string; [k: string]: number | string | null } = { dia: dia.slice(8) };
-        for (const m of serieMetricas)
-          p[m.codigo] = dia <= limite ? calcularMetrica(m.definicao, () => linhas, { inicio: ini, fim: dia }, dia, ids).valor : null;
-        return p;
-      });
-      const carinhas: Record<Carinha, number> = { neutra: 0, feliz: 0, mega_feliz: 0 };
-      for (const id of ids) carinhas[carinhaPara(notaDe.get(id) ?? null, config.limites)]++;
-      telas.push({
-        tipo: "geral",
-        titulo: modo.titulo || "Visão geral",
-        geral: {
-          indicadores,
-          serie,
-          series: serieMetricas.map((m) => ({ chave: m.codigo, rotulo: m.nome })),
-          carinhas,
-          pessoas: ids.length,
-        },
+    } else if (bloco === "equipe") {
+      janelas.forEach((j, k) => {
+        const pp = prod("particular", j);
+        const ps = prod("sus", j);
+        const clinPart = clinica[k]?.particular ?? null;
+        const clinSus = clinica[k]?.sus ?? null;
+        telas.push({
+          tipo: "equipe",
+          titulo: "Visão Geral da Equipe",
+          periodo: periodoTela(j),
+          equipe: {
+            pessoas: ids.length,
+            agendamentosParticular: pp?.total.agendou ?? 0,
+            agendamentosSus: ps?.total.agendou ?? 0,
+            realizadasParticular: {
+              equipe: regras.particular ? realizadasNoPeriodo(linhas, regras.particular, ids, j.inicio, j.fim) : 0,
+              clinica: clinPart,
+            },
+            realizadasSus: {
+              equipe: regras.sus ? realizadasNoPeriodo(linhas, regras.sus, ids, j.inicio, j.fim) : 0,
+              clinica: clinSus,
+            },
+          },
+        });
       });
     }
   }

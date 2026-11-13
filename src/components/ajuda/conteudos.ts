@@ -11,8 +11,35 @@ export interface Ajuda {
   titulo: string;
   resumo: string[];
   dicas?: string[];
+  /** "Como ler os números": termos e o que cada um conta */
+  glossario?: { termo: string; texto: string }[];
   passos: PassoTour[];
 }
+
+/** Os mesmos termos aparecem no Painel, na TV, no Extrato e na Análise. */
+const GLOSSARIO: Ajuda["glossario"] = [
+  {
+    termo: "Agendou",
+    texto: "Pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data). É o esforço.",
+  },
+  {
+    termo: "Remarques e válidos",
+    texto: "Toda remarcação vira uma marcação nova no Klingo. 'Válidos' tira as remarcações, bloqueios da clínica e erros: cada paciente conta uma vez.",
+  },
+  {
+    termo: "Consultas marcadas para o período",
+    texto: "Consultas cuja DATA DA CONSULTA cai no período, marcadas pela pessoa em qualquer dia. No mês atual inclui as que ainda vão acontecer.",
+  },
+  { termo: "Compareceram", texto: "Das consultas marcadas para o período, quantas o paciente realmente veio (cruzado com o faturamento do Klingo)." },
+  {
+    termo: "Taxa de comparecimento (conversão)",
+    texto: "Compareceram ÷ consultas marcadas, só em dias que já passaram. Ex.: 72% = de cada 100 consultas marcadas, 72 aconteceram.",
+  },
+  { termo: "Faltaram / desmarcaram", texto: "Faltou = o dia passou e o paciente não veio. Desmarcou = cancelou e não remarcou." },
+  { termo: "▲ ▼ comparação", texto: "Sempre com o mesmo ponto do período anterior: mês até o dia 13 × mês passado até o dia 13; semana até sexta × semana passada até sexta." },
+  { termo: "Nível e nota", texto: "Resultado do mês pelas regras do plano (pesos e faixas). Só existe para meses; veja o cálculo no Extrato." },
+  { termo: "SUS", texto: "Só para acompanhar. Nunca entra em meta, nota, prêmio, comissão ou pontos." },
+];
 
 const PASSOS_MENU: PassoTour[] = [
   { alvo: "menu", titulo: "Menu", texto: "Aqui ficam todas as seções. O que aparece depende do seu perfil: atendente, líder ou administrador." },
@@ -23,23 +50,38 @@ export const AJUDA: Record<string, Ajuda> = {
   "/": {
     titulo: "Painel",
     resumo: [
-      "O painel mostra o seu desempenho no mês: quanto você já realizou, qual é a meta, quanto falta por dia e a projeção de fechamento.",
-      "Quantitativo = agendamentos que você fez (contam no dia em que você agendou). Qualitativo = consultas que de fato aconteceram (contam no dia em que o paciente foi atendido, mesmo que você tenha agendado em outro mês).",
-      "Os dados vêm do Klingo e são atualizados de hora em hora em horário comercial. A hora da última atualização aparece no topo.",
-      "SUS aparece num quadro separado, só para acompanhamento: não conta para metas, nota, prêmios, comissão ou pontos.",
+      "O Painel responde três perguntas: quanto foi feito, o que aconteceu com as consultas e se o ritmo está bom para a meta.",
+      "Comece pelo PERÍODO no topo (Hoje, Semana, Mês, Mês passado ou outro mês). A linha 'Mostrando' diz exatamente quais datas estão sendo contadas, e todos os números da tela seguem essa escolha.",
+      "Existem duas datas diferentes, e é isso que mais confunde: 'Agendou' conta pelo dia em que a pessoa MARCOU; 'Consultas marcadas para o período', 'Compareceram' e a taxa contam pelo DIA DA CONSULTA.",
+      "Os dados vêm do Klingo de hora em hora em horário comercial. O horário da última atualização fica no canto de cima.",
+      "Atendentes veem só os próprios números (e o próprio código da TV). Líderes e administradores veem também a equipe, pessoa por pessoa.",
     ],
     dicas: [
-      "Achou um número errado? Abra o Extrato, encontre o agendamento e use o botão Contestar.",
-      "O nível (Em desenvolvimento, Quase lá, Meta batida, Destaque) vem da média ponderada dos seus indicadores.",
+      "Toque no ? ao lado de qualquer número para ver o que ele conta.",
+      "Achou um número errado? Abra o Extrato, encontre o paciente e use Contestar.",
+      "Remarcar não aumenta 'Válidos': o que conta de verdade é paciente novo que comparece.",
     ],
+    glossario: GLOSSARIO,
     passos: [
       ...PASSOS_MENU,
-      { alvo: "competencia", titulo: "Mês de referência", texto: "Troque o mês para ver meses anteriores. O mês atual é parcial e vai até hoje." },
-      { alvo: "sync", titulo: "Atualização dos dados", texto: "Mostra quando o robô buscou os dados no Klingo pela última vez." },
-      { alvo: "kpis", titulo: "Indicadores", texto: "Cada cartão mostra realizado x meta, o atingimento e quanto falta por dia útil para bater a meta." },
-      { alvo: "nivel", titulo: "Seu nível", texto: "Resultado geral do mês segundo as regras do plano. Toque em 'Ver extrato' para ver o cálculo passo a passo." },
-      { alvo: "evolucao", titulo: "Evolução diária", texto: "Como seus números cresceram ao longo do mês." },
-      { alvo: "ranking", titulo: "Equipe", texto: "Posição na equipe. O que cada pessoa vê dos colegas é configurado pelo administrador." },
+      { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Semana, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
+      { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora)." },
+      { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos. Este é o seu." },
+      { alvo: "posicao", titulo: "Sua posição", texto: "Um ícone discreto: pódio para 1º, 2º e 3º lugar em agendamentos no período; medalha de menção honrosa do 4º em diante." },
+      { alvo: "ritmo", titulo: "2. Ritmo da meta", texto: "Quanto já foi feito, onde deveria estar hoje (o tracinho) e quanto falta por dia útil para bater a meta do mês." },
+      { alvo: "kpi-agendou", titulo: "3. Agendou", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita. Embaixo: quantos foram remarcações e quantos são válidos (cada paciente uma vez)." },
+      { alvo: "kpi-marcadas", titulo: "4. Consultas marcadas para o período", texto: "Agora pela DATA DA CONSULTA: consultas que caem no período. No mês atual inclui as que ainda vão acontecer." },
+      { alvo: "kpi-compareceram", titulo: "5. Compareceram", texto: "Dessas consultas, quantos pacientes vieram." },
+      { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). É a 'conversão'. O ▲▼ compara com o mesmo ponto do período anterior." },
+      { alvo: "destino", titulo: "7. O que aconteceu com as consultas", texto: "Cada consulta marcada para o período termina em: compareceu, faltou, desmarcou ou ainda vai acontecer. É onde dá para agir (ex.: confirmar na véspera)." },
+      { alvo: "sus", titulo: "SUS", texto: "Só acompanhamento: não conta para meta, nota ou prêmios." },
+      { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantas marcações foram feitas em cada dia. Mostra os dias fortes e fracos." },
+      { alvo: "grafico-consultas", titulo: "9. Consultas de cada dia", texto: "Pelo dia da consulta: marcadas × compareceram. Barras claras são dias que ainda vão chegar." },
+      { alvo: "categoria", titulo: "Particular ou SUS", texto: "Troca todos os números da equipe entre Particular e SUS." },
+      { alvo: "tabela-producao", titulo: "10. Produção por pessoa", texto: "Responde: quanto cada uma agendou no período, quanto foi remarque, quantas consultas estavam marcadas para o período e o que aconteceu com elas. Cada coluna tem o seu ?." },
+      { alvo: "grafico-remarques", titulo: "Agendou × válidos", texto: "A diferença entre as barras é o 'número inflado' por remarcações, bloqueios e erros." },
+      { alvo: "grafico-pessoas", titulo: "Marcadas × compareceram", texto: "Quem converte melhor as consultas que marca." },
+      { alvo: "historico", titulo: "Histórico", texto: "Resultado oficial mês a mês. Toque num mês para abrir o extrato com o cálculo." },
     ],
   },
   "/extrato": {
@@ -63,16 +105,17 @@ export const AJUDA: Record<string, Ajuda> = {
   "/analise": {
     titulo: "Análise",
     resumo: [
-      "Aqui você monta a análise que quiser: escolhe duas métricas, o período, se quer ver por dia ou por mês e se quer o acumulado.",
-      "Para comparar quantidade com resultado, compare coisas da mesma data: 'Consultas marcadas para o período' (pela data da consulta) × 'Consultas realizadas' (pela data em que aconteceu). Assim outubro é comparado com outubro, dia a dia.",
-      "'Agendamentos' conta pelo dia em que o atendente marcou (o esforço do mês), mesmo que a consulta seja em outro mês. É útil para ver produtividade, mas não para medir conversão.",
+      "A Análise é para investigar. Há dois jeitos, um de cada vez: 'Perguntas prontas' (escolha uma pergunta e veja a resposta) ou 'Montar a minha análise' (você escolhe as métricas, o período e a visão).",
+      "Para comparar quantidade com resultado, compare coisas da mesma data: 'Consultas marcadas para o período' (pela data da consulta) × 'Consultas realizadas'. Assim outubro é comparado com outubro, dia a dia.",
+      "'Agendamentos' conta pelo dia em que a pessoa marcou (o esforço), mesmo que a consulta seja em outro mês.",
       "Na visão por dia, os dias que ainda não chegaram aparecem mais claros: mostram o que já está marcado para eles.",
-      "As métricas disponíveis vêm da tela Métricas. Criou uma nova lá? Ela aparece aqui automaticamente.",
     ],
+    glossario: GLOSSARIO,
     passos: [
-      { alvo: "analise-atalhos", titulo: "Atalhos", texto: "Análises prontas. Clique para carregar." },
-      { alvo: "analise-parametros", titulo: "Parâmetros", texto: "Monte sua própria análise: métricas, período, dia ou mês, acumulado, equipe ou pessoa." },
-      { alvo: "analise-grafico", titulo: "Gráfico", texto: "Barras por dia/mês; no modo acumulado, linhas. Passe o mouse para ver os números." },
+      { alvo: "analise-modo", titulo: "Escolha o jeito", texto: "Perguntas prontas para o dia a dia; 'Montar a minha' para ir fundo." },
+      { alvo: "analise-atalhos", titulo: "Perguntas", texto: "Cada pergunta já sabe quais números e período usar." },
+      { alvo: "analise-parametros", titulo: "Ajustes", texto: "Mês, pessoa ou equipe (e, no modo livre, as métricas e a visão)." },
+      { alvo: "analise-grafico", titulo: "Resposta", texto: "O gráfico e, abaixo, a tabela com os números. Passe o mouse ou toque para ver os valores." },
     ],
   },
   "/contestacoes": {
@@ -201,11 +244,13 @@ export const AJUDA: Record<string, Ajuda> = {
   "/paineis-tv": {
     titulo: "Painéis de TV",
     resumo: [
-      "Crie links públicos (sem login) para deixar numa TV. A tela mostra o desempenho de forma ANÔNIMA: sem nomes, fotos ou iniciais, só um ícone com carinha neutra, feliz ou mega feliz (nunca triste).",
-      "Os modos alternam a cada 30 s (configurável): barras de agendamentos, barras de realizadas, barras de SUS e um painel geral. Nunca aparecem valores de comissão ou pontos.",
-      "O link só aparece uma vez ao criar. Se vazar, gere outro ou desative o painel.",
+      "Crie links públicos (sem login) para deixar numa TV. Nunca aparecem nomes, fotos, iniciais, comissão ou pontos: cada pessoa é um código de 4 dígitos (ela vê o próprio código no Painel).",
+      "Telas: rankings de agendamentos Particular e SUS (uma por período), uma tela por pessoa com marcadas × compareceram e a visão da equipe com o total da clínica. Cada tela mostra o período e as datas.",
+      "O ícone de cada pessoa alterna entre perfil, carinha e a posição numa tacinha: 1º ouro, 2º prata, 3º bronze; do 4º em diante, branco.",
+      "Na TV: ← → trocam de tela, espaço (ou P) pausa a rotação, e os pontinhos do rodapé levam direto a uma tela. Pausado, os números continuam atualizando.",
+      "O link só aparece uma vez ao criar. Se vazar, gere outro, desative ou exclua o painel.",
     ],
-    passos: [{ alvo: "tv-novo", titulo: "Novo painel", texto: "Escolha equipes, modos e intervalo." }],
+    passos: [{ alvo: "tv-novo", titulo: "Novo painel", texto: "Escolha equipes, tipos de tela, períodos e o intervalo." }],
   },
   "/auditoria": {
     titulo: "Auditoria",
