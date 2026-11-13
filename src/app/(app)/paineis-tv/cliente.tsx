@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
-import { BLOCOS_TV, type ConfigTv, normalizarConfig } from "@/lib/tv-config";
+import { BLOCOS_TV, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
 import { atualizarPainel, criarPainel, excluirPainel, regenerarToken } from "./actions";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
@@ -58,15 +58,29 @@ function ListaModos({ config }: { config?: ConfigTv }) {
   return (
     <>
       <div className="space-y-1.5">
-        <Label>Telas (alternam nesta ordem)</Label>
+        <Label>Telas (alternam nesta ordem) e quanto tempo cada uma fica</Label>
         {BLOCOS_TV.map((b) => (
-          <label key={b.bloco} className="flex items-start gap-2 text-sm">
-            <input type="checkbox" name="blocos" value={b.bloco} defaultChecked={blocos.includes(b.bloco)} className="mt-1" />
-            <span>
-              {b.rotulo}
-              <span className="block text-xs text-muted-foreground">{b.descricao}</span>
-            </span>
-          </label>
+          <div key={b.bloco} className="flex items-start justify-between gap-3">
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" name="blocos" value={b.bloco} defaultChecked={blocos.includes(b.bloco)} className="mt-1" />
+              <span>
+                {b.rotulo}
+                <span className="block text-xs text-muted-foreground">{b.descricao}</span>
+              </span>
+            </label>
+            <label className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground" title="Segundos que cada tela deste tipo fica na TV">
+              <Input
+                type="number"
+                name={`tempo_${b.bloco}`}
+                defaultValue={segundosDoBloco(cfg, b.bloco)}
+                min={5}
+                max={300}
+                className="h-7 w-16 px-1.5 text-right text-xs"
+                aria-label={`Segundos de cada tela: ${b.rotulo}`}
+              />
+              s
+            </label>
+          </div>
         ))}
       </div>
       <div className="space-y-1.5">
@@ -79,8 +93,8 @@ function ListaModos({ config }: { config?: ConfigTv }) {
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          Com tudo marcado são 8 rankings (Particular e SUS × 4 períodos), uma tela por pessoa e 4 telas da equipe. Na TV: ← → trocam
-          de tela e a barra de espaço pausa.
+          Cada tipo vira uma tela por período (a tela por pessoa vira uma por pessoa). Na TV: ← → trocam de tela e a barra de espaço
+          pausa.
         </p>
       </div>
     </>
@@ -121,11 +135,7 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
           ))}
         </div>
         <ListaModos />
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1.5">
-            <Label>Troca a cada (s)</Label>
-            <Input type="number" name="intervalo" defaultValue={30} min={10} max={300} />
-          </div>
+        <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <Label>😊 a partir de</Label>
             <Input type="number" name="feliz" defaultValue={80} />
@@ -281,11 +291,7 @@ export function EditarPainel({
 
             <ListaModos config={painel.config} />
 
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1.5">
-                <Label>Troca (s)</Label>
-                <Input type="number" name="intervalo" defaultValue={cfg.intervalo ?? 30} min={10} max={300} />
-              </div>
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <Label>😊 a partir de</Label>
                 <Input type="number" name="feliz" defaultValue={cfg.limites?.feliz ?? 80} />

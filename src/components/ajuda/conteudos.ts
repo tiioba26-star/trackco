@@ -64,6 +64,7 @@ export const AJUDA: Record<string, Ajuda> = {
     glossario: GLOSSARIO,
     passos: [
       ...PASSOS_MENU,
+      { alvo: "retrospectiva", titulo: "Retrospectiva do mês", texto: "O fechamento do mês passado, em histórias: seus números, seu melhor dia, conquistas e recordes. Fica disponível o mês inteiro." },
       { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Últimos 7 dias, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
       { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora)." },
       { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos. Este é o seu." },
@@ -265,7 +266,9 @@ export const AJUDA: Record<string, Ajuda> = {
     titulo: "Painéis de TV",
     resumo: [
       "Crie links públicos (sem login) para deixar numa TV. Nunca aparecem nomes, fotos, iniciais, comissão ou pontos: cada pessoa é um código de 4 dígitos (ela vê o próprio código no Painel).",
-      "Telas: rankings de agendamentos Particular e SUS (uma por período), uma tela por pessoa com marcadas × compareceram e a visão da equipe com o total da clínica. Cada tela mostra o período e as datas.",
+      "Telas: rankings de agendamentos válidos Particular e SUS, 'Quem mais melhorou' e 'Melhor comparecimento' (outras formas de ganhar além do volume), uma tela por pessoa, a equipe com Particular e SUS lado a lado, a pizza com as outras equipes da clínica e os destaques do mês passado. Cada tela mostra o período e as datas.",
+      "Cada tipo de tela tem o seu tempo (em segundos), ao lado da caixinha no editar. A tela por pessoa vem mais curta.",
+      "Quando alguém bate um recorde pessoal (do dia ou do mês), aparece uma faixa dourada em todas as telas, com confete.",
       "O ícone de cada pessoa alterna entre perfil, carinha e a posição numa tacinha: 1º ouro, 2º prata, 3º bronze; do 4º em diante, branco.",
       "Na TV: ← → trocam de tela, espaço (ou P) pausa a rotação, e os pontinhos do rodapé levam direto a uma tela. Pausado, os números continuam atualizando.",
       "O link só aparece uma vez ao criar. Se vazar, gere outro, desative ou exclua o painel.",

@@ -45,7 +45,7 @@ export default async function PaginaPaineis() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {(p.equipes as string[]).map((id) => nomeEquipe.get(id) ?? "?").join(", ")} · {cfg.modos.length} tipo(s) de tela ×{" "}
-                      {cfg.periodos?.length ?? 0} período(s) · troca a cada {cfg.intervalo}s
+                      {cfg.periodos?.length ?? 0} período(s)
                     </div>
                     <div className="text-xs text-muted-foreground">Último acesso: {fmtDataHora(p.ultimo_acesso)}</div>
                   </div>

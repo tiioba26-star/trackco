@@ -20,14 +20,21 @@ function extrairLinhas(valor: FormDataEntryValue | null): string[] | undefined {
 }
 
 /** Blocos e períodos marcados no formulário, na ordem da tela. */
-function lerModos(fd: FormData): { modos: ModoTv[]; periodos: PeriodoRapido[] } {
+function lerModos(fd: FormData): { modos: ModoTv[]; periodos: PeriodoRapido[]; tempos: NonNullable<ConfigTv["tempos"]> } {
   const blocos = fd.getAll("blocos").map(String);
   const modos: ModoTv[] = BLOCOS_TV.filter((b) => blocos.includes(b.bloco)).map((b) => ({ tipo: "bloco", bloco: b.bloco }));
   if (!modos.length) throw new Error("Escolha pelo menos um tipo de tela.");
   const marcados = fd.getAll("periodos").map(String);
   const periodos = PERIODOS_RAPIDOS.filter((p) => marcados.includes(p));
   if (!periodos.length) throw new Error("Escolha pelo menos um período.");
-  return { modos, periodos };
+  // tempo de cada tipo de tela (s); vazio = padrão do tipo
+  const tempos: NonNullable<ConfigTv["tempos"]> = {};
+  for (const b of BLOCOS_TV) {
+    const v = fd.get(`tempo_${b.bloco}`);
+    if (v === null || v === "") continue;
+    tempos[b.bloco] = z.coerce.number().int().min(5, "Cada tela fica pelo menos 5 segundos.").max(300, "Cada tela fica no máximo 300 segundos.").parse(v);
+  }
+  return { modos, periodos, tempos };
 }
 
 export async function criarPainel(fd: FormData): Promise<Ret> {
@@ -40,7 +47,7 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const { modos, periodos } = lerModos(fd);
+    const { modos, periodos, tempos } = lerModos(fd);
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -49,8 +56,9 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
-      versao: 2,
+      versao: 3,
       intervalo,
+      tempos,
       modos,
       periodos,
       limites: { feliz, mega_feliz: mega },
@@ -90,7 +98,7 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const feliz = z.coerce.number().min(0).max(500).parse(fd.get("feliz") ?? 80);
     const mega = z.coerce.number().min(0).max(500).parse(fd.get("mega_feliz") ?? 100);
     if (mega < feliz) throw new Error("O limite de 'mega feliz' deve ser maior que o de 'feliz'.");
-    const { modos, periodos } = lerModos(fd);
+    const { modos, periodos, tempos } = lerModos(fd);
 
     const frases_rodape = extrairLinhas(fd.get("frases_rodape"));
     const subtitulos = extrairLinhas(fd.get("subtitulos"));
@@ -99,8 +107,9 @@ export async function atualizarPainel(id: string, fd: FormData): Promise<Ret> {
     const evoluindo = extrairLinhas(fd.get("msg_evoluindo"));
 
     const config: ConfigTv = {
-      versao: 2,
+      versao: 3,
       intervalo,
+      tempos,
       modos,
       periodos,
       limites: { feliz, mega_feliz: mega },

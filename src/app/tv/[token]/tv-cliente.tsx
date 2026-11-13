@@ -6,6 +6,7 @@ import type { ConfigTv, ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
 import { AvatarPosicaoTv, corDaPosicao } from "./carinha";
 import { ConfetesTv, type DisparoConfete } from "./confetes";
 import { OlhoFundoIoba } from "./olho-fundo";
+import { FaixaRecordes, TelaDestaques, TelaEquipe, TelaParticipacao } from "./telas-extras";
 
 // Gradientes horizontais para as barras conforme posição
 const GRADIENTES_BARRAS = [
@@ -120,13 +121,78 @@ function dadosDemo(passo: number): PayloadTv {
         realizadasSus: { equipe: Math.round(40 * p.f), clinica: Math.round(290 * p.f) },
       },
     });
+  for (const p of periodos.slice(1)) {
+    telas.push({
+      tipo: "barras",
+      titulo: "Quem mais melhorou · válidos Particular",
+      periodo: p,
+      comparadoCom: "o mesmo ponto do período anterior",
+      unidade: "%",
+      mais: true,
+      segundos: 20,
+      mensagens: ["Evoluindo! 📈", "Superando a si mesma!"],
+      itens: [
+        { id: "5154", valor: 42.5, detalhe: "57 agora · 40 antes", atingimento: null, carinha: "feliz" },
+        { id: "1307", valor: 18.2, detalhe: "78 agora · 66 antes", atingimento: null, carinha: "feliz" },
+        { id: "7720", valor: 6.1, detalhe: "53 agora · 50 antes", atingimento: null, carinha: "neutra" },
+      ],
+    });
+    telas.push({
+      tipo: "barras",
+      titulo: "Melhor comparecimento · Particular",
+      periodo: p,
+      unidade: "%",
+      segundos: 20,
+      mensagens: ["Paciente que veio! ✅", "Agendamento de qualidade"],
+      itens: [
+        { id: "7720", valor: 81.3, detalhe: "39 de 48 vieram", atingimento: null, carinha: "mega_feliz" },
+        { id: "4821", valor: 74.6, detalhe: "50 de 67 vieram", atingimento: null, carinha: "feliz" },
+        { id: "1307", valor: 70.1, detalhe: "54 de 77 vieram", atingimento: null, carinha: "feliz" },
+        { id: "2968", valor: 62.5, detalhe: "10 de 16 vieram", atingimento: null, carinha: "neutra" },
+      ],
+    });
+  }
+  telas.push({
+    tipo: "participacao",
+    titulo: "Comercial × outras equipes",
+    segundos: 25,
+    participacao: periodos.map((p) => ({
+      nome: p.nome,
+      datas: p.datas,
+      fatias: [
+        { equipe: "Comercial", valor: Math.round(1965 * p.f), destaque: true },
+        { equipe: "Recepção SUS", valor: Math.round(938 * p.f), destaque: false },
+        { equipe: "Recepção Particular", valor: Math.round(186 * p.f), destaque: false },
+        { equipe: "Outros", valor: Math.round(1583 * p.f), destaque: false },
+      ],
+    })),
+  });
+  telas.push({
+    tipo: "destaques",
+    titulo: "Destaques de outubro",
+    periodo: periodos[3],
+    segundos: 30,
+    destaques: {
+      mes: "outubro",
+      mesAnterior: "setembro",
+      equipe: { validos: 467, total: 559, crescimento: 8.4, taxa: 67, taxaAnt: 64.2, melhorDia: { dia: "14/10", valor: 37 } },
+      vencedores: [
+        { titulo: "Mais agendamentos válidos", codigo: "1672", valor: "195", detalhe: "228 no total" },
+        { titulo: "Quem mais melhorou", codigo: "6078", valor: "+31,2%", detalhe: "103 contra 79 em setembro" },
+        { titulo: "Melhor comparecimento", codigo: "4234", valor: "83,3%", detalhe: "dos pacientes vieram" },
+      ],
+      metaBatida: ["1672"],
+    },
+  });
+  for (const t of telas) t.segundos ??= t.tipo === "pessoa" ? 12 : 30;
   return {
     nome: "Demonstração",
     equipes: ["Equipe Comercial"],
     competencia: new Date().toISOString().slice(0, 7),
     atualizado_em: new Date().toISOString(),
-    config: { versao: 2, intervalo: 30, modos: [], limites: { feliz: 80, mega_feliz: 120 } },
+    config: { versao: 3, intervalo: 30, modos: [], limites: { feliz: 80, mega_feliz: 120 } },
     telas,
+    recordes: passo % 6 < 3 ? ["#4821 bateu o recorde pessoal do dia: 26 agendamentos válidos hoje!"] : [],
   };
 }
 
@@ -186,6 +252,8 @@ function LinhaBarraTv({
   maxValor,
   destaque,
   unidade,
+  mais,
+  mensagensTela,
   configBarra,
   onDispararConfete,
 }: {
@@ -194,6 +262,8 @@ function LinhaBarraTv({
   maxValor: number;
   destaque: boolean;
   unidade?: string;
+  mais?: boolean;
+  mensagensTela?: string[];
   configBarra?: ConfigTv["mensagens_barra"];
   onDispararConfete: (x: number, y: number) => void;
 }) {
@@ -208,6 +278,7 @@ function LinhaBarraTv({
   const pctLargura = Math.max(22, (it.valor / maxValor) * 72);
 
   const mensagens = useMemo(() => {
+    if (mensagensTela?.length) return mensagensTela;
     if (it.atingimento !== null && it.atingimento >= 100) {
       if (configBarra?.meta_batida?.length) return configBarra.meta_batida;
       const superacao = Math.round(it.atingimento - 100);
@@ -220,7 +291,7 @@ function LinhaBarraTv({
     if (pos === 0 && it.valor > 0) return ["Liderando o ranking! 🌟", "Excelente ritmo!", "Seguimos crescendo!"];
     if (configBarra?.evoluindo?.length) return configBarra.evoluindo;
     return ["Vamos lá! 💪", "Estamos evoluindo!", "Cada conquista importa!", "Seguimos crescendo!"];
-  }, [it.atingimento, it.valor, pos, configBarra]);
+  }, [it.atingimento, it.valor, pos, configBarra, mensagensTela]);
 
   useEffect(() => {
     const duracaoMsg = destaque ? 15000 + (pos % 3) * 1500 : 9500 + (pos % 3) * 1200;
@@ -287,10 +358,14 @@ function LinhaBarraTv({
           </div>
           <span className="absolute top-1/2 left-[calc(100%+14px)] flex -translate-y-1/2 flex-col leading-none whitespace-nowrap select-none">
             <span className="text-[3.8vh] font-black tracking-tight text-white tabular-nums drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+              {mais && it.valor > 0 ? "+" : ""}
               {fmt(it.valor, unidade)}
             </span>
-            {it.bruto !== undefined && it.bruto > it.valor && (
-              <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">de {fmt(it.bruto)} no total</span>
+            {it.detalhe ? (
+              <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">{it.detalhe}</span>
+            ) : (
+              it.bruto !== undefined &&
+              it.bruto > it.valor && <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">de {fmt(it.bruto)} no total</span>
             )}
           </span>
         </motion.div>
@@ -312,6 +387,12 @@ function TelaBarras({
   const maxValor = Math.max(1, ...itens.map((i) => i.valor));
   return (
     <div className="relative flex flex-1 flex-col">
+      {tela.comparadoCom && (
+        <div className="absolute top-0 right-0 z-10 max-w-[30vw] text-right text-[2vh] font-semibold text-sky-200/70">
+          comparado com <span className="text-white">{tela.comparadoCom}</span>
+          <div className="text-[1.7vh] font-medium text-sky-200/50">só aparece quem cresceu</div>
+        </div>
+      )}
       {tela.total !== undefined && (
         <div className="absolute top-0 right-0 z-10 text-right">
           <div className="text-[1.8vh] font-semibold tracking-wider text-sky-200/60 uppercase">Total da equipe · válidos</div>
@@ -333,6 +414,8 @@ function TelaBarras({
               maxValor={maxValor}
               destaque={!!tela.destaque}
               unidade={tela.unidade}
+              mais={tela.mais}
+              mensagensTela={tela.mensagens}
               configBarra={configBarra}
               onDispararConfete={onDispararConfete}
             />
@@ -412,69 +495,6 @@ function TelaPessoa({ tela }: { tela: TelaTv }) {
   );
 }
 
-function CartaoNumero({ rotulo, valor, detalhe }: { rotulo: string; valor: number; detalhe: string }) {
-  return (
-    <Painel className="flex flex-col justify-center">
-      <div className="text-[2.3vh] font-semibold text-sky-200/80">{rotulo}</div>
-      <div className="mt-[0.6vh] text-[8vh] leading-none font-black text-white tabular-nums drop-shadow-sm">{fmt(valor)}</div>
-      <div className="mt-[1vh] text-[1.9vh] text-sky-200/60">{detalhe}</div>
-    </Painel>
-  );
-}
-
-function CartaoParticipacao({ rotulo, equipe, clinica }: { rotulo: string; equipe: number; clinica: number | null }) {
-  const pct = clinica ? Math.min(100, (equipe / clinica) * 100) : null;
-  return (
-    <Painel className="flex flex-col justify-center gap-[1.4vh]">
-      <div className="text-[2.3vh] font-semibold text-sky-200/80">{rotulo}</div>
-      <div className="flex items-baseline gap-3">
-        <span className="text-[7vh] leading-none font-black text-white tabular-nums">{fmt(equipe)}</span>
-        <span className="text-[2.6vh] font-semibold text-sky-200/70">
-          de {clinica !== null ? fmt(clinica) : "—"} na clínica
-        </span>
-      </div>
-      <div className="h-[2.2vh] overflow-hidden rounded-full border border-sky-500/30 bg-sky-950/60">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: `linear-gradient(90deg, ${COR_REALIZADAS}, #a7f3d0)` }}
-          initial={{ width: 0 }}
-          animate={{ width: `${pct ?? 0}%` }}
-          transition={{ duration: 1.3 }}
-        />
-      </div>
-      <div className="text-[2vh] text-sky-100/80">
-        {pct !== null ? (
-          <>
-            <b className="text-emerald-300">{fmt(pct, "%")}</b> das consultas realizadas na clínica foram marcadas pela equipe
-          </>
-        ) : (
-          "Total da clínica indisponível no momento"
-        )}
-      </div>
-    </Painel>
-  );
-}
-
-function TelaEquipe({ tela }: { tela: TelaTv }) {
-  const e = tela.equipe!;
-  return (
-    <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-[2.4vh] py-[1.5vh]">
-      <CartaoNumero
-        rotulo="Agendamentos válidos Particular"
-        valor={e.agendamentosParticular}
-        detalhe={`marcados pela equipe (${e.pessoas} pessoas) no período${e.brutoParticular && e.brutoParticular > e.agendamentosParticular ? ` · ${fmt(e.brutoParticular)} no total, com remarcações` : ""}`}
-      />
-      <CartaoNumero
-        rotulo="Agendamentos válidos SUS"
-        valor={e.agendamentosSus}
-        detalhe={`marcados pela equipe no período${e.brutoSus && e.brutoSus > e.agendamentosSus ? ` · ${fmt(e.brutoSus)} no total` : ""} · só acompanhamento`}
-      />
-      <CartaoParticipacao rotulo="Consultas Particular realizadas" equipe={e.realizadasParticular.equipe} clinica={e.realizadasParticular.clinica} />
-      <CartaoParticipacao rotulo="Consultas SUS realizadas" equipe={e.realizadasSus.equipe} clinica={e.realizadasSus.clinica} />
-    </div>
-  );
-}
-
 export function TvCliente({ token }: { token: string }) {
   const [dados, setDados] = useState<PayloadTv | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -488,6 +508,13 @@ export function TvCliente({ token }: { token: string }) {
 
   const dispararConfeteEm = useCallback((x: number, y: number) => {
     setDisparoConfete({ id: Date.now() + Math.random(), x, y });
+  }, []);
+  // confete no centro do topo quando aparece um recorde novo (uma vez por recorde)
+  const recordesVistos = useRef(new Set<string>());
+  const confeteDoRecorde = useCallback((texto: string) => {
+    if (recordesVistos.current.has(texto)) return;
+    recordesVistos.current.add(texto);
+    setDisparoConfete({ id: Date.now() + Math.random(), x: window.innerWidth / 2, y: window.innerHeight * 0.18 });
   }, []);
 
   const frasesConfig = dados?.config?.frases_rodape;
@@ -552,8 +579,8 @@ export function TvCliente({ token }: { token: string }) {
   // rotação automática (o "pausar" trava só o carrossel; os dados continuam atualizando)
   useEffect(() => {
     if (pausado || telas.length <= 1 || !tela) return;
-    const base = (dados?.config?.intervalo ?? 30) * 1000;
-    const t = setTimeout(() => ir(1), tela.destaque ? base * 2 : base);
+    const segundos = tela.segundos ?? (tela.destaque ? 2 : 1) * (dados?.config?.intervalo ?? 30);
+    const t = setTimeout(() => ir(1), segundos * 1000);
     return () => clearTimeout(t);
   }, [pausado, telas.length, tela, dados?.config?.intervalo, ir, atual]);
 
@@ -654,6 +681,8 @@ export function TvCliente({ token }: { token: string }) {
       </header>
 
 
+      <FaixaRecordes recordes={dados?.recordes ?? []} onNovo={confeteDoRecorde} />
+
       <div className="relative z-10 mt-[2vh] flex flex-1 flex-col">
         {tela && (
           <div key={`${atual}-${tela.titulo}`} className="flex flex-1 flex-col duration-700 animate-in fade-in motion-reduce:animate-none">
@@ -661,6 +690,10 @@ export function TvCliente({ token }: { token: string }) {
               <TelaBarras tela={tela} configBarra={dados?.config?.mensagens_barra} onDispararConfete={dispararConfeteEm} />
             ) : tela.tipo === "pessoa" ? (
               <TelaPessoa tela={tela} />
+            ) : tela.tipo === "participacao" ? (
+              <TelaParticipacao tela={tela} />
+            ) : tela.tipo === "destaques" ? (
+              <TelaDestaques tela={tela} />
             ) : (
               <TelaEquipe tela={tela} />
             )}

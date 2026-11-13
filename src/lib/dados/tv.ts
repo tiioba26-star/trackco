@@ -2,8 +2,11 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { carinhaPara, type Carinha } from "@/engine/apuracao";
 import { competenciaAnterior, competenciaDe, datasEntre, diaDaSemanaISO, fimCompetencia, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
-import { janelaRapida, type JanelaPeriodo } from "@/engine/periodos";
-import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
+import { destaquesDoMes, rankingComparecimento, rankingMelhorou } from "@/engine/destaques";
+import { diaMes, janelaAnterior, janelaRapida, type JanelaPeriodo, nomeMes } from "@/engine/periodos";
+import { calcularRecordes } from "@/engine/recordes";
+import { type BlocoTv, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
+import { type Fatia, ontem, participacaoPorEquipe, recordesAnteriores } from "@/lib/dados/participacao";
 import type { Categoria, Producao } from "@/engine/producao";
 import type { Metrica } from "@/engine/tipos";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
@@ -34,6 +37,8 @@ export interface ItemBarra {
   valor: number;
   /** total marcado, com remarcações, bloqueios e erros */
   bruto?: number;
+  /** texto pequeno embaixo do número (substitui o "de X no total") */
+  detalhe?: string;
   atingimento: number | null;
   carinha: Carinha;
 }
@@ -45,8 +50,26 @@ export interface PeriodoTela {
 }
 
 export interface TelaTv {
-  tipo: "barras" | "pessoa" | "equipe";
+  tipo: "barras" | "pessoa" | "equipe" | "participacao" | "destaques";
   titulo: string;
+  /** bloco de origem (tempo e ordem) */
+  bloco?: BlocoTv;
+  /** quanto tempo esta tela fica (s) */
+  segundos?: number;
+  /** frases dentro das barras desta tela (no lugar das de meta) */
+  mensagens?: string[];
+  /** mostra "+" antes do número (crescimento) */
+  mais?: boolean;
+  /** com o que o período foi comparado (ex.: "outubro até o dia 13") */
+  comparadoCom?: string;
+  participacao?: { nome: string; datas: string; fatias: Fatia[] }[];
+  destaques?: {
+    mes: string;
+    mesAnterior: string;
+    equipe: { validos: number; total: number; crescimento: number | null; taxa: number | null; taxaAnt: number | null; melhorDia: { dia: string; valor: number } | null };
+    vencedores: { titulo: string; codigo: string; valor: string; detalhe: string }[];
+    metaBatida: string[];
+  };
   /** de quando são os números desta tela */
   periodo?: PeriodoTela;
   /** a tela fica o dobro do tempo (ranking principal) */
@@ -81,6 +104,8 @@ export interface PayloadTv {
   atualizado_em: string | null;
   config: ConfigTv;
   telas: TelaTv[];
+  /** recordes pessoais batidos agora (faixa comemorativa) */
+  recordes?: string[];
 }
 
 const periodoTela = (j: JanelaPeriodo): PeriodoTela => ({ nome: j.nome, datas: j.datas, emAndamento: j.emAndamento });
@@ -132,19 +157,24 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
   const diasTrabalho = ((equipes ?? [])[0]?.dias_trabalho as number[] | undefined) ?? [1, 2, 3, 4, 5];
 
   // membros (sem o líder) de todas as equipes do painel
-  const membros = (await Promise.all(equipeIds.map((id) => membrosDaEquipe(db, id, comp)))).flat().filter((m) => m.funcao === "membro");
+  const todosDaEquipe = (await Promise.all(equipeIds.map((id) => membrosDaEquipe(db, id, comp)))).flat();
+  const membros = todosDaEquipe.filter((m) => m.funcao === "membro");
   const unicos = Array.from(new Map(membros.map((m) => [m.colaborador_id, m])).values());
   const ids = unicos.map((m) => m.colaborador_id);
   const codigoDe = (id: string) => codigos.get(id) ?? "0000";
 
   const janelas = config.periodos!.map((p) => janelaRapida(p, hoje));
-  const inicioDados = janelas.reduce((m, j) => (j.inicio < m ? j.inicio : m), inicioCompetencia(comp));
+  // dados desde o mais antigo que alguma tela precisa: períodos, comparações e o mês retrasado (destaques)
+  const inicioDados = [...janelas.map((j) => j.inicio), ...janelas.map((j) => janelaAnterior(j, hoje).inicio), inicioCompetencia(competenciaAnterior(comp, 2))].reduce(
+    (m, d) => (d < m ? d : m),
+    inicioCompetencia(comp),
+  );
   const agend = metricaPorPapel(metricas, "agendamentos");
   const validos = metricaPorPapel(metricas, "agendamentos_validos");
   const idsMeta = [agend?.id, validos?.id].filter(Boolean) as string[];
   const regras = { particular: regrasDaCategoria(metricas, "particular"), sus: regrasDaCategoria(metricas, "sus") };
 
-  const [linhas, { data: metas }, { data: aps }] = await Promise.all([
+  const [linhas, { data: metas }, { data: aps }, { data: apsAnt }] = await Promise.all([
     linhasDasPessoas(
       db,
       unicos.map((m) => ({ id: m.colaborador_id, login_klingo: m.login_klingo })),
@@ -161,6 +191,9 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
       : Promise.resolve({ data: [] }),
     ids.length
       ? db.from("apuracoes").select("colaborador_id, nota").eq("tipo", "parcial").eq("competencia", inicioCompetencia(comp)).in("colaborador_id", ids)
+      : Promise.resolve({ data: [] }),
+    ids.length
+      ? db.from("apuracoes").select("colaborador_id, nota, tipo").eq("competencia", inicioCompetencia(compAnt)).in("colaborador_id", ids)
       : Promise.resolve({ data: [] }),
   ]);
   const notaDe = new Map((aps ?? []).map((a) => [a.colaborador_id as string, a.nota === null ? null : Number(a.nota)]));
@@ -229,6 +262,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
           .sort((a, b) => b.valor - a.valor || (b.bruto ?? 0) - (a.bruto ?? 0) || a.id.localeCompare(b.id));
         telas.push({
           tipo: "barras",
+          bloco,
           titulo: cat === "sus" ? "SUS · Agendamentos válidos" : "Agendamentos válidos · Particular",
           periodo: periodoTela(j),
           destaque: cat === "particular" && j.periodo === "mes",
@@ -250,6 +284,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
         const ating = atingimento(id, paraMeta(pm.porPessoa.get(id), comp), mes);
         telas.push({
           tipo: "pessoa",
+          bloco,
           titulo: "Consultas marcadas × realizadas",
           pessoa: {
             codigo: codigoDe(id),
@@ -272,6 +307,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
         const clinSus = clinica[k]?.sus ?? null;
         telas.push({
           tipo: "equipe",
+          bloco,
           titulo: "Visão Geral da Equipe",
           periodo: periodoTela(j),
           equipe: {
@@ -294,12 +330,118 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
     }
   }
 
+  // ---- outras formas de ganhar, comparação com outras equipes e destaques do mês passado ----
+  const rp = regras.particular;
+  const nomePainel = (equipes ?? []).map((e) => e.nome).join(" + ") || painel.nome;
+  for (const bloco of blocos) {
+    if (bloco === "melhorou" && rp) {
+      for (const j of janelas) {
+        if (j.periodo === "hoje") continue; // um dia só oscila demais para falar em "melhorou"
+        const ant = janelaAnterior(j, hoje);
+        const lista = rankingMelhorou(
+          producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa,
+          producaoDe(linhas, rp, ids, { inicio: ant.inicio, fim: ant.fim }, hoje).porPessoa,
+          ids,
+        );
+        if (!lista.length) continue;
+        telas.push({
+          tipo: "barras",
+          bloco,
+          titulo: "Quem mais melhorou · válidos Particular",
+          periodo: periodoTela(j),
+          comparadoCom: ant.nome,
+          unidade: "%",
+          mais: true,
+          mensagens: ["Evoluindo! 📈", "Superando a si mesma!", "Crescimento de verdade!"],
+          itens: lista.map((x) => ({ id: codigoDe(x.id), valor: x.pct, detalhe: `${x.atual} agora · ${x.anterior} antes`, atingimento: null, carinha: carinhaMes(x.id) })),
+        });
+      }
+    } else if (bloco === "comparecimento" && rp) {
+      for (const j of janelas) {
+        if (j.periodo === "hoje") continue; // o dia de hoje ainda não terminou
+        const lista = rankingComparecimento(producaoDe(linhas, rp, ids, { inicio: j.inicio, fim: j.fim }, hoje).porPessoa, ids);
+        if (!lista.length) continue;
+        telas.push({
+          tipo: "barras",
+          bloco,
+          titulo: "Melhor comparecimento · Particular",
+          periodo: periodoTela(j),
+          unidade: "%",
+          mensagens: ["Paciente que veio! ✅", "Agendamento de qualidade", "Confirmar faz diferença!"],
+          itens: lista.map((x) => ({ id: codigoDe(x.id), valor: x.taxa, detalhe: `${x.vieram} de ${x.marcadas} vieram`, atingimento: null, carinha: carinhaMes(x.id) })),
+        });
+      }
+    } else if (bloco === "participacao") {
+      const logins = todosDaEquipe.map((m) => m.login_klingo).filter((l): l is string => !!l);
+      const fatias = await participacaoPorEquipe(db, nomePainel, logins, janelas);
+      telas.push({
+        tipo: "participacao",
+        bloco,
+        titulo: `${nomePainel} × outras equipes`,
+        participacao: janelas.map((j, k) => ({ nome: j.nome, datas: j.datas, fatias: fatias[k] })),
+      });
+    } else if (bloco === "destaques_mes" && rp) {
+      const d = destaquesDoMes(linhas, rp, ids, compAnt, competenciaAnterior(compAnt), hoje);
+      const nota = new Map<string, number>();
+      // a apuração final (se houver) vale mais que a parcial
+      for (const a of [...(apsAnt ?? [])].sort((x, y) => (x.tipo === "final" ? 1 : 0) - (y.tipo === "final" ? 1 : 0)))
+        if (a.nota !== null) nota.set(a.colaborador_id as string, Number(a.nota));
+      const pessoa = (id: string | null) => d.pessoas.find((x) => x.id === id);
+      const pct = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+      const vencedores: NonNullable<TelaTv["destaques"]>["vencedores"] = [];
+      const v = pessoa(d.vencedores.volume);
+      if (v) vencedores.push({ titulo: "Mais agendamentos válidos", codigo: codigoDe(v.id), valor: String(v.validos), detalhe: `${v.total} no total` });
+      const m = pessoa(d.vencedores.melhorou);
+      if (m && m.crescimento !== null)
+        vencedores.push({ titulo: "Quem mais melhorou", codigo: codigoDe(m.id), valor: `+${pct(m.crescimento)}`, detalhe: `${m.validos} contra ${m.validosAnt} em ${nomeMes(competenciaAnterior(compAnt))}` });
+      const c = pessoa(d.vencedores.comparecimento);
+      if (c && c.taxa !== null) vencedores.push({ titulo: "Melhor comparecimento", codigo: codigoDe(c.id), valor: pct(c.taxa), detalhe: "dos pacientes vieram" });
+      telas.push({
+        tipo: "destaques",
+        bloco,
+        titulo: `Destaques de ${nomeMes(compAnt)}`,
+        periodo: periodoTela(janelaRapida("mes_passado", hoje)),
+        destaques: {
+          mes: nomeMes(compAnt),
+          mesAnterior: nomeMes(competenciaAnterior(compAnt)),
+          equipe: { ...d.equipe, melhorDia: d.equipe.melhorDia && { dia: diaMes(d.equipe.melhorDia.dia), valor: d.equipe.melhorDia.valor } },
+          vencedores,
+          metaBatida: ids.filter((id) => (nota.get(id) ?? 0) >= 100).map(codigoDe),
+        },
+      });
+    }
+  }
+  // cada tela no tempo do seu tipo (a tela por pessoa é mais curta) e na ordem dos blocos do painel
+  for (const t of telas) t.segundos ??= segundosDoBloco(config, t.bloco ?? "ranking_particular");
+  const ordenadas = telas
+    .map((t, i) => ({ t, i }))
+    .sort((a, b) => blocos.indexOf(a.t.bloco ?? "ranking_particular") - blocos.indexOf(b.t.bloco ?? "ranking_particular") || a.i - b.i)
+    .map((x) => x.t);
+
+  // recorde pessoal batido agora: vira uma faixa comemorativa em todas as telas
+  const recordes: string[] = [];
+  if (rp && ids.length) {
+    const hist = await recordesAnteriores(db, unicos.map((x) => ({ id: x.colaborador_id, login_klingo: x.login_klingo })), rp, hoje);
+    const pHoje = producaoDe(linhas, rp, ids, { inicio: hoje, fim: hoje }, hoje).porPessoa;
+    const pMes = producaoDe(linhas, rp, ids, { inicio: inicioCompetencia(comp), fim: hoje }, hoje).porPessoa;
+    for (const id of ids) {
+      const h = hist.get(id);
+      if (!h) continue;
+      const doMes = ontem(hoje) >= inicioCompetencia(comp) ? (calcularRecordes(linhas, rp, id, ontem(hoje), inicioCompetencia(comp)).melhorDia?.valor ?? 0) : 0;
+      const dia = pHoje.get(id)?.agendouValidos ?? 0;
+      if (h.melhorDia >= 3 && dia > Math.max(h.melhorDia, doMes)) recordes.push(`#${codigoDe(id)} bateu o recorde pessoal do dia: ${dia} agendamentos válidos hoje!`);
+      const mes = pMes.get(id)?.agendouValidos ?? 0;
+      if (h.melhorMes >= 20 && mes > h.melhorMes) recordes.push(`#${codigoDe(id)} já fez o melhor mês dos últimos 12: ${mes} agendamentos válidos!`);
+    }
+  }
+
   return {
     nome: painel.nome,
     equipes: (equipes ?? []).map((e) => e.nome),
     competencia: comp,
     atualizado_em: sync?.finalizado_em ?? null,
     config,
-    telas,
+    telas: ordenadas,
+    recordes,
   };
 }

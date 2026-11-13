@@ -5,9 +5,10 @@ import { CarregandoPagina } from "@/components/app/carregando-pagina";
 import { StatusSync } from "@/components/painel/cartoes";
 import { BlocoEquipe, BlocoMeu } from "@/components/painel/blocos-painel";
 import { SeletorPeriodo } from "@/components/painel/periodo";
+import { ConviteRetrospectiva } from "@/components/retrospectiva/retrospectiva";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { competenciaDe, hojeNoFuso } from "@/engine/datas";
-import { janelaDoMes, janelaPersonalizada, type JanelaPeriodo, janelaRapida, PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
+import { competenciaAnterior, competenciaDe, hojeNoFuso } from "@/engine/datas";
+import { janelaDoMes, nomeMes, janelaPersonalizada, type JanelaPeriodo, janelaRapida, PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 import type { Categoria } from "@/engine/producao";
 import type { Metrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
@@ -78,6 +79,16 @@ async function ConteudoPainel(props: PageProps<"/">) {
         </div>
         <StatusSync sync={sync} />
       </div>
+
+      {(minhaEquipe || equipeSel) && (
+        <ConviteRetrospectiva
+          mes={nomeMes(competenciaAnterior(competenciaDe(hoje)))}
+          mesAtual={nomeMes(competenciaDe(hoje))}
+          chave={`trackco:retro:${competenciaAnterior(competenciaDe(hoje))}:${s.colaborador.id}`}
+          equipe={!minhaEquipe}
+          abrir={sp.retro === "1"}
+        />
+      )}
 
       <SeletorPeriodo janela={janela} manter={manter} mesAtual={competenciaDe(hoje)} personalizado={gestao} />
 
