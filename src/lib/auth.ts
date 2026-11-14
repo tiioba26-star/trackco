@@ -1,6 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { hojeNoFuso } from "@/engine/datas";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 export type Papel = "admin" | "gestor" | "colaborador";
@@ -28,31 +29,49 @@ export interface Sessao {
   vêTudo: boolean;
 }
 
-/** Sessão do usuário (memoizada por request). null = não logado ou sem cadastro ativo no Trackco. */
+/** `sub` (id do usuário) de um token do Supabase, sem conferir a assinatura (quem confere é o banco, ver abaixo). */
+function idDoToken(token: string | undefined): string | null {
+  try {
+    const corpo = token?.split(".")[1];
+    if (!corpo) return null;
+    const dados = JSON.parse(Buffer.from(corpo, "base64url").toString("utf8")) as { sub?: unknown; exp?: unknown };
+    if (typeof dados.sub !== "string") return null;
+    if (typeof dados.exp === "number" && dados.exp * 1000 < Date.now()) return null;
+    return dados.sub;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Sessão do usuário (memoizada por request). null = não logado ou sem cadastro ativo no Trackco.
+ *
+ * Rápida de propósito: lê o token do cookie (sem ida ao servidor de login) e faz UMA consulta.
+ * É segura porque a consulta passa pelo banco com o token do usuário: o banco confere a assinatura e a validade
+ * em toda requisição (RLS). Token falso ou vencido → o banco recusa → nenhuma linha → sem sessão.
+ */
 export const obterSessao = cache(async (): Promise<Sessao | null> => {
   const supabase = await criarClienteServidor();
-  const { data: claims } = await supabase.auth.getClaims();
-  const authId = claims?.claims?.sub;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const authId = idDoToken(session?.access_token);
   if (!authId) return null;
 
   const { data: colab } = await supabase
     .from("colaboradores")
-    .select("id, nome, login, login_klingo, papel, ativo")
+    .select("id, nome, login, login_klingo, papel, ativo, equipe_membros(equipe_id, funcao, fim, equipes(nome))")
     .eq("auth_id", authId)
     .maybeSingle();
   if (!colab || !colab.ativo) return null;
 
-  const hoje = new Date().toISOString().slice(0, 10);
-  const { data: vinculos } = await supabase
-    .from("equipe_membros")
-    .select("equipe_id, funcao, fim, equipes(nome)")
-    .eq("colaborador_id", colab.id)
-    .or(`fim.is.null,fim.gte.${hoje}`);
-
-  const equipes: EquipeDoUsuario[] = (vinculos ?? []).map((v) => ({
-    equipe_id: v.equipe_id as string,
-    funcao: v.funcao as "lider" | "membro",
-    nome: (v.equipes as unknown as { nome: string } | null)?.nome ?? "",
+  const hoje = hojeNoFuso();
+  type Vinculo = { equipe_id: string; funcao: "lider" | "membro"; fim: string | null; equipes: { nome: string } | null };
+  const vinculos = ((colab.equipe_membros ?? []) as unknown as Vinculo[]).filter((v) => !v.fim || v.fim >= hoje);
+  const equipes: EquipeDoUsuario[] = vinculos.map((v) => ({
+    equipe_id: v.equipe_id,
+    funcao: v.funcao,
+    nome: v.equipes?.nome ?? "",
   }));
   const papel = colab.papel as Papel;
   return {

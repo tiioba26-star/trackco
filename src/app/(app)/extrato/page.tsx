@@ -1,4 +1,5 @@
 import { FileText, Lock, ScrollText } from "lucide-react";
+import Form from "next/form";
 import { BarraAtingimento, NivelBadge, Rotulo, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +43,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
   const seletor = (
     <div className="flex flex-wrap items-center gap-2">
       {pessoas.length > 1 && (
-        <form className="flex items-center gap-2" action="/extrato">
+        <Form className="flex items-center gap-2" action="/extrato">
           <input type="hidden" name="comp" value={comp} />
           <NativeSelect name="c" defaultValue={colabId} className="w-56">
             {pessoas.map((p) => (
@@ -54,7 +55,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
           <button className="h-8 rounded-lg border px-3 text-sm hover:bg-muted" type="submit">
             Ver
           </button>
-        </form>
+        </Form>
       )}
       <SeletorCompetencia competencia={comp} maxima={atual} />
     </div>

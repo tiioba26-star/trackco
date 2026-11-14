@@ -38,7 +38,7 @@ export function metricaMarcadasPara(metricas: Metrica[]): Metrica | null {
   return {
     id: "marcadas_para",
     codigo: "marcadas_para",
-    nome: "Consultas marcadas para o período",
+    nome: "Consultas marcadas para o período (Particular)",
     tipo: "quantitativa",
     unidade: "un",
     definicao: { tipo_calculo: "simples", corte: "hoje", ...conv.definicao.denominador },

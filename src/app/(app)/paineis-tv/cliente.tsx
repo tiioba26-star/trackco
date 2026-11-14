@@ -2,6 +2,7 @@
 
 import { ChevronDown, ChevronUp, Copy, ExternalLink, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -449,6 +450,7 @@ export function RegenerarLink({ id }: { id: string }) {
 
 /** Abre o controle remoto da TV: janelinha no PC, a própria tela no celular. */
 export function BotaoControle({ id }: { id: string }) {
+  const router = useRouter();
   return (
     <Button
       size="sm"
@@ -457,7 +459,10 @@ export function BotaoControle({ id }: { id: string }) {
         const url = `/controle-tv/${id}`;
         const pc = window.matchMedia("(min-width: 768px) and (pointer: fine)").matches;
         const janela = pc ? window.open(url, `controle-${id}`, "popup,width=420,height=760") : null;
-        if (!janela) window.location.href = url;
+        if (!janela) {
+          avisarNavegacao();
+          router.push(url);
+        }
       }}
     >
       <Gamepad2 className="size-4" /> Controle remoto

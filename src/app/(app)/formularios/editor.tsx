@@ -2,6 +2,7 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ export function EditorFormulario({
       const r = await salvarFormulario(id, { ...dados, pedirAgora });
       if (!r.ok) return void toast.error(r.erro ?? "Não foi possível salvar.");
       toast.success(f.ativo ? "Formulário salvo e ligado." : "Formulário salvo (desligado).");
+      avisarNavegacao();
       router.push("/formularios");
     });
 
@@ -307,7 +309,10 @@ export function EditorFormulario({
               <Button className="flex-1" onClick={salvar} disabled={salvando}>
                 {salvando ? "Salvando…" : "Salvar"}
               </Button>
-              <Button variant="outline" onClick={() => router.push("/formularios")}>
+              <Button variant="outline" onClick={() => {
+                  avisarNavegacao();
+                  router.push("/formularios");
+                }}>
                 Cancelar
               </Button>
             </div>

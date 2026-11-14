@@ -50,6 +50,60 @@ class TestCruzamento(unittest.TestCase):
         res = cruzar([m("a", "José Conceição", "2026-11-02")], [p("JOSE CONCEICAO", "2026-11-02")], self.HOJE)
         self.assertTrue(res[0]["atendido"])
 
+    def test_remarcacao_no_mesmo_dia_credita_quem_remarcou(self):
+        # caso real de out/2026: Maiane marcou, Igor remarcou para o mesmo dia (duas vezes); só a última aconteceu
+        marc = [
+            {**m("mai", "Paula", "2026-10-07"), "data_agendado_em": "2026-10-03", "profissional": "MAURICIO MATEUS", "responsavel_login": "m.fiais"},
+            {**m("ig1", "Paula", "2026-10-07"), "data_agendado_em": "2026-10-06", "profissional": "GUSTAVO GOMES", "responsavel_login": "i.soares"},
+            {**m("ig2", "Paula", "2026-10-07"), "data_agendado_em": "2026-10-06", "profissional": "LORENA CAMPOS", "responsavel_login": "i.soares"},
+        ]
+        canc = [
+            {"Paciente": "PAULA", "Agendado Para": "2026-10-07 08:00:00", "Procedimento": "CONSULTA", "Profissional": "Mauricio Mateus de Souza", "Status": "Cancelada", "Motivo": "Remarcado."},
+            {"Paciente": "PAULA", "Agendado Para": "2026-10-07 09:00:00", "Procedimento": "CONSULTA", "Profissional": "Gustavo Gomes d", "Status": "Cancelada", "Motivo": "Remarcado."},
+        ]
+        res = {r["chave"]: r["atendido"] for r in cruzar(marc, [p("Paula", "2026-10-07")], self.HOJE, canc)}
+        self.assertEqual(res, {"ig2": True, "mai": False, "ig1": False})
+        sit = {x["chave"]: x["situacao"] for x in classificar(marc, [{"chave": k, "atendido": v} for k, v in res.items()], canc, [], self.HOJE)}
+        self.assertEqual(sit, {"ig2": "realizada", "mai": "remarcada", "ig1": "remarcada"})
+
+    def test_empate_no_mesmo_dia_usa_quem_fez_a_marcacao_cancelada(self):
+        # duas pessoas marcaram no mesmo dia; o 47 diz de quem era a marcação cancelada (campo Usuario)
+        marc = [
+            {**m("bri", "Iara", "2026-10-28"), "data_agendado_em": "2026-10-28", "profissional": "GUSTAVO GOMES", "responsavel_login": "brisa"},
+            {**m("ana", "Iara", "2026-10-28"), "data_agendado_em": "2026-10-28", "profissional": "GUSTAVO GOMES", "responsavel_login": "a.luiza"},
+        ]
+        for usuario, credito in (("A.LUIZA", "bri"), ("BRISA", "ana")):
+            canc = [{"Paciente": "IARA", "Agendado Para": "2026-10-28 10:00:00", "Procedimento": "CONSULTA",
+                     "Profissional": "Gustavo Gomes", "Status": "Cancelada", "Motivo": "Remarcado.", "Usuario": usuario}]
+            for ordem in (marc, list(reversed(marc))):
+                res = {r["chave"]: r["atendido"] for r in cruzar(ordem, [p("Iara", "2026-10-28")], self.HOJE, canc)}
+                self.assertEqual([k for k, v in res.items() if v], [credito])
+
+    def test_sem_cancelamento_a_marcacao_mais_recente_leva(self):
+        marc = [{**m("velha", "Rui", "2026-10-07"), "data_agendado_em": "2026-10-01"},
+                {**m("nova", "Rui", "2026-10-07"), "data_agendado_em": "2026-10-05"}]
+        for ordem in (marc, list(reversed(marc))):  # não depende da ordem que vem do banco
+            res = {r["chave"]: r["atendido"] for r in cruzar(ordem, [p("Rui", "2026-10-07")], self.HOJE)}
+            self.assertEqual(res, {"nova": True, "velha": False})
+
+    def test_atendimento_sus_nao_confirma_marcacao_particular(self):
+        marc = [{**m("part", "Lia", "2026-10-07"), "operadora": "Particular"},
+                {**m("sus", "Lia", "2026-10-07", "EXAME"), "operadora": "SUS"}]
+        prod = [{**p("Lia", "2026-10-07", "EXAME", "0"), "Operadora": "SUS"},
+                {**p("Lia", "2026-10-07", "RETORNO", "0"), "Operadora": "SUS - SUS"}]
+        res = {r["chave"]: r["atendido"] for r in cruzar(marc, prod, self.HOJE)}
+        self.assertEqual(res, {"sus": True, "part": False})
+        prod_part = [{**p("Lia", "2026-10-07", "CONSULTA", "300"), "Operadora": "Particular - M. M. VASCONCELOS"}]
+        self.assertTrue(cruzar(marc[:1], prod_part, self.HOJE)[0]["atendido"])
+
+    def test_cada_marcacao_recebe_o_proprio_motivo(self):
+        marc = [{**m("a", "Teo", "2026-10-07", "CONSULTA"), "profissional": "DR A", "data_agendado_em": "2026-10-01"},
+                {**m("b", "Teo", "2026-10-07", "EXAME"), "profissional": "DR B", "data_agendado_em": "2026-10-01"}]
+        canc = [{"Paciente": "Teo", "Agendado Para": "2026-10-07", "Procedimento": "EXAME", "Profissional": "DR B", "Status": "Cancelada", "Motivo": "ERRO DE CADASTRO"},
+                {"Paciente": "Teo", "Agendado Para": "2026-10-07", "Procedimento": "CONSULTA", "Profissional": "DR A", "Status": "Cancelada", "Motivo": "Remarcado"}]
+        sit = {x["chave"]: x["situacao"] for x in classificar(marc, [], canc, [], self.HOJE)}
+        self.assertEqual(sit, {"a": "remarcada", "b": "erro"})
+
 
 class TestSituacao(unittest.TestCase):
     HOJE = date(2026, 11, 10)

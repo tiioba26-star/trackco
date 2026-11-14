@@ -67,6 +67,8 @@ async function ConteudoPainel(props: PageProps<"/">) {
   const equipeSel = equipesGestao.find((e) => e.id === sp.equipe) ?? equipesGestao[0];
   const categoria: Categoria = sp.cat === "sus" ? "sus" : "particular";
   const manter = { equipe: typeof sp.equipe === "string" ? sp.equipe : undefined, cat: categoria === "sus" ? "sus" : undefined };
+  // ao trocar período/equipe/categoria os blocos mostram o esqueleto na hora (sem a chave, a tela antiga ficaria parada)
+  const chaveVisao = `${janela.inicio}|${janela.fim}|${categoria}|${equipeSel?.id ?? ""}`;
 
   return (
     <div className="space-y-6">
@@ -101,13 +103,13 @@ async function ConteudoPainel(props: PageProps<"/">) {
       )}
 
       {minhaEquipe && (
-        <Suspense fallback={<CarregandoPagina variante="painel" titulo="Seu desempenho" />}>
+        <Suspense key={`meu|${chaveVisao}`} fallback={<CarregandoPagina variante="painel" titulo="Seu desempenho" />}>
           <BlocoMeu db={db} s={s} equipeId={minhaEquipe.equipe_id} janela={janela} hoje={hoje} metricas={metricas} />
         </Suspense>
       )}
 
       {equipeSel && (
-        <Suspense fallback={<CarregandoPagina variante="tabela" titulo="Equipe" />}>
+        <Suspense key={`equipe|${chaveVisao}`} fallback={<CarregandoPagina variante="tabela" titulo="Equipe" />}>
           <BlocoEquipe
             db={db}
             s={s}

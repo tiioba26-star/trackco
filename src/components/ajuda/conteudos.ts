@@ -112,6 +112,8 @@ export const AJUDA: Record<string, Ajuda> = {
       "Para comparar quantidade com resultado, compare coisas da mesma data: 'Consultas marcadas para o período' (pela data da consulta) × 'Consultas realizadas'. Assim outubro é comparado com outubro, dia a dia.",
       "'Agendamentos' conta pelo dia em que a pessoa marcou (o esforço), mesmo que a consulta seja em outro mês.",
       "Na visão por dia, os dias que ainda não chegaram aparecem mais claros: mostram o que já está marcado para eles.",
+      "No mês em curso, a proporção B ÷ A usa só os dias que já passaram (até ontem): consulta marcada para amanhã ainda não teve chance de acontecer.",
+      "Em Perguntas prontas, escolha a pergunta; ela fica no topo com os filtros, e 'Trocar pergunta' volta para a lista.",
     ],
     glossario: GLOSSARIO,
     passos: [

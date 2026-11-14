@@ -27,8 +27,12 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) {
+  // Só renova o token quando ele vence (sem ida ao servidor de login a cada clique). Quem confere a assinatura é o
+  // banco, em toda consulta (RLS), e as páginas só existem com sessão válida (exigirSessao).
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ erro: "não autenticado" }, { status: 401 });
     }

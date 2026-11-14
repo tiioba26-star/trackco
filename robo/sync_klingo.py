@@ -64,6 +64,10 @@ def valor_de(v: str) -> float:
         return 0.0
 
 
+def proximo_mes(d: date) -> str:
+    return f"{d.year + (d.month == 12)}-{d.month % 12 + 1:02d}"
+
+
 def meses_ate(fim: date, n: int) -> list[str]:
     """Os n meses terminando em `fim` (AAAA-MM), do mais antigo ao mais recente."""
     out, a, m = [], fim.year, fim.month
@@ -213,12 +217,94 @@ def chaves_2331(linhas: list[dict]) -> list[dict]:
     return out
 
 
-def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date) -> list[dict]:
-    """Mesmo critério do relatorio: paciente + dia; primeiro casa o mesmo procedimento, depois o que sobrar."""
+def categoria_operadora(v) -> str:
+    """Particular ou SUS. O 2331 traz "Particular"/"SUS"; o 319 traz "Particular - PARTICULAR", "SUS - SUS"..."""
+    n = norm(v)
+    if n.startswith("PARTIC"):
+        return "particular"
+    if n == "SUS" or n.startswith("SUS ") or n.startswith("SUS-"):
+        return "sus"
+    return ""
+
+
+def operadoras_conflitam(a, b) -> bool:
+    """Marcação Particular não é confirmada por atendimento SUS (e vice-versa). Outras operadoras não bloqueiam."""
+    return {categoria_operadora(a), categoria_operadora(b)} == {"particular", "sus"}
+
+
+def indice_cancelamentos(cancelamentos: list[dict] | None) -> dict:
+    """Relatório 47 agrupado por visita (paciente + dia da consulta)."""
+    c47 = collections.defaultdict(list)
+    for r in cancelamentos or []:
+        if not (limpa(r.get("Agendado Para")) and limpa(r.get("Paciente"))):
+            continue
+        try:
+            c47[(norm(r["Paciente"]), data_de(r["Agendado Para"]))].append(r)
+        except ValueError:  # linha quebrada no CSV do Klingo
+            continue
+    return c47
+
+
+def _mesmo_prof(a, b) -> bool:
+    a, b = norm(a), norm(b)
+    return bool(a and b) and (a.startswith(b) or b.startswith(a))
+
+
+def casar_cancelamentos(lista: list[dict], canc: list[dict]) -> dict:
+    """Liga cada cancelamento do 47 a uma marcação da visita. O "Usuario" do 47 é quem fez a marcação cancelada
+    (confere em 99,8% dos casos sem ambiguidade, out-nov/2026), então ele vem primeiro; depois o profissional
+    (o 47 às vezes abrevia o nome ou traz a sala, ex.: CENTRO CIRURGICO); por fim só o procedimento.
+    Entre candidatas iguais, a marcação mais antiga recebe o cancelamento. Devolve {chave da marcação: linha do 47}."""
+    livres = list(canc)
+    out: dict = {}
+    ordem = sorted(lista, key=lambda b: (b.get("data_agendado_em") or "", b["chave"]))
+
+    def proc(r, b):
+        return norm(r.get("Procedimento")) == norm(b.get("procedimento"))
+
+    def dono(r, b):
+        return bool(limpa(r.get("Usuario"))) and limpa(r.get("Usuario")).lower() == (b.get("responsavel_login") or "").lower()
+
+    def prof(r, b):
+        return _mesmo_prof(r.get("Profissional"), b.get("profissional"))
+
+    criterios = (
+        lambda r, b: proc(r, b) and dono(r, b) and prof(r, b),
+        lambda r, b: proc(r, b) and dono(r, b),
+        lambda r, b: proc(r, b) and prof(r, b),
+        proc,
+    )
+    for criterio in criterios:
+        for b in ordem:
+            if b["chave"] in out:
+                continue
+            i = next((i for i, r in enumerate(livres) if criterio(r, b)), None)
+            if i is not None:
+                out[b["chave"]] = livres.pop(i)
+    return out
+
+
+def _ordem_credito(lista: list[dict], canceladas: dict) -> list[dict]:
+    """Quem recebe a produção primeiro: marcação não cancelada, depois a mais recente (numa remarcação para o
+    mesmo dia, a nova); a chave só desempata, para o resultado não depender da ordem do banco."""
+    por_chave = sorted(lista, key=lambda b: b["chave"])
+    por_data = sorted(por_chave, key=lambda b: b.get("data_agendado_em") or "", reverse=True)
+    return sorted(por_data, key=lambda b: b["chave"] in canceladas)
+
+
+def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date, cancelamentos: list[dict] | None = None) -> list[dict]:
+    """Mesmo critério do relatorio (paciente + dia; primeiro casa o mesmo procedimento, depois o que sobrar), com duas
+    regras para o crédito ir para quem marcou a consulta que de fato aconteceu:
+    - se a visita tem mais marcações do que atendimentos, a produção vai primeiro para a marcação que NÃO foi
+      cancelada no relatório 47 e, entre elas, para a mais recente;
+    - atendimento SUS não confirma marcação Particular (e vice-versa).
+    """
     prod = collections.defaultdict(list)
     for r in producao:
         if limpa(r.get("Data Atendimento")):
-            prod[(norm(r.get("Paciente")), data_de(r["Data Atendimento"]))].append((norm(r.get("Procedimento")), valor_de(r.get("Valor"))))
+            prod[(norm(r.get("Paciente")), data_de(r["Data Atendimento"]))].append(
+                (norm(r.get("Procedimento")), valor_de(r.get("Valor")), limpa(r.get("Operadora"))))
+    c47 = indice_cancelamentos(cancelamentos)
 
     visitas = collections.defaultdict(list)
     for m in marcacoes:
@@ -228,22 +314,25 @@ def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date) -> list[dict
 
     resultado = []
     for (pac, para), lista in visitas.items():
+        lista = _ordem_credito(lista, casar_cancelamentos(lista, c47.get((pac, para), [])))
         restantes = list(prod.get((pac, para), []))
         casadas, sem_par = [], []
         for b in lista:
-            i = next((i for i, (p, _) in enumerate(restantes) if p == norm(b.get("procedimento"))), None)
+            i = next((i for i, (p, _, op) in enumerate(restantes)
+                      if p == norm(b.get("procedimento")) and not operadoras_conflitam(op, b.get("operadora"))), None)
             if i is None:
                 sem_par.append(b)
             else:
                 casadas.append([b, restantes.pop(i)[1]])
         for b in sem_par:
-            if restantes:
-                casadas.append([b, restantes.pop(0)[1]])
-            elif para < hoje:  # dia já passou e não houve atendimento
+            i = next((i for i, (_, _, op) in enumerate(restantes) if not operadoras_conflitam(op, b.get("operadora"))), None)
+            if i is not None:
+                casadas.append([b, restantes.pop(i)[1]])
+            elif para < hoje:  # dia já passou e não houve atendimento (desta operadora)
                 resultado.append({"chave": b["chave"], "atendido": False, "valor": None, "data_realizacao": None})
             # para == hoje sem produção ainda: fica pendente (null)
-        if casadas and restantes:  # itens feitos a mais na visita ficam com a primeira marcação
-            casadas[0][1] += sum(v for _, v in restantes)
+        if casadas and restantes:  # itens feitos a mais na visita (mesma operadora) ficam com a primeira marcação
+            casadas[0][1] += sum(v for _, v, op in restantes if not operadoras_conflitam(op, casadas[0][0].get("operadora")))
         for b, v in casadas:
             resultado.append({"chave": b["chave"], "atendido": True, "valor": round(v, 2), "data_realizacao": para.isoformat()})
     return resultado
@@ -254,47 +343,51 @@ def classificar(marcacoes: list[dict], cruzamento: list[dict], cancelamentos: li
     """Por que cada marcação não virou consulta (relatórios 47 e 8440 do Klingo).
 
     - realizada: cruzou com a produção (319)
-    - bloqueio_clinica / remarcada / erro / cancelada: relatório 47 (Status + Motivo do cancelamento)
+    - bloqueio_clinica / remarcada / erro / cancelada: relatório 47 (Status + Motivo do cancelamento); se a visita tem
+      mais de uma marcação, usa o cancelamento do mesmo procedimento/profissional
     - falta_remarcada / remarcada: relatório 8440 (marcação de origem de uma remarcação; Falta=1 = faltou antes)
     - nao_realizada: dia já passou e nenhum relatório explica (não compareceu)
     - None: consulta de hoje ou futura ainda sem desfecho
     """
     atendido = {r["chave"]: r["atendido"] for r in cruzamento}
-    c47 = collections.defaultdict(list)
-    for r in cancelamentos:
-        if limpa(r.get("Agendado Para")) and limpa(r.get("Paciente")):
-            c47[(norm(r["Paciente"]), data_de(r["Agendado Para"]))].append(r)
+    c47 = indice_cancelamentos(cancelamentos)
     r8440 = {}
     for r in remarcacoes:
         origem = next((v for k, v in r.items() if k and k.startswith("Origem")), None)
         if limpa(origem) and limpa(r.get("Paciente")):
-            r8440.setdefault((norm(r["Paciente"]), data_de(origem)), r)
-    out = []
+            try:
+                r8440.setdefault((norm(r["Paciente"]), data_de(origem)), r)
+            except ValueError:
+                continue
+    visitas = collections.defaultdict(list)
     for m in marcacoes:
-        if not m.get("data_agendado_para") or not m.get("paciente_nome"):
-            continue
-        para = date.fromisoformat(m["data_agendado_para"])
-        chave = (norm(m["paciente_nome"]), para)
-        situacao, motivo = None, None
-        if atendido.get(m["chave"]) is True:
-            situacao = "realizada"
-        elif chave in c47:
-            r = c47[chave][0]
-            motivo = limpa(r.get("Motivo"))[:200] or None
-            mot = norm(motivo)
-            if limpa(r.get("Status")).lower().startswith("bloq"):
-                situacao = "bloqueio_clinica"
-            elif "REMARC" in mot:
-                situacao = "remarcada"
-            elif mot.startswith("ERRO") or "UNIFICAD" in mot or "DUPLIC" in mot:
-                situacao = "erro"
-            else:
-                situacao = "cancelada"
-        elif chave in r8440:
-            situacao = "falta_remarcada" if limpa(r8440[chave].get("Falta")) == "1" else "remarcada"
-        elif para < hoje:
-            situacao = "nao_realizada"
-        out.append({"chave": m["chave"], "situacao": situacao, "motivo": motivo})
+        if m.get("data_agendado_para") and m.get("paciente_nome"):
+            visitas[(norm(m["paciente_nome"]), date.fromisoformat(m["data_agendado_para"]))].append(m)
+    out = []
+    for visita, lista in visitas.items():
+        canc = c47.get(visita, [])
+        ligados = casar_cancelamentos(lista, canc) if canc else {}
+        for m in lista:
+            situacao, motivo = None, None
+            if atendido.get(m["chave"]) is True:
+                situacao = "realizada"
+            elif canc:
+                r = ligados.get(m["chave"]) or canc[0]
+                motivo = limpa(r.get("Motivo"))[:200] or None
+                mot = norm(motivo)
+                if limpa(r.get("Status")).lower().startswith("bloq"):
+                    situacao = "bloqueio_clinica"
+                elif "REMARC" in mot:
+                    situacao = "remarcada"
+                elif mot.startswith("ERRO") or "UNIFICAD" in mot or "DUPLIC" in mot:
+                    situacao = "erro"
+                else:
+                    situacao = "cancelada"
+            elif visita in r8440:
+                situacao = "falta_remarcada" if limpa(r8440[visita].get("Falta")) == "1" else "remarcada"
+            elif visita[1] < hoje:
+                situacao = "nao_realizada"
+            out.append({"chave": m["chave"], "situacao": situacao, "motivo": motivo})
     return out
 
 
@@ -332,7 +425,8 @@ def main() -> int:
     else:
         n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
     meses_ag = meses_ate(hoje, n_ag)
-    meses_prod = meses_ate(hoje, n_prod)
+    # + o próximo mês: marcações feitas agora para consultas futuras já saem dos "válidos" quando são remarcadas
+    meses_prod = meses_ate(hoje, n_prod) + [proximo_mes(hoje)]
     if args.meses:
         meses_ag = meses_prod = sorted(m.strip() for m in args.meses.split(",") if m.strip())
         args.modo = "historico"
@@ -388,14 +482,27 @@ def main() -> int:
             # 3) produção (319) x marcações do banco, mês a mês pela data marcada
             for m in meses_prod:
                 try:
+                    futuro = m > hoje.strftime("%Y-%m")
+                    if futuro:
+                        producao = []  # consultas que ainda não aconteceram: só os motivos (47/8440) importam
+                    else:
+                        try:
+                            producao = k.relatorio({"id": "319", ":periodo": "lm", ":periodo-mes": m, ":medico": "", ":unidade": "", ":operadora": ""})
+                        except Exception:
+                            # se o filtro "todas as operadoras" não for aceito, cai para Particular (como no relatorio)
+                            producao = k.relatorio({"id": "319", ":periodo": "lm", ":periodo-mes": m, ":medico": "", ":unidade": "", ":operadora": 1})
+                            avisos.append(f"319 {m}: só Particular (filtro de todas as operadoras não aceito)")
+                    # por que não aconteceu: cancelamentos/bloqueios (47) e remarcações/faltas (8440).
+                    # O 47 também decide o crédito quando a mesma visita tem mais de uma marcação.
+                    canc = rem = None
                     try:
-                        producao = k.relatorio({"id": "319", ":periodo": "lm", ":periodo-mes": m, ":medico": "", ":unidade": "", ":operadora": ""})
-                    except Exception:
-                        # se o filtro "todas as operadoras" não for aceito, cai para Particular (como no relatorio)
-                        producao = k.relatorio({"id": "319", ":periodo": "lm", ":periodo-mes": m, ":medico": "", ":unidade": "", ":operadora": 1})
-                        avisos.append(f"319 {m}: só Particular (filtro de todas as operadoras não aceito)")
+                        canc = k.relatorio({"id": "47", ":periodo": "lm", ":periodo-mes": m, ":unidade": "", ":operadora": ""})
+                        rem = k.relatorio({"id": "8440", ":periodo1": "lm", ":periodo1-mes": m, ":parm2": "S"})
+                    except Exception as e:  # sem os motivos, o cruzamento continua como antes
+                        if not futuro:
+                            avisos.append(f"47/8440 {m}: {type(e).__name__}: {str(e)[:120]}")
                     if args.dry_run:
-                        print(f"  319 {m}: {len(producao)} linhas de produção", flush=True)
+                        print(f"  319 {m}: {len(producao)} linhas de produção · 47: {len(canc or [])} · 8440: {len(rem or [])}", flush=True)
                         continue
                     marcacoes: list[dict] = []
                     while True:
@@ -403,22 +510,17 @@ def main() -> int:
                         marcacoes += lote
                         if len(lote) < 1000:
                             break
-                    res = cruzar(marcacoes, producao, hoje)
+                    res = cruzar(marcacoes, producao, hoje, canc)
                     alterados = 0
                     for i in range(0, len(res), 2000):
                         alterados += sb.rpc("klingo_marcar_atendidos", {"p_linhas": res[i:i + 2000]}) or 0
-                    # por que não aconteceu: cancelamentos/bloqueios (47) e remarcações/faltas (8440)
-                    try:
-                        canc = k.relatorio({"id": "47", ":periodo": "lm", ":periodo-mes": m, ":unidade": "", ":operadora": ""})
-                        rem = k.relatorio({"id": "8440", ":periodo1": "lm", ":periodo1-mes": m, ":parm2": "S"})
+                    if canc is not None and rem is not None:
                         sit = classificar(marcacoes, res, canc, rem, hoje)
                         for i in range(0, len(sit), 2000):
                             sb.rpc("klingo_marcar_situacao", {"p_linhas": sit[i:i + 2000]})
                         cont = collections.Counter(x["situacao"] for x in sit)
                         detalhes["meses"].setdefault(m, {})["situacao"] = {str(a): b for a, b in cont.items()}
                         print(f"  47/8440 {m}: {dict(cont)}", flush=True)
-                    except Exception as e:  # sem os motivos, a conversão continua como antes
-                        avisos.append(f"47/8440 {m}: {type(e).__name__}: {str(e)[:120]}")
                     atendidas = sum(1 for x in res if x["atendido"])
                     total_cruz += len(res)
                     detalhes["meses"].setdefault(m, {})["cruzamento"] = {"verificadas": len(res), "atendidas": atendidas, "alteradas": alterados}

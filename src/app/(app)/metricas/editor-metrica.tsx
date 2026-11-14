@@ -2,6 +2,7 @@
 
 import { FlaskConical, Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Rotulo } from "@/components/app/blocos";
@@ -217,6 +218,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
     setSalvando(false);
     if (r.ok) {
       toast.success("Métrica salva.");
+      avisarNavegacao();
       router.push("/metricas");
       router.refresh();
     } else toast.error(r.erro);
@@ -327,7 +329,10 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
           </CardContent>
         </Card>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => router.push("/metricas")}>
+          <Button variant="outline" onClick={() => {
+              avisarNavegacao();
+              router.push("/metricas");
+            }}>
             Cancelar
           </Button>
           <Button onClick={salvar} disabled={salvando || nome.trim().length < 2}>

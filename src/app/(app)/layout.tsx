@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { Cabecalho } from "@/components/app/cabecalho";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
+import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { hojeNoFuso } from "@/engine/datas";
@@ -46,7 +47,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
       <AppSidebar perfil={{ admin: s.ehAdmin, gestao: s.vêTudo || s.lidera.length > 0 }} />
       <SidebarInset className="min-w-0">
         <Cabecalho nome={s.colaborador.nome} papel={s.colaborador.papel} equipes={equipes} />
-        <div className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6">
+        <div className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6" data-conteudo>
           <Suspense
             fallback={
               <div className="space-y-4">
@@ -61,6 +62,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
       </SidebarInset>
       <Suspense fallback={null}>
         <BloqueioFormulario s={s} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <IndicadorNavegacao />
       </Suspense>
     </SidebarProvider>
   );

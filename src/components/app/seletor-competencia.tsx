@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { Button } from "@/components/ui/button";
 import { competenciaAnterior, nomeCompetencia } from "@/engine/datas";
 
@@ -13,6 +14,7 @@ export function SeletorCompetencia({ competencia, maxima }: { competencia: strin
   function ir(comp: string) {
     const p = new URLSearchParams(params.toString());
     p.set("comp", comp);
+    avisarNavegacao();
     router.push(`${pathname}?${p.toString()}`);
   }
   const proxima = competenciaAnterior(competencia, -1);

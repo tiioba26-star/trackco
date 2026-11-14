@@ -198,3 +198,101 @@
   color: var(--primary-foreground);
   border-color: var(--primary);
 }
+
+/* ---- navegação: resposta na hora do clique (ver IndicadorNavegacao) ---- */
+.barra-navegacao {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  overflow: hidden;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.barra-navegacao::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  transform: translateX(-100%);
+}
+html[data-navegando] .barra-navegacao {
+  opacity: 1;
+}
+html[data-navegando] .barra-navegacao::before {
+  animation: trackco-barra 1.1s ease-in-out infinite;
+}
+@keyframes trackco-barra {
+  to {
+    transform: translateX(250%);
+  }
+}
+/* o conteúdo atual pulsa de leve até a página nova chegar (depois de 120 ms, para não piscar em trocas rápidas) */
+html[data-navegando] [data-conteudo] {
+  animation: trackco-pulsar 1.5s ease-in-out 120ms infinite;
+}
+@keyframes trackco-pulsar {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+html[data-navegando] {
+  cursor: progress;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-navegando] .barra-navegacao::before {
+    animation: none;
+    width: 100%;
+    transform: none;
+  }
+  html[data-navegando] [data-conteudo] {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ---- esqueleto de carregamento: blocos cinza visíveis que pulsam, com um brilho passando ---- */
+.esqueleto {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--foreground) 9%, transparent);
+  animation: trackco-pulsar-esqueleto 1.6s ease-in-out infinite;
+}
+.esqueleto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--background) 60%, transparent), transparent);
+  animation: trackco-brilho 1.6s ease-in-out infinite;
+}
+@keyframes trackco-pulsar-esqueleto {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+@keyframes trackco-brilho {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto,
+  .esqueleto::after {
+    animation: none;
+  }
+}

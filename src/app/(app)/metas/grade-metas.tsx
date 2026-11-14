@@ -2,6 +2,7 @@
 
 import { Copy, Lightbulb, Save, Wand2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Dica } from "@/components/ajuda/dica";
@@ -97,6 +98,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
   function trocarMeses(n: string) {
     const p = new URLSearchParams(params.toString());
     p.set("meses", n);
+    avisarNavegacao();
     router.push(`${pathname}?${p.toString()}`);
   }
 

@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import Form from "next/form";
 import { CabecalhoPagina, NivelBadge } from "@/components/app/blocos";
 import { GraficoMensal } from "@/components/graficos/mensal";
 import { buttonVariants } from "@/components/ui/button";
@@ -109,7 +110,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
       />
       <Card data-tour="rel-filtros">
         <CardContent>
-          <form className="grid items-end gap-3 md:grid-cols-[1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
+          <Form className="grid items-end gap-3 md:grid-cols-[1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
             <div className="space-y-1.5">
               <Label>De</Label>
               <Input type="month" name="de" defaultValue={de} />
@@ -142,7 +143,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
             <button type="submit" className={buttonVariants()}>
               Aplicar
             </button>
-          </form>
+          </Form>
         </CardContent>
       </Card>
 
