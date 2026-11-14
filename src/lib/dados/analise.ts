@@ -76,8 +76,12 @@ export async function serieAnalise(
   const porLogin = new Map(comLogin.map((c) => [c.login_klingo!.toLowerCase(), c.id]));
   const logins = Array.from(porLogin.keys());
   const ids = op.colaboradores.map((c) => c.id);
-  const valor = (m: Metrica | null, linhas: Linha[], ini: string, fim: string, hoje: string) =>
-    m ? calcularMetrica(m.definicao, () => linhas, { inicio: ini, fim }, hoje, ids).valor : null;
+  // taxa sem nenhuma consulta na base (ex.: fim de semana) não é 0%: fica sem valor
+  const valor = (m: Metrica | null, linhas: Linha[], ini: string, fim: string, hoje: string) => {
+    if (!m) return null;
+    const r = calcularMetrica(m.definicao, () => linhas, { inicio: ini, fim }, hoje, ids);
+    return r.denominador === 0 ? null : r.valor;
+  };
 
   if (op.granularidade === "dia") {
     const ini = inicioCompetencia(op.de);

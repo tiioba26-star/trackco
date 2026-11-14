@@ -11,14 +11,17 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import type { Metrica } from "@/engine/tipos";
 import { historicoParaMetas } from "@/lib/dados/sugestoes";
+import { Suspense } from "react";
 import { GradeMetas } from "./grade-metas";
+import { CarregandoRealEsperado, filtrosRealEsperado, RealizadoEsperado } from "./realizado-esperado";
 
 export const metadata = { title: "Metas" };
 
 export default async function PaginaMetas(props: PageProps<"/metas">) {
   await exigirAdmin();
   const sp = await props.searchParams;
-  const atual = competenciaDe(hojeNoFuso());
+  const hoje = hojeNoFuso();
+  const atual = competenciaDe(hoje);
   const comp = competenciaValida(sp.comp) ?? atual;
   const db = await criarClienteServidor();
   const { data: equipes } = await db.from("equipes").select("id, nome").eq("ativo", true).order("nome");
@@ -96,6 +99,24 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
         }
       />
       {conteudo}
+      {equipe && (
+        <Suspense
+          key={JSON.stringify({ e: equipe.id, ...filtrosRealEsperado(sp, hoje) })}
+          fallback={
+            <div className="mt-10 space-y-4">
+              <h3 className="text-lg font-semibold">Realizado × esperado por pessoa</h3>
+              <CarregandoRealEsperado />
+            </div>
+          }
+        >
+          <RealizadoEsperado
+            equipe={equipe}
+            sp={sp}
+            hoje={hoje}
+            manter={{ equipe: equipe.id, comp, ...(sp.meses === "6" ? { meses: "6" } : {}) }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
