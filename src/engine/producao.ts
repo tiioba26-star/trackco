@@ -8,7 +8,7 @@ import type { Filtro, Linha, Metrica } from "./tipos";
 
 export type Categoria = "particular" | "sus";
 
-/** Situações que não são "culpa" de quem marcou: saem da base (mesma regra da taxa de conversão). */
+/** Situações que não são "culpa" de quem marcou: saem da base (mesma regra da taxa de comparecimento). */
 export const SITUACOES_FORA_PADRAO = ["remarcada", "falta_remarcada", "bloqueio_clinica", "erro"];
 const REMARCACAO = new Set(["remarcada", "falta_remarcada"]);
 const FALTA = new Set(["nao_realizada", "falta"]);
@@ -22,7 +22,7 @@ export interface RegrasProducao {
 
 /**
  * Regras a partir das métricas cadastradas: os filtros de convênio vêm da métrica de agendamentos
- * da categoria; a lista do que fica fora vem da taxa de conversão (ou o padrão).
+ * da categoria; a lista do que fica fora vem da taxa de comparecimento (ou o padrão).
  */
 export function regrasProducao(agendamentos: Metrica | null, conversao: Metrica | null): RegrasProducao | null {
   if (!agendamentos || agendamentos.definicao.tipo_calculo !== "simples") return null;

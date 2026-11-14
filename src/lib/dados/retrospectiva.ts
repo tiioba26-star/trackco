@@ -1,12 +1,13 @@
 import "server-only";
 import { competenciaAnterior, competenciaDe, fimCompetencia, inicioCompetencia } from "@/engine/datas";
+import { type Curiosidade, curiosidadesDoMes } from "@/engine/curiosidades";
 import { destaquesDoMes } from "@/engine/destaques";
 import { nomeMes, textoDatas } from "@/engine/periodos";
 import type { Metrica } from "@/engine/tipos";
 import type { Sessao } from "@/lib/auth";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
-import { minhasApuracoes } from "@/lib/dados/painel";
-import { linhasDasPessoas, regrasDaCategoria } from "@/lib/dados/producao";
+import type { ApuracaoRow } from "@/lib/dados/painel";
+import { linhasDasPessoas, realizadasDaClinica, regrasDaCategoria, validosDaClinicaPorLogin } from "@/lib/dados/producao";
 import { recordesDe } from "@/lib/dados/rotina";
 import { metricaPorPapel } from "@/lib/metricas-papel";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
@@ -42,6 +43,8 @@ export interface Retrospectiva {
     nivel: { nome: string; cor: string | null; nota: number | null } | null;
     metaAtual: number | null;
   };
+  /** "você sabia?": comparações com a clínica toda */
+  curiosidades: Curiosidade[];
   /** só na da equipe */
   destaques?: { titulo: string; nome: string; valor: string; detalhe: string }[];
   metaBatida?: string[];
@@ -83,6 +86,13 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
   );
   const d = destaquesDoMes(linhas, regras, ids, comp, compAnt, hoje);
   const ano = hoje.slice(0, 4);
+  // a clínica toda no mês: base do "você sabia?" (sem nomes; só a posição de quem vê)
+  const [realizadasClinica, validosClinica] = await Promise.all([
+    realizadasDaClinica(admin, regras, inicioCompetencia(comp), fimCompetencia(comp)).catch(() => null),
+    validosDaClinicaPorLogin(admin, regras, inicioCompetencia(comp), fimCompetencia(comp)).catch(() => null),
+  ]);
+  const curiosidades = (quemIds: string[], quem: "voce" | { equipe: string }, logins: string[]) =>
+    curiosidadesDoMes({ linhas, ids: quemIds, regras, comp, nomeMes: nomeMes(comp), quem, realizadasClinica, validosClinica, logins });
   const base: Retrospectiva = {
     tipo: membroDe ? "pessoa" : "equipe",
     comp,
@@ -92,6 +102,9 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
     primeiroNome: s.colaborador.nome.split(" ")[0],
     equipeNome: equipe.nome,
     equipe: { ...d.equipe, melhorDia: dia(d.equipe.melhorDia, ano), pessoas: ids.length },
+    curiosidades: membroDe
+      ? curiosidades([s.colaborador.id], "voce", s.colaborador.login_klingo ? [s.colaborador.login_klingo] : [])
+      : curiosidades(ids, { equipe: equipe.nome }, []),
   };
 
   if (membroDe) {
@@ -103,7 +116,14 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
     const totalMetrica = metricaPorPapel(metricas, "agendamentos");
     const [rec, aps, { data: metas }] = await Promise.all([
       recordesDe(db, s, metricas, fimCompetencia(comp)).catch(() => null),
-      minhasApuracoes(db, s.colaborador.id, comp),
+      // o fechamento aprovado (final) vale mais que o cálculo parcial: depois de fechado, o mês não muda mais
+      db
+        .from("apuracoes")
+        .select("id, colaborador_id, equipe_id, funcao, nota, nivel, calculado_em, plano_versao_id, resultado, tipo")
+        .eq("colaborador_id", s.colaborador.id)
+        .eq("competencia", inicioCompetencia(comp))
+        .in("tipo", ["final", "parcial"])
+        .then((r) => ((r.data ?? []) as unknown as (ApuracaoRow & { tipo: string })[]).sort((a, b) => (a.tipo === "final" ? -1 : b.tipo === "final" ? 1 : 0))),
       db
         .from("metas")
         .select("metrica_id, valor")

@@ -4,7 +4,7 @@ export const DICAS = {
   // ---------- Planos e regras ----------
   "plano.modalidade":
     "O tipo de resultado que o plano entrega. Reconhecimento = só nível/selo (fase atual). Prêmios = bombom, caneca… Comissão em R$ = dinheiro. Pontos = acumula para trocar na loja. Misto = combina.",
-  "ind.metrica": "O que este indicador mede. As métricas são criadas em Métricas (ex.: Agendamentos, Consultas realizadas, Taxa de conversão).",
+  "ind.metrica": "O que este indicador mede. As métricas são criadas em Métricas (ex.: Agendamentos, Consultas realizadas, Taxa de comparecimento).",
   "ind.nome": "Nome que aparece no painel e no extrato. Se ficar vazio, usa o nome da métrica.",
   "ind.escopo":
     "Individual = conta só a produção da própria pessoa. Equipe = soma a produção de todos os membros da equipe (é assim que o líder é avaliado pelo resultado do conjunto).",
@@ -24,9 +24,9 @@ export const DICAS = {
   "faixa.cor": "Cor do selo do nível nas telas.",
   "faixa.recompensa":
     "O que a pessoa ganha ao cair nesta faixa. Na fase de reconhecimento use 'Reconhecimento (selo)'. Depois: prêmio, valor em R$, percentual ou pontos.",
-  "cond.descricao": "Texto que aparece no extrato explicando a condição (ex.: 'Conversão mínima de 60%').",
+  "cond.descricao": "Texto que aparece no extrato explicando a condição (ex.: 'Comparecimento mínimo de 60%').",
   "cond.indicador": "Qual indicador é verificado.",
-  "cond.base": "Realizado = o número em si (ex.: 60% de conversão, 100 agendamentos). Atingimento = % da meta (ex.: 80% da meta).",
+  "cond.base": "Realizado = o número em si (ex.: 60% de comparecimento, 100 agendamentos). Atingimento = % da meta (ex.: 80% da meta).",
   "cond.efeito":
     "O que acontece se a condição NÃO for cumprida. Bloquear recompensa = a pessoa mantém o nível, mas não ganha o prêmio. Limitar nível = o nível máximo fica travado na faixa escolhida.",
   "plano.simular": "Aplica o rascunho (como está na tela, sem salvar) aos dados reais de um mês e compara com a regra que está valendo.",
@@ -35,12 +35,12 @@ export const DICAS = {
   // ---------- Métricas ----------
   "met.codigo": "Identificador interno, sem espaços (ex.: agendamentos). Usado por sistemas e na TV; normalmente não precisa mexer.",
   "met.analise":
-    "Quantitativa = volume (quantos agendou). Qualitativa = qualidade/resultado (quantos viraram consulta, conversão). Serve para organizar e explicar; não muda a conta.",
+    "Quantitativa = volume (quantos agendou). Qualitativa = qualidade/resultado (quantos viraram consulta, comparecimento). Serve para organizar e explicar; não muda a conta.",
   "met.unidade": "Como o número é mostrado: unidades, %, R$ ou pontos.",
   "met.somente_analise":
     "Ligado: a métrica aparece em painel, relatórios e TV, mas nunca entra em metas, nota, prêmios, comissão ou pontos (é o caso do SUS).",
   "met.tipo_calculo":
-    "Contagem/soma = um número (ex.: 120 agendamentos). Taxa = um número dividido por outro, em % (ex.: realizadas ÷ marcadas = conversão).",
+    "Contagem/soma = um número (ex.: 120 agendamentos). Taxa = um número dividido por outro, em % (ex.: realizadas ÷ marcadas = comparecimento).",
   "met.corte":
     "No mês em andamento: 'Hoje' conta também o dia de hoje (o número sobe ao longo do dia). 'Ontem' só conta dias fechados (bom para taxas, que oscilam durante o dia).",
   "met.fonte": "De onde vêm os dados. Klingo = agendamentos e consultas. Lançamentos = notas e registros feitos à mão ou por planilha.",
@@ -51,7 +51,7 @@ export const DICAS = {
     "Só entram os registros que passam em TODOS os filtros. Ex.: Operadora é igual a Particular; Situação não é nenhum destes: remarcada, erro.",
 
   // ---------- Metas ----------
-  "metas.base": "Quantos meses para trás entram na média que sugere a meta. Meses sem atividade (férias, entrada recente) são ignorados.",
+  "metas.base": "De onde vem a sugestão: a média dos últimos 3 ou 6 meses (meses sem atividade, como férias ou entrada recente, são ignorados) ou as metas do mês anterior, repetidas.",
   "metas.crescimento": "Quanto acima da média a sugestão fica. +5% sobre uma média de 200 sugere 210.",
   "metas.equipe":
     "Meta do conjunto, usada nos indicadores de escopo Equipe (avaliação do líder). Vazia = usa automaticamente a soma das metas individuais (ou a média, para %).",
@@ -90,7 +90,7 @@ export const DICAS = {
     "Consultas cuja DATA DA CONSULTA cai no período e que foram marcadas por você (em qualquer dia). No mês atual inclui as que ainda vão acontecer. Remarcadas, bloqueios da clínica e erros ficam de fora.",
   "pn.compareceram": "Das consultas marcadas para o período, quantas o paciente realmente veio (cruzado com o faturamento do Klingo).",
   "pn.conversao":
-    "Taxa de comparecimento (também chamada de conversão): de cada 100 consultas que você marcou para dias que JÁ PASSARAM no período, quantas aconteceram. O dia de hoje só entra amanhã, quando já acabou.",
+    "Taxa de comparecimento: de cada 100 consultas que você marcou para dias que JÁ PASSARAM no período, quantas aconteceram. O dia de hoje só entra amanhã, quando já acabou.",
   "pn.faltaram": "O dia da consulta passou e o paciente não veio (e não remarcou).",
   "pn.desmarcaram": "O paciente desmarcou e não remarcou (cancelamento que não foi remarcação, bloqueio ou erro).",
   "pn.aguardando": "Consultas de hoje ou de dias futuros: ainda não dá para saber se o paciente vem.",

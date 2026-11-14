@@ -1,4 +1,5 @@
 import { WifiOff } from "lucide-react";
+import { RodapeVersiculo } from "@/components/app/versiculo";
 import { Logo } from "@/components/logo";
 
 export const metadata = { title: "Sem conexão" };
@@ -12,6 +13,7 @@ export default function PaginaOffline() {
       <p className="max-w-sm text-sm text-muted-foreground">
         O Trackco precisa de internet para mostrar seus números atualizados. Assim que a conexão voltar, recarregue a página.
       </p>
+      <RodapeVersiculo className="mt-8" />
     </main>
   );
 }

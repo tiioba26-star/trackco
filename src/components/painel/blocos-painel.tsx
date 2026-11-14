@@ -99,7 +99,7 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
         descricao={
           t.conversao === null
             ? "Ainda não há dia encerrado neste período (o dia de hoje entra amanhã)."
-            : `${fmtValor(t.encerradasCompareceram)} de ${fmtValor(t.encerradasMarcadas)} consultas em dias que já passaram. É a "conversão".`
+            : `${fmtValor(t.encerradasCompareceram)} de ${fmtValor(t.encerradasMarcadas)} consultas em dias que já passaram.`
         }
         variacao={<Variacao atual={t.conversao} anterior={a.total.conversao} nome={a.nome} unidade="%" />}
       />

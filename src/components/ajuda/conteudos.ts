@@ -32,7 +32,7 @@ const GLOSSARIO: Ajuda["glossario"] = [
   },
   { termo: "Compareceram", texto: "Das consultas marcadas para o período, quantas o paciente realmente veio (cruzado com o faturamento do Klingo)." },
   {
-    termo: "Taxa de comparecimento (conversão)",
+    termo: "Taxa de comparecimento",
     texto: "Compareceram ÷ consultas marcadas, só em dias que já passaram. Ex.: 72% = de cada 100 consultas marcadas, 72 aconteceram.",
   },
   { termo: "Faltaram / desmarcaram", texto: "Faltou = o dia passou e o paciente não veio. Desmarcou = cancelou e não remarcou." },
@@ -80,7 +80,7 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita, sem remarcações, bloqueios e erros (a remarcada sai, fica só a nova). Embaixo: o total marcado, com as remarcações." },
       { alvo: "kpi-marcadas", titulo: "4. Consultas marcadas para o período", texto: "Agora pela DATA DA CONSULTA: consultas que caem no período. No mês atual inclui as que ainda vão acontecer." },
       { alvo: "kpi-compareceram", titulo: "5. Compareceram", texto: "Dessas consultas, quantos pacientes vieram." },
-      { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). É a 'conversão'. O ▲▼ compara com o mesmo ponto do período anterior." },
+      { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). O ▲▼ compara com o mesmo ponto do período anterior." },
       { alvo: "destino", titulo: "7. O que aconteceu com as consultas", texto: "Cada consulta marcada para o período termina em: compareceu, faltou, desmarcou ou ainda vai acontecer. É onde dá para agir (ex.: confirmar na véspera)." },
       { alvo: "sus", titulo: "SUS", texto: "Só acompanhamento: não conta para meta, nota ou prêmios." },
       { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantas marcações foram feitas em cada dia: válidos × total. Mostra os dias fortes e fracos e onde as remarcações pesaram." },
@@ -186,7 +186,7 @@ export const AJUDA: Record<string, Ajuda> = {
     resumo: [
       "Métrica é O QUE será medido: de qual fonte de dados, contando ou somando, por qual data e com quais filtros.",
       "Exemplo: 'Agendamentos' = contar linhas do Klingo pela data em que foi agendado, onde operadora = Particular. 'Consultas realizadas' = mesma fonte, pela data de realização, onde atendido = sim.",
-      "Taxas (ex.: conversão) dividem um numerador por um denominador.",
+      "Taxas (ex.: comparecimento) dividem um numerador por um denominador.",
     ],
     dicas: [
       "Use 'Testar com dados reais' antes de salvar para ver o resultado de cada pessoa no mês.",
@@ -209,7 +209,7 @@ export const AJUDA: Record<string, Ajuda> = {
     passos: [
       { alvo: "plano-indicadores", titulo: "Indicadores", texto: "Métrica, escopo, a quem se aplica, peso e teto." },
       { alvo: "plano-faixas", titulo: "Faixas", texto: "Intervalos de atingimento e o resultado de cada um." },
-      { alvo: "plano-condicoes", titulo: "Condições", texto: "Gatilhos: por exemplo, só libera o prêmio se a conversão for ≥ 60%." },
+      { alvo: "plano-condicoes", titulo: "Condições", texto: "Gatilhos: por exemplo, só libera o prêmio se o comparecimento for ≥ 60%." },
       { alvo: "plano-simular", titulo: "Simular", texto: "Veja o resultado com dados reais antes de publicar." },
       { alvo: "plano-publicar", titulo: "Publicar", texto: "Cria uma nova versão a partir do mês escolhido." },
     ],
@@ -226,7 +226,7 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "metas-mes", titulo: "Mês", texto: "Escolha o mês." },
       { alvo: "metas-sugestao", titulo: "Sugestão", texto: "Preenche a grade com a média histórica de cada pessoa mais o crescimento escolhido." },
       { alvo: "metas-grade", titulo: "Grade", texto: "Uma linha por pessoa e uma coluna por métrica do plano. Embaixo de cada campo: média e último mês." },
-      { alvo: "metas-copiar", titulo: "Copiar do mês anterior", texto: "Atalho para repetir as metas." },
+      { alvo: "metas-copiar", titulo: "Base da sugestão", texto: "Média de 3 ou 6 meses, ou as metas do mês anterior (com o crescimento escolhido, ou iguais)." },
     ],
   },
   "/equipes": {

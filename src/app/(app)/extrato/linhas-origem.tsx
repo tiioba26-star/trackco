@@ -164,7 +164,7 @@ export function LinhasOrigem({
                   {l.situacao && l.situacao !== "realizada" && ROTULO_SITUACAO[l.situacao] ? (
                     <span className={ROTULO_SITUACAO[l.situacao].c} title={l.motivo ?? undefined}>
                       {ROTULO_SITUACAO[l.situacao].t}
-                      {!ROTULO_SITUACAO[l.situacao].conta && <span className="ml-1 text-[10px]">(fora da conversão)</span>}
+                      {!ROTULO_SITUACAO[l.situacao].conta && <span className="ml-1 text-[10px]">(fora do comparecimento)</span>}
                       {l.motivo && <span className="block text-[11px] text-muted-foreground">{l.motivo}</span>}
                     </span>
                   ) : l.atendido === true ? (

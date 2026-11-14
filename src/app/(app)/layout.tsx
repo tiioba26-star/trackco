@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app/app-sidebar";
 import { Cabecalho } from "@/components/app/cabecalho";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
+import { RodapeVersiculo } from "@/components/app/versiculo";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { hojeNoFuso } from "@/engine/datas";
@@ -59,6 +60,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
             {children}
           </Suspense>
         </div>
+        <RodapeVersiculo className="mt-6 border-t" />
       </SidebarInset>
       <Suspense fallback={null}>
         <BloqueioFormulario s={s} />

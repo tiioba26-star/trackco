@@ -29,7 +29,7 @@ export function usaSoKlingo(d: DefinicaoMetrica): boolean {
     : d.fonte === "klingo_agendamentos";
 }
 
-/** "Marcadas para o período": a métrica cadastrada ou, se ainda não existir, a base da taxa de conversão. */
+/** "Marcadas para o período": a métrica cadastrada ou, se ainda não existir, a base da taxa de comparecimento. */
 export function metricaMarcadasPara(metricas: Metrica[]): Metrica | null {
   const cadastrada = metricaPorPapel(metricas, "marcadas_para");
   if (cadastrada) return cadastrada;

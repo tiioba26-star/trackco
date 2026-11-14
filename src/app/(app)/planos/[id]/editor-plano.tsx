@@ -355,7 +355,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         <CardHeader>
           <CardTitle>Condições e exceções</CardTitle>
           <CardDescription>
-            Gatilhos que precisam ser atendidos. Ex.: &quot;Conversão ≥ 60%&quot; para liberar a recompensa. Férias e atestados são
+            Gatilhos que precisam ser atendidos. Ex.: &quot;Comparecimento ≥ 60%&quot; para liberar a recompensa. Férias e atestados são
             tratados pela meta proporcional (Ausências) e erros pontuais pelos ajustes das contestações.
           </CardDescription>
         </CardHeader>

@@ -133,6 +133,32 @@ export async function realizadasDaClinica(db: Db, regras: RegrasProducao, inicio
   return error ? null : (count ?? 0);
 }
 
+/** Agendamentos válidos de cada login da clínica toda num período (pelo dia em que marcou). */
+export async function validosDaClinicaPorLogin(db: Db, regras: RegrasProducao, inicio: string, fim: string): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  const fora = new Set(regras.fora);
+  for (let de = 0; ; de += 1000) {
+    let q = db
+      .from("klingo_agendamentos")
+      .select("chave, responsavel_login, situacao")
+      .gte("data_agendado_em", inicio)
+      .lte("data_agendado_em", fim) as unknown as Consulta;
+    q = aplicarFiltros(q, regras.base);
+    const { data, error } = (await q.order("chave").range(de, de + 999)) as unknown as {
+      data: { responsavel_login: string | null; situacao: string | null }[] | null;
+      error: unknown;
+    };
+    if (error || !data) break;
+    for (const r of data) {
+      if (!r.responsavel_login || fora.has(r.situacao ?? "")) continue;
+      const l = r.responsavel_login.toLowerCase();
+      out.set(l, (out.get(l) ?? 0) + 1);
+    }
+    if (data.length < 1000) break;
+  }
+  return out;
+}
+
 // ---- resumo de um período para o Painel ----
 
 export interface ResumoPeriodo {

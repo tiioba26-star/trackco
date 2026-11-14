@@ -36,7 +36,10 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
     ]);
     const nMeses = sp.meses === "6" ? 6 : 3;
     const idsPlano = Array.from(new Set(plano?.definicao.indicadores.map((i) => i.metrica_id) ?? []));
-    const metricasPlano = ((todas ?? []) as Metrica[]).filter((m) => idsPlano.includes(m.id));
+    // na ordem dos indicadores do plano: a mesma da seção "Realizado × esperado" e do Extrato
+    const metricasPlano = ((todas ?? []) as Metrica[])
+      .filter((m) => idsPlano.includes(m.id))
+      .sort((a, b) => idsPlano.indexOf(a.id) - idsPlano.indexOf(b.id));
     const metricas = metricasPlano.map(({ id, nome, unidade }) => ({ id, nome, unidade }));
     // página exclusiva de admin (exigirAdmin acima): o histórico lê direto, sem o custo das regras por linha
     const historico = plano ? await historicoParaMetas(criarClienteAdmin(), equipe.id, comp, metricasPlano, nMeses) : {};

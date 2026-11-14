@@ -40,7 +40,7 @@ const ateQuando = (d: DefinicaoMetrica) => (d.corte === "ontem" ? "até ontem (d
 
 /**
  * Uma frase curta de "como é contado".
- * Taxa de conversão: "Das consultas marcadas para os dias do mês até ontem (convênio Particular; sem remarcada, …),
+ * Taxa de comparecimento: "Das consultas marcadas para os dias do mês até ontem (convênio Particular; sem remarcada, …),
  * em quantas o paciente compareceu."
  */
 export function explicarMetrica(d: DefinicaoMetrica): string {

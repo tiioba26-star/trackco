@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { RodapeVersiculo } from "@/components/app/versiculo";
 import { Logo } from "@/components/logo";
 import { FormLogin } from "./form-login";
 
@@ -50,8 +51,8 @@ export default function PaginaLogin(props: PageProps<"/login">) {
         <p className="relative text-xs text-white/60">IOBA · Trackco</p>
       </section>
 
-      <section className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm space-y-8">
+      <section className="flex flex-col p-6">
+        <div className="m-auto w-full max-w-sm space-y-8 py-6">
           <div className="lg:hidden">
             <Logo />
           </div>
@@ -63,6 +64,7 @@ export default function PaginaLogin(props: PageProps<"/login">) {
             <FormComParametros searchParams={props.searchParams} />
           </Suspense>
         </div>
+        <RodapeVersiculo className="pb-0" />
       </section>
     </main>
   );

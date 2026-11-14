@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Lightbulb, Save, Wand2 } from "lucide-react";
+import { Lightbulb, Save, Wand2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState } from "react";
@@ -28,11 +28,16 @@ function fmt(n: number | null, unidade: string) {
   return n.toLocaleString("pt-BR", { maximumFractionDigits: unidade === "%" ? 1 : 0 }) + (unidade === "%" ? "%" : "");
 }
 
-/** Sugestão = referência histórica × (1 + crescimento). Contagens arredondam para cima. */
+/** Valor × (1 + crescimento). Contagens arredondam para cima; taxas ficam com 1 casa e no máximo 100%. */
+function comCrescimento(valor: number, crescimento: number, unidade: string): number {
+  const v = valor * (1 + crescimento / 100);
+  return unidade === "%" ? Math.round(Math.min(100, v) * 10) / 10 : Math.ceil(v);
+}
+
+/** Sugestão = referência histórica × (1 + crescimento). */
 function sugerir(h: HistoricoMeta | undefined, crescimento: number, unidade: string): number | null {
   if (!h || h.referencia === null) return null;
-  const v = h.referencia * (1 + crescimento / 100);
-  return unidade === "%" ? Math.round(Math.min(100, v) * 10) / 10 : Math.ceil(v);
+  return comCrescimento(h.referencia, crescimento, unidade);
 }
 
 function DicaHistorico({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; unidade: string; nMeses: number }) {
@@ -57,6 +62,8 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
   const pathname = usePathname();
   const params = useSearchParams();
   const [crescimento, setCrescimento] = useState(5);
+  // base da sugestão: média de 3 ou 6 meses (vem da URL) ou as metas do mês anterior
+  const [base, setBase] = useState<string>(String(nMeses));
   const [valores, setValores] = useState<Record<string, string>>(() =>
     Object.fromEntries(iniciais.map((l) => [chave(l.metrica_id, l.colaborador_id), l.valor === null ? "" : String(l.valor)])),
   );
@@ -80,9 +87,10 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     } else toast.error(r.erro);
   }
 
-  function preencherSugestoes() {
+  async function preencherSugestoes() {
     const preenchidos = Object.values(valores).some((v) => v.trim() !== "");
     if (preenchidos && !confirm("Substituir os valores da grade pelas sugestões? (nada é salvo até clicar em Salvar)")) return;
+    if (base === "anterior") return copiarMesAnterior();
     const novos: Record<string, string> = {};
     for (const m of metricas) {
       for (const p of pessoas.filter((x) => x.funcao === "membro")) {
@@ -95,19 +103,27 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     toast.success("Sugestões preenchidas. Revise e clique em Salvar metas.");
   }
 
-  function trocarMeses(n: string) {
+  function trocarBase(v: string) {
+    setBase(v);
+    if (v === "anterior" || v === String(nMeses)) return; // o mês anterior não precisa recarregar o histórico
     const p = new URLSearchParams(params.toString());
-    p.set("meses", n);
+    p.set("meses", v);
     avisarNavegacao();
     router.push(`${pathname}?${p.toString()}`);
   }
 
-  async function copiar() {
+  /** Base "mês anterior": repete as metas do mês passado (com o crescimento escolhido, se houver). */
+  async function copiarMesAnterior() {
     const r = await metasDoMesAnterior(equipeId, competencia, metricas.map((m) => m.id));
     if (!r.ok) return toast.error(r.erro);
     if (!r.linhas?.length) return toast.info("O mês anterior não tem metas para copiar.");
-    setValores(Object.fromEntries(r.linhas.map((l) => [chave(l.metrica_id, l.colaborador_id), String(l.valor)])));
-    toast.success("Metas do mês anterior copiadas. Revise e salve.");
+    const unidade = (id: string) => metricas.find((m) => m.id === id)?.unidade ?? "un";
+    setValores(
+      Object.fromEntries(
+        r.linhas.map((l) => [chave(l.metrica_id, l.colaborador_id), String(comCrescimento(Number(l.valor), crescimento, unidade(l.metrica_id)))]),
+      ),
+    );
+    toast.success(crescimento ? `Metas do mês anterior +${crescimento}% preenchidas. Revise e salve.` : "Metas do mês anterior copiadas. Revise e salve.");
   }
 
   function aplicarATodos(metricaId: string) {
@@ -133,9 +149,10 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">Base <Dica id="metas.base" /></div>
-          <NativeSelect value={String(nMeses)} onChange={(e) => trocarMeses(e.target.value)} className="w-40">
+          <NativeSelect value={base} onChange={(e) => trocarBase(e.target.value)} className="w-48" data-tour="metas-copiar">
             <option value="3">média de 3 meses</option>
             <option value="6">média de 6 meses</option>
+            <option value="anterior">metas do mês anterior</option>
           </NativeSelect>
         </div>
         <div className="space-y-1">
@@ -143,19 +160,16 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
           <NativeSelect value={String(crescimento)} onChange={(e) => setCrescimento(Number(e.target.value))} className="w-32">
             {[0, 5, 10, 15, 20, 30].map((g) => (
               <option key={g} value={g}>
-                {g === 0 ? "manter média" : `+${g}%`}
+                {g === 0 ? (base === "anterior" ? "igual" : "manter média") : `+${g}%`}
               </option>
             ))}
           </NativeSelect>
         </div>
         <Button onClick={preencherSugestoes}>
-          <Wand2 /> Preencher com sugestão
+          <Wand2 /> {base === "anterior" ? "Preencher com o mês anterior" : "Preencher com sugestão"}
         </Button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" onClick={copiar} data-tour="metas-copiar">
-          <Copy /> Copiar do mês anterior
-        </Button>
         <Button onClick={salvar} disabled={salvando}>
           <Save /> {salvando ? "Salvando…" : "Salvar metas"}
         </Button>

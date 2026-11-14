@@ -76,7 +76,7 @@ const PERGUNTAS: readonly {
     id: "comparecimento",
     icone: Percent,
     pergunta: "A taxa de comparecimento está melhorando?",
-    explica: "Por mês: de cada 100 consultas marcadas, quantas aconteceram (conversão).",
+    explica: "Por mês: de cada 100 consultas marcadas, quantas aconteceram.",
     a: "conversao",
     b: "",
     g: "mes",
@@ -180,7 +180,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const periodo = g === "dia" ? nomeCompetencia(mes) : `${nomeCompetencia(de, true)} a ${nomeCompetencia(ateMes, true)}`;
 
   // Visão por dia do mês corrente: dias que ainda não chegaram mostram o que JÁ ESTÁ MARCADO para eles.
-  // Por isso a proporção B ÷ A só usa os dias que já passaram (até ontem, como a taxa de conversão).
+  // Por isso a proporção B ÷ A só usa os dias que já passaram (até ontem, como a taxa de comparecimento).
   const mesCorrente = g === "dia" && mes === atual;
   const mesFuturo = g === "dia" && mes > atual;
   const marcadasXRealizadas = !!b && a.id === achar("marcadas_para")?.id && b.id === achar("realizadas")?.id;

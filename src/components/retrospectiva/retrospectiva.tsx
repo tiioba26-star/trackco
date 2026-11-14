@@ -163,6 +163,37 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
       ),
     });
 
+  // "Você sabia?": uma comparação por tela, no estilo "você está entre os 2% que mais ouviram"
+  const FUNDOS_CURIOSIDADE = [
+    "from-[#0c4a6e] via-[#0369a1] to-[#0891b2]",
+    "from-[#4c1d95] via-[#6d28d9] to-[#9333ea]",
+    "from-[#9a3412] via-[#c2410c] to-[#d97706]",
+    "from-[#134e4a] via-[#0f766e] to-[#15803d]",
+  ];
+  d.curiosidades.forEach((c, i) =>
+    s.push({
+      fundo: FUNDOS_CURIOSIDADE[i % FUNDOS_CURIOSIDADE.length],
+      festa: c.id === "ranking",
+      conteudo: (
+        <>
+          <Linha atraso={0.1} className="text-sm font-semibold tracking-widest text-white/75 uppercase">
+            Você sabia? {c.emoji}
+          </Linha>
+          <Linha atraso={0.3}>{c.antes}</Linha>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 120 }}
+            className={`font-black tracking-tight ${c.destaque.length > 12 ? "text-4xl sm:text-5xl" : "text-6xl sm:text-7xl"}`}
+          >
+            {c.destaque}
+          </motion.div>
+          <Linha atraso={1}>{c.depois}</Linha>
+        </>
+      ),
+    }),
+  );
+
   if (eu?.conquistas.length)
     s.push({
       fundo: "from-[#7c3aed] via-[#a21caf] to-[#db2777]",
