@@ -44,6 +44,11 @@ const GLOSSARIO: Ajuda["glossario"] = [
 const PASSOS_MENU: PassoTour[] = [
   { alvo: "menu", titulo: "Menu", texto: "Aqui ficam todas as seções. O que aparece depende do seu perfil: atendente, líder ou administrador." },
   { alvo: "ajuda", titulo: "Ajuda em qualquer tela", texto: "Sempre que tiver dúvida, toque no ? para ver a explicação da seção e refazer este tour." },
+  {
+    alvo: "nav-como",
+    titulo: "Como é contado",
+    texto: "O que é agendamento válido, total, remarcação, comparecimento e o que conta para quê, além das regras de nota e nível.",
+  },
 ];
 
 export const AJUDA: Record<string, Ajuda> = {
@@ -122,6 +127,16 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "analise-parametros", titulo: "Ajustes", texto: "Mês, pessoa ou equipe (e, no modo livre, as métricas e a visão)." },
       { alvo: "analise-grafico", titulo: "Resposta", texto: "O gráfico e, abaixo, a tabela com os números. Passe o mouse ou toque para ver os valores." },
     ],
+  },
+  "/como-e-contado": {
+    titulo: "Como é contado",
+    resumo: [
+      "Esta página explica cada número do Trackco: de onde vem, em que data conta e o que entra nele.",
+      "A tabela 'O que conta para quê' mostra, para cada situação de uma marcação (realizada, faltou, remarcada…), em quais números ela entra.",
+      "As regras de nota e nível vêm do plano da sua equipe que vale neste mês.",
+    ],
+    glossario: GLOSSARIO,
+    passos: [],
   },
   "/contestacoes": {
     titulo: "Contestações",

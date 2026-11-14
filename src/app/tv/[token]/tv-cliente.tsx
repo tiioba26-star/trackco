@@ -4,7 +4,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { clienteRealtime, type ComandoTv, type EstadoTv } from "@/lib/controle-tv";
-import type { ConfigTv, ItemBarra, PayloadTv, TelaTv } from "@/lib/dados/tv";
+import type { ConfigTv, ItemBarra, LinhaEquipe, PayloadTv, TelaTv } from "@/lib/dados/tv";
 import { AvatarPosicaoTv, corDaPosicao } from "./carinha";
 import { ConfetesTv, type DisparoConfete } from "./confetes";
 import { OlhoFundoIoba } from "./olho-fundo";
@@ -56,6 +56,29 @@ function fmt(n: number, unidade?: string) {
 }
 
 /** /tv/demo: dados fictícios que crescem sozinhos para ver o layout em ação */
+/** Linha do card da Visão Geral na demonstração: acompanha o período da tela. */
+function linhaDemo(nome: string): LinhaEquipe {
+  const onda = (n: number, base: number, amp: number, fase = 0) =>
+    Array.from({ length: n }, (_, k) => ((k + fase) % 7 === 6 ? 0 : Math.round(base + amp * Math.sin((k + fase) * 1.1))));
+  if (nome === "Hoje") {
+    const dias = ["31/10", ...Array.from({ length: 13 }, (_, k) => `${String(k + 1).padStart(2, "0")}/11`)];
+    return { rotulo: "últimos 14 dias", comparado: null, dias, particular: onda(14, 22, 9), sus: onda(14, 160, 50), particularAnt: null, susAnt: null, hoje: true };
+  }
+  const n = nome.startsWith("Últimos 7") ? 7 : nome.startsWith("Outubro") ? 31 : 13;
+  const mes = nome.startsWith("Outubro") ? "10" : "11";
+  const dias = Array.from({ length: n }, (_, k) => `${String(k + 1).padStart(2, "0")}/${mes}`);
+  return {
+    rotulo: "dia a dia",
+    comparado: n === 31 ? "setembro" : n === 7 ? "7 dias antes" : "outubro até o dia 13",
+    dias,
+    particular: onda(n, 22, 9),
+    sus: onda(n, 160, 50),
+    particularAnt: onda(n, 19, 8, 2),
+    susAnt: onda(n, 150, 45, 2),
+    hoje: false,
+  };
+}
+
 function dadosDemo(passo: number): PayloadTv {
   const codigos = ["4821", "1307", "7720", "5154", "2968"];
   const base = [100, 78, 53, 28, 15];
@@ -130,11 +153,7 @@ function dadosDemo(passo: number): PayloadTv {
         brutoSus: Math.round((64 + passo * 5) * p.f * 1.05),
         realizadasParticular: { equipe: Math.round(174 * p.f), clinica: Math.round(410 * p.f) },
         realizadasSus: { equipe: Math.round(40 * p.f), clinica: Math.round(290 * p.f) },
-        linha14: {
-          dias: Array.from({ length: 14 }, (_, k) => `${String(k + 31 - 14 + 1).padStart(2, "0")}/10`),
-          particular: [0, 22, 32, 19, 26, 9, 0, 30, 28, 26, 31, 19, 24, 18],
-          sus: [0, 176, 194, 136, 155, 4, 0, 213, 144, 123, 195, 157, 160, 120],
-        },
+        linha: linhaDemo(p.nome),
       },
     });
   telas.push({
@@ -180,7 +199,12 @@ function dadosDemo(passo: number): PayloadTv {
       tipo: "mes_dia_a_dia",
       mes: "novembro",
       mesAnterior: "outubro",
-      dias: Array.from({ length: 31 }, (_, k) => ({ d: String(k + 1).padStart(2, "0"), atual: calendario[k] && k < 13 ? calendario[k].valor : null, anterior: seno(k + 2, 16, 6) })),
+      dias: Array.from({ length: 31 }, (_, k) => ({
+        d: String(k + 1).padStart(2, "0"),
+        data: calendario[k]?.data ?? null,
+        atual: calendario[k] && k < 13 ? calendario[k].valor : null,
+        anterior: seno(k + 2, 16, 6),
+      })),
       calendario,
       totalAtual: calendario.reduce((t, d) => t + (d.valor ?? 0), 0),
       totalAnteriorMesmoPonto: 213,

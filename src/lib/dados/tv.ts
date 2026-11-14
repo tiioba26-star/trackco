@@ -9,7 +9,7 @@ import { calendarioDoMes, type DiaCalendario, mediaPorDiaDaSemana, somaPorMes, s
 import { seriesLongas } from "@/lib/dados/series-tv";
 import { type BlocoTv, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
 import { type Fatia, ontem, participacaoPorEquipe, recordesAnteriores } from "@/lib/dados/participacao";
-import type { Categoria, Producao } from "@/engine/producao";
+import type { Categoria, Producao, RegrasProducao } from "@/engine/producao";
 import type { Metrica } from "@/engine/tipos";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import { codigosTv } from "@/lib/codigo-tv";
@@ -77,12 +77,13 @@ export type GraficoTv =
       tipo: "mes_dia_a_dia";
       mes: string;
       mesAnterior: string;
-      dias: { d: string; atual: number | null; anterior: number | null }[];
+      /** data = dia do mês atual (AAAA-MM-DD) para a letra do dia da semana no eixo */
+      dias: { d: string; data: string | null; atual: number | null; anterior: number | null }[];
       calendario: DiaCalendario[];
       totalAtual: number;
       totalAnteriorMesmoPonto: number;
     }
-  | { tipo: "consultas_dia_a_dia"; mes: string; dias: { d: string; marcadas: number; compareceram: number | null; futuro: boolean }[] }
+  | { tipo: "consultas_dia_a_dia"; mes: string; dias: { d: string; data: string; marcadas: number; compareceram: number | null; futuro: boolean }[] }
   | { tipo: "semanas"; semanas: { rotulo: string; particular: number; sus: number }[] }
   | { tipo: "comparecimento_semanas"; semanas: { rotulo: string; taxa: number | null; marcadas: number }[]; media: number | null }
   | { tipo: "dia_semana"; de: string; ate: string; dias: { rotulo: string; media: number; total: number }[] }
@@ -134,11 +135,25 @@ export interface TelaTv {
     /** total marcado (com remarcações, bloqueios e erros) */
     brutoParticular?: number;
     brutoSus?: number;
-    /** válidos por dia nos últimos 14 dias */
-    linha14?: { dias: string[]; particular: number[]; sus: number[] };
+    /** válidos por dia no período da tela (hoje: últimos 14 dias), com o período de comparação tracejado */
+    linha?: LinhaEquipe;
     realizadasParticular: { equipe: number; clinica: number | null };
     realizadasSus: { equipe: number; clinica: number | null };
   };
+}
+
+export interface LinhaEquipe {
+  /** "dia a dia" ou "últimos 14 dias" (tela de hoje) */
+  rotulo: string;
+  /** período tracejado (ex.: "setembro", "outubro até o dia 14"); null = sem comparação */
+  comparado: string | null;
+  dias: string[];
+  particular: number[];
+  sus: number[];
+  particularAnt: (number | null)[] | null;
+  susAnt: (number | null)[] | null;
+  /** a tela é de hoje: destaca o último ponto */
+  hoje: boolean;
 }
 
 export interface PayloadTv {
@@ -352,10 +367,31 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
         });
       });
     } else if (bloco === "equipe") {
-      const dias14 = datasEntre(somarDias(hoje, -13), hoje);
-      const vp = regras.particular ? validosPorDia(linhas, regras.particular, dias14[0], hoje) : new Map<string, number>();
-      const vs = regras.sus ? validosPorDia(linhas, regras.sus, dias14[0], hoje) : new Map<string, number>();
-      const linha14 = { dias: dias14.map(diaMes), particular: dias14.map((d) => vp.get(d) ?? 0), sus: dias14.map((d) => vs.get(d) ?? 0) };
+      // a linha embaixo do card acompanha o período da tela (outubro mostra outubro) e traz o período anterior
+      // tracejado; só a tela de "hoje" usa os últimos 14 dias (um dia sozinho não faz linha)
+      const serie = (r: RegrasProducao | null, de: string, ate: string, datas: string[]) => {
+        const m = r ? validosPorDia(linhas, r, de, ate) : new Map<string, number>();
+        return datas.map((d) => m.get(d) ?? 0);
+      };
+      const linhaDe = (j: JanelaPeriodo): LinhaEquipe => {
+        const curto = j.periodo === "hoje";
+        const de = curto ? somarDias(hoje, -13) : j.inicio;
+        const ate = curto ? hoje : j.fim;
+        const datas = datasEntre(de, ate);
+        const ant = curto ? null : janelaAnterior(j, hoje);
+        const datasAnt = ant ? datasEntre(ant.inicio, ant.fim) : [];
+        const alinhar = (v: number[]) => datas.map((_, k) => (k < v.length ? v[k] : null));
+        return {
+          rotulo: curto ? "últimos 14 dias" : "dia a dia",
+          comparado: ant?.nome ?? null,
+          dias: datas.map(diaMes),
+          particular: serie(regras.particular, de, ate, datas),
+          sus: serie(regras.sus, de, ate, datas),
+          particularAnt: ant ? alinhar(serie(regras.particular, ant.inicio, ant.fim, datasAnt)) : null,
+          susAnt: ant ? alinhar(serie(regras.sus, ant.inicio, ant.fim, datasAnt)) : null,
+          hoje: curto,
+        };
+      };
       janelas.forEach((j, k) => {
         const pp = prod("particular", j);
         const ps = prod("sus", j);
@@ -372,7 +408,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
             agendamentosSus: ps?.total.agendouValidos ?? 0,
             brutoParticular: pp?.total.agendou ?? 0,
             brutoSus: ps?.total.agendou ?? 0,
-            linha14,
+            linha: linhaDe(j),
             realizadasParticular: {
               equipe: regras.particular ? realizadasNoPeriodo(linhas, regras.particular, ids, j.inicio, j.fim) : 0,
               clinica: clinPart,
@@ -441,6 +477,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
       const n = Math.max(dAtual.length, dAnt.length);
       const dias = Array.from({ length: n }, (_, k) => ({
         d: String(k + 1).padStart(2, "0"),
+        data: dAtual[k] ?? null,
         atual: dAtual[k] && dAtual[k] <= hoje ? (porDia.get(dAtual[k]) ?? 0) : null,
         anterior: dAnt[k] ? (porDia.get(dAnt[k]) ?? 0) : null,
       }));
@@ -472,6 +509,7 @@ export async function payloadDoPainel(painel: PainelRow, hoje = hojeNoFuso()): P
           mes: nomeMes(comp),
           dias: producaoPorDia(linhas, rp, ids, dAtual, hoje).map((x) => ({
             d: x.dia.slice(8),
+            data: x.dia,
             marcadas: x.marcadas,
             compareceram: x.futuro ? null : x.compareceram,
             futuro: x.futuro,

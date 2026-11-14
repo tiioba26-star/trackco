@@ -1,4 +1,5 @@
 import { AlertTriangle, BarChart3 } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Vazio } from "@/components/app/blocos";
 import { CarregandoPagina } from "@/components/app/carregando-pagina";
@@ -76,7 +77,11 @@ async function ConteudoPainel(props: PageProps<"/">) {
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">Olá, {s.colaborador.nome.split(" ")[0]}!</h2>
           <p className="text-sm text-muted-foreground">
-            Números do Klingo, por quem marcou cada consulta. Toque no <span className="font-medium">?</span> de qualquer número para saber o que ele conta.
+            Números do Klingo, por quem marcou cada consulta. Toque no <span className="font-medium">?</span> de qualquer número ou veja{" "}
+            <Link href="/como-e-contado" className="font-medium text-primary underline-offset-4 hover:underline">
+              como cada número é contado
+            </Link>
+            .
           </p>
         </div>
         <StatusSync sync={sync} />

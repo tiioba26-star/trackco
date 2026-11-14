@@ -9,9 +9,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { eixoDias } from "./eixo-dias";
 
 export interface PontoComparativo {
   rotulo: string;
+  /** AAAA-MM-DD quando o ponto é um dia: o eixo mostra o número e a letra do dia da semana */
+  data?: string | null;
   a: number | null;
   b: number | null;
   futuro: boolean;
@@ -29,10 +32,15 @@ function Grafico({
   altura: number;
 }) {
   const config: ChartConfig = Object.fromEntries(series.map((s) => [s.chave, { label: s.rotulo, color: s.cor }]));
+  const porDia = dados.length > 0 && dados.every((d) => !!d.data);
   const comuns = (
     <>
       <CartesianGrid vertical={false} strokeDasharray="3 3" />
-      <XAxis dataKey="rotulo" tickLine={false} axisLine={false} tickMargin={8} minTickGap={12} />
+      {porDia ? (
+        <XAxis dataKey="rotulo" {...eixoDias(dados.map((d) => d.data ?? null))} />
+      ) : (
+        <XAxis dataKey="rotulo" tickLine={false} axisLine={false} tickMargin={8} minTickGap={12} />
+      )}
       <YAxis tickLine={false} axisLine={false} width={40} />
       <ChartTooltip
         content={

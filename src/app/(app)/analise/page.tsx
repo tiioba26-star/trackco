@@ -456,7 +456,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
             </CardHeader>
             <CardContent>
               <GraficoComparativo
-                dados={resultado.pontos}
+                dados={resultado.pontos.map((p) => ({ ...p, data: g === "dia" ? p.chave : null }))}
                 rotuloA={a.nome}
                 unidadeA={a.unidade}
                 rotuloB={b?.nome}

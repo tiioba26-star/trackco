@@ -122,7 +122,7 @@ function GraficosDia({ r, quem }: { r: ResumoPeriodo; quem: "voce" | "equipe" })
         </CardHeader>
         <CardContent>
           <GraficoComparativo
-            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), a: d.futuro ? null : d.validos, b: d.futuro ? null : d.agendou, futuro: d.futuro }))}
+            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), data: d.dia, a: d.futuro ? null : d.validos, b: d.futuro ? null : d.agendou, futuro: d.futuro }))}
             rotuloA="Válidos"
             unidadeA="un"
             rotuloB="Total marcado"
@@ -139,7 +139,7 @@ function GraficosDia({ r, quem }: { r: ResumoPeriodo; quem: "voce" | "equipe" })
         </CardHeader>
         <CardContent>
           <GraficoComparativo
-            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), a: d.marcadas, b: d.futuro ? null : d.compareceram, futuro: d.futuro }))}
+            dados={r.dias.map((d) => ({ rotulo: rot(d.dia), data: d.dia, a: d.marcadas, b: d.futuro ? null : d.compareceram, futuro: d.futuro }))}
             rotuloA="Marcadas para o dia"
             unidadeA="un"
             rotuloB="Compareceram"
