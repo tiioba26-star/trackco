@@ -35,7 +35,7 @@ function useLocal(chave: string) {
 }
 
 /** Número que "conta" até o valor (respeita quem prefere menos movimento). */
-function Contagem({ valor, sufixo = "" }: { valor: number; sufixo?: string }) {
+export function Contagem({ valor, sufixo = "" }: { valor: number; sufixo?: string }) {
   const [atual, setAtual] = useState(0);
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -60,12 +60,12 @@ function Contagem({ valor, sufixo = "" }: { valor: number; sufixo?: string }) {
   );
 }
 
-const Grande = ({ children }: { children: React.ReactNode }) => (
+export const Grande = ({ children }: { children: React.ReactNode }) => (
   <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25, type: "spring", stiffness: 120 }} className="text-7xl font-black tracking-tight sm:text-8xl">
     {children}
   </motion.div>
 );
-const Linha = ({ children, atraso = 0.6, className = "" }: { children: React.ReactNode; atraso?: number; className?: string }) => (
+export const Linha = ({ children, atraso = 0.6, className = "" }: { children: React.ReactNode; atraso?: number; className?: string }) => (
   <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: atraso }} className={`text-lg leading-snug ${className}`}>
     {children}
   </motion.p>
@@ -79,11 +79,11 @@ const Fato = ({ fato, atraso = 1.8 }: { fato: FatoPercentual; atraso?: number })
     <p className="mt-1 text-base leading-snug">{fato.texto}</p>
   </motion.div>
 );
-const Selo = ({ children }: { children: React.ReactNode }) => (
+export const Selo = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">{children}</span>
 );
 
-interface Slide {
+export interface Slide {
   fundo: string;
   festa?: boolean;
   segundos?: number;
@@ -110,6 +110,23 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
       </>
     ),
   });
+
+  if (d.aniversario)
+    s.push({
+      fundo: "from-[#db2777] via-[#e11d48] to-[#f59e0b]",
+      festa: true,
+      segundos: 10,
+      conteudo: (
+        <>
+          <Linha atraso={0.1}>Em {d.mes} teve um dia especial</Linha>
+          <Grande>🎂</Grande>
+          <motion.h2 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-4xl font-black tracking-tight">
+            {maiuscula(d.aniversario.dia)}: o seu aniversário!
+          </motion.h2>
+          <Linha atraso={1}>{d.aniversario.mensagem}</Linha>
+        </>
+      ),
+    });
 
   const numeros = eu ?? eq;
   s.push({
@@ -306,6 +323,37 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
       ),
     });
 
+  if (!eu && d.aniversariantes?.length)
+    s.push({
+      fundo: "from-[#be185d] via-[#db2777] to-[#f97316]",
+      festa: true,
+      segundos: Math.min(14, 7 + d.aniversariantes.length),
+      conteudo: (
+        <>
+          <Linha atraso={0.1}>Aniversariantes de {d.mesAtual} 🎂</Linha>
+          <ul className="max-h-[50dvh] space-y-2 overflow-y-auto">
+            {d.aniversariantes.map((a, i) => (
+              <motion.li
+                key={`${a.data}-${a.nome}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + Math.min(i, 8) * 0.2 }}
+                className="flex items-center justify-between gap-3 rounded-2xl bg-white/15 px-4 py-2.5 backdrop-blur"
+              >
+                <span className="text-lg font-bold">{a.nome}</span>
+                <span className="shrink-0 text-right tabular-nums">
+                  <b>{a.dia}</b> <span className="text-sm text-white/75">{a.semana}</span>
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+          <Linha atraso={1.2} className="text-sm text-white/80">
+            Que tal preparar um parabéns para cada um?
+          </Linha>
+        </>
+      ),
+    });
+
   s.push({
     fundo: "from-[#1c5cab] via-[#4338ca] to-[#7c3aed]",
     conteudo: (
@@ -335,8 +383,20 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
   return s;
 }
 
-function Historias({ dados, onFechar }: { dados: Retrospectiva; onFechar: () => void }) {
-  const slides = montarSlides(dados, onFechar);
+/** Tocador de histórias (telas que passam sozinhas): usado na retrospectiva e nos parabéns. */
+export function Historias({
+  slides,
+  titulo,
+  rotulo,
+  onFechar,
+  camada = "z-[65]",
+}: {
+  slides: Slide[];
+  titulo: string;
+  rotulo: string;
+  onFechar: () => void;
+  camada?: string;
+}) {
   const [i, setI] = useState(0);
   const [pausado, setPausado] = useState(false);
   const [confete, setConfete] = useState<DisparoConfete | null>(null);
@@ -383,14 +443,14 @@ function Historias({ dados, onFechar }: { dados: Retrospectiva; onFechar: () => 
   const slide = slides[i];
   return createPortal(
     <MotionConfig reducedMotion="user">
-      <div className="fixed inset-0 z-[65] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className={`fixed inset-0 ${camada} flex items-center justify-center bg-black/80 backdrop-blur-sm`}>
         <ConfetesTv disparo={confete} />
         <div
           ref={caixa}
           tabIndex={-1}
           role="dialog"
           aria-modal="true"
-          aria-label={`Retrospectiva de ${dados.mes}`}
+          aria-label={titulo}
           className={`relative flex h-dvh w-full flex-col overflow-hidden bg-gradient-to-br text-white outline-none transition-colors duration-700 sm:h-[min(92dvh,820px)] sm:max-w-md sm:rounded-3xl sm:shadow-2xl ${slide.fundo}`}
           onPointerDown={() => setPausado(true)}
           onPointerUp={() => setPausado(false)}
@@ -416,7 +476,7 @@ function Historias({ dados, onFechar }: { dados: Retrospectiva; onFechar: () => 
           </div>
           <div className="flex items-center justify-between px-4 pt-3 text-sm text-white/80">
             <span className="flex items-center gap-1.5 font-semibold">
-              <Sparkles className="size-4" /> Trackco · {dados.mes}
+              <Sparkles className="size-4" /> Trackco · {rotulo}
             </span>
             <button type="button" onClick={onFechar} aria-label="Fechar a retrospectiva" className="rounded-full p-1.5 hover:bg-white/20">
               <X className="size-5" />
@@ -493,7 +553,7 @@ export function ConviteRetrospectiva({ mes, mesAtual, chave, equipe, abrir }: { 
           {estado === "carregando" ? "Preparando…" : "Ver retrospectiva"}
         </Button>
       </div>
-      {estado === "aberto" && dados && <Historias dados={dados} onFechar={fechar} />}
+      {estado === "aberto" && dados && <Historias slides={montarSlides(dados, fechar)} titulo={`Retrospectiva de ${dados.mes}`} rotulo={dados.mes} onFechar={fechar} />}
     </>
   );
 }

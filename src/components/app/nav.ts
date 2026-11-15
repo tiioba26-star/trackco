@@ -61,7 +61,7 @@ export const NAV: GrupoNav[] = [
       { href: "/planos", titulo: "Planos e regras", icone: Scale, perfil: "admin", tour: "nav-planos" },
       { href: "/metas", titulo: "Metas", icone: Target, perfil: "admin", tour: "nav-metas" },
       { href: "/equipes", titulo: "Equipes", icone: UsersRound, perfil: "admin", tour: "nav-equipes" },
-      { href: "/colaboradores", titulo: "Colaboradores", icone: Users, perfil: "admin", tour: "nav-colaboradores" },
+      { href: "/colaboradores", titulo: "Colaboradores", icone: Users, perfil: "lider", tour: "nav-colaboradores" },
       { href: "/dados", titulo: "Dados e lançamentos", icone: Database, perfil: "admin", tour: "nav-dados" },
       { href: "/paineis-tv", titulo: "Painéis de TV", icone: Monitor, perfil: "lider", tour: "nav-tv" },
       { href: "/formularios", titulo: "Formulários", icone: ClipboardList, perfil: "admin", tour: "nav-formularios" },

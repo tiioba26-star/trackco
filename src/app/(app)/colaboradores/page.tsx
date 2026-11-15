@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { exigirAdmin } from "@/lib/auth";
+import { diaMes } from "@/engine/periodos";
+import { exigirGestaoOuLider } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarColaborador } from "./actions";
+import { AniversariosDaEquipe, nascimentos } from "./aniversarios";
 import { EditarColaborador } from "./editar";
 import { Dica } from "@/components/ajuda/dica";
 
@@ -17,15 +19,18 @@ export const metadata = { title: "Colaboradores" };
 const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", colaborador: "Colaborador" };
 
 export default async function PaginaColaboradores() {
-  await exigirAdmin();
+  const s = await exigirGestaoOuLider();
+  // líder (e gestor) só lança aniversários; o resto da tela é do administrador
+  if (!s.ehAdmin) return <AniversariosDaEquipe s={s} />;
   const db = await criarClienteServidor();
-  const [{ data }, { data: klingo }] = await Promise.all([
+  const [{ data }, { data: klingo }, nasc] = await Promise.all([
     db
       .from("colaboradores")
       .select("id, nome, login, login_klingo, papel, ativo, auth_id, equipe_membros(fim, funcao, equipes(nome))")
       .order("ativo", { ascending: false })
       .order("nome"),
     db.from("klingo_usuarios").select("login, nome").order("nome"),
+    nascimentos(),
   ]);
   type C = {
     id: string;
@@ -46,6 +51,11 @@ export default async function PaginaColaboradores() {
         titulo="Colaboradores"
         descricao="Quem acessa o Trackco. O usuário e a senha são os mesmos do sistema de relatórios da IOBA."
       />
+      {!nasc && (
+        <p className="mb-4 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
+          Para guardar os aniversários, falta aplicar no banco a migração <code>20261115000013_trackco_aniversarios.sql</code>.
+        </p>
+      )}
       <datalist id="logins-klingo">
         {(klingo ?? []).map((k) => (
           <option key={k.login} value={k.login}>
@@ -64,6 +74,7 @@ export default async function PaginaColaboradores() {
                   <TableHead>Login Klingo</TableHead>
                   <TableHead>Perfil</TableHead>
                   <TableHead>Equipes</TableHead>
+                  <TableHead>Aniversário</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -85,8 +96,11 @@ export default async function PaginaColaboradores() {
                         .map((m) => `${m.equipes?.nome}${m.funcao === "lider" ? " (líder)" : ""}`)
                         .join(", ") || "—"}
                     </TableCell>
+                    <TableCell className="text-sm tabular-nums">
+                      {nasc?.get(c.id) ? diaMes(nasc.get(c.id)!) : <span className="text-muted-foreground">—</span>}
+                    </TableCell>
                     <TableCell>
-                      <EditarColaborador c={c} />
+                      <EditarColaborador c={c} nascimento={nasc ? (nasc.get(c.id) ?? "") : null} />
                     </TableCell>
                   </TableRow>
                 ))}

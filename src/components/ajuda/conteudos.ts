@@ -243,10 +243,11 @@ export const AJUDA: Record<string, Ajuda> = {
       "Pessoas com acesso ao Trackco. O login é o mesmo do sistema de relatórios (mesmo usuário e senha).",
       "O 'login no Klingo' liga a pessoa às linhas do Klingo (campo Responsável). Sem ele, os agendamentos não são atribuídos.",
       "Perfis: Admin (configura tudo), Gestor (vê tudo, não configura) e Colaborador (vê o próprio; se for líder de equipe, vê a equipe).",
+      "Aniversário: o Klingo não guarda a data de nascimento dos funcionários, então ela é lançada aqui (o líder lança a da equipe). No dia, a pessoa recebe os parabéns ao abrir o Trackco; líderes e administradores veem os aniversariantes do mês na retrospectiva. A idade nunca aparece para a equipe.",
     ],
     passos: [
       { alvo: "colab-novo", titulo: "Novo colaborador", texto: "Cria o acesso ou vincula um login que já existe no relatório." },
-      { alvo: "colab-lista", titulo: "Lista", texto: "Edite perfil, login do Klingo, status e senha." },
+      { alvo: "colab-lista", titulo: "Lista", texto: "Edite perfil, login do Klingo, status, senha e data de aniversário." },
     ],
   },
   "/dados": {

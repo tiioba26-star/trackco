@@ -8,6 +8,7 @@ import type { Metrica } from "@/engine/tipos";
 import type { Sessao } from "@/lib/auth";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import type { ApuracaoRow } from "@/lib/dados/painel";
+import { type Aniversariante, aniversariantesDoMes, aniversarioNoMes } from "@/lib/dados/aniversarios";
 import { linhasDasPessoas, realizadasDaClinica, regrasDaCategoria, validosDaClinicaPorLogin } from "@/lib/dados/producao";
 import { recordesDe } from "@/lib/dados/rotina";
 import { metricaPorPapel } from "@/lib/metricas-papel";
@@ -48,6 +49,10 @@ export interface Retrospectiva {
   curiosidades: Curiosidade[];
   /** "E sabia que…" da tela de comparecimento */
   fatoComparecimento?: FatoPercentual | null;
+  /** o aniversário da pessoa caiu no mês da retrospectiva */
+  aniversario?: { dia: string; mensagem: string } | null;
+  /** só na da equipe: quem faz aniversário no mês que começa (líder vê a equipe; administrador, todos) */
+  aniversariantes?: Aniversariante[];
   /** só na da equipe */
   destaques?: { titulo: string; nome: string; valor: string; detalhe: string }[];
   metaBatida?: string[];
@@ -102,9 +107,11 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
   const d = destaquesDoMes(linhas, regras, ids, comp, compAnt, hoje);
   const ano = hoje.slice(0, 4);
   // a clínica toda no mês: base do "você sabia?" (sem nomes; só a posição de quem vê)
-  const [realizadasClinica, validosClinica] = await Promise.all([
+  const [realizadasClinica, validosClinica, aniversario, aniversariantes] = await Promise.all([
     realizadasDaClinica(admin, regras, inicioCompetencia(comp), fimCompetencia(comp)).catch(() => null),
     validosDaClinicaPorLogin(admin, regras, inicioCompetencia(comp), fimCompetencia(comp)).catch(() => null),
+    membroDe ? aniversarioNoMes(admin, s, comp).catch(() => null) : Promise.resolve(null),
+    membroDe ? Promise.resolve([]) : aniversariantesDoMes(admin, s, mesAtual).catch(() => []),
   ]);
   const curiosidades = (quemIds: string[], quem: "voce" | { equipe: string }, logins: string[]) =>
     curiosidadesDoMes({ linhas, ids: quemIds, regras, comp, nomeMes: nomeMes(comp), quem, realizadasClinica, validosClinica, logins });
@@ -117,6 +124,8 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
     primeiroNome: s.colaborador.nome.split(" ")[0],
     equipeNome: equipe.nome,
     equipe: { ...d.equipe, melhorDia: dia(d.equipe.melhorDia, ano), pessoas: ids.length },
+    aniversario,
+    aniversariantes,
     curiosidades: membroDe
       ? curiosidades([s.colaborador.id], "voce", s.colaborador.login_klingo ? [s.colaborador.login_klingo] : [])
       : curiosidades(ids, { equipe: equipe.nome }, []),

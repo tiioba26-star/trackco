@@ -5,10 +5,12 @@ import { Cabecalho } from "@/components/app/cabecalho";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
 import { RodapeVersiculo } from "@/components/app/versiculo";
+import { HistoriaParabens } from "@/components/retrospectiva/parabens";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { hojeNoFuso } from "@/engine/datas";
 import { exigirSessao, type Sessao } from "@/lib/auth";
+import { parabensDoDia } from "@/lib/dados/aniversarios";
 import { formularioPendente } from "@/lib/dados/formularios";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -38,6 +40,13 @@ async function BloqueioFormulario({ s }: { s: Sessao }) {
   return <FormularioObrigatorio formulario={pendente.formulario} rodada={pendente.rodada} admin={s.ehAdmin} />;
 }
 
+/** Parabéns do aniversário (no dia ou na primeira visita depois). Carrega à parte: nunca atrasa a página. */
+async function Parabens({ s }: { s: Sessao }) {
+  const dados = await parabensDoDia(s, hojeNoFuso()).catch(() => null);
+  if (!dados) return null;
+  return <HistoriaParabens dados={dados} />;
+}
+
 async function Shell({ children }: { children: React.ReactNode }) {
   const s = await exigirSessao();
   const cookieStore = await cookies();
@@ -64,6 +73,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
       </SidebarInset>
       <Suspense fallback={null}>
         <BloqueioFormulario s={s} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Parabens s={s} />
       </Suspense>
       <Suspense fallback={null}>
         <IndicadorNavegacao />

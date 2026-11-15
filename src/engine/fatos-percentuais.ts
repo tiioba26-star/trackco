@@ -6,7 +6,9 @@
 //   a mesma faixa nunca repete um fato (com mais de 12, os anos seguintes trazem fatos novos);
 // - dentro de um mês, cada faixa é usada uma vez só (a segunda porcentagem da mesma faixa fica sem fato);
 // - `valor` é o número citado no texto e precisa caber na faixa (o teste confere);
-// - só fatos conferidos em fontes confiáveis; nada que exponha pessoas ou dê má notícia.
+// - só fatos conferidos em fontes confiáveis; nada que exponha pessoas, dê má notícia ou incomode quem tem fé
+//   (a IOBA é uma empresa cristã: sem origem do homem por evolução, ancestralidade animal etc.);
+// - as contagens da Bíblia seguem a de 66 livros e 1.189 capítulos (a da NVI).
 
 export interface FatoPercentual {
   /** o número que o texto cita */
@@ -31,7 +33,6 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
     de: 0.5,
     ate: 1.5,
     fatos: [
-      f(1.2, "🧬", "Humanos e chimpanzés têm só cerca de 1% de diferença no DNA."),
       f(0.9, "💨", "Quase 1% do ar que respiramos é argônio, um gás de que quase ninguém se lembra."),
       f(1, "💧", "Menos de 1% da água do planeta é doce e fácil de alcançar, em rios, lagos e no subsolo."),
       f(1, "👁️", "A fóvea, o pontinho da retina que enxerga os detalhes, é só cerca de 1% da retina, mas usa metade da área visual do cérebro."),
@@ -44,6 +45,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(1.2, "🏙️", "Salvador tem cerca de 1,2% de toda a população do Brasil: são 2,4 milhões de pessoas."),
       f(1.2, "🧬", "Só pouco mais de 1% do nosso DNA guarda as receitas das proteínas; o resto organiza e regula."),
       f(0.5, "🎨", "Só cerca de 0,5% das mulheres são daltônicas."),
+      f(1.2, "📖", "Só cerca de 1% do Antigo Testamento foi escrito em aramaico, a língua que Jesus falava; o resto, em hebraico."),
+      f(0.57, "📖", "O Salmo 119, o maior capítulo da Bíblia, tem 176 versículos: sozinho, mais de 0,5% de todos os versículos."),
       f(1, "🍼", "O leite materno tem só cerca de 1% de proteína: a medida certa para o bebê crescer."),
       f(1, "🌍", "A crosta, a camada onde vivemos, é só cerca de 1% do volume da Terra."),
       f(0.6, "🔴", "O ar de Marte é tão rarefeito que a pressão lá é menos de 1% da nossa."),
@@ -64,8 +67,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(2, "🥤", "Perder só 2% do peso do corpo em água já diminui a atenção e o desempenho. Já bebeu água hoje?"),
       f(1.8, "🐊", "O Pantanal ocupa menos de 2% do território brasileiro, mas é a maior planície alagável do mundo."),
       f(1.5, "🦴", "Cerca de 1,5% do peso do corpo é cálcio, quase todo guardado nos ossos e nos dentes."),
-      f(2, "🧬", "Quem tem antepassados fora da África carrega cerca de 2% de DNA neandertal."),
       f(2, "☕", "O café conilon tem cerca de 2% de cafeína, quase o dobro do arábica."),
+      f(2.4, "📖", "Atos, o livro que conta o começo da igreja, tem 28 dos 1.189 capítulos da Bíblia: cerca de 2,4%."),
     ],
   },
   {
@@ -85,6 +88,7 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(2.9, "🪨", "No planeta-anão Ceres, a gravidade é só cerca de 3% da Terra: um pulo comum subiria mais de 10 metros."),
       f(3.3, "☀️", "Em janeiro, a Terra fica cerca de 3% mais perto do Sol do que em julho. Não é isso que faz o verão."),
       f(2.6, "🔴", "Um dia em Marte dura só cerca de 3% a mais que o nosso: 24 horas e 37 minutos."),
+      f(2.6, "📖", "Provérbios tem 31 capítulos, um para cada dia do mês: cerca de 2,6% dos capítulos da Bíblia."),
     ],
   },
   {
@@ -103,7 +107,9 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(5, "❤️", "O coração pesa menos de 1% do corpo, mas fica com cerca de 5% de todo o sangue que ele mesmo bombeia."),
       f(4, "😮‍💨", "O ar que sai dos pulmões tem cerca de 4% de gás carbônico, 100 vezes mais que o ar que entra."),
       f(5, "⚙️", "O ferro forma cerca de 5% da crosta da Terra."),
-      f(4, "🐺", "Só cerca de 3% a 5% das espécies de mamíferos formam casais fixos."),
+      f(5.5, "📖", "Isaías tem 66 capítulos, o mesmo número de livros da Bíblia: cerca de 5,5% de todos os capítulos."),
+      f(4.2, "📖", "Gênesis tem 50 dos 1.189 capítulos da Bíblia: cerca de 4%."),
+      f(6, "📖", "Os 4 evangelhos são só cerca de 6% dos livros da Bíblia, e contam a vida de Jesus."),
     ],
   },
   {
@@ -126,7 +132,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(10, "🧠", "Mito: usamos só 10% do cérebro. Na verdade, ao longo do dia, usamos praticamente ele todo."),
       f(10, "🌵", "A Caatinga cobre cerca de 10% do Brasil e é o único bioma que só existe aqui."),
       f(7, "🩸", "O sangue é cerca de 7% do peso do corpo: uns 5 litros num adulto."),
-      f(8, "🦠", "Cerca de 8% do nosso DNA veio de vírus antigos que infectaram nossos antepassados."),
+      f(7.6, "📖", "Os 5 primeiros livros da Bíblia, a Lei, são cerca de 8% dos livros."),
+      f(10, "📖", "A Bíblia completa já foi traduzida para mais de 750 línguas: cerca de 10% dos idiomas do mundo."),
     ],
   },
   {
@@ -147,6 +154,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(14, "🌊", "O Oceano Índico cobre cerca de 14% da superfície da Terra."),
       f(17, "🍯", "O mel tem só cerca de 17% de água. Por isso dura anos sem estragar."),
       f(14, "🫁", "A cada respiração tranquila, só cerca de 1/7 (14%) do ar dos pulmões é renovado."),
+      f(12.6, "📖", "Salmos, o maior livro da Bíblia, tem 150 dos 1.189 capítulos: cerca de 13%."),
+      f(15, "📖", "Os 4 evangelhos são cerca de 15% dos 27 livros do Novo Testamento."),
     ],
   },
   {
@@ -166,6 +175,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(21, "🌊", "O Oceano Atlântico cobre cerca de 21% da superfície da Terra."),
       f(20, "🌳", "Mito: a Amazônia produz 20% do oxigênio do mundo. Ela produz muito, mas a própria floresta consome quase tudo."),
       f(22, "🏙️", "Cerca de 1 em cada 5 brasileiros mora no estado de São Paulo, o mais populoso do país."),
+      f(18, "📖", "Os 12 profetas menores, de Oseias a Malaquias, são cerca de 18% dos livros da Bíblia."),
+      f(22, "📖", "O Novo Testamento tem 260 dos 1.189 capítulos da Bíblia: cerca de 22%."),
     ],
   },
   {
@@ -174,7 +185,7 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
     ate: 27.5,
     fatos: [
       f(25, "🦶", "Cerca de 25% dos ossos do corpo ficam nos pés: são 52 de 206."),
-      f(27, "🌌", "Cerca de 27% do universo é matéria escura: ninguém vê, mas é ela que segura as galáxias."),
+      f(27, "🌌", "Cerca de 27% do universo é matéria escura: ninguém consegue ver, só medir o efeito dela nas galáxias."),
       f(25, "☀️", "Cerca de 25% do Sol é hélio, o mesmo gás das bexigas que flutuam."),
       f(23, "🌾", "O Cerrado cobre cerca de 23% do Brasil e é o “berço das águas”: nascem nele rios de 8 das 12 grandes bacias do país."),
       f(25, "🐠", "Os recifes de coral ocupam menos de 1% do fundo do mar, mas abrigam cerca de 25% das espécies marinhas."),
@@ -189,6 +200,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(25, "🍎", "Uma maçã boia na água porque cerca de 25% dela é ar."),
       f(25, "🤧", "Cerca de 1 em cada 4 pessoas espirra ao olhar para uma luz forte: é o reflexo fótico."),
       f(26, "🌴", "Cerca de 1 em cada 4 nordestinos mora na Bahia."),
+      f(27, "📖", "Lucas escreveu o evangelho de Lucas e Atos: cerca de 27% do Novo Testamento, mais do que qualquer outro autor."),
+      f(27, "📖", "Cerca de 27% dos versículos da Bíblia trazem profecias."),
     ],
   },
   {
@@ -212,6 +225,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(32, "🌍", "O núcleo da Terra tem cerca de 1/3 da massa do planeta."),
       f(30, "🐪", "O Saara ocupa cerca de 30% da África."),
       f(31, "🌙", "Os “mares” escuros da Lua cobrem cerca de 31% do lado que vemos, e não têm uma gota d'água."),
+      f(33, "📖", "Cerca de 1/3 dos ensinamentos de Jesus nos evangelhos foram contados em parábolas."),
+      f(33, "📖", "Cerca de 1/3 dos evangelhos conta a última semana de Jesus, da entrada em Jerusalém à ressurreição."),
     ],
   },
   {
@@ -231,6 +246,7 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(40, "🏖️", "Cerca de 40% das pessoas do mundo vivem a até 100 km do mar, como quem mora em Salvador."),
       f(40, "🌊", "A bacia do Rio Amazonas cobre cerca de 40% da América do Sul."),
       f(37, "🚜", "Cerca de 37% das terras do planeta são usadas para plantar e criar animais."),
+      f(41, "📖", "O Novo Testamento tem 27 dos 66 livros da Bíblia: cerca de 41%."),
     ],
   },
   {
@@ -251,6 +267,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(50, "👶", "Recém-nascidos passam cerca de 50% do sono em REM, o dobro dos adultos."),
       f(50, "🌊", "Cerca de metade do oxigênio que respiramos é produzido no mar, por algas microscópicas."),
       f(50, "🧬", "Metade dos seus cromossomos veio da sua mãe, e a outra metade, do seu pai."),
+      f(48, "📖", "Paulo escreveu 13 dos 27 livros do Novo Testamento: quase metade."),
+      f(51, "📖", "Cerca de metade das línguas do mundo já tem pelo menos uma parte da Bíblia traduzida."),
     ],
   },
   {
@@ -272,6 +290,7 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(61, "🌐", "Cerca de 61% do Hemisfério Norte é coberto por oceano."),
       f(64, "🧴", "A pele é cerca de 64% água."),
       f(61, "🐧", "A Antártida guarda, em gelo, cerca de 61% de toda a água doce do planeta."),
+      f(59, "📖", "O Antigo Testamento tem 39 dos 66 livros da Bíblia: cerca de 59%."),
     ],
   },
   {
@@ -287,13 +306,12 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(67, "☁️", "A qualquer momento, cerca de 2/3 da Terra estão cobertos por nuvens."),
       f(67, "🌋", "O manto, a camada entre a crosta e o núcleo, tem cerca de 2/3 da massa da Terra."),
       f(67, "🐈", "Gatos dormem até 16 horas por dia: cerca de 2/3 do tempo."),
-      f(68, "🌌", "Cerca de 68% do universo é energia escura, a força que faz o cosmos se expandir cada vez mais rápido."),
+      f(68, "🌌", "Cerca de 68% do universo é energia escura, um dos maiores mistérios que os cientistas ainda tentam entender."),
       f(67, "🦴", "Cerca de 2/3 do peso dos ossos é mineral, principalmente cálcio e fósforo."),
       f(70, "🌾", "Cerca de 70% da água doce que a humanidade usa vai para a agricultura."),
       f(70, "👶", "Ao nascer, os olhos já têm cerca de 70% do tamanho que terão na vida adulta."),
       f(70, "🍫", "No chocolate “70%”, 70% do peso vem do cacau."),
       f(67, "🍼", "Um recém-nascido dorme de 14 a 17 horas por dia: cerca de 2/3 do tempo."),
-      f(70, "🐟", "Cerca de 70% dos nossos genes têm um parecido no peixe-zebra. Por isso ele é tão usado em pesquisa."),
     ],
   },
   {
@@ -334,6 +352,8 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(83, "✈️", "Aviões comerciais voam a cerca de 80% a 85% da velocidade do som."),
       f(84, "🌌", "Cerca de 84% de toda a matéria do universo é matéria escura."),
       f(80, "🌲", "As florestas abrigam cerca de 80% das espécies de animais e plantas da terra firme."),
+      f(78, "📖", "O Antigo Testamento tem 929 dos 1.189 capítulos da Bíblia: cerca de 78%."),
+      f(84, "📖", "Cerca de 84% dos brasileiros se declaram cristãos, segundo o Censo de 2022."),
     ],
   },
   {
@@ -354,6 +374,7 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(90, "🌡️", "Mais de 90% do calor extra do aquecimento global foi absorvido pelos oceanos."),
       f(93, "🌊", "Cerca de 93% do gás carbônico da Terra está guardado nos oceanos."),
       f(94.9, "🪐", "Vênus tem quase 95% do diâmetro da Terra."),
+      f(90, "📖", "Cerca de 90% do evangelho de Marcos também aparece no de Mateus."),
     ],
   },
   {
@@ -369,10 +390,10 @@ export const FAIXAS_DE_FATOS: FaixaDeFatos[] = [
       f(95, "👁️", "Cerca de 95% das células que captam luz na retina são bastonetes, que enxergam no escuro."),
       f(96, "🦷", "O esmalte dos dentes é cerca de 96% mineral: a parte mais dura do corpo."),
       f(98, "💧", "As lágrimas são cerca de 98% água."),
-      f(99, "🦖", "Mais de 99% de todas as espécies que já viveram na Terra estão extintas."),
       f(99.9, "🧬", "Quaisquer duas pessoas têm cerca de 99,9% do DNA igual. O 0,1% que sobra faz cada um ser único."),
       f(99.99, "⚛️", "Um átomo é mais de 99,99% espaço vazio."),
       f(96, "🧍", "Só 4 elementos, oxigênio, carbono, hidrogênio e nitrogênio, somam cerca de 96% do peso do corpo."),
+      f(95, "📖", "O livro de Isaías achado nos Manuscritos do Mar Morto tem mais de 2 mil anos e é mais de 95% igual ao das Bíblias de hoje."),
     ],
   },
 ];

@@ -39,6 +39,19 @@ describe("tabela de fatos por porcentagem", () => {
     }
   });
 
+  it("quem tirar a mesma porcentagem todo mês vê um fato diferente em cada um dos 12 meses", () => {
+    for (const p of [1, 2, 3, 5, 8, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100]) {
+      const vistos = mesesSeguidos("2026-09", 12).map((c) => fatosDoMes([p], c)[0]!.texto);
+      expect(new Set(vistos).size, `${p}%`).toBe(12);
+    }
+  });
+
+  it("nenhum fato toca em temas que incomodam quem tem fé", () => {
+    const proibidos = /chimpanz|macaco|neandert|antepassad|ancestra|evolu|extint|milh(õ|o)es de anos|bilh(õ|o)es de anos|big bang/i;
+    for (const fx of FAIXAS_DE_FATOS) for (const f of fx.fatos) expect(f.texto, f.texto).not.toMatch(proibidos);
+    expect(FAIXAS_DE_FATOS.flatMap((fx) => fx.fatos).filter((f) => f.emoji === "📖").length).toBeGreaterThanOrEqual(20);
+  });
+
   it("no mesmo mês, cada faixa sai uma vez só: a de maior prioridade (a primeira) leva o fato", () => {
     const [a, b, c] = fatosDoMes([15, 16, 72], "2026-10");
     expect(a?.valor).toBeGreaterThanOrEqual(12.5);

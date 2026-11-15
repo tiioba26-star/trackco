@@ -96,6 +96,32 @@ export async function atualizarColaborador(id: string, fd: FormData): Promise<Re
   }
 }
 
+/** Data de nascimento: o administrador lança para qualquer pessoa; o líder, para quem está nas equipes que lidera. */
+export async function salvarNascimento(id: string, fd: FormData): Promise<RetornoAcao> {
+  try {
+    const s = await sessaoAcao({ lider: true });
+    const texto = String(fd.get("nascimento") ?? "").trim();
+    const hoje = new Date().toISOString().slice(0, 10);
+    if (texto && (!/^\d{4}-\d{2}-\d{2}$/.test(texto) || texto < "1920-01-01" || texto > hoje)) {
+      throw new Error("Informe uma data de nascimento válida.");
+    }
+    const admin = criarClienteAdmin();
+    if (!s.vêTudo) {
+      const { data } = await admin.from("equipe_membros").select("equipe_id, fim").eq("colaborador_id", id);
+      const lidera = (data ?? []).some((m) => (!m.fim || String(m.fim) >= hoje) && s.lidera.includes(String(m.equipe_id)));
+      if (!lidera) throw new Error("Você só pode lançar o aniversário de quem está na sua equipe.");
+    }
+    const { error } = await admin.from("colaboradores").update({ nascimento: texto || null }).eq("id", id);
+    if (error) {
+      throw new Error(/nascimento/.test(error.message) ? "Falta aplicar a migração de aniversários no banco (20261115000013)." : error.message);
+    }
+    revalidatePath("/colaboradores");
+    return { ok: true, mensagem: texto ? "Aniversário salvo." : "Aniversário apagado." };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
 export async function redefinirSenha(id: string, fd: FormData): Promise<RetornoAcao> {
   try {
     await sessaoAcao({ admin: true });

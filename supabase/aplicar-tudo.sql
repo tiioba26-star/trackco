@@ -1397,6 +1397,31 @@ end $$;
 revoke all on function trackco.klingo_sincronizar_mes(date, jsonb) from public, anon, authenticated;
 grant execute on function trackco.klingo_sincronizar_mes(date, jsonb) to service_role;
 
+-- >>>>>>>>>> 20261115000013_trackco_aniversarios.sql
+-- Trackco · aniversários
+-- O Klingo não guarda a data de nascimento dos funcionários (o cadastro de usuário só tem login e nome),
+-- então ela é lançada no Trackco, em Colaboradores, pelo líder da equipe ou por um administrador.
+
+-- ---------------------------------------------------------------------------
+-- 1) Data de nascimento
+-- ---------------------------------------------------------------------------
+alter table trackco.colaboradores add column if not exists nascimento date;
+comment on column trackco.colaboradores.nascimento is
+  'Data de nascimento, para os parabéns e a lista de aniversariantes. Lançada pelo líder ou administrador em Colaboradores.';
+
+-- ---------------------------------------------------------------------------
+-- 2) Quando a pessoa viu os parabéns de cada aniversário (abrem sozinhos uma vez só)
+-- ---------------------------------------------------------------------------
+create table if not exists trackco.parabens_vistos (
+  colaborador_id uuid not null references trackco.colaboradores (id) on delete cascade,
+  aniversario    date not null,
+  visto_em       timestamptz not null default now(),
+  primary key (colaborador_id, aniversario)
+);
+alter table trackco.parabens_vistos enable row level security;
+-- só o servidor (chave secreta) lê e grava; pelo navegador ninguém acessa
+revoke all on trackco.parabens_vistos from anon, authenticated;
+
 -- >>>>>>>>>> registro das migrations (compatível com a CLI do Supabase)
 create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);
@@ -1412,7 +1437,8 @@ insert into supabase_migrations.schema_migrations (version, name) values
   ('20261111000009', 'trackco_situacao_marcacoes'),
   ('20261112000010', 'trackco_desempenho'),
   ('20261113000011', 'trackco_confirmacoes_formularios'),
-  ('20261114000012', 'trackco_sync_rapido')
+  ('20261114000012', 'trackco_sync_rapido'),
+  ('20261115000013', 'trackco_aniversarios')
 on conflict (version) do nothing;
 
 commit;

@@ -9,13 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Separator } from "@/components/ui/separator";
-import { atualizarColaborador, redefinirSenha } from "./actions";
+import { atualizarColaborador, redefinirSenha, salvarNascimento } from "./actions";
 import { Dica } from "@/components/ajuda/dica";
 
 export function EditarColaborador({
   c,
+  nascimento,
 }: {
   c: { id: string; nome: string; login: string | null; login_klingo: string | null; papel: string; ativo: boolean };
+  /** null: a migração de aniversários ainda não foi aplicada */
+  nascimento: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
   return (
@@ -51,6 +54,20 @@ export function EditarColaborador({
             </label>
             <Button type="submit">Salvar</Button>
           </FormAcao>
+          {nascimento !== null && (
+            <>
+              <Separator />
+              <FormAcao acao={salvarNascimento.bind(null, c.id)} className="flex items-end gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <Label htmlFor={`nasc-${c.id}`}>Data de nascimento (para os parabéns)</Label>
+                  <Input id={`nasc-${c.id}`} name="nascimento" type="date" defaultValue={nascimento} max={new Date().toISOString().slice(0, 10)} />
+                </div>
+                <Button type="submit" variant="outline">
+                  Salvar
+                </Button>
+              </FormAcao>
+            </>
+          )}
           <Separator />
           <FormAcao acao={redefinirSenha.bind(null, c.id)} className="flex items-end gap-2" limpar>
             <div className="flex-1 space-y-1.5">
