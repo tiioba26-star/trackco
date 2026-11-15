@@ -5,7 +5,7 @@ import { Cabecalho } from "@/components/app/cabecalho";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
 import { RodapeVersiculo } from "@/components/app/versiculo";
-import { HistoriaParabens } from "@/components/retrospectiva/parabens";
+import { HistoriaParabens, OuvinteMeusParabens } from "@/components/retrospectiva/parabens";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { hojeNoFuso } from "@/engine/datas";
@@ -77,6 +77,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
       <Suspense fallback={null}>
         <Parabens s={s} />
       </Suspense>
+      <OuvinteMeusParabens />
       <Suspense fallback={null}>
         <IndicadorNavegacao />
       </Suspense>

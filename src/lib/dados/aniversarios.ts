@@ -6,8 +6,10 @@ import {
   curiosidadesDoNascimento,
   dataPorExtenso,
   diaDaSemanaCurto,
+  fatoDoAnoNoAniversario,
   mensagemDeParabens,
   parabensPendente,
+  ultimoAniversario,
   versiculoDeAniversario,
 } from "@/engine/aniversario";
 import { inicioCompetencia, somarDias } from "@/engine/datas";
@@ -74,15 +76,23 @@ async function aniversarioPendente(admin: Admin, s: Sessao, hoje: string): Promi
   return aniversario ? { nascimento, aniversario } : null;
 }
 
-/** Os parabéns do dia, se ainda não foram vistos. */
-export async function parabensDoDia(s: Sessao, hoje: string): Promise<Parabens | null> {
-  const admin = criarClienteAdmin();
-  const p = await aniversarioPendente(admin, s, hoje);
-  if (!p) return null;
-  const ano = Number(p.aniversario.slice(0, 4));
-  const login = s.colaborador.login_klingo?.toLowerCase();
+/**
+ * Monta os parabéns de um aniversário. A mensagem, o versículo e o fato do ano dependem só da pessoa
+ * e do ano do aniversário: quem revê ou quem vê a prévia enxerga exatamente o mesmo.
+ */
+async function montarParabens(
+  admin: Admin,
+  pessoa: { id: string; nome: string; login_klingo: string | null },
+  nascimento: string,
+  aniversario: string,
+  hoje: string,
+): Promise<Parabens> {
+  const ano = Number(aniversario.slice(0, 4));
+  // dias de vida até hoje; numa prévia (aniversário ainda por vir), até o dia do aniversário
+  const referencia = aniversario > hoje ? aniversario : hoje;
+  const login = pessoa.login_klingo?.toLowerCase();
   const [posicao, atendimentos] = await Promise.all([
-    posicaoDe(admin, s.colaborador.id),
+    posicaoDe(admin, pessoa.id),
     login
       ? admin
           .from("klingo_agendamentos")
@@ -94,16 +104,63 @@ export async function parabensDoDia(s: Sessao, hoje: string): Promise<Parabens |
           .then((r) => (r.error ? null : (r.count ?? 0)))
       : Promise.resolve(null),
   ]);
-  const nome = primeiroNome(s.colaborador.nome);
+  const nome = primeiroNome(pessoa.nome);
   return {
-    aniversario: p.aniversario,
-    ehHoje: p.aniversario === hoje,
+    aniversario,
+    ehHoje: aniversario === hoje,
     primeiroNome: nome,
     mensagem: mensagemDeParabens(nome, posicao, ano),
     versiculo: versiculoDeAniversario(posicao, ano),
-    nascimento: { ...curiosidadesDoNascimento(p.nascimento, hoje), porExtenso: dataPorExtenso(p.nascimento), ano: Number(p.nascimento.slice(0, 4)) },
+    nascimento: {
+      ...curiosidadesDoNascimento(nascimento, referencia),
+      fatoDoAno: fatoDoAnoNoAniversario(Number(nascimento.slice(0, 4)), ano, posicao),
+      porExtenso: dataPorExtenso(nascimento),
+      ano: Number(nascimento.slice(0, 4)),
+    },
     atendimentos,
   };
+}
+
+/** Os parabéns do dia, se ainda não foram vistos (abrem sozinhos). */
+export async function parabensDoDia(s: Sessao, hoje: string): Promise<Parabens | null> {
+  const admin = criarClienteAdmin();
+  const p = await aniversarioPendente(admin, s, hoje);
+  if (!p) return null;
+  return montarParabens(admin, s.colaborador, p.nascimento, p.aniversario, hoje);
+}
+
+/** Os parabéns do último aniversário da própria pessoa, para rever quantas vezes quiser. */
+export async function meusParabens(s: Sessao, hoje: string): Promise<Parabens | null> {
+  const admin = criarClienteAdmin();
+  const nascimento = await nascimentoDe(admin, s.colaborador.id);
+  if (!nascimento) return null;
+  return montarParabens(admin, s.colaborador, nascimento, ultimoAniversario(nascimento, hoje), hoje);
+}
+
+/**
+ * Prévia dos parabéns que a pessoa vai receber no próximo aniversário. Só para administrador,
+ * gestor ou o líder de uma equipe em que a pessoa está.
+ */
+export async function previaDosParabens(s: Sessao, id: string, hoje: string): Promise<Parabens | null> {
+  const admin = criarClienteAdmin();
+  if (!s.vêTudo) {
+    const { data } = await admin.from("equipe_membros").select("equipe_id, fim").eq("colaborador_id", id);
+    const lidera = (data ?? []).some((m) => (!m.fim || String(m.fim) >= hoje) && s.lidera.includes(String(m.equipe_id)));
+    if (!lidera) throw new Error("Você só pode ver os parabéns de quem está na sua equipe.");
+  }
+  const { data: pessoa, error } = await admin.from("colaboradores").select("id, nome, login_klingo, nascimento").eq("id", id).maybeSingle();
+  if (error || !pessoa?.nascimento) return null;
+  const nascimento = String(pessoa.nascimento).slice(0, 10);
+  const ano = Number(hoje.slice(0, 4));
+  const deste = aniversarioNoAno(nascimento, ano);
+  const proximo = deste >= hoje ? deste : aniversarioNoAno(nascimento, ano + 1);
+  return montarParabens(
+    admin,
+    { id: String(pessoa.id), nome: String(pessoa.nome), login_klingo: pessoa.login_klingo ? String(pessoa.login_klingo) : null },
+    nascimento,
+    proximo,
+    hoje,
+  );
 }
 
 /** Guarda que a pessoa viu os parabéns (o aniversário vem do servidor, nunca do navegador). */

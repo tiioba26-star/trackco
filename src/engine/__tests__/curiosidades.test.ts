@@ -43,7 +43,7 @@ describe("curiosidades da retrospectiva", () => {
     const porId = Object.fromEntries(c.map((x) => [x.id, x]));
     expect(porId.clinica.destaque).toBe("1 em cada 10"); // 8 de 80
     expect(porId.dia_semana.destaque).toBe("terça-feira");
-    expect(porId.dia_semana.depois).toContain("66,7%"); // 8 de 12
+    expect(porId.dia_semana.depois).toContain("67%"); // 8 de 12, sempre inteiro
     expect(porId.procedimento.depois).toBe("foram para consulta oftalmologica geral.");
     expect(c.length).toBeLessThanOrEqual(4);
   });

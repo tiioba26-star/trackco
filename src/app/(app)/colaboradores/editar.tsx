@@ -11,6 +11,7 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Separator } from "@/components/ui/separator";
 import { atualizarColaborador, redefinirSenha, salvarNascimento } from "./actions";
 import { Dica } from "@/components/ajuda/dica";
+import { BotaoPreviaParabens } from "@/components/retrospectiva/parabens";
 
 export function EditarColaborador({
   c,
@@ -66,6 +67,12 @@ export function EditarColaborador({
                   Salvar
                 </Button>
               </FormAcao>
+              {nascimento && (
+                <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                  Veja como a pessoa vai receber os parabéns.
+                  <BotaoPreviaParabens id={c.id} nome={c.nome} />
+                </div>
+              )}
             </>
           )}
           <Separator />

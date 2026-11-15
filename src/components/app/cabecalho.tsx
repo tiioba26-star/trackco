@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyRound, LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { Cake, KeyRound, LogOut, Monitor, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -74,6 +74,9 @@ export function Cabecalho({ nome, papel, equipes }: { nome: string; papel: strin
             <DropdownMenuSeparator />
             <DropdownMenuItem render={<Link href="/trocar-senha" />}>
               <KeyRound /> Trocar senha
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.dispatchEvent(new Event("trackco:meus-parabens"))}>
+              <Cake /> Meus parabéns
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => sair()}>
               <LogOut /> Sair

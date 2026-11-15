@@ -2,7 +2,7 @@ import "server-only";
 import { competenciaAnterior, competenciaDe, fimCompetencia, inicioCompetencia } from "@/engine/datas";
 import { type Curiosidade, curiosidadesDoMes } from "@/engine/curiosidades";
 import { destaquesDoMes } from "@/engine/destaques";
-import { type FatoPercentual, fatosDoMes } from "@/engine/fatos-percentuais";
+import { type FatoPercentual, fatoDaRetrospectiva } from "@/engine/fatos-percentuais";
 import { nomeMes, textoDatas } from "@/engine/periodos";
 import type { Metrica } from "@/engine/tipos";
 import type { Sessao } from "@/lib/auth";
@@ -47,8 +47,8 @@ export interface Retrospectiva {
   };
   /** "você sabia?": comparações com a clínica toda */
   curiosidades: Curiosidade[];
-  /** "E sabia que…" da tela de comparecimento */
-  fatoComparecimento?: FatoPercentual | null;
+  /** a tela "E sabia que…" (uma por retrospectiva), logo depois da tela que mostrou o número */
+  fato?: { depoisDe: string; percentual: number; fato: FatoPercentual } | null;
   /** o aniversário da pessoa caiu no mês da retrospectiva */
   aniversario?: { dia: string; mensagem: string } | null;
   /** só na da equipe: quem faz aniversário no mês que começa (líder vê a equipe; administrador, todos) */
@@ -61,16 +61,21 @@ export interface Retrospectiva {
 const pct = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 const dia = (d: { dia: string; valor: number } | null, ano: string) => (d ? { dia: textoDatas(d.dia, d.dia, ano), valor: d.valor } : null);
 
-/** Quem leva o "E sabia que…" quando duas telas caem na mesma faixa: as mais especiais primeiro. */
+/** Ordem de preferência das telas para o "E sabia que…": as mais especiais primeiro. */
 const PRIORIDADE_DO_FATO = ["ranking", "clinica", "comparecimento", "dia_semana", "procedimento", "antecedencia"];
 
-/** "E sabia que…": um fato do mesmo tamanho para cada porcentagem das telas (sem repetir em 12 meses). */
+/**
+ * "E sabia que…": uma tela inteira com um fato do mundo de EXATAMENTE o mesmo número de uma das
+ * porcentagens da retrospectiva (sempre inteiras). Não repete em 12 meses seguidos.
+ */
 function comFatos(r: Retrospectiva): Retrospectiva {
-  const telas = [{ id: "comparecimento", p: (r.eu ?? r.equipe).taxa }, ...r.curiosidades.map((c) => ({ id: c.id, p: c.percentual }))];
-  const ordem = telas.map((_, i) => i).sort((a, b) => PRIORIDADE_DO_FATO.indexOf(telas[a].id) - PRIORIDADE_DO_FATO.indexOf(telas[b].id));
-  const escolhidos = fatosDoMes(ordem.map((i) => telas[i].p), r.comp);
-  const fato = (i: number) => escolhidos[ordem.indexOf(i)] ?? null;
-  return { ...r, fatoComparecimento: fato(0), curiosidades: r.curiosidades.map((c, i) => ({ ...c, fato: fato(i + 1) })) };
+  const taxa = (r.eu ?? r.equipe).taxa;
+  const telas = [
+    { id: "comparecimento", p: taxa === null ? null : Math.round(taxa) },
+    ...r.curiosidades.map((c) => ({ id: c.id as string, p: c.percentual })),
+  ].sort((a, b) => PRIORIDADE_DO_FATO.indexOf(a.id) - PRIORIDADE_DO_FATO.indexOf(b.id));
+  const escolha = fatoDaRetrospectiva(telas, r.comp);
+  return { ...r, fato: escolha ? { depoisDe: escolha.tela.id, percentual: escolha.tela.p, fato: escolha.fato } : null };
 }
 
 export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Retrospectiva | null> {

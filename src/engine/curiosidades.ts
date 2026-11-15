@@ -1,7 +1,6 @@
 // "Você sabia?" da retrospectiva: comparações que fazem a pessoa (ou a equipe) se ver no todo da clínica,
 // no estilo "você está entre os 2% que mais ouviram". Nada aqui expõe outra pessoa: só a posição de quem vê.
 import { diaDaSemanaISO, fimCompetencia, inicioCompetencia } from "./datas";
-import type { FatoPercentual } from "./fatos-percentuais";
 import { passaFiltros } from "./metricas";
 import type { RegrasProducao } from "./producao";
 import type { Linha } from "./tipos";
@@ -15,15 +14,14 @@ export interface Curiosidade {
   destaque: string;
   /** frase depois */
   depois: string;
-  /** a porcentagem que a tela mostra (base do "sabia que…" com outro fato do mesmo tamanho) */
+  /** a porcentagem (inteira) que a tela mostra: base do "E sabia que…" com um fato do mesmo número */
   percentual: number | null;
-  /** "E sabia que…": um fato do mundo do mesmo tamanho (preenchido na montagem da retrospectiva) */
-  fato?: FatoPercentual | null;
 }
 
 const DIAS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"];
 const DIAS_PLURAL = ["segundas", "terças", "quartas", "quintas", "sextas", "sábados", "domingos"];
-const pct = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+// inteiro: a tela "E sabia que…" repete exatamente este número
+const pct = (n: number) => `${Math.round(n)}%`;
 const diasEntre = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
 
 /** "CONSULTA OFTALMOLOGICA GERAL - OFTALMOLOGIA" → "consulta oftalmologica geral" */
@@ -75,7 +73,7 @@ export function curiosidadesDoMes(op: {
       antes: `Das ${op.realizadasClinica.toLocaleString("pt-BR")} consultas Particular que aconteceram na IOBA em ${op.nomeMes},`,
       destaque: umEmCada <= 1 ? pct(parte) : `1 em cada ${umEmCada}`,
       depois: `foi marcada ${porQuem} (${pct(parte)} do total).`,
-      percentual: parte,
+      percentual: Math.round(parte),
     });
   }
 
@@ -115,7 +113,7 @@ export function curiosidadesDoMes(op: {
           antes: `De todos os agendamentos Particular válidos da IOBA em ${op.nomeMes},`,
           destaque: pct((daEquipe / total) * 100),
           depois: `foram feitos pela equipe ${nomeEquipe}.`,
-          percentual: (daEquipe / total) * 100,
+          percentual: Math.round((daEquipe / total) * 100),
         });
     }
   }
@@ -132,7 +130,7 @@ export function curiosidadesDoMes(op: {
       antes: voce ? "Seu dia de marcar foi" : "O dia mais forte da equipe foi",
       destaque: DIAS[d],
       depois: `${pct((max / validos.length) * 100)} dos ${voce ? "seus " : ""}pacientes válidos foram marcados às ${DIAS_PLURAL[d]}.`,
-      percentual: (max / validos.length) * 100,
+      percentual: Math.round((max / validos.length) * 100),
     });
   }
 
@@ -150,7 +148,7 @@ export function curiosidadesDoMes(op: {
       antes: `Da marcação até a consulta, ${voce ? "seus pacientes" : "os pacientes da equipe"} esperaram em média`,
       destaque: `${Math.round(media)} ${Math.round(media) === 1 ? "dia" : "dias"}`,
       depois: `${pct(naSemana)} foram atendidos em até uma semana.`,
-      percentual: naSemana,
+      percentual: Math.round(naSemana),
     });
   }
 
@@ -169,7 +167,7 @@ export function curiosidadesDoMes(op: {
         antes: voce ? "Dos seus pacientes válidos," : "Dos pacientes válidos da equipe,",
         destaque: pct((qtd / validos.length) * 100),
         depois: `foram para ${nome}.`,
-        percentual: (qtd / validos.length) * 100,
+        percentual: Math.round((qtd / validos.length) * 100),
       });
   }
   return out.slice(0, 4);

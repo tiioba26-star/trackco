@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FAIXAS_DE_FATOS, faixaDoPercentual, fatoDaFaixa, fatosDoMes } from "../fatos-percentuais";
+import { FATOS_EXATOS, LIVROS_DA_BIBLIA, MODELOS, capituloDaBiblia, fatoDaRetrospectiva, fatoDoMes, fatosReais } from "../fatos-percentuais";
 
 const mesesSeguidos = (de: string, n: number) => {
   const [a, m] = de.split("-").map(Number);
@@ -8,70 +8,75 @@ const mesesSeguidos = (de: string, n: number) => {
     return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, "0")}`;
   });
 };
+const citaExato = (texto: string, p: number) => new RegExp(`(?<![\\d,])${p}%`).test(texto);
 
-describe("tabela de fatos por porcentagem", () => {
-  it("cada faixa tem pelo menos 12 fatos, e cada número citado cabe na faixa", () => {
-    for (const fx of FAIXAS_DE_FATOS) {
-      expect(fx.fatos.length, fx.rotulo).toBeGreaterThanOrEqual(12);
-      for (const fato of fx.fatos) {
-        expect(fato.valor >= fx.de && fato.valor <= fx.ate, `${fx.rotulo}: ${fato.texto}`).toBe(true);
-        expect(fato.texto.length, fato.texto).toBeLessThanOrEqual(150);
+describe("fatos com a mesma porcentagem da tela", () => {
+  it("todo fato real cita exatamente o seu número", () => {
+    for (const f of FATOS_EXATOS) {
+      expect(Number.isInteger(f.valor) && f.valor >= 1 && f.valor <= 100, f.texto).toBe(true);
+      expect(citaExato(f.texto, f.valor), f.texto).toBe(true);
+      expect(f.texto.length, f.texto).toBeLessThanOrEqual(150);
+    }
+    const textos = FATOS_EXATOS.map((f) => f.texto);
+    expect(new Set(textos).size).toBe(textos.length);
+  });
+
+  it("os fatos calculados valem para qualquer número de 1 a 100 e citam esse número", () => {
+    expect(MODELOS.length).toBeGreaterThanOrEqual(12);
+    for (let p = 1; p <= 100; p++) {
+      for (const m of MODELOS) {
+        const t = m.texto(p);
+        expect(citaExato(t, p), `${m.id} ${p}: ${t}`).toBe(true);
+        expect(t, `${m.id} ${p}`).not.toMatch(/NaN|undefined|null|Infinity/);
       }
     }
   });
 
-  it("as faixas cobrem de 0,5% a 100% sem buraco e sem fato repetido", () => {
-    for (let i = 1; i < FAIXAS_DE_FATOS.length; i++) expect(FAIXAS_DE_FATOS[i].de).toBe(FAIXAS_DE_FATOS[i - 1].ate);
-    expect(FAIXAS_DE_FATOS[0].de).toBe(0.5);
-    expect(FAIXAS_DE_FATOS.at(-1)!.ate).toBe(100);
-    const textos = FAIXAS_DE_FATOS.flatMap((fx) => fx.fatos.map((x) => x.texto));
-    expect(new Set(textos).size).toBe(textos.length);
-    expect(faixaDoPercentual(0.2)).toBe(-1);
-    expect(FAIXAS_DE_FATOS[faixaDoPercentual(100)].rotulo).toBe("95% a 100%");
-    expect(FAIXAS_DE_FATOS[faixaDoPercentual(15)].rotulo).toBe("15%");
-    expect(FAIXAS_DE_FATOS[faixaDoPercentual(70.6)].rotulo).toBe("70%");
-  });
-
-  it("em 12 meses seguidos, a mesma faixa nunca repete um fato (inclusive virando o ano)", () => {
-    for (let fx = 0; fx < FAIXAS_DE_FATOS.length; fx++) {
-      const textos = mesesSeguidos("2026-06", 12).map((c) => fatoDaFaixa(fx, c).texto);
-      expect(new Set(textos).size).toBe(12);
-    }
+  it("a Bíblia tem 66 livros e 1.189 capítulos (929 no Antigo Testamento)", () => {
+    expect(LIVROS_DA_BIBLIA.length).toBe(66);
+    expect(LIVROS_DA_BIBLIA.reduce((s, [, c]) => s + c, 0)).toBe(1189);
+    expect(LIVROS_DA_BIBLIA.slice(0, 39).reduce((s, [, c]) => s + c, 0)).toBe(929);
+    expect(capituloDaBiblia(1)).toBe("Gênesis 1");
+    expect(capituloDaBiblia(51)).toBe("Êxodo 1");
+    expect(capituloDaBiblia(1189)).toBe("Apocalipse 22");
   });
 
   it("quem tirar a mesma porcentagem todo mês vê um fato diferente em cada um dos 12 meses", () => {
-    for (const p of [1, 2, 3, 5, 8, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100]) {
-      const vistos = mesesSeguidos("2026-09", 12).map((c) => fatosDoMes([p], c)[0]!.texto);
+    for (let p = 1; p <= 100; p++) {
+      const vistos = mesesSeguidos("2026-09", 12).map((c) => fatoDoMes(p, c)!.texto);
       expect(new Set(vistos).size, `${p}%`).toBe(12);
+      for (const t of vistos) expect(citaExato(t, p), t).toBe(true);
     }
   });
 
-  it("nenhum fato toca em temas que incomodam quem tem fé", () => {
-    const proibidos = /chimpanz|macaco|neandert|antepassad|ancestra|evolu|extint|milh(õ|o)es de anos|bilh(õ|o)es de anos|big bang/i;
-    for (const fx of FAIXAS_DE_FATOS) for (const f of fx.fatos) expect(f.texto, f.texto).not.toMatch(proibidos);
-    expect(FAIXAS_DE_FATOS.flatMap((fx) => fx.fatos).filter((f) => f.emoji === "📖").length).toBeGreaterThanOrEqual(20);
-  });
-
-  it("no mesmo mês, cada faixa sai uma vez só: a de maior prioridade (a primeira) leva o fato", () => {
-    const [a, b, c] = fatosDoMes([15, 16, 72], "2026-10");
-    expect(a?.valor).toBeGreaterThanOrEqual(12.5);
-    expect(a?.valor).toBeLessThan(17.5);
-    expect(b).toBeNull(); // mesma faixa de 15%: um fato de outra faixa citaria outro número
-    expect(c?.valor).toBeGreaterThanOrEqual(65);
-    expect(fatosDoMes([null, 0.1, 150], "2026-10")).toEqual([null, null, null]);
-  });
-
-  it("ninguém vê o mesmo fato duas vezes num ano, mesmo com várias telas por mês", () => {
-    // sorteio fixo de porcentagens (5 telas por mês), parecido com o que a retrospectiva mostra
-    let semente = 7;
-    const sorteio = () => ((semente = (semente * 1103515245 + 12345) % 2 ** 31) / 2 ** 31) * 100;
-    for (let pessoa = 0; pessoa < 40; pessoa++) {
+  it("com porcentagens variando, ninguém vê o mesmo fato duas vezes em 12 meses", () => {
+    let semente = 11;
+    const sorteio = () => ((semente = (semente * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+    for (let pessoa = 0; pessoa < 300; pessoa++) {
       const vistos: string[] = [];
-      for (const comp of mesesSeguidos("2026-03", 12)) {
-        const fatos = fatosDoMes(Array.from({ length: 5 }, sorteio), comp);
-        for (const x of fatos) if (x) vistos.push(x.texto);
+      for (const comp of mesesSeguidos("2026-01", 12)) {
+        // as telas da retrospectiva: posição, parte da clínica, comparecimento e dia mais forte
+        const telas = [0, 1, 2, 3].map((i) => ({ id: i, p: sorteio() < 0.15 ? null : 1 + Math.floor(sorteio() * 80) }));
+        const r = fatoDaRetrospectiva(telas, comp);
+        if (r) vistos.push(r.fato.texto);
       }
       expect(new Set(vistos).size).toBe(vistos.length);
     }
+  });
+
+  it("a tela do fato prefere um fato real e cita o número da própria tela", () => {
+    const comp = "2026-10"; // contador % 12 = 9
+    const comReal = Array.from({ length: 100 }, (_, i) => i + 1).find((p) => fatosReais(p).length > 9)!;
+    const r = fatoDaRetrospectiva([{ id: "a", p: 61 }, { id: "b", p: comReal }], comp)!;
+    expect(r.tela.id).toBe("b");
+    expect(citaExato(r.fato.texto, comReal)).toBe(true);
+    expect(fatoDaRetrospectiva([{ id: "a", p: null }], comp)).toBeNull();
+  });
+
+  it("nenhum fato toca em temas que incomodam quem tem fé, e há curiosidades da Bíblia", () => {
+    const proibidos = /chimpanz|macaco|neandert|antepassad|ancestra|evolu|extint|milh(õ|o)es de anos|bilh(õ|o)es de anos|big bang/i;
+    for (const f of FATOS_EXATOS) expect(f.texto, f.texto).not.toMatch(proibidos);
+    for (const m of MODELOS) expect(m.texto(50)).not.toMatch(proibidos);
+    expect(FATOS_EXATOS.filter((f) => f.emoji === "📖").length).toBeGreaterThanOrEqual(20);
   });
 });

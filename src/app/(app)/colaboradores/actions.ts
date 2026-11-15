@@ -122,12 +122,21 @@ export async function salvarNascimento(id: string, fd: FormData): Promise<Retorn
   }
 }
 
+/** Administrador redefine a de qualquer pessoa; o líder, só a dos colaboradores das equipes que lidera. */
 export async function redefinirSenha(id: string, fd: FormData): Promise<RetornoAcao> {
   try {
-    await sessaoAcao({ admin: true });
+    const s = await sessaoAcao({ lider: true });
     const senha = SenhaZ.parse(fd.get("senha"));
     const admin = criarClienteAdmin();
-    const { data: c } = await admin.from("colaboradores").select("auth_id").eq("id", id).single();
+    const { data: c } = await admin.from("colaboradores").select("auth_id, papel").eq("id", id).single();
+    if (!s.ehAdmin) {
+      if (id === s.colaborador.id) throw new Error("Para trocar a sua própria senha, use “Trocar senha” no menu.");
+      if (c?.papel !== "colaborador") throw new Error("Só um administrador pode redefinir a senha de gestores e administradores.");
+      const hoje = new Date().toISOString().slice(0, 10);
+      const { data } = await admin.from("equipe_membros").select("equipe_id, fim").eq("colaborador_id", id);
+      const lidera = (data ?? []).some((m) => (!m.fim || String(m.fim) >= hoje) && s.lidera.includes(String(m.equipe_id)));
+      if (!lidera) throw new Error("Você só pode redefinir a senha de quem está na sua equipe.");
+    }
     if (!c?.auth_id) throw new Error("Este colaborador não tem login vinculado.");
     const { error } = await admin.auth.admin.updateUserById(c.auth_id, { password: senha });
     if (error) throw new Error(error.message);

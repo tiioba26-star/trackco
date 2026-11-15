@@ -1,10 +1,13 @@
 "use client";
 
+import { Cake } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
-import { marcarParabensVisto } from "@/app/(app)/acoes-parabens";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
+import { marcarParabensVisto, verMeusParabens, verPreviaDosParabens } from "@/app/(app)/acoes-parabens";
 import { Button } from "@/components/ui/button";
 import type { Parabens } from "@/lib/dados/aniversarios";
+import { fotoDoTema } from "./fotos";
 import { Contagem, Grande, Historias, Linha, type Slide } from "./retrospectiva";
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -20,7 +23,7 @@ function batidas(dias: number): string {
   return `${n(Math.floor(total / 1e7) * 10)} milhões`;
 }
 
-function montarSlides(d: Parabens, fechar: () => void): Slide[] {
+function montarSlides(d: Parabens, fechar: () => void, previa = false): Slide[] {
   const s: Slide[] = [];
   const diaAniversario = `${Number(d.aniversario.slice(8, 10))} de ${MESES[Number(d.aniversario.slice(5, 7)) - 1]}`;
 
@@ -31,7 +34,7 @@ function montarSlides(d: Parabens, fechar: () => void): Slide[] {
     conteudo: (
       <>
         <Linha atraso={0.1} className="text-sm font-semibold tracking-widest text-white/80 uppercase">
-          {d.ehHoje ? "Hoje é o seu aniversário" : `O seu aniversário foi ${diaAniversario}`}
+          {previa ? `Prévia do dia ${diaAniversario}` : d.ehHoje ? "Hoje é o seu aniversário" : `O seu aniversário foi ${diaAniversario}`}
         </Linha>
         <Grande>🎂</Grande>
         <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-6xl font-black tracking-tight">
@@ -100,6 +103,7 @@ function montarSlides(d: Parabens, fechar: () => void): Slide[] {
 
   s.push({
     fundo: "from-[#0f172a] via-[#1e3a8a] to-[#1c5cab]",
+    imagem: fotoDoTema("biblia"),
     segundos: 16,
     conteudo: (
       <>
@@ -134,13 +138,72 @@ function montarSlides(d: Parabens, fechar: () => void): Slide[] {
         <Linha atraso={0.8}>Com carinho, equipe IOBA.</Linha>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="pt-4">
           <Button size="lg" variant="secondary" onClick={fechar}>
-            Continuar
+            {previa ? "Fechar a prévia" : "Continuar"}
           </Button>
         </motion.div>
       </>
     ),
   });
   return s;
+}
+
+/** Abre os parabéns já carregados (rever os meus ou a prévia de alguém). */
+function ParabensAbertos({ dados, previa, onFechar }: { dados: Parabens; previa: boolean; onFechar: () => void }) {
+  return (
+    <Historias
+      slides={montarSlides(dados, onFechar, previa)}
+      titulo={previa ? `Prévia dos parabéns de ${dados.primeiroNome}` : `Feliz aniversário, ${dados.primeiroNome}`}
+      rotulo={previa ? `prévia · ${dados.primeiroNome}` : "seu aniversário"}
+      onFechar={onFechar}
+      camada="z-[80]"
+    />
+  );
+}
+
+/** Evento que o menu do usuário dispara para rever os próprios parabéns. */
+export const EVENTO_MEUS_PARABENS = "trackco:meus-parabens";
+
+/** Fica no layout: quando o menu pede, carrega e abre os parabéns de quem está logado. */
+export function OuvinteMeusParabens() {
+  const [dados, setDados] = useState<Parabens | null>(null);
+  useEffect(() => {
+    const abrir = () =>
+      void verMeusParabens().then((r) => {
+        if (r.ok && r.dados) setDados(r.dados);
+        else toast.info(r.erro ?? "Não foi possível abrir os parabéns.");
+      });
+    window.addEventListener(EVENTO_MEUS_PARABENS, abrir);
+    return () => window.removeEventListener(EVENTO_MEUS_PARABENS, abrir);
+  }, []);
+  if (!dados) return null;
+  return <ParabensAbertos dados={dados} previa={false} onFechar={() => setDados(null)} />;
+}
+
+/** Botão "Ver parabéns": prévia de como a pessoa vai ver os parabéns no próximo aniversário. */
+export function BotaoPreviaParabens({ id, nome }: { id: string; nome: string }) {
+  const [dados, setDados] = useState<Parabens | null>(null);
+  const [carregando, iniciar] = useTransition();
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={carregando}
+        onClick={() =>
+          iniciar(async () => {
+            const r = await verPreviaDosParabens(id);
+            if (r.ok && r.dados) setDados(r.dados);
+            else toast.info(r.erro ?? "Não foi possível abrir a prévia.");
+          })
+        }
+        aria-label={`Ver a prévia dos parabéns de ${nome}`}
+      >
+        <Cake /> {carregando ? "Abrindo…" : "Ver parabéns"}
+      </Button>
+      {dados && <ParabensAbertos dados={dados} previa onFechar={() => setDados(null)} />}
+    </>
+  );
 }
 
 /**

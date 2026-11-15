@@ -3,11 +3,13 @@ import { FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { BotaoPreviaParabens } from "@/components/retrospectiva/parabens";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { hojeNoFuso } from "@/engine/datas";
 import type { Sessao } from "@/lib/auth";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { salvarNascimento } from "./actions";
+import { RedefinirSenhaLider } from "./senha-lider";
 
 /** Datas de nascimento por colaborador (null se a migração de aniversários ainda não foi aplicada). */
 export async function nascimentos(): Promise<Map<string, string> | null> {
@@ -16,7 +18,7 @@ export async function nascimentos(): Promise<Map<string, string> | null> {
   return new Map((data ?? []).filter((c) => c.nascimento).map((c) => [String(c.id), String(c.nascimento).slice(0, 10)]));
 }
 
-/** O que o líder (ou gestor) vê em Colaboradores: só o aniversário de quem está nas equipes dele. */
+/** O que o líder (ou gestor) vê em Colaboradores: aniversário e senha de quem está nas equipes dele. */
 export async function AniversariosDaEquipe({ s }: { s: Sessao }) {
   const admin = criarClienteAdmin();
   const hoje = hojeNoFuso();
@@ -29,8 +31,8 @@ export async function AniversariosDaEquipe({ s }: { s: Sessao }) {
   const ids = Array.from(new Set(visiveis.map((m) => m.colaborador_id)));
   const [{ data: pessoas }, nasc] = await Promise.all([
     ids.length
-      ? admin.from("colaboradores").select("id, nome").eq("ativo", true).in("id", ids).order("nome")
-      : Promise.resolve({ data: [] as { id: string; nome: string }[] }),
+      ? admin.from("colaboradores").select("id, nome, papel").eq("ativo", true).in("id", ids).order("nome")
+      : Promise.resolve({ data: [] as { id: string; nome: string; papel: string }[] }),
     nascimentos(),
   ]);
   const equipesDe = (id: string) =>
@@ -43,11 +45,11 @@ export async function AniversariosDaEquipe({ s }: { s: Sessao }) {
     <div>
       <CabecalhoPagina
         titulo="Colaboradores"
-        descricao="Lance aqui a data de aniversário de quem está na sua equipe. No dia, a pessoa recebe os parabéns ao abrir o Trackco, e você vê os aniversariantes na retrospectiva do mês."
+        descricao="Lance a data de aniversário e redefina a senha de quem está na sua equipe. No aniversário, a pessoa recebe os parabéns ao abrir o Trackco, e você vê os aniversariantes na retrospectiva do mês."
       />
-      <Card className="max-w-3xl">
+      <Card className="max-w-5xl">
         <CardHeader>
-          <CardTitle>Aniversários da equipe</CardTitle>
+          <CardTitle>Sua equipe</CardTitle>
           <CardDescription>
             O Klingo não guarda a data de nascimento dos funcionários, por isso ela é lançada aqui. A idade nunca aparece para a
             equipe: só o dia e o mês.
@@ -67,6 +69,7 @@ export async function AniversariosDaEquipe({ s }: { s: Sessao }) {
                   <TableHead>Nome</TableHead>
                   <TableHead>Equipe</TableHead>
                   <TableHead>Data de nascimento</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -88,6 +91,12 @@ export async function AniversariosDaEquipe({ s }: { s: Sessao }) {
                           Salvar
                         </Button>
                       </FormAcao>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        {nasc.get(p.id) && <BotaoPreviaParabens id={p.id} nome={p.nome} />}
+                        {p.papel === "colaborador" && p.id !== s.colaborador.id && <RedefinirSenhaLider id={p.id} nome={p.nome} />}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -165,6 +165,134 @@ export const FATOS_DO_ANO: Record<number, string> = {
   2012: "O robô Curiosity pousou em Marte.",
 };
 
+
+/** Um segundo acontecimento de cada ano (para o fato do ano não repetir de um aniversário para o outro). */
+export const MAIS_FATOS_DO_ANO: Record<number, string> = {
+  1950: "Charles Schulz publicou a primeira tirinha do Snoopy e do Charlie Brown.",
+  1951: "Foi criado o CNPq, que apoia a pesquisa científica no Brasil.",
+  1952: "Elizabeth II se tornou rainha do Reino Unido.",
+  1953: "Foi criada a Petrobras.",
+  1954: "Foi inaugurado o Parque Ibirapuera, nos 400 anos de São Paulo.",
+  1955: "A vacina contra a poliomielite, de Jonas Salk, foi aprovada e começou a proteger milhões de crianças.",
+  1956: "Começou a construção de Brasília.",
+  1957: "A cadela Laika foi o primeiro ser vivo a dar a volta na Terra, a bordo do Sputnik 2.",
+  1958: "Foi criada a NASA, a agência espacial dos Estados Unidos.",
+  1959: "Maria Esther Bueno ganhou o torneio de Wimbledon pela primeira vez.",
+  1960: "Éder Jofre se tornou o primeiro brasileiro campeão mundial de boxe.",
+  1961: "Foi criada a Universidade de Brasília.",
+  1962: "Foi criado o 13º salário.",
+  1963: "Foi lançada a fita cassete.",
+  1964: "Tóquio recebeu a primeira Olimpíada realizada na Ásia.",
+  1965: "Foi fundada a TV Globo.",
+  1966: "A sonda soviética Luna 9 fez o primeiro pouso suave na Lua.",
+  1967: "Foi criada a Zona Franca de Manaus.",
+  1968: "Foi fundada a Intel.",
+  1969: "Foi enviada a primeira mensagem pela ARPANET, a avó da internet.",
+  1970: "Foi celebrado o primeiro Dia da Terra.",
+  1971: "Foi enviado o primeiro e-mail.",
+  1972: "Emerson Fittipaldi foi o primeiro brasileiro campeão mundial de Fórmula 1.",
+  1973: "Foi criada a Embrapa.",
+  1974: "Começou a funcionar o metrô de São Paulo.",
+  1975: "Foi criado o Proálcool, que levou o etanol aos carros brasileiros.",
+  1976: "O Concorde fez seus primeiros voos comerciais, e um dos destinos era o Rio de Janeiro.",
+  1977: "Estreou o primeiro filme de “Guerra nas Estrelas”.",
+  1978: "Nasceu o Garfield, nas tirinhas de jornal.",
+  1979: "Começou a funcionar o metrô do Rio de Janeiro.",
+  1980: "O cubo mágico começou a ser vendido no mundo todo.",
+  1981: "Nelson Piquet foi campeão mundial de Fórmula 1 pela primeira vez.",
+  1982: "Foi lançado o CD, o disco que tocava com laser.",
+  1983: "A internet adotou o protocolo TCP/IP, usado até hoje.",
+  1984: "A Usina de Itaipu começou a gerar energia.",
+  1985: "Foi lançado o Super Mario Bros.",
+  1986: "A sonda Voyager 2 passou por Urano, a primeira visita humana ao planeta.",
+  1987: "O basquete brasileiro venceu os Estados Unidos e ganhou o ouro do Pan-Americano, em Indianápolis.",
+  1988: "Ayrton Senna foi campeão mundial de Fórmula 1 pela primeira vez.",
+  1989: "Caiu o Muro de Berlim.",
+  1990: "Foi assinada a lei que organizou o SUS.",
+  1991: "Entrou no ar o primeiro site da internet.",
+  1992: "O vôlei masculino do Brasil ganhou o ouro olímpico em Barcelona.",
+  1993: "Foi lançado o processador Pentium, da Intel.",
+  1994: "Foi lançado o PlayStation.",
+  1995: "A internet comercial chegou ao Brasil.",
+  1996: "A urna eletrônica foi usada pela primeira vez no Brasil.",
+  1997: "Gustavo Kuerten, o Guga, ganhou Roland Garros pela primeira vez.",
+  1998: "Começou a montagem da Estação Espacial Internacional.",
+  1999: "Foram criados os remédios genéricos no Brasil.",
+  2000: "A Estação Espacial Internacional recebeu os primeiros moradores, e desde então nunca ficou vazia.",
+  2001: "Foi lançado o iPod.",
+  2002: "O euro passou a circular como dinheiro em vários países da Europa.",
+  2003: "Foi lançado o Skype.",
+  2004: "Foi criado o Facebook.",
+  2005: "Foi lançado o Google Maps.",
+  2006: "Foi criado o Twitter.",
+  2007: "Foi lançado o primeiro iPhone.",
+  2008: "A seleção feminina de vôlei ganhou o primeiro ouro olímpico, em Pequim.",
+  2009: "O Rio de Janeiro foi escolhido para receber a Olimpíada de 2016.",
+  2010: "Foi lançado o primeiro iPad.",
+  2011: "Foi lançado o Minecraft.",
+  2012: "Sarah Menezes ganhou o primeiro ouro olímpico do judô feminino brasileiro, em Londres.",
+};
+
+/** Copas do Mundo masculinas: ano → [sede, campeão] */
+const COPAS: [number, string, string][] = [
+  [1950, "no Brasil", "o Uruguai"], [1954, "na Suíça", "a Alemanha Ocidental"], [1958, "na Suécia", "o Brasil"],
+  [1962, "no Chile", "o Brasil"], [1966, "na Inglaterra", "a Inglaterra"], [1970, "no México", "o Brasil"],
+  [1974, "na Alemanha Ocidental", "a Alemanha Ocidental"], [1978, "na Argentina", "a Argentina"], [1982, "na Espanha", "a Itália"],
+  [1986, "no México", "a Argentina"], [1990, "na Itália", "a Alemanha Ocidental"], [1994, "nos Estados Unidos", "o Brasil"],
+  [1998, "na França", "a França"], [2002, "na Coreia do Sul e no Japão", "o Brasil"], [2006, "na Alemanha", "a Itália"],
+  [2010, "na África do Sul", "a Espanha"], [2014, "no Brasil", "a Alemanha"], [2018, "na Rússia", "a França"],
+];
+
+/** População (milhões) nos censos do IBGE; entre um censo e outro, o valor é estimado em linha reta. */
+const CENSOS: [number, number][] = [
+  [1950, 51.9], [1960, 70.1], [1970, 93.1], [1980, 119.0], [1991, 146.8], [2000, 169.8], [2010, 190.8], [2022, 203.1],
+];
+/** População do mundo (bilhões, ONU) */
+const MUNDO: [number, number][] = [
+  [1950, 2.5], [1955, 2.74], [1960, 3.02], [1965, 3.34], [1970, 3.69], [1975, 4.07], [1980, 4.44], [1985, 4.86], [1990, 5.33],
+  [1995, 5.74], [2000, 6.15], [2005, 6.55], [2010, 6.99], [2015, 7.43], [2020, 7.84],
+];
+
+function interpolar(tabela: [number, number][], ano: number): number | null {
+  for (let i = 0; i < tabela.length - 1; i++) {
+    const [a0, v0] = tabela[i];
+    const [a1, v1] = tabela[i + 1];
+    if (ano >= a0 && ano <= a1) return v0 + ((v1 - v0) * (ano - a0)) / (a1 - a0);
+  }
+  return null;
+}
+
+const um = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+
+/** As 5 coisas que dá para contar sobre o ano em que a pessoa nasceu (só as que existem para aquele ano). */
+export function fatosDoAnoDeNascimento(ano: number): string[] {
+  const out: string[] = [];
+  if (FATOS_DO_ANO[ano]) out.push(FATOS_DO_ANO[ano]);
+  if (MAIS_FATOS_DO_ANO[ano]) out.push(MAIS_FATOS_DO_ANO[ano]);
+  const copa = COPAS.find(([a]) => a >= ano);
+  if (copa)
+    out.push(
+      copa[0] === ano
+        ? `Teve Copa do Mundo ${copa[1]}, e o campeão foi ${copa[2]}.`
+        : `A primeira Copa do Mundo da sua vida foi a de ${copa[0]}, ${copa[1]}: o campeão foi ${copa[2]}.`,
+    );
+  const br = interpolar(CENSOS, ano);
+  if (br !== null) out.push(`O Brasil tinha cerca de ${Math.round(br)} milhões de habitantes. Hoje somos 203 milhões.`);
+  const mundo = interpolar(MUNDO, ano);
+  if (mundo !== null) out.push(`O mundo tinha cerca de ${um(mundo)} bilhões de pessoas. Hoje já passa de 8 bilhões.`);
+  return out;
+}
+
+/**
+ * O fato do ano de nascimento para o aniversário de um certo ano: gira entre as 5 fontes, então
+ * em 5 aniversários seguidos a pessoa nunca vê o mesmo fato.
+ */
+export function fatoDoAnoNoAniversario(anoNascimento: number, anoAniversario: number, posicao: number): string | null {
+  const fatos = fatosDoAnoDeNascimento(anoNascimento);
+  if (!fatos.length) return null;
+  return fatos[(((anoAniversario + posicao) % fatos.length) + fatos.length) % fatos.length];
+}
+
 const DIAS_SEMANA = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"];
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 
@@ -227,14 +355,15 @@ export interface CuriosidadesDoNascimento {
   fatoDoAno: string | null;
 }
 
-export function curiosidadesDoNascimento(nascimento: string, hoje: string): CuriosidadesDoNascimento {
+/** O que dá para contar sobre o dia em que a pessoa nasceu, até a data de referência (o aniversário). */
+export function curiosidadesDoNascimento(nascimento: string, hoje: string, posicao = 0): CuriosidadesDoNascimento {
   const dias = Math.max(0, diasEntre(nascimento.slice(0, 10), hoje));
   return {
     diaDaSemana: DIAS_SEMANA[diaDaSemanaISO(nascimento.slice(0, 10)) - 1],
     diasDeVida: dias,
     luasCheias: Math.floor(dias / 29.53),
     batidasBilhoes: Math.floor((dias * 100_000) / 100_000_000) / 10,
-    fatoDoAno: FATOS_DO_ANO[Number(nascimento.slice(0, 4))] ?? null,
+    fatoDoAno: fatoDoAnoNoAniversario(Number(nascimento.slice(0, 4)), Number(hoje.slice(0, 4)), posicao),
   };
 }
 

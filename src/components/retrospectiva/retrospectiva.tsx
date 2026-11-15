@@ -2,17 +2,18 @@
 
 import { ChevronLeft, ChevronRight, Sparkles, X } from "lucide-react";
 import { MotionConfig, motion } from "motion/react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { obterRetrospectiva } from "@/app/(app)/acoes-retrospectiva";
 import { ConfetesTv, type DisparoConfete } from "@/app/tv/[token]/confetes";
 import { Button } from "@/components/ui/button";
-import type { FatoPercentual } from "@/engine/fatos-percentuais";
 import type { Retrospectiva } from "@/lib/dados/retrospectiva";
+import { fotoDoTema } from "./fotos";
 
 const SEGUNDOS = 7;
-/** telas com "E sabia que…" ficam mais tempo, para dar tempo de ler */
-const SEGUNDOS_COM_FATO = 12;
+/** a tela "E sabia que…" fica mais tempo, para dar tempo de ler */
+const SEGUNDOS_COM_FATO = 11;
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 const maiuscula = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -70,28 +71,44 @@ export const Linha = ({ children, atraso = 0.6, className = "" }: { children: Re
     {children}
   </motion.p>
 );
-/** "E sabia que…": um fato do mundo do mesmo tamanho da porcentagem da tela */
-const Fato = ({ fato, atraso = 1.8 }: { fato: FatoPercentual; atraso?: number }) => (
-  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: atraso }} className="rounded-2xl bg-black/20 px-4 py-3 backdrop-blur">
-    <div className="text-xs font-semibold tracking-widest text-white/75 uppercase">
-      {fato.emoji} E sabia que…
-    </div>
-    <p className="mt-1 text-base leading-snug">{fato.texto}</p>
-  </motion.div>
-);
 export const Selo = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">{children}</span>
 );
 
 export interface Slide {
   fundo: string;
+  /** foto de fundo (com o crédito da licença) */
+  imagem?: { src: string; credito: string };
   festa?: boolean;
   segundos?: number;
   conteudo: React.ReactNode;
 }
 
+/** Tela inteira "E sabia que…": o mesmo número da tela anterior e um fato do mundo, com foto. */
+export function slideDoFato(d: Retrospectiva): Slide | null {
+  if (!d.fato) return null;
+  const { fato, percentual } = d.fato;
+  return {
+    fundo: "from-[#0f172a] via-[#1e293b] to-[#0f172a]",
+    imagem: fotoDoTema(fato.tema),
+    segundos: SEGUNDOS_COM_FATO,
+    conteudo: (
+      <>
+        <Linha atraso={0.2} className="text-sm font-semibold tracking-widest text-white/80 uppercase">
+          E sabia que… {fato.emoji}
+        </Linha>
+        <Grande>{percentual}%</Grande>
+        <Linha atraso={0.8} className="text-2xl leading-snug font-semibold [text-shadow:0_1px_12px_rgb(0_0_0/0.6)]">
+          {fato.texto}
+        </Linha>
+      </>
+    ),
+  };
+}
+
 function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
   const s: Slide[] = [];
+  const telaDoFato = slideDoFato(d);
   const eq = d.equipe;
   const eu = d.eu;
   const mes = maiuscula(d.mes);
@@ -178,22 +195,22 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
   if (numeros.taxa !== null)
     s.push({
       fundo: "from-[#047857] via-[#059669] to-[#0d9488]",
-      segundos: d.fatoComparecimento ? SEGUNDOS_COM_FATO : undefined,
       conteudo: (
         <>
           <Linha atraso={0.1}>{eu ? "Dos pacientes que você marcou para " + d.mes : "Dos pacientes marcados para " + d.mes}</Linha>
           <Grande>
-            <Contagem valor={numeros.taxa} sufixo="%" />
+            <Contagem valor={Math.round(numeros.taxa)} sufixo="%" />
           </Grande>
           <Linha>vieram à consulta</Linha>
           <Linha atraso={1.1} className="text-white/80">
             De cada 10, {Math.round(numeros.taxa / 10)} compareceram.
-            {numeros.taxaAnt !== null && numeros.taxa > numeros.taxaAnt && ` Melhor que ${d.mesAnterior} (${n(numeros.taxaAnt)}%).`}
+            {numeros.taxaAnt !== null && numeros.taxa > numeros.taxaAnt && ` Melhor que ${d.mesAnterior} (${Math.round(numeros.taxaAnt)}%).`}
           </Linha>
-          {d.fatoComparecimento && <Fato fato={d.fatoComparecimento} />}
         </>
       ),
     });
+
+  if (telaDoFato && d.fato?.depoisDe === "comparecimento") s.push(telaDoFato);
 
   // "Você sabia?": uma comparação por tela, no estilo "você está entre os 2% que mais ouviram"
   const FUNDOS_CURIOSIDADE = [
@@ -202,11 +219,10 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
     "from-[#9a3412] via-[#c2410c] to-[#d97706]",
     "from-[#134e4a] via-[#0f766e] to-[#15803d]",
   ];
-  d.curiosidades.forEach((c, i) =>
+  d.curiosidades.forEach((c, i) => {
     s.push({
       fundo: FUNDOS_CURIOSIDADE[i % FUNDOS_CURIOSIDADE.length],
       festa: c.id === "ranking",
-      segundos: c.fato ? SEGUNDOS_COM_FATO : undefined,
       conteudo: (
         <>
           <Linha atraso={0.1} className="text-sm font-semibold tracking-widest text-white/75 uppercase">
@@ -222,11 +238,11 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
             {c.destaque}
           </motion.div>
           <Linha atraso={1}>{c.depois}</Linha>
-          {c.fato && <Fato fato={c.fato} />}
         </>
       ),
-    }),
-  );
+    });
+    if (telaDoFato && d.fato?.depoisDe === c.id) s.push(telaDoFato);
+  });
 
   if (eu?.conquistas.length)
     s.push({
@@ -456,8 +472,21 @@ export function Historias({
           onPointerUp={() => setPausado(false)}
           onPointerLeave={() => setPausado(false)}
         >
+          {slide.imagem && (
+            <motion.div
+              key={`foto-${i}`}
+              initial={{ opacity: 0, scale: 1.08 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.4, ease: "easeOut" }}
+              className="pointer-events-none absolute inset-0"
+            >
+              <Image src={slide.imagem.src} alt="" fill sizes="(max-width: 640px) 100vw, 448px" className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/35" />
+              <span className="absolute inset-x-0 bottom-1.5 text-center text-[10px] text-white/55">Foto: {slide.imagem.credito}</span>
+            </motion.div>
+          )}
           {/* progresso de cada história */}
-          <div className="flex gap-1 px-3 pt-3">
+          <div className="relative z-10 flex gap-1 px-3 pt-3">
             {slides.map((_, k) => (
               <div key={k} className="h-1 flex-1 overflow-hidden rounded-full bg-white/30">
                 <div
@@ -474,7 +503,7 @@ export function Historias({
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between px-4 pt-3 text-sm text-white/80">
+          <div className="relative z-10 flex items-center justify-between px-4 pt-3 text-sm text-white/80">
             <span className="flex items-center gap-1.5 font-semibold">
               <Sparkles className="size-4" /> Trackco · {rotulo}
             </span>

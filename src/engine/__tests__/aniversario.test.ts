@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   FATOS_DO_ANO,
+  MAIS_FATOS_DO_ANO,
+  fatoDoAnoNoAniversario,
+  fatosDoAnoDeNascimento,
   MENSAGENS_PARABENS,
   VERSICULOS_ANIVERSARIO,
   aniversarioNoAno,
@@ -53,13 +56,30 @@ describe("aniversário", () => {
     expect(mensagemDeParabens("Ana", 0, 2026)).not.toContain("{nome}");
   });
 
+  it("por 5 aniversários seguidos, nem a mensagem, nem o versículo, nem o fato do ano se repetem", () => {
+    for (const pos of [0, 3, 17, 29, 35]) {
+      for (const nasc of [1950, 1962, 1978, 1995, 2008, 2012]) {
+        const anos = [2026, 2027, 2028, 2029, 2030];
+        expect(new Set(anos.map((a) => mensagemDeParabens("Ana", pos, a))).size).toBe(5);
+        expect(new Set(anos.map((a) => versiculoDeAniversario(pos, a).referencia)).size).toBe(5);
+        expect(new Set(anos.map((a) => fatoDoAnoNoAniversario(nasc, a, pos))).size).toBe(5);
+      }
+    }
+    for (let a = 1950; a <= 2012; a++) {
+      expect(MAIS_FATOS_DO_ANO[a], String(a)).toBeTruthy();
+      expect(fatosDoAnoDeNascimento(a).length, String(a)).toBe(5);
+    }
+    expect(fatosDoAnoDeNascimento(1994)[2]).toBe("Teve Copa do Mundo nos Estados Unidos, e o campeão foi o Brasil.");
+    expect(fatosDoAnoDeNascimento(1995)[2]).toContain("a de 1998, na França");
+  });
+
   it("calcula o dia em que nasceu e quanto já viveu", () => {
     const c = curiosidadesDoNascimento("1995-03-12", "2026-03-12");
     expect(c.diaDaSemana).toBe("domingo"); // 12/03/1995 foi um domingo
     expect(c.diasDeVida).toBe(11323);
     expect(c.luasCheias).toBe(383);
     expect(c.batidasBilhoes).toBe(1.1);
-    expect(c.fatoDoAno).toContain("Toy Story");
+    expect(c.fatoDoAno).toBeTruthy();
     for (let a = 1950; a <= 2012; a++) expect(FATOS_DO_ANO[a], String(a)).toBeTruthy();
   });
 });
