@@ -2,6 +2,7 @@ import "server-only";
 import { competenciaAnterior, competenciaDe, fimCompetencia, inicioCompetencia } from "@/engine/datas";
 import { type Curiosidade, curiosidadesDoMes } from "@/engine/curiosidades";
 import { destaquesDoMes } from "@/engine/destaques";
+import { type FatoPercentual, fatosDoMes } from "@/engine/fatos-percentuais";
 import { nomeMes, textoDatas } from "@/engine/periodos";
 import type { Metrica } from "@/engine/tipos";
 import type { Sessao } from "@/lib/auth";
@@ -45,6 +46,8 @@ export interface Retrospectiva {
   };
   /** "você sabia?": comparações com a clínica toda */
   curiosidades: Curiosidade[];
+  /** "E sabia que…" da tela de comparecimento */
+  fatoComparecimento?: FatoPercentual | null;
   /** só na da equipe */
   destaques?: { titulo: string; nome: string; valor: string; detalhe: string }[];
   metaBatida?: string[];
@@ -52,6 +55,18 @@ export interface Retrospectiva {
 
 const pct = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 const dia = (d: { dia: string; valor: number } | null, ano: string) => (d ? { dia: textoDatas(d.dia, d.dia, ano), valor: d.valor } : null);
+
+/** Quem leva o "E sabia que…" quando duas telas caem na mesma faixa: as mais especiais primeiro. */
+const PRIORIDADE_DO_FATO = ["ranking", "clinica", "comparecimento", "dia_semana", "procedimento", "antecedencia"];
+
+/** "E sabia que…": um fato do mesmo tamanho para cada porcentagem das telas (sem repetir em 12 meses). */
+function comFatos(r: Retrospectiva): Retrospectiva {
+  const telas = [{ id: "comparecimento", p: (r.eu ?? r.equipe).taxa }, ...r.curiosidades.map((c) => ({ id: c.id, p: c.percentual }))];
+  const ordem = telas.map((_, i) => i).sort((a, b) => PRIORIDADE_DO_FATO.indexOf(telas[a].id) - PRIORIDADE_DO_FATO.indexOf(telas[b].id));
+  const escolhidos = fatosDoMes(ordem.map((i) => telas[i].p), r.comp);
+  const fato = (i: number) => escolhidos[ordem.indexOf(i)] ?? null;
+  return { ...r, fatoComparecimento: fato(0), curiosidades: r.curiosidades.map((c, i) => ({ ...c, fato: fato(i + 1) })) };
+}
 
 export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Retrospectiva | null> {
   const mesAtual = competenciaDe(hoje);
@@ -109,7 +124,7 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
 
   if (membroDe) {
     const p = d.pessoas.find((x) => x.id === s.colaborador.id);
-    if (!p) return base;
+    if (!p) return comFatos(base);
     // filtros sempre pelo próprio colaborador da sessão (nunca vindo do navegador)
     const db = admin;
     const validosMetrica = metricaPorPapel(metricas, "agendamentos_validos");
@@ -153,7 +168,7 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
       nivel: ap ? { nome: ap.resultado.faixa?.nivel ?? ap.nivel ?? "—", cor: ap.resultado.faixa?.cor ?? null, nota: ap.nota } : null,
       metaAtual: meta ? Number(meta.valor) : null,
     };
-    return base;
+    return comFatos(base);
   }
 
   // líder / admin: destaques com nomes e quem bateu a meta
@@ -169,5 +184,5 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
   if (c && c.taxa !== null) destaques.push({ titulo: "Melhor comparecimento", nome: nome(c.id), valor: pct(c.taxa), detalhe: "dos pacientes vieram" });
   const { data: aps } = await admin.from("apuracoes").select("colaborador_id, nota, tipo").eq("competencia", inicioCompetencia(comp)).in("colaborador_id", ids);
   const bateram = Array.from(new Set((aps ?? []).filter((a) => Number(a.nota ?? 0) >= 100).map((a) => String(a.colaborador_id))));
-  return { ...base, destaques, metaBatida: bateram.map(nome) };
+  return comFatos({ ...base, destaques, metaBatida: bateram.map(nome) });
 }

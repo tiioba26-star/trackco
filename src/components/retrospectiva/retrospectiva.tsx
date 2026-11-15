@@ -7,9 +7,12 @@ import { createPortal } from "react-dom";
 import { obterRetrospectiva } from "@/app/(app)/acoes-retrospectiva";
 import { ConfetesTv, type DisparoConfete } from "@/app/tv/[token]/confetes";
 import { Button } from "@/components/ui/button";
+import type { FatoPercentual } from "@/engine/fatos-percentuais";
 import type { Retrospectiva } from "@/lib/dados/retrospectiva";
 
 const SEGUNDOS = 7;
+/** telas com "E sabia que…" ficam mais tempo, para dar tempo de ler */
+const SEGUNDOS_COM_FATO = 12;
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 const maiuscula = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -67,6 +70,15 @@ const Linha = ({ children, atraso = 0.6, className = "" }: { children: React.Rea
     {children}
   </motion.p>
 );
+/** "E sabia que…": um fato do mundo do mesmo tamanho da porcentagem da tela */
+const Fato = ({ fato, atraso = 1.8 }: { fato: FatoPercentual; atraso?: number }) => (
+  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: atraso }} className="rounded-2xl bg-black/20 px-4 py-3 backdrop-blur">
+    <div className="text-xs font-semibold tracking-widest text-white/75 uppercase">
+      {fato.emoji} E sabia que…
+    </div>
+    <p className="mt-1 text-base leading-snug">{fato.texto}</p>
+  </motion.div>
+);
 const Selo = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">{children}</span>
 );
@@ -74,6 +86,7 @@ const Selo = ({ children }: { children: React.ReactNode }) => (
 interface Slide {
   fundo: string;
   festa?: boolean;
+  segundos?: number;
   conteudo: React.ReactNode;
 }
 
@@ -148,6 +161,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
   if (numeros.taxa !== null)
     s.push({
       fundo: "from-[#047857] via-[#059669] to-[#0d9488]",
+      segundos: d.fatoComparecimento ? SEGUNDOS_COM_FATO : undefined,
       conteudo: (
         <>
           <Linha atraso={0.1}>{eu ? "Dos pacientes que você marcou para " + d.mes : "Dos pacientes marcados para " + d.mes}</Linha>
@@ -159,6 +173,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
             De cada 10, {Math.round(numeros.taxa / 10)} compareceram.
             {numeros.taxaAnt !== null && numeros.taxa > numeros.taxaAnt && ` Melhor que ${d.mesAnterior} (${n(numeros.taxaAnt)}%).`}
           </Linha>
+          {d.fatoComparecimento && <Fato fato={d.fatoComparecimento} />}
         </>
       ),
     });
@@ -174,6 +189,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
     s.push({
       fundo: FUNDOS_CURIOSIDADE[i % FUNDOS_CURIOSIDADE.length],
       festa: c.id === "ranking",
+      segundos: c.fato ? SEGUNDOS_COM_FATO : undefined,
       conteudo: (
         <>
           <Linha atraso={0.1} className="text-sm font-semibold tracking-widest text-white/75 uppercase">
@@ -189,6 +205,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
             {c.destaque}
           </motion.div>
           <Linha atraso={1}>{c.depois}</Linha>
+          {c.fato && <Fato fato={c.fato} />}
         </>
       ),
     }),
@@ -327,11 +344,12 @@ function Historias({ dados, onFechar }: { dados: Retrospectiva; onFechar: () => 
   const ultimo = slides.length - 1;
   const ir = useCallback((d: number) => setI((x) => Math.min(ultimo, Math.max(0, x + d))), [ultimo]);
 
+  const duracao = slides[i]?.segundos ?? SEGUNDOS;
   useEffect(() => {
     if (pausado || i >= ultimo) return;
-    const t = setTimeout(() => ir(1), SEGUNDOS * 1000);
+    const t = setTimeout(() => ir(1), duracao * 1000);
     return () => clearTimeout(t);
-  }, [i, pausado, ultimo, ir]);
+  }, [i, pausado, ultimo, ir, duracao]);
 
   useEffect(() => {
     if (!slides[i]?.festa) return;
@@ -388,7 +406,7 @@ function Historias({ dados, onFechar }: { dados: Retrospectiva; onFechar: () => 
                     k < i
                       ? { width: "100%" }
                       : k === i
-                        ? { width: "100%", animation: `retro-barra ${SEGUNDOS}s linear forwards`, animationPlayState: pausado || i === ultimo ? "paused" : "running" }
+                        ? { width: "100%", animation: `retro-barra ${duracao}s linear forwards`, animationPlayState: pausado || i === ultimo ? "paused" : "running" }
                         : { width: 0 }
                   }
                   key={k === i ? `ativo-${i}` : k}

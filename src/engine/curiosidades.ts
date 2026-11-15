@@ -1,6 +1,7 @@
 // "Você sabia?" da retrospectiva: comparações que fazem a pessoa (ou a equipe) se ver no todo da clínica,
 // no estilo "você está entre os 2% que mais ouviram". Nada aqui expõe outra pessoa: só a posição de quem vê.
 import { diaDaSemanaISO, fimCompetencia, inicioCompetencia } from "./datas";
+import type { FatoPercentual } from "./fatos-percentuais";
 import { passaFiltros } from "./metricas";
 import type { RegrasProducao } from "./producao";
 import type { Linha } from "./tipos";
@@ -14,6 +15,10 @@ export interface Curiosidade {
   destaque: string;
   /** frase depois */
   depois: string;
+  /** a porcentagem que a tela mostra (base do "sabia que…" com outro fato do mesmo tamanho) */
+  percentual: number | null;
+  /** "E sabia que…": um fato do mundo do mesmo tamanho (preenchido na montagem da retrospectiva) */
+  fato?: FatoPercentual | null;
 }
 
 const DIAS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"];
@@ -70,6 +75,7 @@ export function curiosidadesDoMes(op: {
       antes: `Das ${op.realizadasClinica.toLocaleString("pt-BR")} consultas Particular que aconteceram na IOBA em ${op.nomeMes},`,
       destaque: umEmCada <= 1 ? pct(parte) : `1 em cada ${umEmCada}`,
       depois: `foi marcada ${porQuem} (${pct(parte)} do total).`,
+      percentual: parte,
     });
   }
 
@@ -87,7 +93,8 @@ export function curiosidadesDoMes(op: {
           emoji: "👑",
           antes: `Entre as ${ativos.length} pessoas que marcaram consultas Particular na IOBA em ${op.nomeMes},`,
           destaque: "ninguém marcou mais",
-          depois: `que você. Foram ${meus} agendamentos válidos.`,
+          depois: `que você. Foram ${meus} agendamentos válidos: você está nos ${topo}% do topo.`,
+          percentual: topo,
         });
       else if (topo <= 50)
         out.push({
@@ -96,6 +103,7 @@ export function curiosidadesDoMes(op: {
           antes: "Você ficou entre os",
           destaque: `${topo}%`,
           depois: `que mais marcaram consultas Particular em toda a IOBA em ${op.nomeMes} (${ativos.length} pessoas marcaram).`,
+          percentual: topo,
         });
     } else if (!voce) {
       const total = Array.from(op.validosClinica.values()).reduce((s, v) => s + v, 0);
@@ -107,6 +115,7 @@ export function curiosidadesDoMes(op: {
           antes: `De todos os agendamentos Particular válidos da IOBA em ${op.nomeMes},`,
           destaque: pct((daEquipe / total) * 100),
           depois: `foram feitos pela equipe ${nomeEquipe}.`,
+          percentual: (daEquipe / total) * 100,
         });
     }
   }
@@ -123,6 +132,7 @@ export function curiosidadesDoMes(op: {
       antes: voce ? "Seu dia de marcar foi" : "O dia mais forte da equipe foi",
       destaque: DIAS[d],
       depois: `${pct((max / validos.length) * 100)} dos ${voce ? "seus " : ""}pacientes válidos foram marcados às ${DIAS_PLURAL[d]}.`,
+      percentual: (max / validos.length) * 100,
     });
   }
 
@@ -140,6 +150,7 @@ export function curiosidadesDoMes(op: {
       antes: `Da marcação até a consulta, ${voce ? "seus pacientes" : "os pacientes da equipe"} esperaram em média`,
       destaque: `${Math.round(media)} ${Math.round(media) === 1 ? "dia" : "dias"}`,
       depois: `${pct(naSemana)} foram atendidos em até uma semana.`,
+      percentual: naSemana,
     });
   }
 
@@ -158,6 +169,7 @@ export function curiosidadesDoMes(op: {
         antes: voce ? "Dos seus pacientes válidos," : "Dos pacientes válidos da equipe,",
         destaque: pct((qtd / validos.length) * 100),
         depois: `foram para ${nome}.`,
+        percentual: (qtd / validos.length) * 100,
       });
   }
   return out.slice(0, 4);

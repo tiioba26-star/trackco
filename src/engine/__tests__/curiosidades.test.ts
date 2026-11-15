@@ -67,6 +67,7 @@ describe("curiosidades da retrospectiva", () => {
     ]);
     const c = curiosidadesDoMes({ ...base, validosClinica: clinica }).find((x) => x.id === "ranking");
     expect(c?.destaque).toBe("25%"); // 2º de 8 (quem marcou menos de 5 não entra)
+    expect(c?.percentual).toBe(25); // base do "E sabia que…"
     const primeiro = curiosidadesDoMes({ ...base, validosClinica: new Map([...clinica, ["b", 3]]) }).find((x) => x.id === "ranking");
     expect(primeiro?.destaque).toBe("ninguém marcou mais");
   });
