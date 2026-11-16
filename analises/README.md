@@ -1,6 +1,6 @@
 # Análises comentadas pela IA (área Gestão)
 
-Uma rotina no computador da administração escreve estes textos todo dia às 5h, com repescagem às 13h. Ela usa o Claude Code pela assinatura, sem chave de API, e os textos aparecem no fim de cada aba da Gestão do Trackco, que só administradores veem.
+Uma rotina no computador da administração escreve estes textos todo dia às 5h, com repescagem às 13h. Ela usa as assinaturas, sem chave de API: o Claude Code (Claude Pro) e o Antigravity CLI `agy` (Google AI Pro, Gemini). Os textos aparecem no fim de cada aba da Gestão do Trackco, que só administradores veem.
 
 - **`gestao/`**: as análises.
   - `<seção>__<período>__<comparação>__<recorte>.md` são 100 arquivos, que saem da combinação abaixo:
@@ -17,7 +17,10 @@ Uma rotina no computador da administração escreve estes textos todo dia às 5h
 - **`prompts/`**: as instruções que a IA recebe.
   - `base.md` vale para todas as análises.
   - Há um guia por seção e o `geral.md`. Para mudar o estilo ou o foco das análises, edite esses arquivos.
-- **`config.json`**: modelo e esforço das análises por seção e da geral, e quantas análises rodam ao mesmo tempo.
+- **`config.json`**: para as análises por seção e para a geral, define motor (`claude` ou `gemini`), modelo, esforço e quantas rodam ao mesmo tempo.
+  - `reserva` (opcional) é o motor que assume se a cota do principal acabar no meio da rodada.
+  - Modelos do Gemini disponíveis na conta: `agy models` (hoje, `gemini-3.8-flash-high`, `-medium` e `-low`; o Argon não aparece no Google AI Pro).
+  - O `agy` é achado em `~/.gemini/bin` (ou em `AGY_BIN`); o `claude`, na extensão do Antigravity, VS Code ou Cursor (ou em `CLAUDE_BIN`).
 - Ficam fora do git `.dados/` (os números enviados à IA, para conferência) e `logs/`.
 
 ## Como a rotina decide o que refazer
@@ -35,7 +38,8 @@ Rode na pasta da rotina.
 |---|---|
 | `npm run analises:rodar` | Rodada normal (faz commit e push de `analises/gestao`) |
 | `npm run analises:rodar -- --tudo` | Refaz as 101 |
-| `npm run analises:rodar -- --amostra` | Calibração de gasto; grava em `.dados/amostra` e não publica |
+| `npm run analises:rodar -- --amostra` | Calibração: as mesmas 3 análises em Sonnet médio, Opus médio e Gemini Flash alto, mais a geral no motor da config e no Gemini. Grava em `.dados/amostra` e não publica |
+| `npm run analises:rodar -- --so <arquivo>.md --motor gemini --modelo gemini-3.8-flash-high --esforco high --sem-publicar` | Testa uma análise num motor |
 | `npm run analises:rodar -- --sem-publicar` | Escreve, mas não publica |
 
 Os números vêm calculados pelo código (`src/lib/analises/dados.ts`) e a IA só interpreta. Nenhum dado de paciente sai do banco. Os motivos de cancelamento vão para a IA só como categorias.

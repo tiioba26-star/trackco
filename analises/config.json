@@ -1,5 +1,10 @@
 {
-  "secoes": { "modelo": "sonnet", "esforco": "medium" },
-  "geral": { "modelo": "opus", "esforco": "high" },
+  "secoes": {
+    "motor": "gemini",
+    "modelo": "gemini-3.8-flash-high",
+    "esforco": "high",
+    "reserva": { "motor": "claude", "modelo": "sonnet", "esforco": "medium" }
+  },
+  "geral": { "motor": "claude", "modelo": "opus", "esforco": "high" },
   "paralelo": 3
 }

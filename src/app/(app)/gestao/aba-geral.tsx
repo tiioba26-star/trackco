@@ -32,7 +32,7 @@ export async function AbaAnaliseGeral() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5 text-base">
-              Última rodada <Dica texto="O que a rotina das 5h fez: quantas análises escreveu, quantas não mudaram (números iguais aos da véspera), o que falhou e quanto gastou. O custo é o equivalente pelo preço de tabela da API, só como régua: na assinatura não é cobrado assim." />
+              Última rodada <Dica texto="O que a rotina das 5h fez: quantas análises escreveu, quantas não mudaram (números iguais aos da véspera), o que falhou e quanto gastou. O custo é o equivalente pelo preço de tabela da API do Claude, só como régua: na assinatura não é cobrado assim. O que sai pelo Gemini usa a cota do Google AI Pro e entra só nos tokens." />
             </CardTitle>
             <CardDescription>
               {fmtDataHora(st.gerado_em)} · dados até {formatarDataBR(st.dados_ate)}
@@ -58,7 +58,10 @@ export async function AbaAnaliseGeral() {
             {Object.entries(st.por_modelo).length > 0 && (
               <p className="text-xs text-muted-foreground">
                 {Object.entries(st.por_modelo)
-                  .map(([m, v]) => `${nomeDoModelo(m)}: ${v.analises} análise(s), US$ ${v.custo_equivalente_usd.toFixed(2)}`)
+                  .map(
+                    ([m, v]) =>
+                      `${nomeDoModelo(m)}: ${v.analises} análise(s), ${m.startsWith("gemini") ? "cota do Google AI Pro" : `US$ ${v.custo_equivalente_usd.toFixed(2)}`}`,
+                  )
                   .join(" · ")}
               </p>
             )}
@@ -70,7 +73,7 @@ export async function AbaAnaliseGeral() {
               <div className="space-y-1.5">
                 {st.limite_atingido && (
                   <p className="flex items-center gap-1.5 text-down">
-                    <TriangleAlert className="size-4" /> O limite de uso do Claude acabou no meio: o que faltou sai na repescagem das 13h ou amanhã.
+                    <TriangleAlert className="size-4" /> O limite de uso da IA acabou no meio: o que faltou sai na repescagem das 13h ou amanhã.
                   </p>
                 )}
                 {st.falhas.length > 0 && (

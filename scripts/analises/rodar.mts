@@ -1,5 +1,6 @@
 // Rotina das análises comentadas pela IA (área Gestão). Roda pelo Agendador de Tarefas do Windows (scripts/analises/agendado.ps1)
-// às 5h e às 13h, pela assinatura do Claude Code de quem está logado (sem chave de API).
+// às 5h e às 13h, pela assinatura de quem está logado (sem chave de API): Claude Code e/ou Gemini (Antigravity CLI),
+// conforme analises/config.json.
 //
 //   npm run analises:rodar                         rodada normal (só o que mudou; dia 1 refaz tudo o que fechou)
 //   npm run analises:rodar -- --tudo               refaz as 101
@@ -7,6 +8,7 @@
 //   npm run analises:rodar -- --sem-publicar       não faz commit/push
 //   npm run analises:rodar -- --secao faturamento  só uma seção (e não refaz a geral)
 //   npm run analises:rodar -- --so faturamento__mes__anterior__particular.md --modelo haiku --esforco low   (teste)
+//   npm run analises:rodar -- --so ... --motor gemini --modelo gemini-3.8-flash-high --esforco high       (teste no Gemini)
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -27,7 +29,8 @@ import {
   type StatusAnalises,
 } from "@/lib/analises/arquivos";
 import { montarTrabalhos, type Trabalho } from "@/lib/analises/dados";
-import { LimiteDeUso, acharClaude, chamarClaude, type UsoClaude } from "@/lib/analises/motor-claude";
+import { LimiteDeUso, type UsoClaude } from "@/lib/analises/motor-claude";
+import { GrupoMotor, onde, temMotor, type ConfigAnalises, type ConfigMotor, type Motor } from "@/lib/analises/motor";
 
 const RAIZ = resolve(".");
 const PASTA = join(RAIZ, PASTA_ANALISES);
@@ -41,12 +44,7 @@ const valor = (n: string) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 
-interface Config {
-  secoes: { modelo: string; esforco: string };
-  geral: { modelo: string; esforco: string };
-  paralelo: number;
-}
-const config = JSON.parse(readFileSync(join(RAIZ, "analises", "config.json"), "utf8")) as Config;
+const config = JSON.parse(readFileSync(join(RAIZ, "analises", "config.json"), "utf8")) as ConfigAnalises;
 
 const log = (...m: unknown[]) => console.log(new Date().toLocaleTimeString("pt-BR"), ...m);
 
@@ -73,18 +71,18 @@ function mensagemDa(t: Trabalho, resumos = ""): string {
 }
 
 /** Escreve uma análise (tenta de novo uma vez se o texto vier fora do formato). */
-async function escrever(t: Trabalho, bin: string, modelo: string, esforco: string, resumos = ""): Promise<{ corpo: string; uso: UsoClaude }> {
+async function escrever(t: Trabalho, grupo: GrupoMotor, resumos = ""): Promise<{ corpo: string; uso: UsoClaude; esforco: string }> {
   const base = mensagemDa(t, resumos);
   const tipo = t.tipo === "geral" ? "geral" : "secao";
   let mensagem = base;
-  let ultimo: { corpo: string; uso: UsoClaude } | null = null;
+  let ultimo: { corpo: string; uso: UsoClaude; esforco: string } | null = null;
   for (let tentativa = 1; tentativa <= 2; tentativa++) {
-    const { texto, uso } = await chamarClaude({ bin, modelo, esforco, arquivoSistema: join(PROMPTS, "base.md"), mensagem });
+    const { texto, uso, esforco } = await grupo.chamar(join(PROMPTS, "base.md"), mensagem);
     const corpo = limparTexto(texto);
     const problemas = conferirAnalise(corpo, tipo);
     const acumulado: UsoClaude = ultimo ? somarUso(ultimo.uso, uso) : uso;
-    if (!problemas.length) return { corpo, uso: acumulado };
-    ultimo = { corpo, uso: acumulado };
+    if (!problemas.length) return { corpo, uso: acumulado, esforco };
+    ultimo = { corpo, uso: acumulado, esforco };
     mensagem = `${base}\n\nSUA RESPOSTA ANTERIOR TEVE ESTES PROBLEMAS; ESCREVA DE NOVO CORRIGINDO:\n- ${problemas.join("\n- ")}`;
     log(`  ${t.arquivo}: refazendo (${problemas.join("; ")})`);
   }
@@ -177,8 +175,17 @@ async function main() {
   const secao = valor("--secao") as SecaoIA | undefined;
   const so = valor("--so");
   const amostra = flag("--amostra");
-  const bin = acharClaude();
-  log(`Claude: ${bin}`);
+  // linha de comando sobrescreve o grupo das seções (testes)
+  const cfgSecoes: ConfigMotor = {
+    ...config.secoes,
+    ...(valor("--motor") ? { motor: valor("--motor") as Motor, reserva: undefined } : {}),
+    ...(valor("--modelo") ? { modelo: valor("--modelo")! } : {}),
+    ...(valor("--esforco") ? { esforco: valor("--esforco")! } : {}),
+  };
+  if (!amostra) {
+    const usados = new Set<Motor>([cfgSecoes.motor ?? "claude", config.geral.motor ?? "claude"]);
+    for (const m of usados) log(`${m === "gemini" ? "Gemini (agy)" : "Claude"}: ${onde(m)}`);
+  }
   log("Montando os dados…");
   const { ref, trabalhos } = await montarTrabalhos(hoje, { secoes: secao ? [secao] : undefined });
   mkdirSync(DADOS, { recursive: true });
@@ -189,25 +196,39 @@ async function main() {
   if (amostra) {
     const escolhidos = ["faturamento", "marcacao", "perdas"].map((s) => nomeArquivo(s as SecaoIA, "mes_passado", "anterior", "particular"));
     const pasta = join(DADOS, "amostra");
-    const configs = [
-      { nome: "sonnet-medio", modelo: "sonnet", esforco: "medium" },
-      { nome: "opus-medio", modelo: "opus", esforco: "medium" },
+    const gemini = temMotor("gemini");
+    log(`Claude: ${onde("claude")}${gemini ? ` · Gemini (agy): ${onde("gemini")}` : " · Gemini (agy) não instalado: fica fora da amostra"}`);
+    const configs: (ConfigMotor & { nome: string })[] = [
+      { nome: "sonnet-medio", motor: "claude", modelo: "sonnet", esforco: "medium" },
+      { nome: "opus-medio", motor: "claude", modelo: "opus", esforco: "medium" },
+      ...(gemini ? [{ nome: "gemini-flash-alto", motor: "gemini" as const, modelo: "gemini-3.8-flash-high", esforco: "high" }] : []),
+    ];
+    const gerais: (ConfigMotor & { nome: string })[] = [
+      { ...config.geral, reserva: undefined, nome: `geral-${config.geral.motor ?? "claude"}-${config.geral.modelo}-${config.geral.esforco}` },
+      ...(gemini && config.geral.motor !== "gemini"
+        ? [{ nome: "geral-gemini-flash-alto", motor: "gemini" as const, modelo: "gemini-3.8-flash-high", esforco: "high" }]
+        : []),
     ];
     const linhas: string[] = [];
-    for (const c of configs) {
-      for (const arq of escolhidos) {
-        const t = trabalhos.find((x) => x.arquivo === arq)!;
-        const { corpo, uso } = await escrever(t, bin, c.modelo, c.esforco);
-        gravar({ ...t, arquivo: `${c.nome}__${t.arquivo}` }, corpo, uso, c.esforco, pasta);
-        linhas.push(`${c.nome}\t${arq}\t${uso.entrada + uso.cache_lido + uso.cache_criado} entrada\t${uso.saida} saída (${uso.pensamento} pensando)\tUS$ ${uso.custo_usd.toFixed(4)}`);
-        log(linhas.at(-1));
+    const tentar = async (nome: string, c: ConfigMotor, t: Trabalho, arquivo: string, resumos = "") => {
+      const inicio = Date.now();
+      try {
+        const { corpo, uso, esforco } = await escrever(t, new GrupoMotor(c), resumos);
+        gravar({ ...t, arquivo }, corpo, uso, esforco, pasta);
+        const gasto = uso.custo_usd ? `US$ ${uso.custo_usd.toFixed(4)}` : "cota Google";
+        linhas.push(
+          `${nome}\t${t.arquivo}\t${uso.entrada + uso.cache_lido + uso.cache_criado} entrada\t${uso.saida} saída (${uso.pensamento} pensando)\t${gasto}\t${Math.round((Date.now() - inicio) / 1000)} s`,
+        );
+      } catch (e) {
+        linhas.push(`${nome}\t${t.arquivo}\tFALHOU: ${(e as Error).message.slice(0, 200)}`);
       }
+      log(linhas.at(-1));
+    };
+    for (const c of configs) {
+      for (const arq of escolhidos) await tentar(c.nome, c, trabalhos.find((x) => x.arquivo === arq)!, `${c.nome}__${arq}`);
     }
     const geral = trabalhos.find((x) => x.tipo === "geral")!;
-    const { corpo, uso } = await escrever(geral, bin, config.geral.modelo, config.geral.esforco, resumosParaGeral());
-    gravar({ ...geral, arquivo: `geral-${config.geral.modelo}-${config.geral.esforco}.md` }, corpo, uso, config.geral.esforco, pasta);
-    linhas.push(`geral ${config.geral.modelo}/${config.geral.esforco}\t${uso.entrada + uso.cache_lido + uso.cache_criado} entrada\t${uso.saida} saída (${uso.pensamento} pensando)\tUS$ ${uso.custo_usd.toFixed(4)}`);
-    log(linhas.at(-1));
+    for (const g of gerais) await tentar(g.nome, g, geral, `${g.nome}.md`, resumosParaGeral());
     writeFileSync(join(pasta, "gasto.txt"), linhas.join("\n") + "\n", "utf8");
     log(`Amostra pronta em ${pasta}. Compare os textos e veja a % semanal em claude.ai/settings/usage.`);
     return;
@@ -227,8 +248,8 @@ async function main() {
   const semMudanca = trabalhos.filter((t) => t.tipo === "secao").length - secoes.length;
   log(`${secoes.length} análises por seção para escrever (${semMudanca} sem mudança).`);
 
-  const modeloSecoes = valor("--modelo") ?? config.secoes.modelo;
-  const esforcoSecoes = valor("--esforco") ?? config.secoes.esforco;
+  const grupoSecoes = new GrupoMotor(cfgSecoes, (m) => log(m));
+  const grupoGeral = new GrupoMotor(config.geral, (m) => log(m));
   const status: StatusAnalises = {
     gerado_em: new Date().toISOString(),
     dados_ate: ref.ontem,
@@ -256,14 +277,14 @@ async function main() {
   const feitos = new Set<string>();
   await emParalelo(
     secoes,
-    config.paralelo,
+    cfgSecoes.paralelo ?? config.paralelo,
     async (t) => {
       try {
-        const { corpo, uso } = await escrever(t, bin, modeloSecoes, esforcoSecoes);
-        gravar(t, corpo, uso, esforcoSecoes);
+        const { corpo, uso, esforco } = await escrever(t, grupoSecoes);
+        gravar(t, corpo, uso, esforco);
         registrar(uso);
         feitos.add(t.arquivo);
-        log(`  ok ${t.arquivo} · ${uso.modelo} · US$ ${uso.custo_usd.toFixed(3)}`);
+        log(`  ok ${t.arquivo} · ${uso.modelo} · ${uso.entrada + uso.cache_lido + uso.cache_criado} + ${uso.saida} tokens`);
       } catch (e) {
         if (e instanceof LimiteDeUso) status.limite_atingido = true;
         status.falhas.push({ arquivo: t.arquivo, erro: (e as Error).message.slice(0, 300) });
@@ -281,10 +302,10 @@ async function main() {
   if (fazerGeral && geral) {
     try {
       log("Escrevendo a análise geral…");
-      const { corpo, uso } = await escrever(geral, bin, config.geral.modelo, config.geral.esforco, resumosParaGeral());
-      gravar(geral, corpo, uso, config.geral.esforco);
+      const { corpo, uso, esforco } = await escrever(geral, grupoGeral, resumosParaGeral());
+      gravar(geral, corpo, uso, esforco);
       registrar(uso);
-      log(`  ok geral · ${uso.modelo} · US$ ${uso.custo_usd.toFixed(3)}`);
+      log(`  ok geral · ${uso.modelo} · ${uso.entrada + uso.cache_lido + uso.cache_criado} + ${uso.saida} tokens`);
     } catch (e) {
       if (e instanceof LimiteDeUso) status.limite_atingido = true;
       status.falhas.push({ arquivo: ARQUIVO_GERAL, erro: (e as Error).message.slice(0, 300) });

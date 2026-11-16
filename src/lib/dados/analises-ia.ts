@@ -55,8 +55,10 @@ export async function statusDasAnalises(): Promise<StatusAnalises | null> {
   }
 }
 
-/** "claude-sonnet-5-5" → "Sonnet 5.5". */
+/** "claude-sonnet-5-5" → "Sonnet 5.5"; "gemini-3.8-flash-high" → "Gemini 3.8 Flash". */
 export function nomeDoModelo(id: string | undefined): string {
+  const g = /gemini-(\d+(?:\.\d+)?)-([a-z]+)/.exec(id ?? "");
+  if (g) return `Gemini ${g[1]} ${g[2].charAt(0).toUpperCase()}${g[2].slice(1)}`;
   const m = /claude-([a-z]+)-(\d+)(?:-(\d+))?/.exec(id ?? "");
   if (!m) return id ?? "";
   return `${m[1].charAt(0).toUpperCase()}${m[1].slice(1)} ${m[2]}${m[3] ? `.${m[3]}` : ""}`;

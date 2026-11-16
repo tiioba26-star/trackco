@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { TextoIA } from "./markdown";
 
 const AJUDA =
-  "Escrita todo dia às 5h pela IA (Claude) a partir dos mesmos números desta tela, já calculados pelo Trackco: variações, meses seguidos em alta ou queda, quartis e projeções. Ela não inventa número; se um dado faltar, diz que falta. Há uma análise para cada período pronto, comparação e recorte (Particular ou clínica toda).";
+  "Escrita todo dia às 5h pela IA (Claude ou Gemini, conforme a configuração da rotina; o rodapé diz qual) a partir dos mesmos números desta tela, já calculados pelo Trackco: variações, meses seguidos em alta ou queda, quartis e projeções. Ela não inventa número; se um dado faltar, diz que falta. Há uma análise para cada período pronto, comparação e recorte (Particular ou clínica toda).";
 
 function Aviso({ icone: Icone = Info, children }: { icone?: typeof Info; children: React.ReactNode }) {
   return (
