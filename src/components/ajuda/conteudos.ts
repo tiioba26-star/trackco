@@ -161,6 +161,27 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "fech-lista", titulo: "Situação", texto: "Cada fechamento mostra a etapa atual." },
     ],
   },
+  "/gestao": {
+    titulo: "Gestão",
+    resumo: [
+      "A visão da administração: a clínica toda e o dinheiro. Só administradores veem esta área e os valores em R$.",
+      "Faturamento vem do relatório 319 do Klingo (pela data do atendimento, sem repasse médico). Marcações vêm do 2331 (pela data em que foram marcadas).",
+      "Todo número diz de quando é. A comparação usa sempre os mesmos dias: um mês em andamento é comparado com o outro mês até o mesmo dia.",
+    ],
+    dicas: [
+      "Faturamento: total, valor médio, 'por que mudou' (dias × volume × valor médio) e se é sazonal.",
+      "Marcação → R$: de cada 100 marcações, quantas viram consulta e quanto geram; quem marca muito e bem.",
+      "Equipes: todas lado a lado. Quem marca para quem: médicos e procedimentos de cada pessoa.",
+      "Perdas: faltas e cancelamentos com o motivo do Klingo, e o mix de operadoras.",
+      "Gerar Excel baixa uma planilha com painel, evolução, colaboradores, financeiro e a base pronta para o Power BI (sem nome de paciente).",
+    ],
+    passos: [
+      { alvo: "gestao-filtros", titulo: "Filtros", texto: "Período, comparação, equipe, pessoa, operadora, médico, procedimento, cortesias e tipo de agenda. Clique em Aplicar." },
+      { alvo: "gestao-abas", titulo: "Uma pergunta por vez", texto: "Cada aba responde uma pergunta. Os filtros continuam ao trocar de aba." },
+      { alvo: "gestao-conteudo", titulo: "Os números", texto: "Toque no ? de cada quadro para ver o que ele conta. Os botões CSV baixam o quadro com os filtros." },
+      { alvo: "gestao-excel", titulo: "Gerar Excel", texto: "Planilha completa com gráficos, com os mesmos filtros." },
+    ],
+  },
   "/relatorios": {
     titulo: "Relatórios",
     resumo: [

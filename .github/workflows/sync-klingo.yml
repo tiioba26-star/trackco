@@ -16,6 +16,11 @@ on:
         description: "Carga histórica: buscar desde AAAA-MM (ex.: 2025-01). Deixe vazio no uso normal."
         required: false
         default: ""
+      so_faturamento:
+        description: "Com 'desde': só o faturamento (319), sem refazer as marcações."
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -61,8 +66,11 @@ jobs:
           TRACKCO_RECALC_TOKEN: ${{ secrets.TRACKCO_RECALC_TOKEN }}
           MODO: ${{ github.event.inputs.modo || (github.event.schedule == '0 6 * * *' && 'reconciliacao') || 'horario' }}
           DESDE: ${{ github.event.inputs.desde }}
+          SO_FATURAMENTO: ${{ github.event.inputs.so_faturamento }}
         run: |
-          if [ -n "$DESDE" ]; then
+          if [ -n "$DESDE" ] && [ "$SO_FATURAMENTO" = "true" ]; then
+            python robo/sync_klingo.py --desde "$DESDE" --so-faturamento
+          elif [ -n "$DESDE" ]; then
             python robo/sync_klingo.py --desde "$DESDE"
           else
             python robo/sync_klingo.py --modo "$MODO"

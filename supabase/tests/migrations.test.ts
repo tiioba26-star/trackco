@@ -351,3 +351,43 @@ describe("formulários obrigatórios", () => {
     await expect(como(U.bia, () => db.query(`select trackco.responder_formulario($1, '2026-11', '{}'::jsonb)`, [id]))).rejects.toThrow(/não está ativo/);
   });
 });
+
+describe("faturamento (319) e Gestão", () => {
+  const fat = (linhas: unknown[]) =>
+    db.query<{ r: { gravadas: number; ignorado?: boolean } }>(`select trackco.klingo_producao_sincronizar_mes('2026-10-01', $1::jsonb) as r`, [JSON.stringify(linhas)]);
+
+  it("robô troca o mês inteiro, soma repetidas e mês vazio não apaga", async () => {
+    await fat([
+      { data: "2026-10-01", medico: "DR X", operadora: "Particular - PARTICULAR", categoria: "CONSULTAS", procedimento: "CONSULTA", qtd: 1, valor: 180 },
+      { data: "2026-10-01", medico: "DR X", operadora: "Particular - PARTICULAR", categoria: "CONSULTAS", procedimento: "CONSULTA", qtd: 1, valor: 180 },
+      { data: "2026-10-02", medico: "DR Y", operadora: "SUS - SUS", categoria: "EXAMES", procedimento: "EXAME", qtd: 2, valor: 50 },
+    ]);
+    let t = await db.query<{ n: number; v: string }>(`select count(*)::int n, sum(valor)::text v from trackco.klingo_producao`);
+    expect(t.rows[0]).toEqual({ n: 2, v: "410.00" });
+    await fat([{ data: "2026-10-03", medico: "DR X", operadora: "Particular - PARTICULAR", categoria: "CONSULTAS", procedimento: "CONSULTA", qtd: 1, valor: 200 }]);
+    t = await db.query(`select count(*)::int n, sum(valor)::text v from trackco.klingo_producao`);
+    expect(t.rows[0]).toEqual({ n: 1, v: "200.00" });
+    expect((await fat([])).rows[0].r.ignorado).toBe(true);
+    t = await db.query(`select count(*)::int n, sum(valor)::text v from trackco.klingo_producao`);
+    expect(t.rows[0].n).toBe(1);
+    await expect(fat([{ data: "2026-11-01", qtd: 1, valor: 1 }])).rejects.toThrow(/fora do mês/);
+  });
+
+  it("consultas da Gestão devolvem o período em JSON", async () => {
+    const p = await db.query<{ r: unknown[][] }>(`select trackco.gestao_producao('2026-10-01', '2026-10-31') as r`);
+    expect(p.rows[0].r).toEqual([["2026-10-03", "DR X", "Particular - PARTICULAR", "CONSULTAS", "CONSULTA", 1, 200]]);
+    const m = await db.query<{ r: unknown[][] }>(`select trackco.gestao_marcacoes('2026-10-01', '2026-10-31', '2026-11-16') as r`);
+    expect(m.rows[0].r.reduce((s, x) => s + Number(x[5]), 0)).toBe(3);
+    const d = await db.query<{ r: unknown[][] }>(`select trackco.gestao_marcacoes_dia('2026-10-01', '2026-10-31') as r`);
+    expect(d.rows[0].r.length).toBe(3);
+    const s = await db.query<{ r: unknown[][] }>(`select trackco.gestao_producao_mensal() as r`);
+    expect(s.rows[0].r[0][0]).toBe("2026-10");
+  });
+
+  it("ninguém logado lê o faturamento nem chama as funções da Gestão (só o servidor)", async () => {
+    await expect(como(U.admin, () => db.query(`select 1 from trackco.klingo_producao`))).rejects.toThrow(/permission denied/);
+    await expect(como(U.leo, () => db.query(`select trackco.gestao_producao('2026-10-01', '2026-10-31')`))).rejects.toThrow(/permission denied/);
+    await expect(como(U.admin, () => db.query(`select trackco.gestao_marcacoes('2026-10-01', '2026-10-31', '2026-11-16')`))).rejects.toThrow(/permission denied/);
+    await expect(como(U.admin, () => db.query(`select trackco.klingo_producao_sincronizar_mes('2026-10-01', '[]'::jsonb)`))).rejects.toThrow(/permission denied/);
+  });
+});

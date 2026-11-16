@@ -19,6 +19,7 @@ import type { Metrica } from "@/engine/tipos";
 import type { Sessao } from "@/lib/auth";
 import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import { codigosTv } from "@/lib/codigo-tv";
+import { coberturaFaturamento } from "@/lib/dados/gestao";
 import { alertasGestao, apuracoesDaEquipe, minhasApuracoes } from "@/lib/dados/painel";
 import { minhaPosicao, type ResumoPeriodo, resumoPeriodo } from "@/lib/dados/producao";
 import { linhasRelatorio, mesesEntre } from "@/lib/dados/relatorios";
@@ -379,11 +380,14 @@ export async function BlocoEquipe({
   const comp = mesDaJanela(janela);
   const membros = (await membrosDaEquipe(db, equipe.id, competenciaDe(janela.fim))).filter((m) => m.funcao === "membro");
   const pessoas = membros.map((m) => ({ id: m.colaborador_id, login_klingo: m.login_klingo }));
-  const [r, alertas, aps] = await Promise.all([
+  const [r, alertas, aps, cobertura] = await Promise.all([
     resumoPeriodo(db, { pessoas, metricas, janela, hoje, categoria }),
     s.vêTudo ? alertasGestao(db, competenciaDe(hoje)) : Promise.resolve(null),
     comp ? apuracoesDaEquipe(db, equipe.id, comp) : Promise.resolve([]),
+    s.ehAdmin ? coberturaFaturamento(undefined, 2) : Promise.resolve([]),
   ]);
+  // mês passado (fechado) com menos de 95% do faturamento ligado a marcações: vale conferir os dados
+  const coberturaBaixa = cobertura.find((c) => c.mes < competenciaDe(hoje) && c.pct !== null && c.pct < 95);
   const nivelDe = new Map(aps.map((a) => [a.colaborador_id, a]));
   const lider = aps.find((a) => a.funcao === "lider");
   const periodoQs = janela.periodo !== "personalizado" ? `p=${janela.periodo}` : `de=${janela.inicio}&ate=${janela.fim}`;
@@ -426,7 +430,7 @@ export async function BlocoEquipe({
         </div>
       </div>
 
-      {alertas && (alertas.contestacoesAbertas > 0 || alertas.semLoginKlingo > 0 || alertas.sync?.status === "erro") && (
+      {alertas && (alertas.contestacoesAbertas > 0 || alertas.semLoginKlingo > 0 || alertas.sync?.status === "erro" || coberturaBaixa) && (
         <div className="grid gap-3 md:grid-cols-3">
           {alertas.contestacoesAbertas > 0 && (
             <Alert>
@@ -447,6 +451,20 @@ export async function BlocoEquipe({
                 Sem o vínculo, os agendamentos não são atribuídos.{" "}
                 <Link href="/colaboradores" className="text-primary underline">
                   Vincular
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
+          {coberturaBaixa && (
+            <Alert>
+              <AlertTriangle />
+              <AlertTitle>
+                Só {Math.round(coberturaBaixa.pct!)}% do faturamento Particular de {coberturaBaixa.mes} ligado a marcações
+              </AlertTitle>
+              <AlertDescription>
+                Pode ser atendimento sem marcação ou falha no cruzamento.{" "}
+                <Link href="/dados" className="text-primary underline">
+                  Conferir
                 </Link>
               </AlertDescription>
             </Alert>

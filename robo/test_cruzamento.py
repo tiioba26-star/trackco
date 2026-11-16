@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from sync_klingo import chaves_2331, classificar, cruzar, meses_ate  # noqa: E402
+from sync_klingo import chaves_2331, classificar, cruzar, faturamento_do_mes, meses_ate  # noqa: E402
 
 
 def m(chave, pac, para, proc="CONSULTA"):
@@ -136,6 +136,22 @@ class TestChaves(unittest.TestCase):
         self.assertNotEqual(a[0]["chave"], a[1]["chave"])
         self.assertEqual(a[0]["responsavel_login"], "ana.k")
         self.assertEqual(a[0]["data_agendado_para"], "2026-11-10")
+
+    def test_faturamento_soma_por_dia_sem_paciente_e_so_do_mes(self):
+        prod = [
+            {"Data Atendimento": "01/10/2026", "Paciente": "A", "Médico": "DR X", "Operadora": "Particular - PARTICULAR",
+             "Categoria": "CONSULTAS", "Procedimento": "CONSULTA", "Qtd": "1", "Valor": "180,00"},
+            {"Data Atendimento": "01/10/2026", "Paciente": "B", "Médico": "DR X", "Operadora": "Particular - PARTICULAR",
+             "Categoria": "CONSULTAS", "Procedimento": "CONSULTA", "Qtd": "1", "Valor": "1.180,50"},
+            {"Data Atendimento": "01/11/2026", "Paciente": "C", "Médico": "DR X", "Operadora": "SUS - SUS",
+             "Categoria": "EXAMES", "Procedimento": "EXAME", "Qtd": "1", "Valor": "10"},
+            {"Data Atendimento": "", "Paciente": "D", "Valor": "99"},
+        ]
+        fat = faturamento_do_mes(prod, "2026-10")
+        self.assertEqual(len(fat), 1)
+        self.assertEqual(fat[0]["qtd"], 2)
+        self.assertEqual(fat[0]["valor"], 1360.5)
+        self.assertNotIn("paciente", " ".join(fat[0].keys()))
 
     def test_meses(self):
         self.assertEqual(meses_ate(date(2026, 1, 15), 3), ["2025-11", "2025-12", "2026-01"])

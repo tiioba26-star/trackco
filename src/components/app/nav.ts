@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Briefcase,
   BookOpen,
   ClipboardCheck,
   ClipboardList,
@@ -49,6 +50,7 @@ export const NAV: GrupoNav[] = [
   {
     titulo: "Gestão",
     itens: [
+      { href: "/gestao", titulo: "Gestão (R$)", icone: Briefcase, perfil: "admin", tour: "nav-gestao" },
       { href: "/fechamentos", titulo: "Fechamentos", icone: ClipboardCheck, perfil: "lider", tour: "nav-fechamentos" },
       { href: "/relatorios", titulo: "Relatórios", icone: BarChart3, perfil: "lider", tour: "nav-relatorios" },
       { href: "/ausencias", titulo: "Ausências", icone: UserMinus, perfil: "lider", tour: "nav-ausencias" },

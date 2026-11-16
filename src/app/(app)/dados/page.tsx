@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { formatarDataBR, hojeNoFuso, somarDias } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
-import { fmtDataHora } from "@/lib/formato";
+import { coberturaFaturamento } from "@/lib/dados/gestao";
+import { fmtDataHora, fmtPct, fmtValor } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { competenciaDe } from "@/engine/datas";
 import { excluirLancamento, importarCsv, lancar, recalcularAgora } from "./actions";
@@ -24,7 +25,7 @@ export default async function PaginaDados() {
   await exigirAdmin();
   const db = await criarClienteServidor();
   const hoje = hojeNoFuso();
-  const [{ data: syncs }, { data: semVinculo }, { data: lancs }, { data: pessoas }, { count: totalLinhas }] = await Promise.all([
+  const [{ data: syncs }, { data: semVinculo }, { data: lancs }, { data: pessoas }, { count: totalLinhas }, cobertura] = await Promise.all([
     db.from("sync_execucoes").select("*").order("iniciado_em", { ascending: false }).limit(15),
     db.rpc("logins_klingo_sem_vinculo", { p_desde: somarDias(hoje, -90) }),
     db
@@ -34,6 +35,7 @@ export default async function PaginaDados() {
       .limit(30),
     db.from("colaboradores").select("id, nome").eq("ativo", true).order("nome"),
     db.from("klingo_agendamentos").select("chave", { count: "estimated", head: true }),
+    coberturaFaturamento(undefined, 6),
   ]);
   type S = {
     id: number;
@@ -44,6 +46,7 @@ export default async function PaginaDados() {
     linhas_agendamentos: number;
     linhas_atendimentos: number;
     mensagem: string | null;
+    detalhes: { meses?: Record<string, { marcacoes?: number; faturamento?: { linhas: number; valor: number }; cruzamento?: { verificadas: number; atendidas: number; alteradas: number }; situacao?: Record<string, number> }> } | null;
   };
   type L = { id: string; data: string; tipo: string; valor: number; descricao: string | null; colaboradores: { nome: string } | null };
 
@@ -87,8 +90,25 @@ export default async function PaginaDados() {
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{s.linhas_agendamentos}</TableCell>
                     <TableCell className="text-right tabular-nums">{s.linhas_atendimentos}</TableCell>
-                    <TableCell className="max-w-72 truncate text-xs text-muted-foreground" title={s.mensagem ?? ""}>
-                      {s.mensagem}
+                    <TableCell className="max-w-72 text-xs text-muted-foreground">
+                      <div className="truncate" title={s.mensagem ?? ""}>
+                        {s.mensagem}
+                      </div>
+                      {s.detalhes?.meses && Object.keys(s.detalhes.meses).length > 0 && (
+                        <details>
+                          <summary className="cursor-pointer text-primary">Por mês</summary>
+                          <ul className="mt-1 space-y-0.5 tabular-nums">
+                            {Object.entries(s.detalhes.meses).map(([m, d]) => (
+                              <li key={m}>
+                                <b>{m}</b>
+                                {d.marcacoes !== undefined && ` · ${d.marcacoes} marcações`}
+                                {d.cruzamento && ` · ${d.cruzamento.atendidas}/${d.cruzamento.verificadas} atendidas`}
+                                {d.faturamento && ` · faturamento ${fmtValor(d.faturamento.valor, "R$")}`}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -137,6 +157,41 @@ export default async function PaginaDados() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5">
+            Conferência do faturamento <Dica texto="Do faturamento Particular de cada mês (relatório 319), quanto ficou ligado a uma marcação (2331). Abaixo de 95% vale olhar: pode ser atendimento sem marcação ou falha no cruzamento." />
+          </CardTitle>
+          <CardDescription>Últimos 6 meses · Particular · usado na área Gestão.</CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          {cobertura.length ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mês</TableHead>
+                  <TableHead className="text-right">Faturamento</TableHead>
+                  <TableHead className="text-right">Ligado a marcações</TableHead>
+                  <TableHead className="text-right">%</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {cobertura.map((c) => (
+                  <TableRow key={c.mes}>
+                    <TableCell className="tabular-nums">{c.mes}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmtValor(c.total, "R$")}</TableCell>
+                    <TableCell className="text-right tabular-nums">{fmtValor(c.ligado, "R$")}</TableCell>
+                    <TableCell className={`text-right font-medium tabular-nums ${c.pct !== null && c.pct < 95 ? "text-down" : "text-up"}`}>{fmtPct(c.pct)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-sm text-muted-foreground">Ainda sem faturamento guardado (o robô passa a guardar a partir da migração 15).</p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

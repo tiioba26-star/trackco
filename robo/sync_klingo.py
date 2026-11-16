@@ -9,6 +9,8 @@ Passos:
  2. Nomes dos usuários do Klingo (usuarios.index) -> trackco.klingo_usuarios.
  3. Relatório 2331 (marcações) por mês de "Data Agendado Em" -> trackco.klingo_sincronizar_mes.
  4. Relatório 319 (produção) por mês de "Data Atendimento" x marcações do banco -> atendido/valor/data_realizacao.
+ 4b. O mesmo 319, somado por dia/médico/operadora/categoria/procedimento (sem paciente) -> trackco.klingo_producao
+     (faturamento da área Gestão, só administradores).
  5. Registra a execução em trackco.sync_execucoes e pede o recálculo ao Trackco (/api/recalcular).
 
 O nome do paciente é gravado (decisão da IOBA, LGPD) mas nunca é impresso no log.
@@ -22,6 +24,7 @@ Uso:
   python robo/sync_klingo.py                      # modo horário: mês atual e anterior
   python robo/sync_klingo.py --modo reconciliacao # madrugada: últimos 4 meses de marcações e de produção
   python robo/sync_klingo.py --dry-run --toml ../relatorio/klingo.toml   # testa sem gravar nada
+  python robo/sync_klingo.py --desde 2024-01 --so-faturamento            # carga histórica só do faturamento
 """
 from __future__ import annotations
 
@@ -217,6 +220,24 @@ def chaves_2331(linhas: list[dict]) -> list[dict]:
     return out
 
 
+def faturamento_do_mes(producao: list[dict], mes: str) -> list[dict]:
+    """319 somado por dia × médico × operadora × categoria × procedimento, só do mês. Sem paciente e sem repasse."""
+    soma: dict = collections.defaultdict(lambda: [0.0, 0.0])
+    for r in producao:
+        if not limpa(r.get("Data Atendimento")):
+            continue
+        d = data_de(r["Data Atendimento"]).isoformat()
+        if not d.startswith(mes):
+            continue
+        o = soma[(d, limpa(r.get("Médico")), limpa(r.get("Operadora")), limpa(r.get("Categoria")), limpa(r.get("Procedimento")))]
+        o[0] += valor_de(r.get("Qtd")) or 1
+        o[1] += valor_de(r.get("Valor"))
+    return [
+        {"data": d, "medico": med, "operadora": op, "categoria": cat, "procedimento": proc, "qtd": q, "valor": round(v, 2)}
+        for (d, med, op, cat, proc), (q, v) in sorted(soma.items())
+    ]
+
+
 def categoria_operadora(v) -> str:
     """Particular ou SUS. O 2331 traz "Particular"/"SUS"; o 319 traz "Particular - PARTICULAR", "SUS - SUS"..."""
     n = norm(v)
@@ -397,6 +418,8 @@ def main() -> int:
     ap.add_argument("--modo", choices=["horario", "reconciliacao"], default="horario")
     ap.add_argument("--desde", help="carga histórica: sincroniza de AAAA-MM até hoje (ex.: 2025-01)")
     ap.add_argument("--meses", help="só estes meses, separados por vírgula (ex.: 2025-07,2025-08)")
+    ap.add_argument("--so-faturamento", action="store_true",
+                    help="só o faturamento (319 -> klingo_producao); não mexe nas marcações nem pede recálculo")
     ap.add_argument("--toml")
     ap.add_argument("--dry-run", action="store_true", help="não grava nada; só mostra o resumo")
     ap.add_argument("--visivel", action="store_true")
@@ -422,6 +445,8 @@ def main() -> int:
             sys.exit("--desde precisa ser um mês entre 5 anos atrás e hoje (AAAA-MM).")
         n_ag = n_prod = n
         args.modo = "historico"
+        if args.so_faturamento:
+            args.modo = "faturamento"
     else:
         n_ag, n_prod = (2, 2) if args.modo == "horario" else (4, 4)
     meses_ag = meses_ate(hoje, n_ag)
@@ -461,7 +486,7 @@ def main() -> int:
                 avisos.append(f"usuarios.index: {type(e).__name__}")
 
             # 2) marcações (2331), mês a mês pela data do agendamento
-            for m in meses_ag:
+            for m in ([] if args.so_faturamento else meses_ag):
                 try:
                     linhas = chaves_2331(k.relatorio({"id": "2331", ":periodo0": "lm", ":periodo0-mes": m}))
                     linhas = [l for l in linhas if l["data_agendado_em"].startswith(m)]
@@ -483,6 +508,7 @@ def main() -> int:
             for m in meses_prod:
                 try:
                     futuro = m > hoje.strftime("%Y-%m")
+                    todas_operadoras = True
                     if futuro:
                         producao = []  # consultas que ainda não aconteceram: só os motivos (47/8440) importam
                     else:
@@ -491,7 +517,27 @@ def main() -> int:
                         except Exception:
                             # se o filtro "todas as operadoras" não for aceito, cai para Particular (como no relatorio)
                             producao = k.relatorio({"id": "319", ":periodo": "lm", ":periodo-mes": m, ":medico": "", ":unidade": "", ":operadora": 1})
+                            todas_operadoras = False
                             avisos.append(f"319 {m}: só Particular (filtro de todas as operadoras não aceito)")
+                    # faturamento do mês (Gestão). Só com todas as operadoras: trocar o mês por um 319 só
+                    # Particular apagaria o SUS e os convênios já guardados.
+                    if not futuro and todas_operadoras:
+                        fat = faturamento_do_mes(producao, m)
+                        total_fat = round(sum(x["valor"] for x in fat), 2)
+                        detalhes["meses"].setdefault(m, {})["faturamento"] = {"linhas": len(fat), "valor": total_fat}
+                        if args.dry_run:
+                            part = round(sum(x["valor"] for x in fat if categoria_operadora(x["operadora"]) == "particular"), 2)
+                            print(f"  319 {m}: faturamento {len(fat)} linhas somadas · R$ {total_fat:,.2f} (Particular R$ {part:,.2f})", flush=True)
+                        elif fat:
+                            # falha aqui não pode impedir o cruzamento das marcações logo abaixo
+                            try:
+                                r = sb.rpc("klingo_producao_sincronizar_mes", {"p_mes": f"{m}-01", "p_linhas": fat})
+                                print(f"  319 {m}: faturamento {r}", flush=True)
+                            except Exception as e:
+                                avisos.append(f"faturamento {m}: {type(e).__name__}: {str(e)[:120]}")
+                                print(f"  Aviso faturamento {m}: {e}", flush=True)
+                    if args.so_faturamento:
+                        continue
                     # por que não aconteceu: cancelamentos/bloqueios (47) e remarcações/faltas (8440).
                     # O 47 também decide o crédito quando a mesma visita tem mais de uma marcação.
                     canc = rem = None
@@ -538,7 +584,7 @@ def main() -> int:
 
     # 4) pede o recálculo ao Trackco (o resultado fica registrado na execução, visível em "Dados")
     url, token = os.environ.get("TRACKCO_URL"), (os.environ.get("TRACKCO_RECALC_TOKEN") or "").strip()
-    if args.dry_run:
+    if args.dry_run or args.so_faturamento:
         pass
     elif not url or not token:
         avisos.append("recálculo não pedido: TRACKCO_URL/TRACKCO_RECALC_TOKEN ausentes")
@@ -558,7 +604,7 @@ def main() -> int:
             except Exception as e:
                 avisos.append(f"recálculo {comp} falhou ({type(e).__name__}: {str(e)[:120]})")
 
-    status = "ok" if not avisos else ("parcial" if total_ag else "erro")
+    status = "ok" if not avisos else ("parcial" if total_ag or args.so_faturamento else "erro")
     if exec_id:
         sb.patch("sync_execucoes", f"id=eq.{exec_id}", {
             "status": status,

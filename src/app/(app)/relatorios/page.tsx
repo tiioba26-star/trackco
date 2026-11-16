@@ -103,9 +103,14 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
         titulo="Relatórios"
         descricao="A operação mês a mês sem remontar o cálculo em planilha. Meses com fechamento aprovado usam o resultado oficial."
         acoes={
-          <a href={`/api/relatorios/csv?${qs}`} className={buttonVariants({ variant: "outline" })}>
-            <Download /> Exportar CSV
-          </a>
+          <>
+            <a href={`/api/relatorios/csv?${qs}`} className={buttonVariants({ variant: "outline" })}>
+              <Download /> Exportar CSV
+            </a>
+            <a href={`/api/relatorios/csv?${qs}&quadro=quebras`} className={buttonVariants({ variant: "outline" })}>
+              <Download /> CSV das quebras
+            </a>
+          </>
         }
       />
       <Card data-tour="rel-filtros">

@@ -71,7 +71,7 @@ export const FONTES: Record<FonteId, FonteDados> = {
       },
       { id: "motivo", rotulo: "Motivo do cancelamento", tipo: "texto" },
       { id: "qtd", rotulo: "Quantidade", tipo: "numero" },
-      { id: "valor", rotulo: "Valor (R$)", tipo: "numero" },
+      // valor em R$ fica fora de propósito: só administradores veem R$, e só na área Gestão
     ],
   },
   lancamentos: {

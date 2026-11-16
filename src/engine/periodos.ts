@@ -113,6 +113,17 @@ export function mesesDaJanela(inicio: string, fim: string): string[] {
   return out;
 }
 
+/** Mesmas datas um ano antes (29/02 vira 28/02). */
+export function janelaAnoAnterior(j: { inicio: string; fim: string }, hoje: string): { inicio: string; fim: string; nome: string } {
+  const menosUm = (iso: string) => {
+    const a = `${Number(iso.slice(0, 4)) - 1}${iso.slice(4)}`;
+    return a.slice(5) === "02-29" ? `${a.slice(0, 8)}28` : a;
+  };
+  const inicio = menosUm(j.inicio);
+  const fim = menosUm(j.fim);
+  return { inicio, fim, nome: `mesmo período de ${inicio.slice(0, 4)} (${textoDatas(inicio, fim, hoje.slice(0, 4))})` };
+}
+
 /**
  * Período anterior "no mesmo ponto", para comparar de forma justa:
  * hoje → mesmo dia da semana passada; últimos 7 dias → os 7 dias antes deles;
