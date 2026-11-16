@@ -10,6 +10,7 @@ import { ConfetesTv, type DisparoConfete } from "./confetes";
 import { OlhoFundoIoba } from "./olho-fundo";
 import { TelaGrafico, TelaMulti } from "./graficos-tv";
 import { FaixaRecordes, TelaDestaques, TelaEquipe, TelaParticipacao } from "./telas-extras";
+import { TelaCheiaTv } from "./tela-cheia";
 
 // Gradientes horizontais para as barras conforme posição
 const GRADIENTES_BARRAS = [
@@ -766,6 +767,7 @@ export function TvCliente({ token }: { token: string }) {
       className={`fixed inset-0 flex flex-col overflow-hidden bg-[#030914] px-[3.5vw] py-[3.2vh] text-white select-none ${cursor ? "" : "cursor-none"}`}
     >
       <ConfetesTv disparo={disparoConfete} />
+      <TelaCheiaTv />
 
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_35%,#0a1d3f_0%,#040c1d_55%,#020611_100%)]" />
