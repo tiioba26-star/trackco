@@ -781,3 +781,65 @@ export async function baseMarcacoes(f: FiltrosGestao, db: Db = criarClienteAdmin
     grupoOperadora: grupoOperadora(l.operadora),
   }));
 }
+
+// ------------------------------------------------------------------ leituras para as análises da IA
+
+export interface LinhaSerie {
+  mes: string;
+  login: string;
+  operadora: string;
+  n: number;
+  verificaveis: number;
+  atendidas: number;
+  faltas: number;
+  canceladas: number;
+  valor: number;
+}
+export interface LinhaDesfecho {
+  mes: string;
+  operadora: string;
+  situacao: string;
+  n: number;
+}
+export interface LinhaDesfechoProfissional {
+  profissional: string;
+  operadora: string;
+  situacao: string;
+  n: number;
+}
+
+/** Mês a mês (data em que marcou), por quem marcou e operadora. */
+export const seriesMensais = (db: Db, ini: string, fim: string, hoje: string) =>
+  lembrar(`gestao-series|${ini}|${fim}|${hoje}`, MIN5, async () =>
+    (await rpc(db, "gestao_series_mensais", { p_ini: ini, p_fim: fim, p_hoje: hoje })).map(
+      (r): LinhaSerie => ({
+        mes: s(r[0]),
+        login: s(r[1]),
+        operadora: s(r[2]),
+        n: n(r[3]),
+        verificaveis: n(r[4]),
+        atendidas: n(r[5]),
+        faltas: n(r[6]),
+        canceladas: n(r[7]),
+        valor: n(r[8]),
+      }),
+    ),
+  );
+
+/** Mês a mês (data da consulta), por operadora e situação. */
+export const desfechos = (db: Db, ini: string, fim: string) =>
+  lembrar(`gestao-desfechos|${ini}|${fim}`, MIN5, async () =>
+    (await rpc(db, "gestao_desfechos", { p_ini: ini, p_fim: fim })).map(
+      (r): LinhaDesfecho => ({ mes: s(r[0]), operadora: s(r[1]), situacao: s(r[2]), n: n(r[3]) }),
+    ),
+  );
+
+/** Desfechos do período por médico/agenda. */
+export const desfechosPorProfissional = (db: Db, ini: string, fim: string) =>
+  lembrar(`gestao-desfechos-prof|${ini}|${fim}`, MIN5, async () =>
+    (await rpc(db, "gestao_desfechos_profissional", { p_ini: ini, p_fim: fim })).map(
+      (r): LinhaDesfechoProfissional => ({ profissional: s(r[0]), operadora: s(r[1]), situacao: s(r[2]), n: n(r[3]) }),
+    ),
+  );
+
+export { marcacoes as marcacoesPeriodo, perdas as perdasPeriodo, producao as producaoPeriodo, producaoMensal };

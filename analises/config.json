@@ -1,0 +1,5 @@
+{
+  "secoes": { "modelo": "sonnet", "esforco": "medium" },
+  "geral": { "modelo": "opus", "esforco": "high" },
+  "paralelo": 3
+}

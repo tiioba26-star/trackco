@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "sql:combinar": "node scripts/combinar-sql.mjs",
-    "recalcular": "tsx --conditions=react-server scripts/recalcular-periodo.mts"
+    "recalcular": "tsx --conditions=react-server scripts/recalcular-periodo.mts",
+    "analises:rodar": "tsx --env-file=ver.env --conditions=react-server scripts/analises/rodar.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -27,7 +28,9 @@
     "next-themes": "^0.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^3.8.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "shadcn": "^4.23.0",
     "sonner": "^2.0.8",

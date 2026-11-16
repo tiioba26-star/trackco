@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { AbaConversao } from "./aba-conversao";
 import { AbaEquipes } from "./aba-equipes";
 import { AbaFaturamento } from "./aba-faturamento";
+import { AbaAnaliseGeral } from "./aba-geral";
+import { AnaliseIA } from "./analise-ia";
 import { AbaPerdas } from "./aba-perdas";
 import { AbaQuem } from "./aba-quem";
 import { PeriodoGestaoCampos } from "./periodo";
@@ -27,6 +29,7 @@ const ABAS = [
   { k: "equipes", t: "Equipes" },
   { k: "quem", t: "Quem marca para quem" },
   { k: "perdas", t: "Perdas e operadoras" },
+  { k: "geral", t: "Análise geral (IA)" },
 ] as const;
 type Aba = (typeof ABAS)[number]["k"];
 
@@ -148,7 +151,8 @@ export default async function PaginaGestao(props: PageProps<"/gestao">) {
   const por = um<AgruparPor>(sp.por, ["categoria", "medico", "operadora", "tabela"], "categoria");
   const saz = um(sp.saz, ["total", "dia"] as const, "total");
   const mat = um(sp.mat, ["n", "pct"] as const, "n");
-  const chave = filtrosParaUrl(f, { aba, por, saz, mat }).toString();
+  const ia = typeof sp.ia === "string" ? sp.ia : undefined;
+  const chave = filtrosParaUrl(f, { aba, por, saz, mat, ia: ia ?? "" }).toString();
 
   return (
     <div className="space-y-6">
@@ -186,7 +190,15 @@ export default async function PaginaGestao(props: PageProps<"/gestao">) {
           {aba === "equipes" && <AbaEquipes f={f} />}
           {aba === "quem" && <AbaQuem f={f} mat={mat} />}
           {aba === "perdas" && <AbaPerdas f={f} />}
+          {aba === "geral" && <AbaAnaliseGeral />}
         </Suspense>
+        {aba !== "geral" && (
+          <div className="mt-6">
+            <Suspense fallback={<Skeleton className="h-40 rounded-xl" />}>
+              <AnaliseIA f={f} aba={aba} ia={ia} />
+            </Suspense>
+          </div>
+        )}
       </div>
     </div>
   );

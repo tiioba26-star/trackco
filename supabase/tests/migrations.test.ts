@@ -391,3 +391,27 @@ describe("faturamento (319) e Gestão", () => {
     await expect(como(U.admin, () => db.query(`select trackco.klingo_producao_sincronizar_mes('2026-10-01', '[]'::jsonb)`))).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("dados das análises da IA", () => {
+  it("séries mensais por pessoa e desfechos pela data da consulta", async () => {
+    const s = await db.query<{ r: unknown[][] }>(`select trackco.gestao_series_mensais('2026-10-01', '2026-10-31', '2026-11-16') as r`);
+    expect(s.rows[0].r.length).toBe(3);
+    expect(s.rows[0].r[0][0]).toBe("2026-10");
+    expect(s.rows[0].r.reduce((t, x) => t + Number(x[3]), 0)).toBe(3);
+    // desfechos contam pela data da consulta (os testes acima podem ter mudado alguma data)
+    const d = await db.query<{ r: unknown[][] }>(`select trackco.gestao_desfechos('2026-10-01', '2026-10-31') as r`);
+    const real = await db.query<{ n: number }>(
+      `select count(*)::int n from trackco.klingo_agendamentos where data_agendado_para between '2026-10-01' and '2026-10-31'`,
+    );
+    expect(d.rows[0].r.reduce((t, x) => t + Number(x[3]), 0)).toBe(real.rows[0].n);
+    expect(d.rows[0].r.every((x) => typeof x[2] === "string" && x[2] !== "")).toBe(true);
+    const pr = await db.query<{ r: unknown[][] }>(`select trackco.gestao_desfechos_profissional('2026-10-01', '2026-10-31') as r`);
+    expect(pr.rows[0].r.reduce((t, x) => t + Number(x[3]), 0)).toBe(real.rows[0].n);
+  });
+
+  it("só o servidor chama", async () => {
+    await expect(como(U.admin, () => db.query(`select trackco.gestao_series_mensais('2026-10-01', '2026-10-31', '2026-11-16')`))).rejects.toThrow(/permission denied/);
+    await expect(como(U.leo, () => db.query(`select trackco.gestao_desfechos('2026-10-01', '2026-10-31')`))).rejects.toThrow(/permission denied/);
+    await expect(como(U.admin, () => db.query(`select trackco.gestao_desfechos_profissional('2026-10-01', '2026-10-31')`))).rejects.toThrow(/permission denied/);
+  });
+});

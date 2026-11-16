@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // análises da IA (escritas pela rotina das 5h e publicadas no repositório): vão junto no deploy da página Gestão
+  outputFileTracingIncludes: {
+    "/gestao": ["./analises/gestao/**/*"],
+  },
   turbopack: {
     rules: {
       "*.css": {

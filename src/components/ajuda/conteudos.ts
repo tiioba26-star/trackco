@@ -174,12 +174,14 @@ export const AJUDA: Record<string, Ajuda> = {
       "Equipes: todas lado a lado. Quem marca para quem: médicos e procedimentos de cada pessoa.",
       "Perdas: faltas e cancelamentos com o motivo do Klingo, e o mix de operadoras.",
       "Gerar Excel baixa uma planilha com painel, evolução, colaboradores, financeiro e a base pronta para o Power BI (sem nome de paciente).",
+      "No fim de cada aba há uma análise comentada pela IA, escrita todo dia às 5h com os mesmos números (Particular ou clínica toda, para cada período pronto e comparação). A aba Análise geral (IA) junta tudo: o que mudou, pessoas em destaque e em atenção, e um plano de ação com as evidências.",
     ],
     passos: [
       { alvo: "gestao-filtros", titulo: "Filtros", texto: "Período, comparação, equipe, pessoa, operadora, médico, procedimento, cortesias e tipo de agenda. Clique em Aplicar." },
       { alvo: "gestao-abas", titulo: "Uma pergunta por vez", texto: "Cada aba responde uma pergunta. Os filtros continuam ao trocar de aba." },
       { alvo: "gestao-conteudo", titulo: "Os números", texto: "Toque no ? de cada quadro para ver o que ele conta. Os botões CSV baixam o quadro com os filtros." },
       { alvo: "gestao-excel", titulo: "Gerar Excel", texto: "Planilha completa com gráficos, com os mesmos filtros." },
+      { alvo: "gestao-ia", titulo: "Análise da IA", texto: "No fim de cada aba: o que os números mostram, pontos de atenção e o que fazer. Troque entre Particular e clínica toda." },
     ],
   },
   "/relatorios": {

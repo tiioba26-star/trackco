@@ -51,3 +51,8 @@ next-env.d.ts
 __pycache__/
 *.pyc
 .venv/
+
+# análises da IA: dados locais e logs da rotina (só os .md de analises/gestao vão para o GitHub)
+/analises/.dados/
+/analises/logs/
+/.claude/settings.local.json
