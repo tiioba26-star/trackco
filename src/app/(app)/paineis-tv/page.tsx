@@ -7,7 +7,7 @@ import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
 import { fmtDataHora } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { alternarPainel } from "./actions";
-import { BotaoControle, EditarPainel, ExcluirPainel, NovoPainel, RegenerarLink } from "./cliente";
+import { BotaoControle, EditarPainel, ExcluirPainel, NovoPainel, RegenerarLink, VerLink } from "./cliente";
 
 export const metadata = { title: "Painéis de TV" };
 
@@ -60,6 +60,7 @@ export default async function PaginaPaineis() {
                       }}
                       equipes={equipesDisponiveis}
                     />
+                    <VerLink id={p.id} />
                     <RegenerarLink id={p.id} />
                     <BotaoAcao size="sm" variant="ghost" acao={alternarPainel.bind(null, p.id, !p.ativo)}>
                       {p.ativo ? "Desativar" : "Ativar"}

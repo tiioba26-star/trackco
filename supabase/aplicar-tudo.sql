@@ -1422,6 +1422,14 @@ alter table trackco.parabens_vistos enable row level security;
 -- só o servidor (chave secreta) lê e grava; pelo navegador ninguém acessa
 revoke all on trackco.parabens_vistos from anon, authenticated;
 
+-- >>>>>>>>>> 20261116000014_trackco_link_tv.sql
+-- Trackco · ver o link da TV de novo sem trocar
+-- O link fica guardado cifrado (a chave está só no servidor do Trackco); a TV continua sendo
+-- encontrada pelo hash. Sem a chave do servidor, o texto guardado não serve para nada.
+alter table trackco.paineis_tv add column if not exists token_cifrado text;
+comment on column trackco.paineis_tv.token_cifrado is
+  'Link da TV cifrado (AES-256-GCM, chave no servidor), para mostrar de novo sem trocar o link.';
+
 -- >>>>>>>>>> registro das migrations (compatível com a CLI do Supabase)
 create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);
@@ -1438,7 +1446,8 @@ insert into supabase_migrations.schema_migrations (version, name) values
   ('20261112000010', 'trackco_desempenho'),
   ('20261113000011', 'trackco_confirmacoes_formularios'),
   ('20261114000012', 'trackco_sync_rapido'),
-  ('20261115000013', 'trackco_aniversarios')
+  ('20261115000013', 'trackco_aniversarios'),
+  ('20261116000014', 'trackco_link_tv')
 on conflict (version) do nothing;
 
 commit;

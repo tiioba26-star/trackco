@@ -4,10 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sessaoAcao } from "@/lib/auth";
 import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
-import { BLOCOS_TV, gerarToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
+import { BLOCOS_TV, gerarToken, hashToken, type ConfigTv, type ModoTv } from "@/lib/dados/tv";
+import { cifrarLink, decifrarLink, tokenDoLink } from "@/lib/link-tv";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
-type Ret = { ok: boolean; erro?: string; token?: string; mensagem?: string };
+type Ret = { ok: boolean; erro?: string; token?: string; mensagem?: string; semLink?: boolean };
+
+/** Guarda o link cifrado para poder mostrar de novo (se a migração 14 ainda não foi aplicada, só não guarda). */
+async function guardarCifrado(db: ReturnType<typeof criarClienteAdmin>, id: string, token: string) {
+  await db.from("paineis_tv").update({ token_cifrado: cifrarLink(token) }).eq("id", id);
+}
 const msg = (e: unknown) => (e instanceof z.ZodError ? e.issues.map((i) => i.message).join(" · ") : (e as Error).message);
 
 function extrairLinhas(valor: FormDataEntryValue | null): string[] | undefined {
@@ -81,6 +87,8 @@ export async function criarPainel(fd: FormData): Promise<Ret> {
       .from("paineis_tv")
       .insert({ nome, equipes, config, token_hash: hash, criado_por: s.colaborador.id });
     if (error) throw new Error(error.message);
+    const { data: novo } = await db.from("paineis_tv").select("id").eq("token_hash", hash).maybeSingle();
+    if (novo) await guardarCifrado(db, String(novo.id), token);
     revalidatePath("/paineis-tv");
     return { ok: true, token };
   } catch (e) {
@@ -146,8 +154,47 @@ export async function regenerarToken(id: string): Promise<Ret> {
     const db = criarClienteAdmin();
     const { error } = await db.from("paineis_tv").update({ token_hash: hash }).eq("id", id);
     if (error) throw new Error(error.message);
+    await guardarCifrado(db, id, token);
     revalidatePath("/paineis-tv");
     return { ok: true, token };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
+/** Mostra o link atual do painel, sem trocar (a TV continua funcionando). */
+export async function verLinkPainel(id: string): Promise<Ret> {
+  try {
+    await sessaoAcao({ lider: true });
+    const db = criarClienteAdmin();
+    const { data, error } = await db.from("paineis_tv").select("token_hash, token_cifrado").eq("id", id).maybeSingle();
+    if (error) {
+      if (/token_cifrado/.test(error.message)) throw new Error("Falta aplicar no banco a migração 20261116000014 (link da TV).");
+      throw new Error(error.message);
+    }
+    const token = data?.token_cifrado ? decifrarLink(String(data.token_cifrado)) : null;
+    if (!token || hashToken(token) !== data?.token_hash) return { ok: false, semLink: true };
+    return { ok: true, token };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
+/**
+ * Para painéis criados antes de o link ser guardado: a pessoa cola o link que está na TV, o sistema
+ * confere que é o link certo deste painel e passa a guardá-lo. Nada muda na TV.
+ */
+export async function guardarLinkAtual(id: string, fd: FormData): Promise<Ret> {
+  try {
+    await sessaoAcao({ lider: true });
+    const token = tokenDoLink(String(fd.get("link") ?? ""));
+    if (!token) throw new Error("Cole o link inteiro da TV (https://…/tv/…).");
+    const db = criarClienteAdmin();
+    const { data } = await db.from("paineis_tv").select("token_hash").eq("id", id).maybeSingle();
+    if (!data || hashToken(token) !== data.token_hash) throw new Error("Esse não é o link atual deste painel.");
+    const { error } = await db.from("paineis_tv").update({ token_cifrado: cifrarLink(token) }).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { ok: true, token, mensagem: "Link guardado. Agora ele pode ser visto sempre aqui." };
   } catch (e) {
     return { ok: false, erro: msg(e) };
   }

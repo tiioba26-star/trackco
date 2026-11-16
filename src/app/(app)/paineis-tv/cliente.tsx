@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Copy, ExternalLink, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, ExternalLink, Eye, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState, useTransition } from "react";
@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 import { BLOCOS_TV, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
-import { atualizarPainel, criarPainel, excluirPainel, regenerarToken } from "./actions";
+import { FormAcao } from "@/components/app/form-acao";
+import { atualizarPainel, criarPainel, excluirPainel, guardarLinkAtual, regenerarToken, verLinkPainel } from "./actions";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
   const url = token ? `${window.location.origin}/tv/${token}` : "";
@@ -22,7 +23,7 @@ function MostrarLink({ token, onClose }: { token: string | null; onClose: () => 
         <DialogHeader>
           <DialogTitle>Link do painel</DialogTitle>
           <DialogDescription>
-            Copie agora: por segurança, este link não é mostrado de novo. Abra-o no navegador da TV (sem login).
+            Abra no navegador da TV (sem login). Você pode ver este link de novo quando quiser em “Ver link”, sem que a TV pare.
           </DialogDescription>
         </DialogHeader>
         <Input readOnly value={url} onFocus={(e) => e.currentTarget.select()} className="font-mono text-xs" />
@@ -417,6 +418,62 @@ export function ExcluirPainel({ id, nome }: { id: string; nome: string }) {
               {pendente ? "Excluindo…" : "Excluir painel"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/** Mostra o link atual sem trocar (a TV continua no ar). */
+export function VerLink({ id }: { id: string }) {
+  const [token, setToken] = useState<string | null>(null);
+  const [colar, setColar] = useState(false);
+  const [pendente, iniciar] = useTransition();
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={pendente}
+        onClick={() =>
+          iniciar(async () => {
+            const r = await verLinkPainel(id);
+            if (r.ok && r.token) setToken(r.token);
+            else if (r.semLink) setColar(true);
+            else toast.error(r.erro);
+          })
+        }
+      >
+        <Eye className="size-3.5" /> Ver link
+      </Button>
+      <MostrarLink token={token} onClose={() => setToken(null)} />
+      <Dialog open={colar} onOpenChange={setColar}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Guardar o link que já está na TV</DialogTitle>
+            <DialogDescription>
+              Este painel foi criado antes de o Trackco guardar os links. Cole uma vez o link que está aberto na TV: o sistema
+              confere se é o deste painel e, daqui em diante, mostra ele sempre aqui. A TV não muda nada. Se não tiver mais o link,
+              use “Novo link” (aí o link antigo para de funcionar).
+            </DialogDescription>
+          </DialogHeader>
+          <FormAcao
+            acao={async (fd) => {
+              const r = await guardarLinkAtual(id, fd);
+              if (r.ok && r.token) {
+                setColar(false);
+                setToken(r.token);
+              }
+              return r;
+            }}
+            className="flex items-end gap-2"
+          >
+            <div className="flex-1 space-y-1.5">
+              <Label htmlFor={`link-${id}`}>Link da TV</Label>
+              <Input id={`link-${id}`} name="link" placeholder="https://trackco.ioba.com.br/tv/…" className="font-mono text-xs" required />
+            </div>
+            <Button type="submit">Guardar</Button>
+          </FormAcao>
         </DialogContent>
       </Dialog>
     </>
