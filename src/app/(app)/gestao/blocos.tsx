@@ -8,7 +8,20 @@ import { cn } from "@/lib/utils";
 export const real = (v: number | null | undefined) => fmtValor(v ?? null, "R$");
 
 /** ▲▼ contra a base de comparação. Em pontos percentuais quando o número já é %. */
-export function Delta({ atual, base, nome, pp = false }: { atual: number | null; base: number | null | undefined; nome?: string; pp?: boolean }) {
+/** `inverso`: subir é ruim (ex.: faltas), então sobe em vermelho. */
+export function Delta({
+  atual,
+  base,
+  nome,
+  pp = false,
+  inverso = false,
+}: {
+  atual: number | null;
+  base: number | null | undefined;
+  nome?: string;
+  pp?: boolean;
+  inverso?: boolean;
+}) {
   if (atual === null || base === null || base === undefined) return null;
   if (!pp && base === 0) return atual ? <span className="text-xs text-muted-foreground">antes: 0</span> : null;
   const d = pp ? atual - base : ((atual - base) / base) * 100;
@@ -16,7 +29,7 @@ export function Delta({ atual, base, nome, pp = false }: { atual: number | null;
   const sobe = d > 0;
   const Icone = sobe ? TrendingUp : TrendingDown;
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs whitespace-nowrap", sobe ? "text-up" : "text-down")}>
+    <span className={cn("inline-flex items-center gap-1 text-xs whitespace-nowrap", sobe !== inverso ? "text-up" : "text-down")}>
       <Icone className="size-3.5" />
       {sobe ? "+" : "−"}
       {fmtNum(Math.abs(d), 1)}

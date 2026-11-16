@@ -761,8 +761,8 @@ export async function abaPerdas(f: FiltrosGestao, db: Db = criarClienteAdmin()):
   };
   const motivos = new Map<string, { motivo: string; situacao: string; n: number }>();
   for (const l of a) {
-    if (l.situacao === "remarcada" || l.situacao === "falta_remarcada") continue;
-    const motivo = l.motivo || (l.situacao === "cancelada" ? "Cancelada sem motivo registrado" : "Faltou (sem motivo)");
+    if (l.situacao !== "cancelada") continue; // falta não tem motivo no Klingo
+    const motivo = l.motivo || "Sem motivo registrado";
     const k = `${l.situacao === "cancelada" ? "c" : "f"}|${motivo.toUpperCase()}`;
     const o = motivos.get(k) ?? { motivo, situacao: l.situacao === "cancelada" ? "cancelada" : "falta", n: 0 };
     o.n += l.n;

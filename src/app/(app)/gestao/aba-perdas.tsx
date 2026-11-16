@@ -19,7 +19,6 @@ function Quebra({ titulo, linhas }: { titulo: string; linhas: Dados["porPessoa"]
               <TableHead />
               <TableHead className="text-right">Faltas</TableHead>
               <TableHead className="text-right">Cancel.</TableHead>
-              <TableHead className="text-right">Remarc.</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -30,12 +29,11 @@ function Quebra({ titulo, linhas }: { titulo: string; linhas: Dados["porPessoa"]
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{fmtNum(l.faltas)}</TableCell>
                 <TableCell className="text-right tabular-nums">{fmtNum(l.canceladas)}</TableCell>
-                <TableCell className="text-right text-muted-foreground tabular-nums">{fmtNum(l.remarcadas)}</TableCell>
               </TableRow>
             ))}
             {!linhas.length && (
               <TableRow>
-                <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
+                <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
                   Nenhuma perda registrada.
                 </TableCell>
               </TableRow>
@@ -62,21 +60,21 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
           valor={fmtNum(d.totais.faltas)}
           descricao={`Consultas marcadas para ${f.janela.datas} em que o paciente não veio e não remarcou.`}
           ajuda="Pela DATA DA CONSULTA. Faltou = o dia passou e o paciente não apareceu no faturamento (relatórios 8440 e 319 do Klingo)."
-          delta={<Delta atual={d.totais.faltas} base={d.totaisBase?.faltas} nome={nomeBase} />}
+          delta={<Delta atual={d.totais.faltas} base={d.totaisBase?.faltas} nome={nomeBase} inverso />}
         />
         <Kpi
           titulo="Cancelamentos"
           valor={fmtNum(d.totais.canceladas)}
           descricao={`Consultas marcadas para ${f.janela.datas} que foram desmarcadas e não remarcadas.`}
           ajuda="Pela DATA DA CONSULTA, com o motivo que a recepção registrou no Klingo (relatório 47)."
-          delta={<Delta atual={d.totais.canceladas} base={d.totaisBase?.canceladas} nome={nomeBase} />}
+          delta={<Delta atual={d.totais.canceladas} base={d.totaisBase?.canceladas} nome={nomeBase} inverso />}
         />
         <Kpi
           titulo="Remarcações"
           valor={fmtNum(d.totais.remarcadas)}
           descricao="Consultas que mudaram de data (o paciente continua: não é perda, mas dá retrabalho)."
           ajuda="Inclui quem faltou e remarcou. Não entram na taxa de comparecimento."
-          delta={<Delta atual={d.totais.remarcadas} base={d.totaisBase?.remarcadas} nome={nomeBase} />}
+          delta={<Delta atual={d.totais.remarcadas} base={d.totaisBase?.remarcadas} nome={nomeBase} inverso />}
         />
       </div>
 
@@ -84,9 +82,9 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              Por que não aconteceu <Dica texto="Motivos registrados no Klingo para cancelamentos e faltas das consultas do período. 'Sem motivo registrado' mostra onde falta preencher na recepção." />
+              Por que cancelaram <Dica texto="Motivos que a recepção registrou no Klingo ao cancelar as consultas do período. Faltas não têm motivo no Klingo (o paciente só não veio). 'Sem motivo registrado' mostra onde falta preencher." />
             </CardTitle>
-            <CardDescription>Os 20 motivos mais comuns · consultas marcadas para {f.janela.datas}.</CardDescription>
+            <CardDescription>Os 20 motivos mais comuns · consultas canceladas marcadas para {f.janela.datas}.</CardDescription>
           </div>
           <Baixar href={`/api/gestao/csv?${filtrosParaUrl(f, { quadro: "perdas" })}`} />
         </CardHeader>
@@ -95,14 +93,14 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
             <div key={`${m.situacao}|${m.motivo}`} className="space-y-1">
               <div className="flex justify-between gap-3 text-sm">
                 <span className="min-w-0 truncate" title={m.motivo}>
-                  {m.motivo} <span className="text-xs text-muted-foreground">· {m.situacao === "cancelada" ? "cancelamento" : "falta"}</span>
+                  {m.motivo}
                 </span>
                 <b className="shrink-0 tabular-nums">{fmtNum(m.n)}</b>
               </div>
-              <Barrinha pct={(m.n / maxMot) * 100} cor={m.situacao === "cancelada" ? "var(--warn)" : "var(--down)"} />
+              <Barrinha pct={(m.n / maxMot) * 100} cor="var(--warn)" />
             </div>
           ))}
-          {!d.porMotivo.length && <p className="text-sm text-muted-foreground">Nenhuma perda registrada no período.</p>}
+          {!d.porMotivo.length && <p className="text-sm text-muted-foreground">Nenhum cancelamento no período.</p>}
         </CardContent>
       </Card>
 
