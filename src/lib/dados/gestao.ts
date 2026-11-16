@@ -22,7 +22,7 @@ import {
   type ResumoFaturamento,
   type Variacao,
 } from "@/engine/faturamento";
-import { janelaAnoAnterior, janelaAnterior, janelaRapida, textoDatas, type JanelaPeriodo } from "@/engine/periodos";
+import { janelaBase, janelaGestao, type BaseGestao, type Comparar, type JanelaGestao } from "@/engine/periodos-gestao";
 import { lembrar } from "@/lib/memoria";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
@@ -33,16 +33,15 @@ type Db = ReturnType<typeof criarClienteAdmin>;
 
 // ------------------------------------------------------------------ filtros e períodos
 
-export type PeriodoGestao = "mes" | "mes_passado" | "3m" | "ano" | "12m" | "personalizado";
-export type Comparar = "anterior" | "ano" | "nada";
+export type { Comparar, PeriodoGestao } from "@/engine/periodos-gestao";
 export type OpcaoOperadora = GrupoOperadora | "todas";
 export type OpcaoCortesia = "incluir" | "excluir" | "so";
 export type OpcaoAgenda = "todas" | "medico" | "exame";
 
 export interface FiltrosGestao {
-  janela: { inicio: string; fim: string; nome: string; datas: string; emAndamento: boolean; periodo: PeriodoGestao };
+  janela: JanelaGestao;
   comparar: Comparar;
-  base: { inicio: string; fim: string; nome: string } | null;
+  base: BaseGestao | null;
   equipe: string; // "" = clínica toda
   pessoa: string; // login do Klingo; "" = todas
   operadora: OpcaoOperadora;
@@ -60,55 +59,11 @@ const texto = (v: unknown) => (typeof v === "string" ? v.trim().slice(0, 200) : 
 const dataValida = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
 
 
-function janelaGestao(p: PeriodoGestao, de: string | null, ate: string | null, hoje: string): FiltrosGestao["janela"] {
-  const comp = competenciaDe(hoje);
-  if (p === "mes" || p === "mes_passado") {
-    const j: JanelaPeriodo = janelaRapida(p, hoje);
-    return { inicio: j.inicio, fim: j.fim, nome: j.nome, datas: j.datas, emAndamento: j.emAndamento, periodo: p };
-  }
-  if (p === "3m") {
-    const inicio = `${competenciaAnterior(comp, 3)}-01`;
-    const fim = somarDias(`${comp}-01`, -1);
-    return { inicio, fim, nome: "Últimos 3 meses fechados", datas: textoDatas(inicio, fim, hoje.slice(0, 4)), emAndamento: false, periodo: p };
-  }
-  if (p === "ano") {
-    const inicio = `${hoje.slice(0, 4)}-01-01`;
-    return { inicio, fim: hoje, nome: `${hoje.slice(0, 4)} até agora`, datas: textoDatas(inicio, hoje), emAndamento: true, periodo: p };
-  }
-  if (p === "12m") {
-    const inicio = `${competenciaAnterior(comp, 12)}-01`;
-    const fim = somarDias(`${comp}-01`, -1);
-    return { inicio, fim, nome: "Últimos 12 meses fechados", datas: textoDatas(inicio, fim, hoje.slice(0, 4)), emAndamento: false, periodo: p };
-  }
-  let inicio = de ?? `${comp}-01`;
-  let fim = ate && ate < hoje ? ate : hoje;
-  if (fim < inicio) [inicio, fim] = [fim, inicio];
-  // no máximo 2 anos por vez
-  if (Date.parse(fim) - Date.parse(inicio) > 731 * 86_400_000) inicio = somarDias(fim, -730);
-  return { inicio, fim, nome: "Período escolhido", datas: textoDatas(inicio, fim, hoje.slice(0, 4)), emAndamento: fim >= hoje, periodo: "personalizado" };
-}
-
-function janelaBase(j: FiltrosGestao["janela"], comparar: Comparar, hoje: string): FiltrosGestao["base"] {
-  if (comparar === "nada") return null;
-  if (comparar === "ano" || j.periodo === "ano") return janelaAnoAnterior(j, hoje);
-  if (j.periodo === "mes" || j.periodo === "mes_passado") {
-    return janelaAnterior({ ...j, fimPara: j.fim, periodo: j.periodo }, hoje);
-  }
-  // o mesmo número de dias logo antes
-  const dias = Math.round((Date.parse(j.fim) - Date.parse(j.inicio)) / 86_400_000) + 1;
-  const fim = somarDias(j.inicio, -1);
-  const inicio = somarDias(fim, -(dias - 1));
-  return { inicio, fim, nome: `${dias} dias antes (${textoDatas(inicio, fim, hoje.slice(0, 4))})` };
-}
-
 /** Lê os filtros da URL (com padrões seguros). */
 export function lerFiltros(sp: Record<string, string | string[] | undefined>, hoje = hojeNoFuso()): FiltrosGestao {
   const p = um(sp.p, ["mes", "mes_passado", "3m", "ano", "12m", "personalizado"] as const, "mes");
-  const de = dataValida(sp.de);
-  const ate = dataValida(sp.ate);
-  let janela = janelaGestao(p, de, ate, hoje);
-  // mudou as datas sem escolher "Escolher datas…": vale o que foi digitado
-  if (p !== "personalizado" && ((de && de !== janela.inicio) || (ate && ate !== janela.fim))) janela = janelaGestao("personalizado", de, ate, hoje);
+  // De/Até só valem em "Escolher datas…"; nos atalhos o intervalo é sempre o do atalho
+  const janela = p === "personalizado" ? janelaGestao(p, dataValida(sp.de), dataValida(sp.ate), hoje) : janelaGestao(p, null, null, hoje);
   const comparar = um(sp.comparar, ["anterior", "ano", "nada"] as const, "anterior");
   return {
     janela,

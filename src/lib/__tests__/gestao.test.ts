@@ -77,7 +77,11 @@ describe("Gestão", () => {
     expect(f.janela).toMatchObject({ inicio: "2026-10-01", fim: "2026-10-31" });
     expect(f.base).toMatchObject({ inicio: "2026-09-01", fim: "2026-09-30" });
     expect(f.operadora).toBe("Particular");
-    const outro = g.lerFiltros({ p: "mes", de: "2026-10-05", ate: "2026-10-20" }, "2026-11-16");
+    // datas que sobraram no formulário não valem num atalho (era o bug: "3 meses" virava 01/10 a 31/10)
+    const atalho = g.lerFiltros({ p: "3m", de: "2026-10-01", ate: "2026-10-31" }, "2026-11-16");
+    expect(atalho.janela).toMatchObject({ periodo: "3m", inicio: "2026-08-01", fim: "2026-10-31" });
+    expect(atalho.base).toMatchObject({ inicio: "2026-05-01", fim: "2026-07-31", nome: "maio a julho" });
+    const outro = g.lerFiltros({ p: "personalizado", de: "2026-10-05", ate: "2026-10-20" }, "2026-11-16");
     expect(outro.janela).toMatchObject({ periodo: "personalizado", inicio: "2026-10-05", fim: "2026-10-20" });
     expect(g.lerFiltros({ p: "xx", operadora: "drop table" }, "2026-11-16").operadora).toBe("Particular");
   });

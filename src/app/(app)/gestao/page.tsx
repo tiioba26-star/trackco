@@ -5,7 +5,6 @@ import { CalendarDays, FileSpreadsheet } from "lucide-react";
 import { CabecalhoPagina } from "@/components/app/blocos";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +17,7 @@ import { AbaEquipes } from "./aba-equipes";
 import { AbaFaturamento } from "./aba-faturamento";
 import { AbaPerdas } from "./aba-perdas";
 import { AbaQuem } from "./aba-quem";
+import { PeriodoGestaoCampos } from "./periodo";
 
 export const metadata = { title: "Gestão" };
 
@@ -29,15 +29,6 @@ const ABAS = [
   { k: "perdas", t: "Perdas e operadoras" },
 ] as const;
 type Aba = (typeof ABAS)[number]["k"];
-
-const PERIODOS = [
-  { k: "mes", t: "Este mês até hoje" },
-  { k: "mes_passado", t: "Mês passado" },
-  { k: "3m", t: "Últimos 3 meses fechados" },
-  { k: "ano", t: "Este ano até hoje" },
-  { k: "12m", t: "Últimos 12 meses fechados" },
-  { k: "personalizado", t: "Escolher datas…" },
-];
 
 const um = <T extends string>(v: unknown, ops: readonly T[], padrao: T): T => (typeof v === "string" && (ops as readonly string[]).includes(v) ? (v as T) : padrao);
 
@@ -59,32 +50,15 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
         <Form action="/gestao" className="space-y-3">
           <input type="hidden" name="aba" value={aba} />
           <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
-            <div className="space-y-1.5">
-              <Label htmlFor="g-p">Período</Label>
-              <NativeSelect id="g-p" name="p" defaultValue={f.janela.periodo} className="w-full">
-                {PERIODOS.map((p) => (
-                  <option key={p.k} value={p.k}>
-                    {p.t}
-                  </option>
-                ))}
-              </NativeSelect>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="g-de">De (se escolher datas)</Label>
-              <Input id="g-de" type="date" name="de" defaultValue={f.janela.inicio} max={f.hoje} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="g-ate">Até</Label>
-              <Input id="g-ate" type="date" name="ate" defaultValue={f.janela.fim} max={f.hoje} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="g-comparar">Comparar com</Label>
-              <NativeSelect id="g-comparar" name="comparar" defaultValue={f.comparar} className="w-full">
-                <option value="anterior">Período anterior (mesmos dias)</option>
-                <option value="ano">Mesmo período do ano anterior</option>
-                <option value="nada">Não comparar</option>
-              </NativeSelect>
-            </div>
+            {/* a key recria os campos quando a URL muda (ex.: "Limpar filtros") */}
+            <PeriodoGestaoCampos
+              key={`${f.janela.periodo}|${f.janela.inicio}|${f.janela.fim}|${f.comparar}`}
+              periodo={f.janela.periodo}
+              inicio={f.janela.inicio}
+              fim={f.janela.fim}
+              comparar={f.comparar}
+              hoje={f.hoje}
+            />
           </div>
           <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1.5">
