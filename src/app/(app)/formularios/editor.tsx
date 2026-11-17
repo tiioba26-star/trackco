@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -134,7 +135,7 @@ export function EditorFormulario({
                       ))}
                     </NativeSelect>
                     <label className="flex items-center gap-1.5 text-sm">
-                      <input type="checkbox" checked={p.obrigatoria} onChange={(e) => mudarPergunta(i, { obrigatoria: e.target.checked })} /> Obrigatória
+                      <Checkbox checked={p.obrigatoria} onCheckedChange={(v) => mudarPergunta(i, { obrigatoria: v })} /> Obrigatória
                     </label>
                     <Button
                       size="sm"
@@ -215,7 +216,7 @@ export function EditorFormulario({
             )}
             {f.recorrencia === "mensal" && (
               <label className="flex items-start gap-2 text-sm">
-                <input type="checkbox" className="mt-1" checked={pedirAgora} onChange={(e) => setPedirAgora(e.target.checked)} />
+                <Checkbox className="mt-0.5" checked={pedirAgora} onCheckedChange={setPedirAgora} />
                 <span>
                   Já pedir neste mês
                   <span className="block text-xs text-muted-foreground">Mesmo que o dia já tenha passado: quem entrar depois de salvar já responde.</span>
@@ -247,11 +248,10 @@ export function EditorFormulario({
                 ] as const
               ).map(([v, t]) => (
                 <label key={v} className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={f.publico.funcoes.includes(v)}
-                    onChange={(e) =>
-                      mudar("publico", { ...f.publico, funcoes: e.target.checked ? [...f.publico.funcoes, v] : f.publico.funcoes.filter((x) => x !== v) })
+                    onCheckedChange={(marcado) =>
+                      mudar("publico", { ...f.publico, funcoes: marcado ? [...f.publico.funcoes, v] : f.publico.funcoes.filter((x) => x !== v) })
                     }
                   />
                   {t}
@@ -262,13 +262,12 @@ export function EditorFormulario({
               <Label className="text-xs">Equipes (nenhuma marcada = todas)</Label>
               {equipes.map((e) => (
                 <label key={e.id} className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={f.publico.equipes.includes(e.id)}
-                    onChange={(ev) =>
+                    onCheckedChange={(marcado) =>
                       mudar("publico", {
                         ...f.publico,
-                        equipes: ev.target.checked ? [...f.publico.equipes, e.id] : f.publico.equipes.filter((x) => x !== e.id),
+                        equipes: marcado ? [...f.publico.equipes, e.id] : f.publico.equipes.filter((x) => x !== e.id),
                       })
                     }
                   />

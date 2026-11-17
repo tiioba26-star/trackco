@@ -3,9 +3,11 @@ import { CabecalhoPagina, NivelBadge } from "@/components/app/blocos";
 import { BotaoAcao, FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Pilula } from "@/components/ui/pilula";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { titulo } from "@/engine/classificacao";
 import { formatarDataBR, hojeNoFuso } from "@/engine/datas";
@@ -192,28 +194,24 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 <div className="flex items-center gap-1"><Label>Dias de trabalho (para dias úteis e meta proporcional)</Label><Dica id="eq.dias" /></div>
                 <div className="flex flex-wrap gap-2">
                   {DIAS.map(([n, t]) => (
-                    <label key={n} className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm">
-                      <input type="checkbox" name="dias_trabalho" value={n} defaultChecked={e.dias_trabalho.includes(n)} />
+                    <Pilula key={n} name="dias_trabalho" value={n} defaultChecked={e.dias_trabalho.includes(n)}>
                       {t}
-                    </label>
+                    </Pilula>
                   ))}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1"><Label>Etapas do fechamento</Label><Dica id="eq.etapas" /></div>
-                <div className="space-y-1.5 text-sm">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="etapas" value="contestacao" defaultChecked={e.etapas_aprovacao.includes("contestacao")} />
+                <div className="flex flex-wrap gap-2">
+                  <Pilula name="etapas" value="contestacao" defaultChecked={e.etapas_aprovacao.includes("contestacao")}>
                     Prazo de contestação dos colaboradores
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="etapas" value="lider" defaultChecked={e.etapas_aprovacao.includes("lider")} />
+                  </Pilula>
+                  <Pilula name="etapas" value="lider" defaultChecked={e.etapas_aprovacao.includes("lider")}>
                     Conferência do líder
-                  </label>
-                  <label className="flex items-center gap-2 text-muted-foreground">
-                    <input type="checkbox" name="etapas" value="admin" defaultChecked disabled />
+                  </Pilula>
+                  <Pilula name="etapas" value="admin" defaultChecked disabled>
                     Aprovação do admin (obrigatória)
-                  </label>
+                  </Pilula>
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -221,7 +219,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 <Input type="number" name="prazo_contestacao_dias" min={0} max={31} defaultValue={e.prazo_contestacao_dias} className="w-28" />
               </div>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="ativo" defaultChecked={e.ativo} /> Equipe ativa
+                <Checkbox name="ativo" defaultChecked={e.ativo} /> Equipe ativa
               </label>
               <Button type="submit">Salvar configuração</Button>
             </FormAcao>

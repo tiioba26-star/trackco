@@ -6,6 +6,7 @@ import { CabecalhoPagina, Rotulo } from "@/components/app/blocos";
 import { CORES_SERIES, GraficoComparativo, GraficoMultiplo } from "@/components/graficos/comparativo";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -379,7 +380,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
             {seletorQuem || <div />}
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="acum" value="1" defaultChecked={acumulado} /> Acumulado
+                <Checkbox name="acum" value="1" defaultChecked={acumulado} /> Acumulado
                 <Dica texto="Ligado: cada ponto soma tudo desde o início do período (vê o mês se formando). Desligado: cada ponto mostra só aquele dia/mês." />
               </label>
               <button type="submit" className={buttonVariants()}>

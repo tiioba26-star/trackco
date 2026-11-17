@@ -4,6 +4,7 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,7 +53,7 @@ export function EditarColaborador({
               </NativeSelect>
             </div>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="ativo" defaultChecked={c.ativo} /> Ainda trabalha na clínica (desmarque só para quem saiu)
+              <Checkbox name="ativo" defaultChecked={c.ativo} /> Ainda trabalha na clínica (desmarque só para quem saiu)
             </label>
             <Button type="submit">Salvar</Button>
           </FormAcao>

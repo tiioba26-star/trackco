@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Check } from "lucide-react";
 import { Suspense } from "react";
 import { RodapeVersiculo } from "@/components/app/versiculo";
 import { Logo } from "@/components/logo";
@@ -33,16 +34,15 @@ export default function PaginaLogin(props: PageProps<"/login">) {
           <Logo claro />
         </div>
         <div className="relative max-w-md space-y-5">
-          <h1 className="text-4xl leading-tight font-semibold">
-            Metas, desempenho e reconhecimento. <span className="text-[#9ec5f4]">Com clareza total.</span>
-          </h1>
+          <h1 className="text-4xl leading-tight font-semibold">Metas, desempenho e reconhecimento, com clareza.</h1>
           <p className="text-base text-white/80">
             Acompanhe seus agendamentos e consultas realizadas em tempo quase real, entenda como cada número foi
             calculado e conteste o que estiver errado.
           </p>
-          <ul className="grid grid-cols-2 gap-3 text-sm">
+          <ul className="space-y-2 text-sm text-white/80">
             {["Cálculo automático", "Regras transparentes", "Extrato com memorial", "Fechamento com aprovação"].map((t) => (
-              <li key={t} className="rounded-lg bg-white/10 px-3 py-2 backdrop-blur">
+              <li key={t} className="flex items-center gap-2">
+                <Check aria-hidden className="size-4 shrink-0 text-[#9ec5f4]" />
                 {t}
               </li>
             ))}
@@ -56,7 +56,10 @@ export default function PaginaLogin(props: PageProps<"/login">) {
           <div className="lg:hidden">
             <Logo />
           </div>
-          <h2 className="text-2xl font-semibold">Entrar</h2>
+          <div className="space-y-1.5">
+            <h2 className="text-2xl font-semibold">Entrar</h2>
+            <p className="text-sm text-muted-foreground">Use o usuário e a senha que a administração da IOBA cadastrou para você.</p>
+          </div>
           <Suspense fallback={<FormLogin next="/" />}>
             <FormComParametros searchParams={props.searchParams} />
           </Suspense>

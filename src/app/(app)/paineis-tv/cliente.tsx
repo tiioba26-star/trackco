@@ -6,9 +6,11 @@ import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Pilula } from "@/components/ui/pilula";
 import { Textarea } from "@/components/ui/textarea";
 import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 import { BLOCOS_TV, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
@@ -64,7 +66,7 @@ function ListaModos({ config }: { config?: ConfigTv }) {
         {BLOCOS_TV.map((b) => (
           <div key={b.bloco} className="flex items-start justify-between gap-3">
             <label className="flex items-start gap-2 text-sm">
-              <input type="checkbox" name="blocos" value={b.bloco} defaultChecked={blocos.includes(b.bloco)} className="mt-1" />
+              <Checkbox name="blocos" value={b.bloco} defaultChecked={blocos.includes(b.bloco)} className="mt-0.5" />
               <span>
                 {b.rotulo}
                 <span className="block text-xs text-muted-foreground">{b.descricao}</span>
@@ -87,11 +89,11 @@ function ListaModos({ config }: { config?: ConfigTv }) {
       </div>
       <div className="space-y-1.5">
         <Label>Períodos</Label>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {PERIODOS_RAPIDOS.map((p) => (
-            <label key={p} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="periodos" value={p} defaultChecked={cfg.periodos!.includes(p)} /> {ROTULO_PERIODO[p]}
-            </label>
+            <Pilula key={p} name="periodos" value={p} defaultChecked={cfg.periodos!.includes(p)}>
+              {ROTULO_PERIODO[p]}
+            </Pilula>
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
@@ -132,7 +134,7 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
           <Label>Equipes</Label>
           {equipes.map((e) => (
             <label key={e.id} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="equipes" value={e.id} defaultChecked={equipes.length === 1} /> {e.nome}
+              <Checkbox name="equipes" value={e.id} defaultChecked={equipes.length === 1} /> {e.nome}
             </label>
           ))}
         </div>
@@ -280,12 +282,7 @@ export function EditarPainel({
               <Label>Equipes</Label>
               {equipes.map((e) => (
                 <label key={e.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    name="equipes"
-                    value={e.id}
-                    defaultChecked={painel.equipes.includes(e.id)}
-                  />
+                  <Checkbox name="equipes" value={e.id} defaultChecked={painel.equipes.includes(e.id)} />
                   {e.nome}
                 </label>
               ))}
