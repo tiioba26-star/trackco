@@ -95,6 +95,7 @@ const PERGUNTAS: readonly {
 ];
 
 const ddmm = (dia: string) => formatarDataBR(dia).slice(0, 5);
+const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
 /** Valor de uma série até um dia (inclusive): soma dos dias ou, no acumulado, o próprio ponto. */
 function ate(pontos: PontoAnalise[], campo: "a" | "b", limite: string, acumulado: boolean): number {
@@ -469,35 +470,72 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Tabela</CardTitle>
-              <CardDescription>Role a lista: os títulos das colunas ficam parados no topo.</CardDescription>
+              <CardTitle>
+                {a.nome}
+                {b ? ` e ${b.nome}` : ""}, {g === "dia" ? "dia a dia" : "mês a mês"}
+              </CardTitle>
+              <CardDescription>{g === "dia" ? nomeCompetencia(mes) : periodo}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
+              {/* no celular as colunas viram A / B: a legenda diz quem é quem (mesmas cores do gráfico) */}
+              <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground sm:hidden">
+                <li className="flex items-center gap-1.5">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ background: "var(--chart-1)" }} />
+                  <b className="text-foreground">A</b> {a.nome}
+                </li>
+                {b && (
+                  <li className="flex items-center gap-1.5">
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: "var(--chart-3)" }} />
+                    <b className="text-foreground">B</b> {b.nome}
+                  </li>
+                )}
+              </ul>
               <Table containerClassName="max-h-[440px] overflow-y-auto rounded-lg border">
                 <TableHeader className="sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_var(--border)] [&_tr]:border-b-0">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="sticky left-0 z-20 bg-card">{g === "dia" ? "Dia" : "Mês"}</TableHead>
-                    <TableHead className="text-right">{a.nome}</TableHead>
-                    {b && <TableHead className="text-right">{b.nome}</TableHead>}
+                    <TableHead className="text-right">
+                      <span className="sm:hidden">A</span>
+                      <span className="hidden sm:inline">{a.nome}</span>
+                    </TableHead>
+                    {b && (
+                      <TableHead className="text-right">
+                        <span className="sm:hidden">B</span>
+                        <span className="hidden sm:inline">{b.nome}</span>
+                      </TableHead>
+                    )}
                     {b && contagens && <TableHead className="text-right">B ÷ A</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {resultado.pontos.map((p) => (
-                    <TableRow key={p.chave} className={p.futuro ? "text-muted-foreground" : ""}>
-                      <TableCell className="sticky left-0 z-[1] bg-card capitalize">
-                        {g === "dia" ? p.chave.split("-").reverse().join("/") : p.rotulo}
-                        {p.futuro ? " · a acontecer" : g === "dia" && p.chave === hoje ? " · hoje" : ""}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">{fmtValor(p.a, a.unidade)}</TableCell>
-                      {b && <TableCell className="text-right tabular-nums">{fmtValor(p.b, b.unidade)}</TableCell>}
-                      {b && contagens && (
-                        <TableCell className="text-right tabular-nums">
-                          {p.futuro || !p.a ? "—" : fmtPct(((p.b ?? 0) / p.a) * 100)}
+                  {resultado.pontos.map((p) => {
+                    const marca = p.futuro ? "a acontecer" : g === "dia" && p.chave === hoje ? "hoje" : "";
+                    const [ano, m, d] = p.chave.split("-");
+                    return (
+                      <TableRow key={p.chave} className={p.futuro ? "text-muted-foreground" : ""}>
+                        <TableCell className="sticky left-0 z-[1] bg-card capitalize">
+                          {g === "dia" ? (
+                            <>
+                              <span className="sm:hidden">
+                                {d}/{m} <span className="text-xs text-muted-foreground">{DIA_SEMANA[new Date(Date.UTC(Number(ano), Number(m) - 1, Number(d))).getUTCDay()]}</span>
+                              </span>
+                              <span className="hidden sm:inline">
+                                {d}/{m}/{ano}
+                              </span>
+                            </>
+                          ) : (
+                            p.rotulo
+                          )}
+                          {marca && <span className="block text-[11px] text-muted-foreground normal-case sm:inline sm:text-sm"><span className="hidden sm:inline"> · </span>{marca}</span>}
                         </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
+                        <TableCell className="text-right tabular-nums">{fmtValor(p.a, a.unidade)}</TableCell>
+                        {b && <TableCell className="text-right tabular-nums">{fmtValor(p.b, b.unidade)}</TableCell>}
+                        {b && contagens && (
+                          <TableCell className="text-right tabular-nums">{p.futuro || !p.a ? "—" : fmtPct(((p.b ?? 0) / p.a) * 100)}</TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>

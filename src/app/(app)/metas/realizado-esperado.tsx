@@ -216,7 +216,7 @@ export async function RealizadoEsperado({
 
           <Card>
             <CardHeader>
-              <CardTitle>Tabela</CardTitle>
+              <CardTitle>Realizado e esperado de cada indicador, {f.ver === "mes" ? "mês a mês" : "dia a dia"}</CardTitle>
               <CardDescription>
                 {f.ver === "mes"
                   ? "No mês em andamento, o esperado é o que a meta pedia até hoje (a meta do mês inteiro aparece embaixo)."
