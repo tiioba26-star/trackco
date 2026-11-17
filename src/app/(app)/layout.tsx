@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { Cabecalho } from "@/components/app/cabecalho";
+import { ConviteInstalar } from "@/components/app/convite-instalar";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
 import { RodapeVersiculo } from "@/components/app/versiculo";
@@ -81,6 +82,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
       <Suspense fallback={null}>
         <IndicadorNavegacao />
       </Suspense>
+      <ConviteInstalar />
     </SidebarProvider>
   );
 }
