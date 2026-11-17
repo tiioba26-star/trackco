@@ -265,7 +265,7 @@ export const AJUDA: Record<string, Ajuda> = {
     resumo: [
       "Pessoas com acesso ao Trackco. O login é o mesmo do sistema de relatórios (mesmo usuário e senha).",
       "O 'login no Klingo' liga a pessoa às linhas do Klingo (campo Responsável). Sem ele, os agendamentos não são atribuídos.",
-      "Perfis: Admin (configura tudo), Gestor (vê tudo, não configura) e Colaborador (vê o próprio; se for líder de equipe, vê a equipe).",
+      "Perfis: Admin (configura tudo), Somente leitura (vê tudo o que o admin vê, não altera nada), Gestor (vê os números de todos, não configura) e Colaborador (vê o próprio; se for líder de equipe, vê a equipe).",
       "Aniversário: o Klingo não guarda a data de nascimento dos funcionários, então ela é lançada aqui (o líder lança a da equipe). No dia, a pessoa recebe os parabéns ao abrir o Trackco (e pode rever em “Meus parabéns”, no menu); líderes e administradores veem os aniversariantes do mês na retrospectiva e a prévia dos parabéns de cada pessoa. A idade nunca aparece para a equipe.",
       "O líder vê aqui só a própria equipe: lança aniversários e redefine a senha dos colaboradores dela.",
     ],

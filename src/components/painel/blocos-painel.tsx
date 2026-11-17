@@ -384,7 +384,7 @@ export async function BlocoEquipe({
     resumoPeriodo(db, { pessoas, metricas, janela, hoje, categoria }),
     s.vêTudo ? alertasGestao(db, competenciaDe(hoje)) : Promise.resolve(null),
     comp ? apuracoesDaEquipe(db, equipe.id, comp) : Promise.resolve([]),
-    s.ehAdmin ? coberturaFaturamento(undefined, 2) : Promise.resolve([]),
+    s.veComoAdmin ? coberturaFaturamento(undefined, 2) : Promise.resolve([]),
   ]);
   // mês passado (fechado) com menos de 95% do faturamento ligado a marcações: vale conferir os dados
   const coberturaBaixa = cobertura.find((c) => c.mes < competenciaDe(hoje) && c.pct !== null && c.pct < 95);

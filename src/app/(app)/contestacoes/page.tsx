@@ -84,7 +84,7 @@ export default async function PaginaContestacoes(props: PageProps<"/contestacoes
         <div className="space-y-3" data-tour="contest-lista">
           {lista.map((c) => {
             const l = c.origem_chave ? linhas.get(c.origem_chave) : undefined;
-            const podeResponder = gestor && c.colaborador_id !== s.colaborador.id && ["aberta", "em_analise"].includes(c.status);
+            const podeResponder = gestor && !s.somenteLeitura && c.colaborador_id !== s.colaborador.id && ["aberta", "em_analise"].includes(c.status);
             return (
               <Card key={c.id}>
                 <CardContent className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">

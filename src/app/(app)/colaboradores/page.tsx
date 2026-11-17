@@ -16,12 +16,12 @@ import { Dica } from "@/components/ajuda/dica";
 
 export const metadata = { title: "Colaboradores" };
 
-const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", colaborador: "Colaborador" };
+const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", leitura: "Somente leitura", colaborador: "Colaborador" };
 
 export default async function PaginaColaboradores() {
   const s = await exigirGestaoOuLider();
-  // líder (e gestor) só lança aniversários; o resto da tela é do administrador
-  if (!s.ehAdmin) return <AniversariosDaEquipe s={s} />;
+  // líder (e gestor) só lança aniversários; o resto da tela é do administrador (o somente leitura vê, não altera)
+  if (!s.veComoAdmin) return <AniversariosDaEquipe s={s} />;
   const db = await criarClienteServidor();
   const [{ data }, { data: klingo }, nasc] = await Promise.all([
     db
@@ -135,6 +135,7 @@ export default async function PaginaColaboradores() {
                 <NativeSelect name="papel" defaultValue="colaborador">
                   <option value="colaborador">Colaborador</option>
                   <option value="gestor">Gestor</option>
+                  <option value="leitura">Somente leitura</option>
                   <option value="admin">Administrador</option>
                 </NativeSelect>
               </div>

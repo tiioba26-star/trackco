@@ -69,7 +69,7 @@ export const DICAS = {
   "colab.klingo":
     "O login da pessoa no Klingo (campo 'Responsável' dos relatórios). É o que liga os agendamentos do Klingo a esta pessoa. Sem ele, nada é atribuído.",
   "colab.perfil":
-    "Administrador = configura tudo. Gestor = vê tudo, mas não configura. Colaborador = vê o próprio painel (e a equipe, se for líder em Equipes).",
+    "Administrador = configura tudo. Somente leitura = vê tudo o que o administrador vê, mas não altera nada (para quem não usa o Klingo, como tráfego pago e contador). Gestor = vê os números de todos, mas não configura. Colaborador = vê o próprio painel (e a equipe, se for líder em Equipes).",
 
   // ---------- Dados ----------
   "lanc.tipo": "Código do lançamento que a métrica procura (ex.: avaliacao_lider para a nota do líder, checklist_limpeza para a limpeza).",

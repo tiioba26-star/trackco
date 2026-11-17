@@ -12,7 +12,7 @@ const csv = (cab: string[], linhas: unknown[][]) => "﻿" + [cab, ...linhas].map
 
 export async function GET(request: Request) {
   const s = await obterSessao();
-  if (!s?.ehAdmin) return NextResponse.json({ erro: "sem permissão" }, { status: 403 });
+  if (!s?.veComoAdmin) return NextResponse.json({ erro: "sem permissão" }, { status: 403 });
   const url = new URL(request.url);
   const f = lerFiltros(Object.fromEntries(url.searchParams));
   const quadro = url.searchParams.get("quadro") ?? "colaboradores";

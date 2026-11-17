@@ -47,6 +47,7 @@ export function EditarColaborador({
               <NativeSelect name="papel" defaultValue={c.papel}>
                 <option value="colaborador">Colaborador</option>
                 <option value="gestor">Gestor (vê tudo, não configura)</option>
+                <option value="leitura">Somente leitura (vê o que o administrador vê, não altera nada)</option>
                 <option value="admin">Administrador</option>
               </NativeSelect>
             </div>

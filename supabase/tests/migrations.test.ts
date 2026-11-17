@@ -392,6 +392,37 @@ describe("faturamento (319) e Gestão", () => {
   });
 });
 
+describe("somente leitura", () => {
+  it("vê o que o administrador vê e não grava nada", async () => {
+    await db.exec(`update trackco.colaboradores set papel = 'leitura' where login = 'bia'`);
+    try {
+      // tabelas só do administrador (auditoria, planos) e as de "vê tudo" (agendamentos de todos)
+      const aud = await como(U.bia, () => db.query<{ n: number }>(`select count(*)::int n from trackco.auditoria`));
+      const audAdmin = await como(U.admin, () => db.query<{ n: number }>(`select count(*)::int n from trackco.auditoria`));
+      expect(aud.rows[0].n).toBe(audAdmin.rows[0].n);
+      const k = await como(U.bia, () => db.query<{ n: number }>(`select count(*)::int n from trackco.klingo_agendamentos`));
+      expect(k.rows[0].n).toBe(3);
+      const planos = await como(U.bia, () => db.query<{ n: number }>(`select count(*)::int n from trackco.planos`));
+      expect(planos.rows[0].n).toBeGreaterThan(0);
+      await como(U.bia, () => db.query(`select * from trackco.logins_klingo_sem_vinculo('2026-01-01')`));
+
+      // gravar: nada passa
+      const up = await como(U.bia, () => db.query(`update trackco.planos set nome = nome || ' x' returning id`));
+      expect(up.rows.length).toBe(0);
+      await expect(
+        como(U.bia, () => db.query(`insert into trackco.equipes (nome) values ('Nova')`)),
+      ).rejects.toThrow(/row-level security/);
+      await expect(como(U.bia, () => db.query(`update trackco.colaboradores set papel = 'admin' where login = 'bia'`))).resolves.toMatchObject({ affectedRows: 0 });
+    } finally {
+      await db.exec(`update trackco.colaboradores set papel = 'colaborador' where login = 'bia'`);
+    }
+  });
+
+  it("o banco aceita o papel novo e recusa papel inventado", async () => {
+    await expect(db.exec(`update trackco.colaboradores set papel = 'chefe' where login = 'bia'`)).rejects.toThrow(/colaboradores_papel_check/);
+  });
+});
+
 describe("dados das análises da IA", () => {
   it("séries mensais por pessoa e desfechos pela data da consulta", async () => {
     const s = await db.query<{ r: unknown[][] }>(`select trackco.gestao_series_mensais('2026-10-01', '2026-10-31', '2026-11-16') as r`);

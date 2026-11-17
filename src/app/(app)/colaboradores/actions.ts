@@ -36,7 +36,7 @@ export async function criarColaborador(fd: FormData): Promise<RetornoAcao> {
         nome: z.string().trim().min(3, "Informe o nome completo."),
         login: LoginZ,
         login_klingo: z.string().trim().max(60).optional(),
-        papel: z.enum(["admin", "gestor", "colaborador"]),
+        papel: z.enum(["admin", "gestor", "leitura", "colaborador"]),
         senha: z.string().optional(),
       })
       .parse(Object.fromEntries(fd));
@@ -76,7 +76,7 @@ export async function atualizarColaborador(id: string, fd: FormData): Promise<Re
       .object({
         nome: z.string().trim().min(3),
         login_klingo: z.string().trim().max(60).optional(),
-        papel: z.enum(["admin", "gestor", "colaborador"]),
+        papel: z.enum(["admin", "gestor", "leitura", "colaborador"]),
         ativo: z.enum(["on"]).optional(),
       })
       .parse(Object.fromEntries(fd));

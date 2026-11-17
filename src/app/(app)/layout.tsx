@@ -1,3 +1,4 @@
+import { Eye } from "lucide-react";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AppSidebar } from "@/components/app/app-sidebar";
@@ -55,9 +56,15 @@ async function Shell({ children }: { children: React.ReactNode }) {
   const equipes = s.equipes.map((e) => (e.funcao === "lider" ? `líder ${e.nome}` : e.nome)).join(", ");
   return (
     <SidebarProvider defaultOpen={aberto}>
-      <AppSidebar perfil={{ admin: s.ehAdmin, gestao: s.vêTudo || s.lidera.length > 0 }} />
+      <AppSidebar perfil={{ admin: s.veComoAdmin, gestao: s.vêTudo || s.lidera.length > 0 }} />
       <SidebarInset className="min-w-0">
         <Cabecalho nome={s.colaborador.nome} papel={s.colaborador.papel} equipes={equipes} />
+        {s.somenteLeitura && (
+          <p className="flex items-center gap-2 border-b bg-muted/50 px-4 py-2 text-xs text-muted-foreground md:px-6">
+            <Eye className="size-3.5 shrink-0" />
+            Acesso somente leitura: você vê tudo o que o administrador vê. Para mudar algo, peça a um administrador.
+          </p>
+        )}
         <div className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6" data-conteudo>
           <Suspense
             fallback={

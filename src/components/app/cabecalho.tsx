@@ -26,7 +26,7 @@ function iniciais(nome: string) {
   return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
 }
 
-const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", colaborador: "Colaborador" };
+const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", leitura: "Somente leitura", colaborador: "Colaborador" };
 
 export function Cabecalho({ nome, papel, equipes }: { nome: string; papel: string; equipes: string }) {
   const pathname = usePathname();

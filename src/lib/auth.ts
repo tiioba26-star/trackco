@@ -4,7 +4,8 @@ import { cache } from "react";
 import { hojeNoFuso } from "@/engine/datas";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
-export type Papel = "admin" | "gestor" | "colaborador";
+/** leitura = "Somente leitura": vê tudo o que o administrador vê e não altera nada (ex.: tráfego pago, contador). */
+export type Papel = "admin" | "gestor" | "leitura" | "colaborador";
 
 export interface EquipeDoUsuario {
   equipe_id: string;
@@ -24,8 +25,13 @@ export interface Sessao {
   equipes: EquipeDoUsuario[];
   /** equipes que o usuário lidera hoje */
   lidera: string[];
+  /** pode configurar e aprovar (só o administrador) */
   ehAdmin: boolean;
-  /** admin ou gestor: vê tudo */
+  /** entra nas telas de administrador para ver (administrador ou somente leitura) */
+  veComoAdmin: boolean;
+  /** só vê: nenhuma ação de administrador ou de líder passa */
+  somenteLeitura: boolean;
+  /** admin, gestor ou somente leitura: vê tudo */
   vêTudo: boolean;
 }
 
@@ -86,7 +92,9 @@ export const obterSessao = cache(async (): Promise<Sessao | null> => {
     equipes,
     lidera: equipes.filter((e) => e.funcao === "lider").map((e) => e.equipe_id),
     ehAdmin: papel === "admin",
-    vêTudo: papel === "admin" || papel === "gestor",
+    veComoAdmin: papel === "admin" || papel === "leitura",
+    somenteLeitura: papel === "leitura",
+    vêTudo: papel === "admin" || papel === "gestor" || papel === "leitura",
   };
 });
 
@@ -96,9 +104,10 @@ export async function exigirSessao(): Promise<Sessao> {
   return s;
 }
 
+/** Telas de administrador: o administrador e o somente leitura entram (este só vê; as ações recusam, ver sessaoAcao). */
 export async function exigirAdmin(): Promise<Sessao> {
   const s = await exigirSessao();
-  if (!s.ehAdmin) redirect("/?erro=restrito");
+  if (!s.veComoAdmin) redirect("/?erro=restrito");
   return s;
 }
 
@@ -113,6 +122,8 @@ export async function exigirGestaoOuLider(): Promise<Sessao> {
 export async function sessaoAcao(opcoes: { admin?: boolean; lider?: boolean } = {}): Promise<Sessao> {
   const s = await obterSessao();
   if (!s) throw new Error("Sessão expirada. Entre novamente.");
+  if ((opcoes.admin || opcoes.lider) && s.somenteLeitura)
+    throw new Error("Seu acesso é somente leitura: você vê tudo, mas quem altera é um administrador.");
   if (opcoes.admin && !s.ehAdmin) throw new Error("Apenas administradores podem fazer isso.");
   if (opcoes.lider && !s.vêTudo && s.lidera.length === 0) throw new Error("Apenas líderes e gestores podem fazer isso.");
   return s;
