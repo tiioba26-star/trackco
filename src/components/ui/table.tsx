@@ -6,12 +6,23 @@ import { cn } from "cn"
 function Table({
   className,
   containerClassName,
+  fixarPrimeira = true,
   ...props
-}: React.ComponentProps<"table"> & { containerClassName?: string }) {
+}: React.ComponentProps<"table"> & {
+  containerClassName?: string
+  /** primeira coluna parada ao rolar de lado (o nome continua à vista) */
+  fixarPrimeira?: boolean
+}) {
   return (
     <div
       data-slot="table-container"
-      className={cn("relative w-full overflow-x-auto", containerClassName)}
+      className={cn(
+        // sombra nas bordas quando há colunas escondidas (rola de lado)
+        "rolagem-sombra relative w-full overflow-x-auto",
+        fixarPrimeira &&
+          "[&_tr>*:first-child]:sticky [&_tr>*:first-child]:left-0 [&_tr>*:first-child]:z-[1] [&_tr>*:first-child]:bg-card",
+        containerClassName
+      )}
     >
       <table
         data-slot="table"

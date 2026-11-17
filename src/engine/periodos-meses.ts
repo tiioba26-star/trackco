@@ -7,7 +7,7 @@ export type AtalhoMeses = "mes" | "mes_passado" | "6m" | "3m" | "ano" | "12m" | 
 export const ATALHOS_MESES: { k: AtalhoMeses; t: string }[] = [
   { k: "mes", t: "Este mês" },
   { k: "mes_passado", t: "Mês passado" },
-  { k: "6m", t: "Últimos 6 meses (até este)" },
+  { k: "6m", t: "Últimos 6 meses" },
   { k: "3m", t: "Últimos 3 meses fechados" },
   { k: "ano", t: "Este ano" },
   { k: "12m", t: "Últimos 12 meses fechados" },

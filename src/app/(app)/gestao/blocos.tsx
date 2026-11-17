@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 
 export const real = (v: number | null | undefined) => fmtValor(v ?? null, "R$");
 
-/** "outubro (01/10 a 17/10)": com o que a variação está sendo comparada, sempre com as datas. */
+/** "01/10 a 17/10": com o que a variação está sendo comparada, pelas datas (curto, cabe nos cartões). */
 export function textoBase(base: BaseGestao | null | undefined): string | undefined {
   if (!base) return undefined;
-  return base.nome.includes("(") ? base.nome : `${base.nome} (${textoDatas(base.inicio, base.fim)})`;
+  return textoDatas(base.inicio, base.fim);
 }
 
 /** ▲▼ contra a base de comparação. Em pontos percentuais quando o número já é %. */

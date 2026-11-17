@@ -8,7 +8,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { competenciaAnterior, competenciaDe, formatarDataBR, hojeNoFuso, nomeCompetencia, somarDias } from "@/engine/datas";
@@ -235,8 +234,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   };
 
   const seletorQuem = gestao && (
-    <div className="min-w-56 space-y-1.5">
-      <Label>Equipe ou pessoa</Label>
+    <Campo rotulo="Equipe ou pessoa">
       <NativeSelect name="pessoa" defaultValue={pessoa?.id ?? ""}>
         <option value="">Equipe {equipe?.nome ?? ""} (todos)</option>
         {pessoas
@@ -248,7 +246,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
           ))}
       </NativeSelect>
       {equipe && <input type="hidden" name="equipe" value={equipe.id} />}
-    </div>
+    </Campo>
   );
 
   return (
@@ -343,7 +341,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
             <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Sua análise</div>
             <p className="text-sm text-muted-foreground">Escolha as métricas, a visão e o período. Depois clique em Aplicar.</p>
           </div>
-          <Form action="/analise" className="grid items-end gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <Form action="/analise" className="grid items-end gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
             <input type="hidden" name="modo" value="livre" />
             <EscolhaMetricas
               key={selecionadas.map((m) => m.codigo).join(",")}
@@ -365,7 +363,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
                 <Input type="month" name="mes" defaultValue={mes} className="bg-background" />
               </Campo>
             ) : (
-              <div className="grid gap-x-2 gap-y-5 sm:grid-cols-3 md:col-span-2 xl:col-span-3">
+              <div className="grid items-start gap-x-2 gap-y-5 sm:grid-cols-3 md:col-span-2 xl:col-span-3">
                 <PeriodoMeses key={`${de}|${ateMes}`} de={de} ate={ateMes} atual={atual} id="an" />
               </div>
             )}

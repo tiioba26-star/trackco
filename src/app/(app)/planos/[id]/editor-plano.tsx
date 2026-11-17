@@ -206,7 +206,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               <Campo rotulo="Conta de quem" dica="ind.escopo">
                 <NativeSelect value={ind.escopo} onChange={(e) => setInd(i, { escopo: e.target.value as Indicador["escopo"] })}>
                   <option value="individual">De cada pessoa</option>
-                  <option value="equipe">Da equipe toda (soma)</option>
+                  <option value="equipe">Da equipe toda</option>
                 </NativeSelect>
               </Campo>
               <Campo rotulo="Vale para" dica="ind.aplica_a">
@@ -219,7 +219,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               <Campo rotulo="Peso" dica="ind.peso">
                 <Input type="number" min={0} value={ind.peso} onChange={(e) => setInd(i, { peso: Number(e.target.value) })} />
               </Campo>
-              <Campo rotulo="Conta até no máximo (%)" dica="ind.teto">
+              <Campo rotulo="Máximo (%)" dica="ind.teto">
                 <Input type="number" min={1} value={ind.teto_pct} onChange={(e) => setInd(i, { teto_pct: Number(e.target.value) })} />
               </Campo>
               <label className="flex items-center gap-2 self-end pb-1.5 text-sm md:col-span-2">
@@ -227,7 +227,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 Meta proporcional aos dias trabalhados <Dica id="ind.proporcional" />
               </label>
               {ind.escopo === "equipe" ? (
-                <label className="flex items-center gap-2 self-end pb-1.5 text-sm">
+                <label className="flex items-center gap-2 self-end pb-1.5 text-sm md:col-span-2">
                   <Switch checked={!!ind.incluir_lider} onCheckedChange={(v) => setInd(i, { incluir_lider: v })} />
                   Incluir produção do líder <Dica id="ind.incluir_lider" />
                 </label>
@@ -524,7 +524,8 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         </CardContent>
       </Card>
 
-      <div className="sticky bottom-0 z-10 -mx-4 flex flex-wrap justify-end gap-2 border-t bg-background/90 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
+      {/* numa linha só também no celular (em duas, a barra cobria muito do formulário) */}
+      <div className="sticky bottom-[var(--nav-inferior)] z-10 -mx-4 flex justify-end gap-2 border-t bg-background/90 px-4 py-2.5 backdrop-blur md:-mx-6 md:px-6">
         {plano.status !== "ativo" ? (
           <Button variant="outline" onClick={() => status("ativo")} disabled={leitura}>
             Ativar para a equipe
@@ -535,10 +536,10 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
           </Button>
         )}
         <Button variant="outline" onClick={salvar} disabled={salvando || leitura}>
-          <Save /> Salvar rascunho
+          <Save /> Salvar<span className="hidden sm:inline"> rascunho</span>
         </Button>
         <Button onClick={() => setPublicar(true)} data-tour="plano-publicar" disabled={leitura}>
-          <Rocket /> Publicar versão
+          <Rocket /> Publicar<span className="hidden sm:inline"> versão</span>
         </Button>
       </div>
 

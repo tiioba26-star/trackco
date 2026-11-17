@@ -57,10 +57,10 @@ export function RecalcularPeriodo({ atual }: { atual: string }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end gap-2">
         <Campo rotulo="De">
-          <Input type="month" value={de} onChange={(e) => setDe(e.target.value)} className="w-40" />
+          <Input type="month" value={de} onChange={(e) => setDe(e.target.value)} className="w-48" />
         </Campo>
         <Campo rotulo="Até">
-          <Input type="month" value={ate} max={atual} onChange={(e) => setAte(e.target.value)} className="w-40" />
+          <Input type="month" value={ate} max={atual} onChange={(e) => setAte(e.target.value)} className="w-48" />
         </Campo>
         <Button variant="outline" onClick={rodar} disabled={rodando || leitura}>
           <History /> {rodando ? `Recalculando ${feitos}/${total}…` : "Recalcular período"}

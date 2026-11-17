@@ -131,12 +131,13 @@ function CamposPainel({ equipes, painel }: { equipes: { id: string; nome: string
       <ListaModos config={cfg} />
       <div className="grid grid-cols-2 gap-x-2 gap-y-5">
         <Campo
-          rotulo="😊 a partir de (% da meta)"
+          rotulo="😊 a partir de"
+          ajuda="% da meta"
           dicaTexto="Quem chega a esta % da meta ganha a carinha feliz. Abaixo dela a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos."
         >
           <Input type="number" name="feliz" min={0} max={300} defaultValue={cfg?.limites?.feliz ?? 80} />
         </Campo>
-        <Campo rotulo="🤩 a partir de (% da meta)" dicaTexto="Quem chega a esta % da meta ganha a carinha de festa.">
+        <Campo rotulo="🤩 a partir de" ajuda="% da meta" dicaTexto="Quem chega a esta % da meta ganha a carinha de festa.">
           <Input type="number" name="mega_feliz" min={0} max={300} defaultValue={cfg?.limites?.mega_feliz ?? 100} />
         </Campo>
       </div>

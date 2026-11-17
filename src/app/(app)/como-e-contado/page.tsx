@@ -331,7 +331,7 @@ export default async function PaginaComoEContado() {
                   {faixas.map((f) => (
                     <li key={f.id} className="flex items-center gap-3">
                       <span className="size-3 shrink-0 rounded-full" style={{ background: f.cor ?? "var(--muted-foreground)" }} />
-                      <span className="w-40 font-medium">{f.nivel}</span>
+                      <span className="w-40 shrink-0 font-medium">{f.nivel}</span>
                       <span className="text-sm text-muted-foreground">
                         {f.ate_pct === null
                           ? `${fmtNum(f.de_pct, 1)}% ou mais`

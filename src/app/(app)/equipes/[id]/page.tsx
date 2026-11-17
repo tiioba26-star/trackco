@@ -1,3 +1,4 @@
+import { UserMinus } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CabecalhoPagina, NivelBadge } from "@/components/app/blocos";
 import { BotaoAcao, FormAcao } from "@/components/app/form-acao";
@@ -63,7 +64,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
   return (
     <div className="space-y-6">
       <CabecalhoPagina titulo={`Equipe ${e.nome}`} descricao="Membros, líder e regras de visibilidade e fechamento." />
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+      <div className="grid items-start gap-6 xl:grid-cols-[1.4fr_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>Membros</CardTitle>
@@ -76,7 +77,6 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                   <TableRow>
                     <TableHead>Pessoa</TableHead>
                     <TableHead>Função</TableHead>
-                    <TableHead>Período</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -87,15 +87,14 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                       <TableRow key={v.id} className={ativo ? "" : "opacity-50"}>
                         <TableCell>
                           <div className="font-medium">{v.colaboradores?.nome}</div>
+                          {/* o período fica embaixo do nome: como coluna, empurrava as ações para fora da tela */}
                           <div className="text-xs text-muted-foreground">
-                            Klingo: {v.colaboradores?.login_klingo ?? <span className="text-down">sem login</span>}
+                            Klingo: {v.colaboradores?.login_klingo ?? <span className="text-down">sem login</span>} ·{" "}
+                            {v.fim ? `${formatarDataBR(v.inicio)} a ${formatarDataBR(v.fim)}` : `desde ${formatarDataBR(v.inicio)}`}
                           </div>
                         </TableCell>
                         <TableCell>
                           <NivelBadge nivel={v.funcao === "lider" ? "Líder" : "Membro"} cor={v.funcao === "lider" ? "var(--ouro)" : undefined} />
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {formatarDataBR(v.inicio)} → {v.fim ? formatarDataBR(v.fim) : "atual"}
                         </TableCell>
                         <TableCell className="text-right">
                           {ativo && (
@@ -121,8 +120,10 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                                 {v.funcao === "lider" ? "Tornar membro" : "Tornar líder"}
                               </BotaoAcao>
                               <BotaoAcao
-                                size="sm"
+                                size="icon-sm"
                                 variant="ghost"
+                                aria-label={`Encerrar o vínculo de ${v.colaboradores?.nome ?? "esta pessoa"}`}
+                                title="Encerrar vínculo"
                                 confirmar={{
                                   titulo: `Encerrar o vínculo de ${v.colaboradores?.nome ?? "esta pessoa"} hoje?`,
                                   texto: "Ela sai da equipe a partir de hoje. O histórico e os meses anteriores continuam guardados.",
@@ -131,7 +132,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                                 }}
                                 acao={alterarVinculo.bind(null, id, v.id, { encerrar: true })}
                               >
-                                Encerrar
+                                <UserMinus />
                               </BotaoAcao>
                             </div>
                           )}

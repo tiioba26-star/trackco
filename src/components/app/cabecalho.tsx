@@ -3,6 +3,7 @@
 import { Cake, ChevronLeft, KeyRound, LogOut, Monitor, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { sair } from "@/app/login/actions";
 import { BotaoAjuda } from "@/components/ajuda/botao-ajuda";
@@ -34,7 +35,14 @@ export function Cabecalho({ nome, papel, equipes }: { nome: string; papel: strin
   const titulo = item?.titulo ?? (pathname === "/trocar-senha" ? "Trocar senha" : "Trackco");
   // tela de detalhe (uma equipe, um plano…): o topo vira "‹ Equipes" para voltar à lista
   const detalhe = item && item.href !== "/" && pathname !== item.href ? item : null;
-  const { theme, setTheme } = useTheme();
+  const { theme: temaSalvo, setTheme } = useTheme();
+  // o tema só é conhecido no navegador: até lá, "system" (igual ao servidor, sem diferença na hidratação)
+  const montado = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const theme = montado ? temaSalvo : "system";
   const proximo = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
   const IconeTema = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
 

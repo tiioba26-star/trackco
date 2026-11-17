@@ -156,7 +156,7 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
           <b>{f.janela.nome}</b>
           <span className="rounded-md bg-muted px-1.5 py-0.5 font-medium tabular-nums">{f.janela.datas}</span>
           {f.janela.emAndamento && <span className="text-muted-foreground">· parcial, ainda vai mudar</span>}
-          {f.base && <span className="text-muted-foreground">· comparado com {textoBase(f.base)}</span>}
+          {f.base && <span className="text-muted-foreground">· comparado com {f.base.nome} ({textoBase(f.base)})</span>}
         </div>
       </CardContent>
     </Card>
@@ -204,7 +204,7 @@ export default async function PaginaGestao(props: PageProps<"/gestao">) {
           <Filtros f={f} aba={aba} />
         </Suspense>
       )}
-      <nav className="flex gap-1 overflow-x-auto rounded-lg border bg-card p-1" aria-label="Seções da Gestão" data-tour="gestao-abas">
+      <nav className="rolagem-sombra flex gap-1 overflow-x-auto rounded-lg border bg-card p-1 [scrollbar-width:none]" aria-label="Seções da Gestão" data-tour="gestao-abas">
         {ABAS.map((a) => (
           <Link
             key={a.k}

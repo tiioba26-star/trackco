@@ -62,7 +62,7 @@ export default async function PaginaDados() {
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr] [&>*]:min-w-0">
         <Card data-tour="dados-sync">
           <CardHeader>
             <CardTitle>Sincronizações com o Klingo</CardTitle>
@@ -207,7 +207,7 @@ export default async function PaginaDados() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]" data-tour="dados-lanc">
+      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr] [&>*]:min-w-0" data-tour="dados-lanc">
         <Card>
           <CardHeader>
             <CardTitle>Lançamentos manuais recentes</CardTitle>

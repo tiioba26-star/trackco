@@ -211,7 +211,7 @@ export function EditorFormulario({
             </div>
             {f.recorrencia === "mensal" ? (
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <NativeSelect value={String(f.a_cada_meses)} onChange={(e) => mudar("a_cada_meses", Number(e.target.value))} className="w-36" aria-label="Frequência">
+                <NativeSelect value={String(f.a_cada_meses)} onChange={(e) => mudar("a_cada_meses", Number(e.target.value))} className="w-44" aria-label="Frequência">
                   {[1, 2, 3, 6, 12].map((n) => (
                     <option key={n} value={n}>
                       {n === 1 ? "Todo mês" : `A cada ${n} meses`}

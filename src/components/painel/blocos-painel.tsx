@@ -58,15 +58,17 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
         }
         variacao={<Variacao atual={t.agendouValidos} anterior={a.total.agendouValidos} nome={a.nome} />}
         rodape={
-          <span className="inline-flex flex-wrap items-center gap-1">
-            Total agendado <b className="text-foreground">{fmtValor(t.agendou)}</b>
-            <Dica id="pn.agendou" />
+          <span className="block space-y-0.5">
+            <span className="flex items-center gap-1">
+              Total agendado <b className="text-foreground">{fmtValor(t.agendou)}</b>
+              <Dica id="pn.agendou" />
+            </span>
             {t.agendou > t.agendouValidos && (
-              <>
-                · {fmtValor(t.agendouRemarcadas)} remarcações
+              <span className="flex items-center gap-1">
+                {fmtValor(t.agendouRemarcadas)} remarcações
                 {t.agendouOutras > 0 && ` e ${fmtValor(t.agendouOutras)} bloqueios/erros`}
                 <Dica id="pn.remarques" />
-              </>
+              </span>
             )}
           </span>
         }
@@ -410,14 +412,15 @@ export async function BlocoEquipe({
     <section className="space-y-4" data-tour="equipe-bloco">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-semibold">Equipe {equipe.nome}</h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex max-w-full min-w-0 flex-wrap gap-2">
           {equipes.length > 1 && (
-            <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1">
+            // uma linha só: no celular rola de lado (com sombra na borda) em vez de quebrar com uma equipe sozinha embaixo
+            <div className="rolagem-sombra flex max-w-full gap-1 overflow-x-auto rounded-lg border bg-card p-1 [scrollbar-width:none]">
               {equipes.map((e) => (
                 <Link
                   key={e.id}
                   href={`/?${periodoQs}&equipe=${e.id}${categoria === "sus" ? "&cat=sus" : ""}`}
-                  className={cn("rounded-md px-3 py-1 text-sm", e.id === equipe.id ? "bg-primary text-primary-foreground" : "hover:bg-muted")}
+                  className={cn("shrink-0 rounded-md px-3 py-1 text-sm whitespace-nowrap", e.id === equipe.id ? "bg-primary text-primary-foreground" : "hover:bg-muted")}
                 >
                   {e.nome}
                 </Link>

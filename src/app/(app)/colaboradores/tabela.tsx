@@ -53,12 +53,16 @@ function sugerirUsuario(base: string): string {
     .slice(0, 40);
 }
 
+const POR_PAGINA = 50;
+
 /** Todo mundo numa tabela só: quem está no Trackco e quem está só no Klingo. O botão deslizante liga o acesso ao sistema. */
 export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: LinhaColab[]; podeAlterar: boolean; meuId: string }) {
   const router = useRouter();
   const confirmar = useConfirmar();
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [busca, setBusca] = useState("");
+  // 170+ pessoas de uma vez deixavam a página enorme: mostra de 50 em 50
+  const [limite, setLimite] = useState(POR_PAGINA);
   const [criar, setCriar] = useState<LinhaColab | null>(null);
   const [pendente, iniciar] = useTransition();
 
@@ -119,7 +123,10 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
               type="button"
               role="tab"
               aria-selected={filtro === k}
-              onClick={() => setFiltro(k)}
+              onClick={() => {
+                setFiltro(k);
+                setLimite(POR_PAGINA);
+              }}
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium",
                 filtro === k ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
@@ -131,7 +138,10 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
         </div>
         <div className="relative sm:w-64">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nome, usuário ou equipe" className="h-9 pl-8" aria-label="Buscar" />
+          <Input value={busca} onChange={(e) => {
+              setBusca(e.target.value);
+              setLimite(POR_PAGINA);
+            }} placeholder="Buscar nome, usuário ou equipe" className="h-9 pl-8" aria-label="Buscar" />
         </div>
       </div>
 
@@ -149,7 +159,7 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
             </TableRow>
           </TableHeader>
           <TableBody>
-            {visiveis.map((l) => (
+            {visiveis.slice(0, limite).map((l) => (
               <TableRow key={l.chave} className={l.ativo ? "" : "opacity-50"}>
                 <TableCell>
                   <div className="font-medium">{l.nome}</div>
@@ -202,6 +212,16 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
           </TableBody>
         </Table>
       </div>
+      {visiveis.length > limite && (
+        <div className="flex flex-col items-center gap-1 pt-1">
+          <Button variant="outline" onClick={() => setLimite((n) => n + POR_PAGINA)}>
+            Mostrar mais {Math.min(POR_PAGINA, visiveis.length - limite)}
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Mostrando {limite} de {visiveis.length}. Use a busca para achar alguém direto.
+          </span>
+        </div>
+      )}
 
       <Dialog open={!!criar} onOpenChange={(v) => !v && setCriar(null)}>
         <DialogContent>

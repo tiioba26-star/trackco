@@ -50,7 +50,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
   return (
     <div className="space-y-5 rounded-xl border p-4">
       {titulo && <Rotulo>{titulo}</Rotulo>}
-      <div className="grid gap-x-3 gap-y-5 md:grid-cols-3">
+      <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
         <Campo rotulo="Fonte de dados" dica="met.fonte">
           <NativeSelect
             value={valor.fonte}

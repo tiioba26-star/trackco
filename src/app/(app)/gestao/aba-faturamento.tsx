@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Info } from "lucide-react";
 import { Dica } from "@/components/ajuda/dica";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { titulo as titulo_ } from "@/engine/classificacao";
 import type { Variacao } from "@/engine/faturamento";
 import { abaFaturamento, filtrosParaUrl, type AgruparPor, type FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtNum } from "@/lib/formato";
@@ -21,7 +22,7 @@ function ListaVariacao({ titulo, v }: { titulo: string; v: { ganhos: Variacao[];
   if (!v) return null;
   const linha = (x: Variacao) => (
     <li key={x.rotulo} className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="min-w-0 break-words">{x.rotulo}</span>
+      <span className="min-w-0 break-words">{titulo === "Por procedimento" ? titulo_(x.rotulo) : x.rotulo}</span>
       <span className={cn("shrink-0 tabular-nums", x.diferenca > 0 ? "text-up" : "text-down")}>
         {x.diferenca > 0 ? "+" : "−"}
         {real(Math.abs(x.diferenca))}
@@ -178,7 +179,8 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
                 </li>
               ))}
             </ul>
-            <div className="grid gap-6 border-t pt-4 lg:grid-cols-2">
+            {/* um embaixo do outro: lado a lado eram 4 colunas estreitas e os nomes quebravam em várias linhas */}
+            <div className="grid gap-6 border-t pt-4">
               <ListaVariacao titulo="Por médico / agenda" v={d.porMedico} />
               <ListaVariacao titulo="Por procedimento" v={d.porProcedimento} />
             </div>

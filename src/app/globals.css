@@ -187,6 +187,24 @@
   }
 }
 
+@layer components {
+  /* Sombra nas bordas de uma área que rola de lado: mostra que há mais conteúdo (some quando chega ao fim) */
+  /* cartão dentro de grade não estica além da coluna por causa de uma tabela larga (ela rola dentro do cartão) */
+  :where(.grid) > [data-slot="card"] {
+    min-width: 0;
+  }
+
+  .rolagem-sombra {
+    --fundo-rolagem: var(--card);
+    --sombra-rolagem: color-mix(in oklab, var(--foreground) 22%, transparent);
+    background:
+      linear-gradient(to right, var(--fundo-rolagem) 40%, transparent) left center / 2.5rem 100% no-repeat local,
+      linear-gradient(to left, var(--fundo-rolagem) 40%, transparent) right center / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, var(--sombra-rolagem), transparent) left center / 0.75rem 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, var(--sombra-rolagem), transparent) right center / 0.75rem 100% no-repeat scroll;
+  }
+}
+
 /* Tour guiado (driver.js) no tema do app */
 .driver-popover.trackco-tour {
   background: var(--popover);

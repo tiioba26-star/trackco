@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { DICA_LEITURA, type OpcoesConfirmar, useConfirmar, useSomenteLeitura } from "./confirmacao";
 
 export type RetornoAcao = { ok: boolean; erro?: string; mensagem?: string };
@@ -29,7 +30,6 @@ export function FormAcao({
   return (
     <form
       ref={ref}
-      className={className}
       aria-busy={pendente}
       action={(fd) =>
         iniciar(async () => {
@@ -42,7 +42,9 @@ export function FormAcao({
         })
       }
     >
-      <fieldset disabled={pendente || leitura} title={leitura ? DICA_LEITURA : undefined} className="contents">
+      {/* as classes ficam no fieldset (e não no form): com "display: contents" o space-y-* não chegava aos campos,
+          que ficavam colados uns nos outros */}
+      <fieldset disabled={pendente || leitura} title={leitura ? DICA_LEITURA : undefined} className={cn("m-0 min-w-0 border-0 p-0", className)}>
         {children}
       </fieldset>
     </form>

@@ -121,7 +121,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
       />
       <Card data-tour="rel-filtros">
         <CardContent>
-          <Form className="grid items-start gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
+          <Form className="grid items-start gap-x-3 gap-y-5 sm:grid-cols-3 xl:grid-cols-[1.6fr_1.2fr_1.2fr_1.3fr_1.3fr_auto]" action="/relatorios">
             <PeriodoMeses key={`${de}|${ate}`} de={de} ate={ate} atual={atual} id="rel" />
             <Campo rotulo="Equipe">
               <NativeSelect name="equipe" defaultValue={equipeId}>
@@ -142,7 +142,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
                 ))}
               </NativeSelect>
             </Campo>
-            <button type="submit" className={buttonVariants()}>
+            <button type="submit" className={buttonVariants({ className: "sm:mt-7" })}>
               Aplicar
             </button>
           </Form>

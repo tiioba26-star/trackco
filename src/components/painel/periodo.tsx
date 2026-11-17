@@ -52,7 +52,8 @@ export function SeletorPeriodo({
       k: "atalhos",
       rotulo: "Atalhos",
       conteudo: (
-        <div className="inline-flex max-w-full overflow-x-auto rounded-lg border bg-card p-1" role="tablist" aria-label="Período">
+        // no celular, 2 × 2 (em linha cortava o "Mês passado"); do tablet para cima, em linha
+        <div className="grid w-full grid-cols-2 gap-1 rounded-lg border bg-card p-1 sm:inline-flex sm:w-auto" role="tablist" aria-label="Período">
           {ABAS.map((a) => (
             <Link
               key={a.p}
@@ -60,7 +61,7 @@ export function SeletorPeriodo({
               role="tab"
               aria-selected={janela.periodo === a.p}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+                "rounded-md px-3 py-1.5 text-center text-sm font-medium whitespace-nowrap transition-colors",
                 janela.periodo === a.p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
@@ -145,15 +146,18 @@ export function SeletorPeriodo({
 export function Variacao({ atual, anterior, nome, unidade = "un" }: { atual: number | null; anterior: number | null; nome: string; unidade?: string }) {
   if (atual === null || anterior === null) return null;
   if (anterior === 0 && atual === 0) return <span className="text-xs text-muted-foreground">igual a {nome}</span>;
-  const diff = unidade === "%" ? atual - anterior : anterior ? ((atual - anterior) / anterior) * 100 : 100;
-  const sobe = diff >= 0;
+  const bruto = unidade === "%" ? atual - anterior : anterior ? ((atual - anterior) / anterior) * 100 : 100;
+  // abaixo de 1, uma casa (284 × 285 dava "−0%"); arredondou para zero = igual
+  const diff = Math.abs(bruto) < 1 ? Math.round(bruto * 10) / 10 : Math.round(bruto);
+  if (diff === 0) return <span className="text-xs text-muted-foreground">igual a {nome} ({fmtValor(anterior, unidade)})</span>;
+  const sobe = diff > 0;
   const Icone = sobe ? TrendingUp : TrendingDown;
   return (
     <span className={cn("inline-flex flex-wrap items-center gap-x-1 text-xs", sobe ? "text-up" : "text-down")}>
       <span className="inline-flex items-center gap-1 whitespace-nowrap">
         <Icone className="size-3.5" />
         {sobe ? "+" : "−"}
-        {unidade === "%" ? `${fmtValor(Math.abs(diff), "un")} pontos` : `${fmtValor(Math.abs(Math.round(diff)), "un")}%`}
+        {unidade === "%" ? `${fmtValor(Math.abs(diff), "un")} pontos` : `${Math.abs(diff).toLocaleString("pt-BR")}%`}
       </span>
       {/* o valor de antes fica escrito (antes só aparecia passando o mouse, o que não funciona no celular) */}
       <span className="text-muted-foreground">

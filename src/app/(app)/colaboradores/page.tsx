@@ -1,10 +1,10 @@
+import { Campo } from "@/components/ui/campo";
+import { JanelaFormulario } from "@/components/app/janela-formulario";
 import { CabecalhoPagina } from "@/components/app/blocos";
 import { FormAcao } from "@/components/app/form-acao";
-import { Dica } from "@/components/ajuda/dica";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { titulo } from "@/engine/classificacao";
 import { hojeNoFuso, somarDias } from "@/engine/datas";
@@ -91,6 +91,40 @@ export default async function PaginaColaboradores() {
       <CabecalhoPagina
         titulo="Colaboradores"
         descricao="Todo mundo da clínica: quem está no Trackco e quem está só no Klingo. O botão deslizante decide quem pode entrar no Trackco; sem acesso, a pessoa continua nas equipes, nos relatórios e na Gestão."
+        acoes={
+          s.ehAdmin ? (
+            <span data-tour="colab-novo">
+              <JanelaFormulario
+                rotulo="Pessoa de fora do Klingo"
+                titulo="Pessoa de fora do Klingo"
+                descricao="Quem está no Klingo já aparece na tabela. Use aqui para quem não usa o Klingo (ex.: tráfego pago, contador)."
+              >
+                <FormAcao acao={criarColaborador} className="space-y-5" limpar sucesso="Pessoa adicionada.">
+                  <Campo rotulo="Nome completo" htmlFor="n-nome">
+                    <Input id="n-nome" name="nome" required />
+                  </Campo>
+                  <Campo rotulo="Usuário de acesso" htmlFor="n-login" dica="colab.usuario">
+                    <Input id="n-login" name="login" required autoCapitalize="none" placeholder="ex.: maria.souza" />
+                  </Campo>
+                  <Campo rotulo="Perfil" htmlFor="n-papel" dica="colab.perfil">
+                    <NativeSelect id="n-papel" name="papel" defaultValue="leitura">
+                      <option value="leitura">Somente leitura</option>
+                      <option value="admin">Administrador</option>
+                      <option value="gestor">Gestor</option>
+                      <option value="colaborador">Colaborador</option>
+                    </NativeSelect>
+                  </Campo>
+                  <Campo rotulo="Senha inicial (mínimo 8 caracteres)" htmlFor="n-senha">
+                    <Input id="n-senha" name="senha" type="password" autoComplete="new-password" minLength={8} />
+                  </Campo>
+                  <Button type="submit" className="w-full">
+                    Adicionar
+                  </Button>
+                </FormAcao>
+              </JanelaFormulario>
+            </span>
+          ) : undefined
+        }
       />
       {!nasc && (
         <p className="mb-4 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
@@ -108,55 +142,12 @@ export default async function PaginaColaboradores() {
           </option>
         ))}
       </datalist>
-      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-        <Card data-tour="colab-lista">
-          <CardContent>
-            <TabelaColaboradores linhas={linhas} podeAlterar={s.ehAdmin} meuId={s.colaborador.id} />
-          </CardContent>
-        </Card>
-        <Card className="h-fit" data-tour="colab-novo">
-          <CardHeader>
-            <CardTitle>Pessoa de fora do Klingo</CardTitle>
-            <CardDescription>
-              Quem está no Klingo já aparece na tabela. Use aqui para quem não usa o Klingo (ex.: tráfego pago, contador).
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormAcao acao={criarColaborador} className="space-y-3" limpar>
-              <div className="space-y-2">
-                <Label htmlFor="n-nome">Nome completo</Label>
-                <Input id="n-nome" name="nome" required />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-1">
-                  <Label htmlFor="n-login">Usuário de acesso</Label>
-                  <Dica id="colab.usuario" />
-                </div>
-                <Input id="n-login" name="login" required autoCapitalize="none" placeholder="ex.: maria.souza" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-1">
-                  <Label htmlFor="n-papel">Perfil</Label>
-                  <Dica id="colab.perfil" />
-                </div>
-                <NativeSelect id="n-papel" name="papel" defaultValue="leitura">
-                  <option value="leitura">Somente leitura</option>
-                  <option value="admin">Administrador</option>
-                  <option value="gestor">Gestor</option>
-                  <option value="colaborador">Colaborador</option>
-                </NativeSelect>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="n-senha">Senha inicial</Label>
-                <Input id="n-senha" name="senha" type="password" autoComplete="new-password" minLength={8} />
-              </div>
-              <Button type="submit" className="w-full">
-                Adicionar
-              </Button>
-            </FormAcao>
-          </CardContent>
-        </Card>
-      </div>
+      {/* a tabela usa a largura toda: com o formulário ao lado, as colunas de acesso e edição ficavam fora da tela */}
+      <Card data-tour="colab-lista">
+        <CardContent>
+          <TabelaColaboradores linhas={linhas} podeAlterar={s.ehAdmin} meuId={s.colaborador.id} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
