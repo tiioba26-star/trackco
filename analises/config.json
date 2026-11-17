@@ -6,5 +6,6 @@
     "reserva": { "motor": "claude", "modelo": "sonnet", "esforco": "medium" }
   },
   "geral": { "motor": "claude", "modelo": "opus", "esforco": "high" },
-  "paralelo": 3
+  "paralelo": 3,
+  "maximo_por_rodada": 20
 }

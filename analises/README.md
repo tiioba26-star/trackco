@@ -19,6 +19,7 @@ Uma rotina no computador da administração escreve estes textos todo dia às 5h
   - Há um guia por seção e o `geral.md`. Para mudar o estilo ou o foco das análises, edite esses arquivos.
 - **`config.json`**: para as análises por seção e para a geral, define motor (`claude` ou `gemini`), modelo, esforço e quantas rodam ao mesmo tempo.
   - `reserva` (opcional) é o motor que assume se a cota do principal acabar no meio da rodada.
+  - `maximo_por_rodada` (opcional) limita quantas análises por seção saem em cada rodada, as mais importantes primeiro (este mês, mês passado, 12 meses…). O resto fica pendente para a rodada seguinte.
   - Modelos do Gemini disponíveis na conta: `agy models` (hoje, `gemini-3.8-flash-high`, `-medium` e `-low`; o Argon não aparece no Google AI Pro).
   - O `agy` é achado em `~/.gemini/bin` (ou em `AGY_BIN`); o `claude`, na extensão do Antigravity, VS Code ou Cursor (ou em `CLAUDE_BIN`).
 - Ficam fora do git `.dados/` (os números enviados à IA, para conferência) e `logs/`.
