@@ -20,6 +20,30 @@ export const NOME_SECAO: Record<SecaoIA, string> = {
 export const NOME_RECORTE: Record<RecorteIA, string> = { particular: "Particular", todas: "Clínica toda (todas as operadoras)" };
 
 /** Aba da tela → seção da análise. */
+/**
+ * Ordem de importância das análises (quando a rodada tem limite): primeiro o que a Gestão abre por padrão
+ * (este mês × período anterior, Particular), depois o mês fechado, os 12 meses (base da análise geral) e o resto.
+ * Em cada par período × comparação, Particular antes da clínica toda.
+ */
+const ORDEM_PARES: [PeriodoIA, ComparacaoIA][] = [
+  ["mes", "anterior"],
+  ["mes_passado", "anterior"],
+  ["12m", "ano"],
+  ["3m", "anterior"],
+  ["ano", "anterior"],
+  ["mes", "ano"],
+  ["mes_passado", "ano"],
+  ["12m", "anterior"],
+  ["3m", "ano"],
+  ["ano", "ano"],
+];
+
+/** Menor = mais importante. */
+export function prioridade(periodo: PeriodoIA, comparacao: ComparacaoIA, recorte: RecorteIA): number {
+  const i = ORDEM_PARES.findIndex(([p, c]) => p === periodo && c === comparacao);
+  return (i < 0 ? ORDEM_PARES.length : i) * 2 + (recorte === "particular" ? 0 : 1);
+}
+
 export const SECAO_DA_ABA: Record<string, SecaoIA> = {
   faturamento: "faturamento",
   conversao: "marcacao",

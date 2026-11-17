@@ -56,3 +56,6 @@ __pycache__/
 /analises/.dados/
 /analises/logs/
 /.claude/settings.local.json
+
+# capturas do Playwright MCP (revisão de telas)
+/.playwright-mcp/

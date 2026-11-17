@@ -5,8 +5,21 @@ import {
   limparTexto,
   montarArquivo,
   nomeArquivo,
+  prioridade,
   todosOsArquivos,
 } from "@/lib/analises/arquivos";
+
+describe("ordem de importância (rodada com limite)", () => {
+  it("a visão padrão da Gestão vem primeiro; Particular antes da clínica toda; todas as 20 combinações têm lugar próprio", () => {
+    expect(prioridade("mes", "anterior", "particular")).toBe(0);
+    expect(prioridade("mes", "anterior", "todas")).toBe(1);
+    expect(prioridade("mes_passado", "anterior", "particular")).toBeLessThan(prioridade("ano", "ano", "particular"));
+    const todas = (["mes", "mes_passado", "3m", "ano", "12m"] as const).flatMap((p) =>
+      (["anterior", "ano"] as const).flatMap((c) => (["particular", "todas"] as const).map((r) => prioridade(p, c, r))),
+    );
+    expect(new Set(todas).size).toBe(20);
+  });
+});
 
 vi.mock("server-only", () => ({}));
 

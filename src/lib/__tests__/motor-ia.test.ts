@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GrupoMotor } from "@/lib/analises/motor";
-import { LimiteDeUso } from "@/lib/analises/motor-claude";
+import { LimiteDeUso, alvoDoCmd } from "@/lib/analises/motor-claude";
 import { lerResultadoAgy, mensagemGemini } from "@/lib/analises/motor-gemini";
 
 const estado = vi.hoisted(() => ({ chamadas: [] as string[], geminiSemCota: false }));
@@ -62,6 +62,14 @@ describe("saída do agy (stream-json)", () => {
     const m = mensagemGemini("Você é o gestor…", "SEÇÃO: Faturamento");
     expect(m.indexOf("ESTA TAREFA NÃO É DE PROGRAMAÇÃO")).toBe(0);
     expect(m.indexOf("Você é o gestor")).toBeLessThan(m.indexOf("SEÇÃO: Faturamento"));
+  });
+});
+
+describe("claude instalado pelo npm no Windows", () => {
+  it("segue o atalho claude.cmd até o claude.exe", () => {
+    const cmd = '@ECHO off\r\nSETLOCAL\r\nCALL :find_dp0\r\n"%dp0%\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe"   %*\r\n';
+    expect(alvoDoCmd(cmd)).toBe("node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe");
+    expect(alvoDoCmd('node "%dp0%\\cli.js" %*')).toBeNull();
   });
 });
 

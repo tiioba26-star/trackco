@@ -2,9 +2,9 @@
 // nunca pelo site. Roda pela assinatura de quem está logado no Claude Code (sem chave de API), sem ferramentas,
 // de uma pasta neutra e em --safe-mode (não carrega CLAUDE.md, skills nem plugins).
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 export interface UsoClaude {
   modelo: string;
@@ -19,16 +19,42 @@ export interface UsoClaude {
 
 export class LimiteDeUso extends Error {}
 
+/**
+ * O claude do PATH, como programa que dá para abrir sem shell. No Windows, o npm instala três atalhos ("claude", script
+ * de sh; "claude.cmd"; "claude.ps1"): aceitamos só .exe, ou seguimos o .cmd até o claude.exe que ele chama.
+ */
+export function executavelNoPath(): string | null {
+  let achados: string[] = [];
+  try {
+    const cmd = process.platform === "win32" ? "where" : "which";
+    achados = execFileSync(cmd, ["claude"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+  } catch {
+    return null; // não está no PATH
+  }
+  for (const a of achados) {
+    if (!existsSync(a)) continue;
+    if (process.platform !== "win32" || /\.exe$/i.test(a)) return a;
+    if (/\.cmd$/i.test(a)) {
+      const alvo = alvoDoCmd(readFileSync(a, "utf8"));
+      if (alvo && existsSync(join(dirname(a), alvo))) return join(dirname(a), alvo);
+    }
+  }
+  return null;
+}
+
+/** No atalho .cmd do npm, o .exe chamado: "%dp0%\node_modules\...\claude.exe" → caminho relativo à pasta do atalho. */
+export function alvoDoCmd(texto: string): string | null {
+  return /"%dp0%\\([^"]+\.exe)"/i.exec(texto)?.[1] ?? null;
+}
+
 /** Onde está o claude: CLAUDE_BIN, depois o PATH, depois a extensão mais nova do Antigravity / VS Code / Cursor. */
 export function acharClaude(): string {
   if (process.env.CLAUDE_BIN && existsSync(process.env.CLAUDE_BIN)) return process.env.CLAUDE_BIN;
-  try {
-    const cmd = process.platform === "win32" ? "where" : "which";
-    const achado = execFileSync(cmd, ["claude"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).split(/\r?\n/)[0]?.trim();
-    if (achado && existsSync(achado)) return achado;
-  } catch {
-    // não está no PATH
-  }
+  const doPath = executavelNoPath();
+  if (doPath) return doPath;
   const exe = process.platform === "win32" ? "claude.exe" : "claude";
   const versao = (nome: string) => (nome.match(/(\d+)\.(\d+)\.(\d+)/) ?? []).slice(1).map(Number);
   for (const ide of [".antigravity-ide", ".vscode", ".cursor", ".vscode-insiders"]) {

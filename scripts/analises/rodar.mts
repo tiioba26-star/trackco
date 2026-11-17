@@ -4,6 +4,7 @@
 //
 //   npm run analises:rodar                         rodada normal (só o que mudou; dia 1 refaz tudo o que fechou)
 //   npm run analises:rodar -- --tudo               refaz as 101
+//   npm run analises:rodar -- --maximo 20          no máximo 20 por seção nesta rodada (as mais importantes primeiro)
 //   npm run analises:rodar -- --amostra            calibração de gasto (não publica; grava em analises/.dados/amostra)
 //   npm run analises:rodar -- --sem-publicar       não faz commit/push
 //   npm run analises:rodar -- --secao faturamento  só uma seção (e não refaz a geral)
@@ -21,6 +22,7 @@ import {
   SECOES_IA,
   conferirAnalise,
   lerArquivo,
+  prioridade,
   limparTexto,
   montarArquivo,
   nomeArquivo,
@@ -196,8 +198,11 @@ async function main() {
   if (amostra) {
     const escolhidos = ["faturamento", "marcacao", "perdas"].map((s) => nomeArquivo(s as SecaoIA, "mes_passado", "anterior", "particular"));
     const pasta = join(DADOS, "amostra");
-    const gemini = temMotor("gemini");
-    log(`Claude: ${onde("claude")}${gemini ? ` · Gemini (agy): ${onde("gemini")}` : " · Gemini (agy) não instalado: fica fora da amostra"}`);
+    const soMotor = valor("--motor") as Motor | undefined; // --amostra --motor claude: só a parte de um motor
+    const gemini = temMotor("gemini") && soMotor !== "claude";
+    log(
+      `Claude: ${onde("claude")}${gemini ? ` · Gemini (agy): ${onde("gemini")}` : soMotor ? "" : " · Gemini (agy) não instalado: fica fora da amostra"}`,
+    );
     const configs: (ConfigMotor & { nome: string })[] = [
       { nome: "sonnet-medio", motor: "claude", modelo: "sonnet", esforco: "medium" },
       { nome: "opus-medio", motor: "claude", modelo: "opus", esforco: "medium" },
@@ -224,12 +229,13 @@ async function main() {
       }
       log(linhas.at(-1));
     };
-    for (const c of configs) {
+    const doMotor = (c: ConfigMotor) => !soMotor || (c.motor ?? "claude") === soMotor;
+    for (const c of configs.filter(doMotor)) {
       for (const arq of escolhidos) await tentar(c.nome, c, trabalhos.find((x) => x.arquivo === arq)!, `${c.nome}__${arq}`);
     }
     const geral = trabalhos.find((x) => x.tipo === "geral")!;
-    for (const g of gerais) await tentar(g.nome, g, geral, `${g.nome}.md`, resumosParaGeral());
-    writeFileSync(join(pasta, "gasto.txt"), linhas.join("\n") + "\n", "utf8");
+    for (const g of gerais.filter(doMotor)) await tentar(g.nome, g, geral, `${g.nome}.md`, resumosParaGeral());
+    writeFileSync(join(pasta, soMotor ? `gasto-${soMotor}.txt` : "gasto.txt"), linhas.join("\n") + "\n", "utf8");
     log(`Amostra pronta em ${pasta}. Compare os textos e veja a % semanal em claude.ai/settings/usage.`);
     return;
   }
@@ -244,9 +250,17 @@ async function main() {
     if (ref.virouMes || t.sempre) return true;
     return a.meta.assinatura !== t.assinatura;
   };
-  const secoes = trabalhos.filter((t) => t.tipo === "secao" && precisa(t));
-  const semMudanca = trabalhos.filter((t) => t.tipo === "secao").length - secoes.length;
-  log(`${secoes.length} análises por seção para escrever (${semMudanca} sem mudança).`);
+  const devidas = trabalhos
+    .filter((t) => t.tipo === "secao" && precisa(t))
+    .sort((a, b) => prioridade(a.periodo!, a.comparacao!, a.recorte!) - prioridade(b.periodo!, b.comparacao!, b.recorte!));
+  const semMudanca = trabalhos.filter((t) => t.tipo === "secao").length - devidas.length;
+  // limite por rodada (cota): as mais importantes primeiro; o resto fica pendente e sai na próxima rodada
+  const maximo = Number(valor("--maximo") ?? config.maximo_por_rodada ?? 0) || Infinity;
+  const secoes = devidas.slice(0, maximo);
+  const adiadas = devidas.slice(secoes.length).map((t) => t.arquivo);
+  log(
+    `${secoes.length} análises por seção para escrever (${semMudanca} sem mudança${adiadas.length ? `, ${adiadas.length} ficam para a próxima rodada pelo limite de ${maximo}` : ""}).`,
+  );
 
   const grupoSecoes = new GrupoMotor(cfgSecoes, (m) => log(m));
   const grupoGeral = new GrupoMotor(config.geral, (m) => log(m));
@@ -293,7 +307,10 @@ async function main() {
     },
     () => status.limite_atingido,
   );
-  status.pendentes = secoes.filter((t) => !feitos.has(t.arquivo) && !status.falhas.some((f) => f.arquivo === t.arquivo)).map((t) => t.arquivo);
+  status.pendentes = [
+    ...secoes.filter((t) => !feitos.has(t.arquivo) && !status.falhas.some((f) => f.arquivo === t.arquivo)).map((t) => t.arquivo),
+    ...adiadas,
+  ];
 
   // ---------------------------------------------------------------- a geral, por último
   const geral = trabalhos.find((t) => t.tipo === "geral");

@@ -21,6 +21,8 @@ export interface ConfigAnalises {
   secoes: ConfigMotor;
   geral: ConfigMotor;
   paralelo: number;
+  /** no máximo quantas análises por seção numa rodada (as mais importantes primeiro); o resto fica para a próxima */
+  maximo_por_rodada?: number;
 }
 
 const binarios: Partial<Record<Motor, string>> = {};
