@@ -5,10 +5,10 @@ import { FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarEquipe } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Equipes" };
 
@@ -72,15 +72,13 @@ export default async function PaginaEquipes() {
             <CardTitle>Nova equipe</CardTitle>
           </CardHeader>
           <CardContent>
-            <FormAcao acao={criarEquipe} className="space-y-3" limpar>
-              <div className="space-y-1.5">
-                <Label htmlFor="nome">Nome</Label>
+            <FormAcao acao={criarEquipe} className="space-y-5" limpar>
+              <Campo rotulo="Nome" htmlFor="nome">
                 <Input id="nome" name="nome" required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="descricao">Descrição</Label>
+              </Campo>
+              <Campo rotulo="Descrição" htmlFor="descricao">
                 <Input id="descricao" name="descricao" />
-              </div>
+              </Campo>
               <Button type="submit" className="w-full">
                 Criar equipe
               </Button>

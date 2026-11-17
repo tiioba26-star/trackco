@@ -16,6 +16,7 @@ import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 import { BLOCOS_TV, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
 import { FormAcao } from "@/components/app/form-acao";
 import { atualizarPainel, criarPainel, excluirPainel, guardarLinkAtual, regenerarToken, verLinkPainel } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 function MostrarLink({ token, onClose }: { token: string | null; onClose: () => void }) {
   const url = token ? `${window.location.origin}/tv/${token}` : "";
@@ -61,8 +62,7 @@ function ListaModos({ config }: { config?: ConfigTv }) {
   const blocos = cfg.modos.map((m) => m.bloco);
   return (
     <>
-      <div className="space-y-1.5">
-        <Label>Telas (alternam nesta ordem) e quanto tempo cada uma fica</Label>
+      <Campo rotulo="Telas (alternam nesta ordem) e quanto tempo cada uma fica">
         {BLOCOS_TV.map((b) => (
           <div key={b.bloco} className="flex items-start justify-between gap-3">
             <label className="flex items-start gap-2 text-sm">
@@ -86,9 +86,11 @@ function ListaModos({ config }: { config?: ConfigTv }) {
             </label>
           </div>
         ))}
-      </div>
-      <div className="space-y-1.5">
-        <Label>Períodos</Label>
+      </Campo>
+      <Campo
+          rotulo="Períodos"
+          dicaTexto="Cada tipo de tela vira uma tela por período (a tela por pessoa vira uma por pessoa). Na TV, as setas ← → trocam de tela e a barra de espaço pausa."
+        >
         <div className="flex flex-wrap gap-2">
           {PERIODOS_RAPIDOS.map((p) => (
             <Pilula key={p} name="periodos" value={p} defaultChecked={cfg.periodos!.includes(p)}>
@@ -96,11 +98,7 @@ function ListaModos({ config }: { config?: ConfigTv }) {
             </Pilula>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Cada tipo vira uma tela por período (a tela por pessoa vira uma por pessoa). Na TV: ← → trocam de tela e a barra de espaço
-          pausa.
-        </p>
-      </div>
+      </Campo>
     </>
   );
 }
@@ -126,28 +124,24 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
           })
         }
       >
-        <div className="space-y-1.5">
-          <Label>Nome do Painel</Label>
+        <Campo rotulo="Nome do Painel">
           <Input name="nome" placeholder="TV da recepção comercial" required />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Equipes</Label>
+        </Campo>
+        <Campo rotulo="Equipes">
           {equipes.map((e) => (
             <label key={e.id} className="flex items-center gap-2 text-sm">
               <Checkbox name="equipes" value={e.id} defaultChecked={equipes.length === 1} /> {e.nome}
             </label>
           ))}
-        </div>
+        </Campo>
         <ListaModos />
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1.5">
-            <Label>😊 a partir de</Label>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+          <Campo rotulo="😊 a partir de" dicaTexto="Abaixo deste limite a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos.">
             <Input type="number" name="feliz" defaultValue={80} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>🤩 a partir de</Label>
+          </Campo>
+          <Campo rotulo="🤩 a partir de">
             <Input type="number" name="mega_feliz" defaultValue={100} />
-          </div>
+          </Campo>
         </div>
 
         {/* Seção retrátil para personalizar textos da TV */}
@@ -206,10 +200,6 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          Abaixo do limite &quot;feliz&quot; a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de
-          comissão ou pontos.
-        </p>
         <Button type="submit" className="w-full" disabled={pendente}>
           Criar painel e gerar link
         </Button>
@@ -273,32 +263,28 @@ export function EditarPainel({
               })
             }
           >
-            <div className="space-y-1.5">
-              <Label>Nome do Painel</Label>
+            <Campo rotulo="Nome do Painel">
               <Input name="nome" defaultValue={painel.nome} required />
-            </div>
+            </Campo>
 
-            <div className="space-y-1.5">
-              <Label>Equipes</Label>
+            <Campo rotulo="Equipes">
               {equipes.map((e) => (
                 <label key={e.id} className="flex items-center gap-2 text-sm">
                   <Checkbox name="equipes" value={e.id} defaultChecked={painel.equipes.includes(e.id)} />
                   {e.nome}
                 </label>
               ))}
-            </div>
+            </Campo>
 
             <ListaModos config={painel.config} />
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5">
-                <Label>😊 a partir de</Label>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+              <Campo rotulo="😊 a partir de" dicaTexto="Abaixo deste limite a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos.">
                 <Input type="number" name="feliz" defaultValue={cfg.limites?.feliz ?? 80} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>🤩 a partir de</Label>
+              </Campo>
+              <Campo rotulo="🤩 a partir de">
                 <Input type="number" name="mega_feliz" defaultValue={cfg.limites?.mega_feliz ?? 100} />
-              </div>
+              </Campo>
             </div>
 
             {/* Configuração de Textos da TV */}

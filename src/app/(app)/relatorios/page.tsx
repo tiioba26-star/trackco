@@ -5,7 +5,6 @@ import { GraficoMensal } from "@/components/graficos/mensal";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { competenciaAnterior, competenciaDe, hojeNoFuso, nomeCompetencia } from "@/engine/datas";
@@ -14,6 +13,7 @@ import { linhasRelatorio, mesesEntre, quebraKlingo, type Quebra } from "@/lib/da
 import { competenciaValida, fmtNum, fmtPct, fmtValor } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { ROTULO_SITUACAO } from "@/lib/situacao";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Relatórios" };
 
@@ -115,17 +115,14 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
       />
       <Card data-tour="rel-filtros">
         <CardContent>
-          <Form className="grid items-end gap-3 md:grid-cols-[1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
-            <div className="space-y-1.5">
-              <Label>De</Label>
+          <Form className="grid items-end gap-x-3 gap-y-5 md:grid-cols-[1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
+            <Campo rotulo="De">
               <Input type="month" name="de" defaultValue={de} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Até</Label>
+            </Campo>
+            <Campo rotulo="Até">
               <Input type="month" name="ate" defaultValue={ate} max={atual} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Equipe</Label>
+            </Campo>
+            <Campo rotulo="Equipe">
               <NativeSelect name="equipe" defaultValue={equipeId}>
                 {equipes.map((e) => (
                   <option key={e.id} value={e.id}>
@@ -133,9 +130,8 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
                   </option>
                 ))}
               </NativeSelect>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Pessoa</Label>
+            </Campo>
+            <Campo rotulo="Pessoa">
               <NativeSelect name="pessoa" defaultValue={colaboradorId ?? ""}>
                 <option value="">Todas</option>
                 {pessoas.map((p) => (
@@ -144,7 +140,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
                   </option>
                 ))}
               </NativeSelect>
-            </div>
+            </Campo>
             <button type="submit" className={buttonVariants()}>
               Aplicar
             </button>

@@ -4,13 +4,13 @@ import { CabecalhoPagina, StatusPill, Vazio } from "@/components/app/blocos";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { competenciaAnterior, competenciaDe, hojeNoFuso, nomeCompetencia } from "@/engine/datas";
 import { exigirGestaoOuLider } from "@/lib/auth";
 import { fmtDataHora } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarFechamento } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Fechamentos" };
 
@@ -72,9 +72,8 @@ export default async function PaginaFechamentos() {
               <CardDescription>Na fase de Reconhecimento o fechamento serve para validar os números com a equipe.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form action={criarFechamento} className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label>Equipe</Label>
+              <form action={criarFechamento} className="space-y-5">
+                <Campo rotulo="Equipe">
                   <NativeSelect name="equipe_id" required>
                     {(equipes ?? []).map((e) => (
                       <option key={e.id} value={e.id}>
@@ -82,11 +81,10 @@ export default async function PaginaFechamentos() {
                       </option>
                     ))}
                   </NativeSelect>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Mês</Label>
+                </Campo>
+                <Campo rotulo="Mês">
                   <Input type="month" name="competencia" defaultValue={sugestao} required />
-                </div>
+                </Campo>
                 <Button type="submit" className="w-full">
                   Abrir fechamento
                 </Button>

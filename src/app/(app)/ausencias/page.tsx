@@ -4,13 +4,13 @@ import { BotaoAcao, FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { datasEntre, formatarDataBR, hojeNoFuso, somarDias } from "@/engine/datas";
 import { exigirGestaoOuLider } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { lancarAusencia, removerAusencia } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Ausências" };
 
@@ -101,9 +101,8 @@ export default async function PaginaAusencias() {
             <CardDescription>Ex.: 22 dias úteis no mês e 5 de férias → meta × 17/22.</CardDescription>
           </CardHeader>
           <CardContent>
-            <FormAcao acao={lancarAusencia} className="space-y-3" limpar>
-              <div className="space-y-1.5">
-                <Label>Pessoa</Label>
+            <FormAcao acao={lancarAusencia} className="space-y-5" limpar>
+              <Campo rotulo="Pessoa">
                 <NativeSelect name="colaborador_id" required defaultValue="">
                   <option value="" disabled>
                     Escolha…
@@ -114,19 +113,16 @@ export default async function PaginaAusencias() {
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1.5">
-                  <Label>De</Label>
+              </Campo>
+              <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+                <Campo rotulo="De">
                   <Input type="date" name="inicio" required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Até</Label>
+                </Campo>
+                <Campo rotulo="Até">
                   <Input type="date" name="fim" required />
-                </div>
+                </Campo>
               </div>
-              <div className="space-y-1.5">
-                <Label>Tipo</Label>
+              <Campo rotulo="Tipo">
                 <NativeSelect name="tipo" defaultValue="ferias">
                   {Object.entries(TIPO).map(([v, t]) => (
                     <option key={v} value={v}>
@@ -134,11 +130,10 @@ export default async function PaginaAusencias() {
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Observação</Label>
+              </Campo>
+              <Campo rotulo="Observação">
                 <Input name="observacao" />
-              </div>
+              </Campo>
               <Button type="submit" className="w-full">
                 Lançar
               </Button>

@@ -20,6 +20,7 @@ import { resolverMetrica } from "@/lib/metricas-papel";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { EscolhaMetricas, LETRAS } from "./metricas-escolha";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Análise" };
 
@@ -319,10 +320,9 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
               <input type="hidden" name="modo" value="prontas" />
               <input type="hidden" name="q" value={pergunta.id} />
               {g === "dia" ? (
-                <div className="space-y-1.5">
-                  <Label>Mês</Label>
+                <Campo rotulo="Mês">
                   <Input type="month" name="mes" defaultValue={mes} className="bg-background" />
-                </div>
+                </Campo>
               ) : (
                 <>
                   <input type="hidden" name="de" value={de} />
@@ -361,20 +361,17 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
               </NativeSelect>
             </div>
             {g === "dia" ? (
-              <div className="space-y-1.5">
-                <Label>Mês</Label>
+              <Campo rotulo="Mês">
                 <Input type="month" name="mes" defaultValue={mes} className="bg-background" />
-              </div>
+              </Campo>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1.5">
-                  <Label>De</Label>
+              <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+                <Campo rotulo="De">
                   <Input type="month" name="de" defaultValue={de} className="bg-background" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Até</Label>
+                </Campo>
+                <Campo rotulo="Até">
                   <Input type="month" name="ate" defaultValue={ateMes} className="bg-background" />
-                </div>
+                </Campo>
               </div>
             )}
             {seletorQuem || <div />}

@@ -20,6 +20,7 @@ import type { Contagem, DefinicaoMetrica, FonteId, Metrica, OperadorFiltro } fro
 import { fmtValor } from "@/lib/formato";
 import { salvarMetrica, testarMetrica, type ResultadoTeste } from "./actions";
 import { Dica } from "@/components/ajuda/dica";
+import { Campo } from "@/components/ui/campo";
 
 const CONTAGEM_PADRAO: Contagem = {
   fonte: "klingo_agendamentos",
@@ -44,11 +45,10 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
   const set = (p: Partial<Contagem>) => onChange({ ...valor, ...p });
 
   return (
-    <div className="space-y-4 rounded-xl border p-4">
+    <div className="space-y-5 rounded-xl border p-4">
       {titulo && <Rotulo>{titulo}</Rotulo>}
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1"><Label>Fonte de dados</Label><Dica id="met.fonte" /></div>
+      <div className="grid gap-x-3 gap-y-5 md:grid-cols-3">
+        <Campo rotulo="Fonte de dados" dica="met.fonte">
           <NativeSelect
             value={valor.fonte}
             onChange={(e) => {
@@ -62,17 +62,15 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
               </option>
             ))}
           </NativeSelect>
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1"><Label>Como agregar</Label><Dica id="met.agregacao" /></div>
+        </Campo>
+        <Campo rotulo="Como agregar" dica="met.agregacao">
           <NativeSelect value={valor.agregacao} onChange={(e) => set({ agregacao: e.target.value as Contagem["agregacao"] })}>
             <option value="contar">Contar registros</option>
             <option value="somar">Somar um campo</option>
           </NativeSelect>
-        </div>
+        </Campo>
         {valor.agregacao === "somar" ? (
-          <div className="space-y-1.5">
-            <Label>Campo a somar</Label>
+          <Campo rotulo="Campo a somar">
             <NativeSelect value={valor.campo_valor ?? ""} onChange={(e) => set({ campo_valor: e.target.value })}>
               <option value="">Escolha…</option>
               {fonte.campos
@@ -83,13 +81,12 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
                   </option>
                 ))}
             </NativeSelect>
-          </div>
+          </Campo>
         ) : (
           <div />
         )}
       </div>
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-1"><Label>Conta no mês pela data</Label><Dica id="met.campo_data" /></div>
+      <Campo rotulo="Conta no mês pela data" dica="met.campo_data">
         <NativeSelect value={valor.campo_data} onChange={(e) => set({ campo_data: e.target.value })}>
           {camposDeData(valor.fonte).map((c) => (
             <option key={c.id} value={c.id}>
@@ -98,7 +95,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
             </option>
           ))}
         </NativeSelect>
-      </div>
+      </Campo>
 
       <div className="space-y-2">
         <div className="flex items-center gap-1"><Label>Filtros (todos precisam ser verdadeiros)</Label><Dica id="met.filtros" /></div>
@@ -239,9 +236,8 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
           <CardHeader>
             <CardTitle>Identificação</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Nome</Label>
+          <CardContent className="grid gap-x-4 gap-y-5 md:grid-cols-2">
+            <Campo rotulo="Nome">
               <Input
                 value={nome}
                 onChange={(e) => {
@@ -250,31 +246,27 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
                 }}
                 placeholder="Ex.: Agendamentos"
               />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Código</Label><Dica id="met.codigo" /></div>
+            </Campo>
+            <Campo rotulo="Código" dica="met.codigo">
               <Input value={codigo} onChange={(e) => setCodigo(slug(e.target.value))} placeholder="agendamentos" />
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label>Descrição (aparece para os colaboradores)</Label>
+            </Campo>
+            <Campo rotulo="Descrição (aparece para os colaboradores)" className="md:col-span-2">
               <Textarea rows={2} value={descricao ?? ""} onChange={(e) => setDescricao(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Análise</Label><Dica id="met.analise" /></div>
+            </Campo>
+            <Campo rotulo="Análise" dica="met.analise">
               <NativeSelect value={tipo} onChange={(e) => setTipo(e.target.value as Metrica["tipo"])}>
                 <option value="quantitativa">Quantitativa (volume)</option>
                 <option value="qualitativa">Qualitativa (resultado/qualidade)</option>
               </NativeSelect>
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Unidade</Label><Dica id="met.unidade" /></div>
+            </Campo>
+            <Campo rotulo="Unidade" dica="met.unidade">
               <NativeSelect value={unidade} onChange={(e) => setUnidade(e.target.value as Metrica["unidade"])}>
                 <option value="un">Unidades</option>
                 <option value="%">Percentual (%)</option>
                 <option value="R$">Reais (R$)</option>
                 <option value="pts">Pontos</option>
               </NativeSelect>
-            </div>
+            </Campo>
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={ativo} onCheckedChange={setAtivo} /> Ativa
             </label>
@@ -299,21 +291,19 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
             <CardDescription>Escolha a fonte, a data que define em qual mês o registro conta e os filtros.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Tipo de cálculo</Label><Dica id="met.tipo_calculo" /></div>
+            <div className="grid gap-x-3 gap-y-5 md:grid-cols-2">
+              <Campo rotulo="Tipo de cálculo" dica="met.tipo_calculo">
                 <NativeSelect value={def.tipo_calculo} onChange={(e) => mudarTipoCalculo(e.target.value as "simples" | "taxa")}>
                   <option value="simples">Contagem / soma</option>
                   <option value="taxa">Taxa (numerador ÷ denominador)</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>No mês em andamento, contar até</Label><Dica id="met.corte" /></div>
+              </Campo>
+              <Campo rotulo="No mês em andamento, contar até" dica="met.corte">
                 <NativeSelect value={def.corte ?? "hoje"} onChange={(e) => setDef({ ...def, corte: e.target.value as "hoje" | "ontem" })}>
                   <option value="hoje">Hoje (atualiza durante o dia)</option>
                   <option value="ontem">Ontem (só dias fechados)</option>
                 </NativeSelect>
-              </div>
+              </Campo>
             </div>
             {def.tipo_calculo === "simples" ? (
               <EditorContagem

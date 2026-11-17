@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, CircleAlert, Calculator, RotateCcw } from "lucide-react";
+import { CheckCircle2, CircleAlert, Calculator, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CabecalhoPagina, NivelBadge, StatusPill } from "@/components/app/blocos";
@@ -6,13 +6,13 @@ import { BotaoAcao } from "@/components/app/form-acao";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { descreverRecompensa } from "@/engine/apuracao";
-import { formatarDataBR, nomeCompetencia } from "@/engine/datas";
+import { nomeCompetencia } from "@/engine/datas";
 import type { ResultadoApuracao } from "@/engine/tipos";
 import { exigirGestaoOuLider } from "@/lib/auth";
-import { quemAvanca, proximo, ROTULO_ACAO, ROTULO_STATUS, sequencia, type StatusFechamento } from "@/lib/fechamento";
+import { LinhaDoTempoFechamento } from "@/components/fechamento/linha-do-tempo";
+import { linhaDoTempo, quemAvanca, proximo, ROTULO_ACAO, ROTULO_STATUS, type RegistroLog, type StatusFechamento } from "@/lib/fechamento";
 import { fmtDataHora, fmtPct } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
 import { avancar, calcular, reabrir } from "../actions";
 
 export const metadata = { title: "Fechamento" };
@@ -29,11 +29,12 @@ export default async function PaginaFechamento(props: PageProps<"/fechamentos/[i
   if (!f) notFound();
   const equipe = f.equipes as unknown as { nome: string; etapas_aprovacao: string[] };
   const status = f.status as StatusFechamento;
-  const seq = sequencia(equipe.etapas_aprovacao);
   const prox = proximo(status, equipe.etapas_aprovacao);
   const quem = quemAvanca(status);
   const podeAvancar = !!prox && !!quem && (s.ehAdmin || (quem === "lider_ou_admin" && s.lidera.includes(f.equipe_id)));
   const congelado = status === "aprovado" || status === "entregue";
+  const etapas = linhaDoTempo(equipe.etapas_aprovacao, status, f.log as RegistroLog[] | null);
+  const etapaAtual = etapas.find((e) => e.status === status) ?? etapas[0];
 
   const [{ data: aps }, { data: membros }, { data: sync }] = await Promise.all([
     db
@@ -103,32 +104,16 @@ export default async function PaginaFechamento(props: PageProps<"/fechamentos/[i
       />
 
       <Card>
+        <CardHeader>
+          <CardTitle>Em que pé está</CardTitle>
+          <CardDescription>
+            {etapaAtual.estado === "feita"
+              ? "Todas as etapas concluídas."
+              : `Etapa atual: ${etapaAtual.rotulo}. Faltam ${etapas.filter((e) => e.estado === "a_fazer").length} depois dela.`}
+          </CardDescription>
+        </CardHeader>
         <CardContent>
-          <ol className="flex flex-wrap items-center gap-2">
-            {seq.map((st, i) => {
-              const feito = seq.indexOf(status) > i;
-              const atual = st === status;
-              return (
-                <li key={st} className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm",
-                      atual && "border-primary bg-primary-soft font-medium text-primary",
-                      feito && "border-transparent text-up",
-                      !atual && !feito && "text-muted-foreground",
-                    )}
-                  >
-                    {feito ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}
-                    {ROTULO_STATUS[st]}
-                  </span>
-                  {i < seq.length - 1 && <span className="text-muted-foreground">→</span>}
-                </li>
-              );
-            })}
-          </ol>
-          {status === "em_contestacao" && f.prazo_contestacao && (
-            <p className="mt-3 text-sm text-muted-foreground">Contestações até {formatarDataBR(f.prazo_contestacao)}.</p>
-          )}
+          <LinhaDoTempoFechamento etapas={etapas} prazoContestacao={f.prazo_contestacao} />
         </CardContent>
       </Card>
 

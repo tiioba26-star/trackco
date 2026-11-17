@@ -5,7 +5,6 @@ import { BotaoAcao, FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +17,7 @@ import { competenciaDe } from "@/engine/datas";
 import { excluirLancamento, importarCsv, lancar, recalcularAgora } from "./actions";
 import { RecalcularPeriodo } from "./recalcular-periodo";
 import { Dica } from "@/components/ajuda/dica";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Dados e lançamentos" };
 
@@ -254,9 +254,8 @@ export default async function PaginaDados() {
               <CardTitle>Novo lançamento</CardTitle>
             </CardHeader>
             <CardContent>
-              <FormAcao acao={lancar} className="space-y-3" limpar>
-                <div className="space-y-1.5">
-                  <Label>Pessoa</Label>
+              <FormAcao acao={lancar} className="space-y-5" limpar>
+                <Campo rotulo="Pessoa">
                   <NativeSelect name="colaborador_id" required defaultValue="">
                     <option value="" disabled>
                       Escolha…
@@ -267,25 +266,21 @@ export default async function PaginaDados() {
                       </option>
                     ))}
                   </NativeSelect>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1.5">
-                    <Label>Data</Label>
+                </Campo>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+                  <Campo rotulo="Data">
                     <Input type="date" name="data" defaultValue={hoje} required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1"><Label>Valor</Label><Dica id="lanc.valor" /></div>
+                  </Campo>
+                  <Campo rotulo="Valor" dica="lanc.valor">
                     <Input name="valor" inputMode="decimal" required />
-                  </div>
+                  </Campo>
                 </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>Tipo</Label><Dica id="lanc.tipo" /></div>
+                <Campo rotulo="Tipo" dica="lanc.tipo">
                   <Input name="tipo" defaultValue="avaliacao_lider" required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Descrição</Label>
+                </Campo>
+                <Campo rotulo="Descrição">
                   <Input name="descricao" />
-                </div>
+                </Campo>
                 <Button type="submit" className="w-full">
                   Lançar
                 </Button>

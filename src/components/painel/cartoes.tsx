@@ -1,4 +1,4 @@
-import { ArrowRight, Crown, RefreshCw, Users } from "lucide-react";
+import { ArrowRight, Crown, Users } from "lucide-react";
 import Link from "next/link";
 import { BarraAtingimento, NivelBadge, Rotulo } from "@/components/app/blocos";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -153,17 +153,17 @@ export function StatusSync({
   const quando = sync?.finalizado_em ?? sync?.iniciado_em ?? null;
   const ruim = sync?.status === "erro";
   return (
-    <div
+    <span
       data-tour="sync"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 text-xs",
-        ruim ? "border-destructive/40 text-destructive" : "text-muted-foreground",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
+        ruim ? "border-down/40 bg-down/10 text-down" : "bg-card text-muted-foreground",
       )}
-      title={sync ? `Status: ${sync.status}` : "O robô ainda não rodou"}
+      title={sync ? `Última sincronização com o Klingo: ${sync.status}` : "O robô ainda não rodou"}
     >
-      <RefreshCw className="size-3.5" />
+      <span aria-hidden className={cn("size-1.5 rounded-full", !sync ? "bg-muted-foreground" : ruim ? "bg-down" : "bg-up")} />
       {sync ? `Klingo ${ruim ? "com erro" : "atualizado"} ${tempoRelativo(quando)}` : "Aguardando 1ª sincronização"}
-    </div>
+    </span>
   );
 }
 

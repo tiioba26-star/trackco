@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { competenciaDe, inicioCompetencia } from "@/engine/datas";
 import { type DadosFormulario, nomeRodada, type Pergunta, proximaAbertura, rodadaAtual, ROTULO_TIPO, type TipoPergunta } from "@/lib/formularios";
 import { salvarFormulario } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 type Inicial = Omit<DadosFormulario, "inicio"> & { inicio: string | null };
 const novoId = () => `p${Math.random().toString(36).slice(2, 8)}`;
@@ -72,15 +73,13 @@ export function EditorFormulario({
             <CardTitle>O que a pessoa vê</CardTitle>
             <CardDescription>Título e uma frase dizendo para que serve. Dizer que é anônimo e rápido aumenta a sinceridade.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="titulo">Título</Label>
+          <CardContent className="space-y-5">
+            <Campo rotulo="Título" htmlFor="titulo">
               <Input id="titulo" value={f.titulo} onChange={(e) => mudar("titulo", e.target.value)} maxLength={120} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="descricao">Texto de abertura</Label>
+            </Campo>
+            <Campo rotulo="Texto de abertura" htmlFor="descricao">
               <Textarea id="descricao" rows={2} value={f.descricao ?? ""} onChange={(e) => mudar("descricao", e.target.value || null)} maxLength={600} />
-            </div>
+            </Campo>
           </CardContent>
         </Card>
 
@@ -209,10 +208,9 @@ export function EditorFormulario({
                 </NativeSelect>
               </div>
             ) : (
-              <div className="space-y-1.5">
-                <Label htmlFor="data_unica">A partir de</Label>
+              <Campo rotulo="A partir de" htmlFor="data_unica">
                 <Input id="data_unica" type="date" value={f.data_unica ?? ""} min={hoje} onChange={(e) => mudar("data_unica", e.target.value || null)} />
-              </div>
+              </Campo>
             )}
             {f.recorrencia === "mensal" && (
               <label className="flex items-start gap-2 text-sm">

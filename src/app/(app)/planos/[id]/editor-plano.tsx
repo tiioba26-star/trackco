@@ -16,7 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,6 +24,7 @@ import type { Condicao, DefinicaoPlano, Faixa, Indicador, TipoRecompensa } from 
 import { fmtPct } from "@/lib/formato";
 import { alterarStatusPlano, publicarVersao, salvarRascunho, simularPlano, type LinhaSimulacao } from "../actions";
 import { Dica } from "@/components/ajuda/dica";
+import { Campo } from "@/components/ui/campo";
 
 const novoId = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -119,17 +119,14 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
   return (
     <div className="space-y-6">
       <Card>
-        <CardContent className="grid gap-4 md:grid-cols-[1fr_1fr_220px]">
-          <div className="space-y-1.5">
-            <Label>Nome do plano</Label>
+        <CardContent className="grid gap-x-4 gap-y-5 md:grid-cols-[1fr_1fr_220px]">
+          <Campo rotulo="Nome do plano">
             <Input value={nome} onChange={(e) => setNome(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1"><Label>Descrição</Label><Dica id="cond.descricao" /></div>
+          </Campo>
+          <Campo rotulo="Descrição" dica="cond.descricao">
             <Input value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1"><Label>Modalidade</Label><Dica id="plano.modalidade" /></div>
+          </Campo>
+          <Campo rotulo="Modalidade" dica="plano.modalidade">
             <NativeSelect value={modalidade} onChange={(e) => setModalidade(e.target.value)}>
               <option value="reconhecimento">Reconhecimento</option>
               <option value="premio">Prêmios</option>
@@ -137,7 +134,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               <option value="pontos">Pontos</option>
               <option value="misto">Misto</option>
             </NativeSelect>
-          </div>
+          </Campo>
         </CardContent>
       </Card>
 
@@ -152,9 +149,8 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         </CardHeader>
         <CardContent className="space-y-3">
           {def.indicadores.map((ind, i) => (
-            <div key={ind.id} className="grid gap-3 rounded-xl border p-3 md:grid-cols-6">
-              <div className="space-y-1.5 md:col-span-2">
-                <div className="flex items-center gap-1"><Label>Métrica</Label><Dica id="ind.metrica" /></div>
+            <div key={ind.id} className="grid gap-x-3 gap-y-5 rounded-xl border p-3 md:grid-cols-6">
+              <Campo rotulo="Métrica" dica="ind.metrica" className="md:col-span-2">
                 <NativeSelect value={ind.metrica_id} onChange={(e) => setInd(i, { metrica_id: e.target.value })}>
                   <option value="">Escolha…</option>
                   {metricas.map((m) => (
@@ -163,34 +159,29 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5 md:col-span-2">
-                <div className="flex items-center gap-1"><Label>Nome no extrato (opcional)</Label><Dica id="ind.nome" /></div>
+              </Campo>
+              <Campo rotulo="Nome no extrato (opcional)" dica="ind.nome" className="md:col-span-2">
                 <Input value={ind.nome ?? ""} onChange={(e) => setInd(i, { nome: e.target.value || undefined })} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Escopo</Label><Dica id="ind.escopo" /></div>
+              </Campo>
+              <Campo rotulo="Escopo" dica="ind.escopo">
                 <NativeSelect value={ind.escopo} onChange={(e) => setInd(i, { escopo: e.target.value as Indicador["escopo"] })}>
                   <option value="individual">Individual</option>
                   <option value="equipe">Equipe (agregado)</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Aplica-se a</Label><Dica id="ind.aplica_a" /></div>
+              </Campo>
+              <Campo rotulo="Aplica-se a" dica="ind.aplica_a">
                 <NativeSelect value={ind.aplica_a} onChange={(e) => setInd(i, { aplica_a: e.target.value as Indicador["aplica_a"] })}>
                   <option value="membros">Membros</option>
                   <option value="lider">Líder</option>
                   <option value="todos">Todos</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Peso</Label><Dica id="ind.peso" /></div>
+              </Campo>
+              <Campo rotulo="Peso" dica="ind.peso">
                 <Input type="number" min={0} value={ind.peso} onChange={(e) => setInd(i, { peso: Number(e.target.value) })} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Teto (%)</Label><Dica id="ind.teto" /></div>
+              </Campo>
+              <Campo rotulo="Teto (%)" dica="ind.teto">
                 <Input type="number" min={1} value={ind.teto_pct} onChange={(e) => setInd(i, { teto_pct: Number(e.target.value) })} />
-              </div>
+              </Campo>
               <label className="flex items-center gap-2 self-end pb-1.5 text-sm md:col-span-2">
                 <Switch checked={ind.meta_proporcional} onCheckedChange={(v) => setInd(i, { meta_proporcional: v })} />
                 Meta proporcional aos dias trabalhados <Dica id="ind.proporcional" />
@@ -254,26 +245,22 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
             .map((f, i) => ({ f, i }))
             .sort((a, b) => a.f.de_pct - b.f.de_pct)
             .map(({ f, i }) => (
-              <div key={f.id} className="grid items-end gap-3 rounded-xl border p-3 md:grid-cols-[90px_90px_1fr_60px_1fr_1fr_auto]">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>De (%)</Label><Dica id="faixa.de_ate" /></div>
+              <div key={f.id} className="grid items-end gap-x-3 gap-y-5 rounded-xl border p-3 md:grid-cols-[90px_90px_1fr_60px_1fr_1fr_auto]">
+                <Campo rotulo="De (%)" dica="faixa.de_ate">
                   <Input type="number" value={f.de_pct} onChange={(e) => setFx(i, { de_pct: Number(e.target.value) })} />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>Até (%)</Label><Dica id="faixa.de_ate" /></div>
+                </Campo>
+                <Campo rotulo="Até (%)" dica="faixa.de_ate">
                   <Input
                     type="number"
                     value={f.ate_pct ?? ""}
                     placeholder="∞"
                     onChange={(e) => setFx(i, { ate_pct: e.target.value === "" ? null : Number(e.target.value) })}
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>Nível</Label><Dica id="faixa.nivel" /></div>
+                </Campo>
+                <Campo rotulo="Nível" dica="faixa.nivel">
                   <Input value={f.nivel} onChange={(e) => setFx(i, { nivel: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>Cor</Label><Dica id="faixa.cor" /></div>
+                </Campo>
+                <Campo rotulo="Cor" dica="faixa.cor">
                   <input
                     type="color"
                     value={f.cor ?? "#1c5cab"}
@@ -281,9 +268,8 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                     className="h-8 w-full cursor-pointer rounded-lg border bg-transparent"
                     aria-label="Cor do nível"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1"><Label>Recompensa</Label><Dica id="faixa.recompensa" /></div>
+                </Campo>
+                <Campo rotulo="Recompensa" dica="faixa.recompensa">
                   <NativeSelect
                     value={f.recompensa?.tipo ?? ""}
                     onChange={(e) =>
@@ -298,9 +284,8 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                       </option>
                     ))}
                   </NativeSelect>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{["valor_fixo", "percentual", "pontos"].includes(f.recompensa?.tipo ?? "") ? "Valor" : "Descrição"}</Label>
+                </Campo>
+                <Campo rotulo={["valor_fixo", "percentual", "pontos"].includes(f.recompensa?.tipo ?? "") ? "Valor" : "Descrição"}>
                   {["valor_fixo", "percentual", "pontos"].includes(f.recompensa?.tipo ?? "") ? (
                     <Input
                       type="number"
@@ -315,7 +300,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                       onChange={(e) => setFx(i, { recompensa: { ...f.recompensa!, descricao: e.target.value } })}
                     />
                   )}
-                </div>
+                </Campo>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -361,13 +346,11 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         </CardHeader>
         <CardContent className="space-y-3">
           {def.condicoes.map((c, i) => (
-            <div key={c.id} className="grid items-end gap-3 rounded-xl border p-3 md:grid-cols-[1.4fr_1fr_120px_80px_100px_1fr_auto]">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Descrição</Label><Dica id="cond.descricao" /></div>
+            <div key={c.id} className="grid items-end gap-x-3 gap-y-5 rounded-xl border p-3 md:grid-cols-[1.4fr_1fr_120px_80px_100px_1fr_auto]">
+              <Campo rotulo="Descrição" dica="cond.descricao">
                 <Input value={c.descricao} onChange={(e) => setCd(i, { descricao: e.target.value })} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Indicador</Label><Dica id="cond.indicador" /></div>
+              </Campo>
+              <Campo rotulo="Indicador" dica="cond.indicador">
                 <NativeSelect value={c.indicador_id} onChange={(e) => setCd(i, { indicador_id: e.target.value })}>
                   {def.indicadores.map((ind) => (
                     <option key={ind.id} value={ind.id}>
@@ -375,28 +358,24 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Base</Label><Dica id="cond.base" /></div>
+              </Campo>
+              <Campo rotulo="Base" dica="cond.base">
                 <NativeSelect value={c.base} onChange={(e) => setCd(i, { base: e.target.value as Condicao["base"] })}>
                   <option value="realizado">Realizado</option>
                   <option value="atingimento">Atingimento %</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Op.</Label>
+              </Campo>
+              <Campo rotulo="Op.">
                 <NativeSelect value={c.operador} onChange={(e) => setCd(i, { operador: e.target.value as Condicao["operador"] })}>
                   {[">=", ">", "<=", "<"].map((o) => (
                     <option key={o}>{o}</option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Valor</Label>
+              </Campo>
+              <Campo rotulo="Valor">
                 <Input type="number" value={c.valor} onChange={(e) => setCd(i, { valor: Number(e.target.value) })} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Se não atender</Label><Dica id="cond.efeito" /></div>
+              </Campo>
+              <Campo rotulo="Se não atender" dica="cond.efeito">
                 <NativeSelect value={c.efeito} onChange={(e) => setCd(i, { efeito: e.target.value as Condicao["efeito"] })}>
                   <option value="bloquear_recompensa">Bloquear recompensa</option>
                   <option value="limitar_nivel">Limitar nível</option>
@@ -411,7 +390,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                     ))}
                   </NativeSelect>
                 )}
-              </div>
+              </Campo>
               <Button
                 variant="ghost"
                 size="icon"
@@ -523,15 +502,13 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               que valia na época.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Vale a partir de</Label><Dica id="plano.vigente" /></div>
+          <div className="space-y-5">
+            <Campo rotulo="Vale a partir de" dica="plano.vigente">
               <Input type="month" value={vigente} onChange={(e) => setVigente(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>O que mudou (aparece no extrato)</Label>
+            </Campo>
+            <Campo rotulo="O que mudou (aparece no extrato)">
               <Textarea rows={3} value={obs} onChange={(e) => setObs(e.target.value)} />
-            </div>
+            </Campo>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPublicar(false)} disabled={publicando}>

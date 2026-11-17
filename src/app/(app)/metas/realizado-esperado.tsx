@@ -16,6 +16,7 @@ import { realEsperado, type VisaoRealEsperado } from "@/lib/dados/real-esperado"
 import { competenciaValida } from "@/lib/formato";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { cn } from "@/lib/utils";
+import { Campo } from "@/components/ui/campo";
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -141,22 +142,19 @@ export async function RealizadoEsperado({
           </div>
           {f.ver === "mes" ? (
             <>
-              <div className="space-y-1.5">
-                <Label htmlFor="re-de">De</Label>
+              <Campo rotulo="De" htmlFor="re-de">
                 <Input id="re-de" type="month" name="de" defaultValue={f.de} className="bg-background" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="re-ate">Até</Label>
+              </Campo>
+              <Campo rotulo="Até" htmlFor="re-ate">
                 <Input id="re-ate" type="month" name="ate" defaultValue={f.ate} className="bg-background" />
-              </div>
+              </Campo>
               <input type="hidden" name="mes" value={f.mes} />
             </>
           ) : (
             <>
-              <div className="space-y-1.5">
-                <Label htmlFor="re-mes">Mês</Label>
+              <Campo rotulo="Mês" htmlFor="re-mes">
                 <Input id="re-mes" type="month" name="mes" defaultValue={f.mes} className="bg-background" />
-              </div>
+              </Campo>
               <input type="hidden" name="de" value={f.de} />
               <input type="hidden" name="ate" value={f.ate} />
             </>

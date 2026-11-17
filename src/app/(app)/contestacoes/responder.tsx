@@ -12,10 +12,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { responderContestacao } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export function Responder({
   id,
@@ -63,7 +63,7 @@ export function Responder({
             <DialogTitle>Responder contestação</DialogTitle>
             <DialogDescription>A resposta fica visível para o colaborador e registrada na auditoria.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="grid grid-cols-3 gap-1 rounded-lg border p-1">
               {(
                 [
@@ -83,13 +83,14 @@ export function Responder({
               ))}
             </div>
             {decisao === "aceita" && ehAdmin && (
-              <div className="grid gap-3 rounded-lg border bg-muted/40 p-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Ajuste (+/-) opcional</Label>
+              <div className="grid gap-x-3 gap-y-5 rounded-lg border bg-muted/40 p-3 sm:grid-cols-2">
+                <Campo
+                  rotulo="Ajuste (+/-) opcional"
+                  dicaTexto="O ajuste entra no cálculo do mês com a sua resposta como justificativa. Se o erro for do Klingo, corrija lá e aguarde a próxima sincronização em vez de ajustar."
+                >
                   <Input inputMode="decimal" placeholder="ex.: 1 ou -1" value={delta} onChange={(e) => setDelta(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Na métrica</Label>
+                </Campo>
+                <Campo rotulo="Na métrica">
                   <NativeSelect value={metrica} onChange={(e) => setMetrica(e.target.value)}>
                     {metricas.map((m) => (
                       <option key={m.id} value={m.id}>
@@ -97,17 +98,12 @@ export function Responder({
                       </option>
                     ))}
                   </NativeSelect>
-                </div>
-                <p className="text-xs text-muted-foreground sm:col-span-2">
-                  O ajuste entra no cálculo do mês com a sua resposta como justificativa. Se o erro for do Klingo, corrija lá e
-                  aguarde a próxima sincronização em vez de ajustar.
-                </p>
+                </Campo>
               </div>
             )}
-            <div className="space-y-1.5">
-              <Label>Resposta</Label>
+            <Campo rotulo="Resposta">
               <Textarea rows={4} value={resposta} onChange={(e) => setResposta(e.target.value)} />
-            </div>
+            </Campo>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAberto(false)}>

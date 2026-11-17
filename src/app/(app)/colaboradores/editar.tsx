@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Separator } from "@/components/ui/separator";
 import { atualizarColaborador, redefinirSenha, salvarNascimento } from "./actions";
-import { Dica } from "@/components/ajuda/dica";
 import { BotaoPreviaParabens } from "@/components/retrospectiva/parabens";
+import { Campo } from "@/components/ui/campo";
 
 export function EditarColaborador({
   c,
@@ -34,24 +34,21 @@ export function EditarColaborador({
             <DialogTitle>{c.nome}</DialogTitle>
             <DialogDescription>Usuário de acesso: {c.login ?? "—"}</DialogDescription>
           </DialogHeader>
-          <FormAcao acao={atualizarColaborador.bind(null, c.id)} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label>Nome</Label>
+          <FormAcao acao={atualizarColaborador.bind(null, c.id)} className="space-y-5">
+            <Campo rotulo="Nome">
               <Input name="nome" defaultValue={c.nome} required />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Login no Klingo (campo Responsável)</Label><Dica id="colab.klingo" /></div>
+            </Campo>
+            <Campo rotulo="Login no Klingo (campo Responsável)" dica="colab.klingo">
               <Input name="login_klingo" defaultValue={c.login_klingo ?? ""} list="logins-klingo" />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1"><Label>Perfil</Label><Dica id="colab.perfil" /></div>
+            </Campo>
+            <Campo rotulo="Perfil" dica="colab.perfil">
               <NativeSelect name="papel" defaultValue={c.papel}>
                 <option value="colaborador">Colaborador</option>
                 <option value="gestor">Gestor (vê tudo, não configura)</option>
                 <option value="leitura">Somente leitura (vê o que o administrador vê, não altera nada)</option>
                 <option value="admin">Administrador</option>
               </NativeSelect>
-            </div>
+            </Campo>
             <label className="flex items-center gap-2 text-sm">
               <Checkbox name="ativo" defaultChecked={c.ativo} /> Ainda trabalha na clínica (desmarque só para quem saiu)
             </label>

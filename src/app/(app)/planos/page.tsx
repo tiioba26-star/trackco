@@ -5,12 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { formatarDataBR } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarPlano } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Planos e regras" };
 
@@ -86,13 +86,11 @@ export default async function PaginaPlanos() {
             <CardDescription>Ex.: &quot;Comercial · Prêmios&quot; para a fase 2.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={criarPlano} className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="nome">Nome</Label>
+            <form action={criarPlano} className="space-y-5">
+              <Campo rotulo="Nome" htmlFor="nome">
                 <Input id="nome" name="nome" required minLength={3} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Equipe</Label>
+              </Campo>
+              <Campo rotulo="Equipe">
                 <NativeSelect name="equipe_id" required>
                   {(equipes ?? []).map((e) => (
                     <option key={e.id} value={e.id}>
@@ -100,9 +98,8 @@ export default async function PaginaPlanos() {
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Modalidade</Label>
+              </Campo>
+              <Campo rotulo="Modalidade">
                 <NativeSelect name="modalidade" defaultValue="reconhecimento">
                   {Object.entries(MODALIDADE).map(([v, t]) => (
                     <option key={v} value={v}>
@@ -110,7 +107,7 @@ export default async function PaginaPlanos() {
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
+              </Campo>
               <Button type="submit" className="w-full">
                 Criar e configurar
               </Button>

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { janelaGestao, PERIODOS_GESTAO, type Comparar, type PeriodoGestao } from "@/engine/periodos-gestao";
+import { Campo } from "@/components/ui/campo";
 
 /**
  * Período, De, Até e Comparar ligados entre si:
@@ -39,8 +39,7 @@ export function PeriodoGestaoCampos({
 
   return (
     <>
-      <div className="space-y-1.5">
-        <Label htmlFor="g-p">Período</Label>
+      <Campo rotulo="Período" htmlFor="g-p">
         <NativeSelect id="g-p" name="p" value={p} onChange={(e) => trocarPeriodo(e.target.value as PeriodoGestao)} className="w-full">
           {PERIODOS_GESTAO.map((x) => (
             <option key={x.k} value={x.k}>
@@ -48,9 +47,8 @@ export function PeriodoGestaoCampos({
             </option>
           ))}
         </NativeSelect>
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="g-de">De</Label>
+      </Campo>
+      <Campo rotulo="De" htmlFor="g-de">
         <Input
           id="g-de"
           type="date"
@@ -62,9 +60,8 @@ export function PeriodoGestaoCampos({
             setP("personalizado");
           }}
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="g-ate">Até</Label>
+      </Campo>
+      <Campo rotulo="Até" htmlFor="g-ate">
         <Input
           id="g-ate"
           type="date"
@@ -76,15 +73,14 @@ export function PeriodoGestaoCampos({
             setP("personalizado");
           }}
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="g-comparar">Comparar com</Label>
+      </Campo>
+      <Campo rotulo="Comparar com" htmlFor="g-comparar">
         <NativeSelect id="g-comparar" name="comparar" defaultValue={comparar} className="w-full">
           <option value="anterior">Período anterior (mesmos dias)</option>
           <option value="ano">Mesmo período do ano anterior</option>
           <option value="nada">Não comparar</option>
         </NativeSelect>
-      </div>
+      </Campo>
     </>
   );
 }

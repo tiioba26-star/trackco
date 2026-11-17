@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Pilula } from "@/components/ui/pilula";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,7 +13,7 @@ import { formatarDataBR, hojeNoFuso } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { adicionarMembro, alterarVinculo, salvarEquipe } from "../actions";
-import { Dica } from "@/components/ajuda/dica";
+import { BlocoCampos, Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Equipe" };
 
@@ -125,9 +124,8 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                 </TableBody>
               </Table>
             </div>
-            <FormAcao acao={adicionar} className="grid items-end gap-3 rounded-xl border p-3 md:grid-cols-[1.5fr_1fr_1fr_auto]" limpar>
-              <div className="space-y-1.5">
-                <Label>Adicionar pessoa</Label>
+            <FormAcao acao={adicionar} className="grid items-end gap-x-3 gap-y-5 rounded-xl border p-3 md:grid-cols-[1.5fr_1fr_1fr_auto]" limpar>
+              <Campo rotulo="Adicionar pessoa">
                 <NativeSelect name="colaborador_id" required defaultValue="">
                   <option value="" disabled>
                     Escolha…
@@ -151,18 +149,16 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                     </optgroup>
                   )}
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Função</Label>
+              </Campo>
+              <Campo rotulo="Função">
                 <NativeSelect name="funcao" defaultValue="membro">
                   <option value="membro">Membro</option>
                   <option value="lider">Líder</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Desde</Label>
+              </Campo>
+              <Campo rotulo="Desde">
                 <Input type="date" name="inicio" defaultValue={hoje} required />
-              </div>
+              </Campo>
               <Button type="submit">Adicionar</Button>
             </FormAcao>
           </CardContent>
@@ -173,54 +169,54 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
             <CardTitle>Configuração</CardTitle>
           </CardHeader>
           <CardContent>
-            <FormAcao acao={salvar} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label>Nome</Label>
-                <Input name="nome" defaultValue={e.nome} required />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Descrição</Label>
-                <Input name="descricao" defaultValue={e.descricao ?? ""} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>O que cada membro vê dos colegas</Label><Dica id="eq.visibilidade" /></div>
-                <NativeSelect name="visibilidade_ranking" defaultValue={e.visibilidade_ranking}>
-                  <option value="aberto">Ranking aberto (nomes e números)</option>
-                  <option value="posicoes">Só posições e níveis (sem números dos colegas)</option>
-                  <option value="privado">Privado (cada um vê só o seu)</option>
-                </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Dias de trabalho (para dias úteis e meta proporcional)</Label><Dica id="eq.dias" /></div>
-                <div className="flex flex-wrap gap-2">
-                  {DIAS.map(([n, t]) => (
-                    <Pilula key={n} name="dias_trabalho" value={n} defaultChecked={e.dias_trabalho.includes(n)}>
-                      {t}
+            <FormAcao acao={salvar} className="space-y-6">
+              <BlocoCampos titulo="A equipe">
+                <Campo rotulo="Nome">
+                  <Input name="nome" defaultValue={e.nome} required />
+                </Campo>
+                <Campo rotulo="Descrição">
+                  <Input name="descricao" defaultValue={e.descricao ?? ""} />
+                </Campo>
+                <Campo rotulo="Dias de trabalho" dica="eq.dias">
+                  <div className="flex flex-wrap gap-2">
+                    {DIAS.map(([n, t]) => (
+                      <Pilula key={n} name="dias_trabalho" value={n} defaultChecked={e.dias_trabalho.includes(n)}>
+                        {t}
+                      </Pilula>
+                    ))}
+                  </div>
+                </Campo>
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox name="ativo" defaultChecked={e.ativo} /> Equipe ativa
+                </label>
+              </BlocoCampos>
+              <BlocoCampos titulo="Quem vê o quê" descricao="O que cada membro enxerga dos números dos colegas.">
+                <Campo rotulo="Visibilidade entre colegas" dica="eq.visibilidade">
+                  <NativeSelect name="visibilidade_ranking" defaultValue={e.visibilidade_ranking}>
+                    <option value="aberto">Ranking aberto (nomes e números)</option>
+                    <option value="posicoes">Só posições e níveis (sem números dos colegas)</option>
+                    <option value="privado">Privado (cada um vê só o seu)</option>
+                  </NativeSelect>
+                </Campo>
+              </BlocoCampos>
+              <BlocoCampos titulo="Fechamento do mês" descricao="Por quais etapas o mês passa antes de ser aprovado.">
+                <Campo rotulo="Etapas" dica="eq.etapas">
+                  <div className="flex flex-wrap gap-2">
+                    <Pilula name="etapas" value="contestacao" defaultChecked={e.etapas_aprovacao.includes("contestacao")}>
+                      Prazo de contestação dos colaboradores
                     </Pilula>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Etapas do fechamento</Label><Dica id="eq.etapas" /></div>
-                <div className="flex flex-wrap gap-2">
-                  <Pilula name="etapas" value="contestacao" defaultChecked={e.etapas_aprovacao.includes("contestacao")}>
-                    Prazo de contestação dos colaboradores
-                  </Pilula>
-                  <Pilula name="etapas" value="lider" defaultChecked={e.etapas_aprovacao.includes("lider")}>
-                    Conferência do líder
-                  </Pilula>
-                  <Pilula name="etapas" value="admin" defaultChecked disabled>
-                    Aprovação do admin (obrigatória)
-                  </Pilula>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Prazo de contestação (dias)</Label><Dica id="eq.prazo" /></div>
-                <Input type="number" name="prazo_contestacao_dias" min={0} max={31} defaultValue={e.prazo_contestacao_dias} className="w-28" />
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox name="ativo" defaultChecked={e.ativo} /> Equipe ativa
-              </label>
+                    <Pilula name="etapas" value="lider" defaultChecked={e.etapas_aprovacao.includes("lider")}>
+                      Conferência do líder
+                    </Pilula>
+                    <Pilula name="etapas" value="admin" defaultChecked disabled>
+                      Aprovação do admin (obrigatória)
+                    </Pilula>
+                  </div>
+                </Campo>
+                <Campo rotulo="Prazo de contestação (dias)" dica="eq.prazo">
+                  <Input type="number" name="prazo_contestacao_dias" min={0} max={31} defaultValue={e.prazo_contestacao_dias} className="w-28" />
+                </Campo>
+              </BlocoCampos>
               <Button type="submit">Salvar configuração</Button>
             </FormAcao>
           </CardContent>

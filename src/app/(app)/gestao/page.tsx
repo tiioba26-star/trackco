@@ -5,7 +5,6 @@ import { CalendarDays, FileSpreadsheet } from "lucide-react";
 import { CabecalhoPagina } from "@/components/app/blocos";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { titulo } from "@/engine/classificacao";
@@ -21,6 +20,7 @@ import { FiltrosRecolhiveis } from "./filtros-recolhiveis";
 import { AbaPerdas } from "./aba-perdas";
 import { AbaQuem } from "./aba-quem";
 import { PeriodoGestaoCampos } from "./periodo";
+import { Campo } from "@/components/ui/campo";
 
 export const metadata = { title: "Gestão" };
 
@@ -66,9 +66,9 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
     <Card data-tour="gestao-filtros">
       <CardContent className="space-y-4">
         <FiltrosRecolhiveis ativos={filtrosAtivos(f)}>
-          <Form action="/gestao" className="space-y-3">
+          <Form action="/gestao" className="space-y-5">
             <input type="hidden" name="aba" value={aba} />
-            <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
+            <div className="grid items-end gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
               {/* a key recria os campos quando a URL muda (ex.: "Limpar filtros") */}
               <PeriodoGestaoCampos
                 key={`${f.janela.periodo}|${f.janela.inicio}|${f.janela.fim}|${f.comparar}`}
@@ -79,52 +79,44 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
                 hoje={f.hoje}
               />
             </div>
-            <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="g-equipe">Equipe</Label>
+            <div className="grid items-end gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+              <Campo rotulo="Equipe" htmlFor="g-equipe">
                 {sel("equipe", f.equipe, o.equipes.map((e) => ({ v: e, t: e })), "Clínica toda")}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-pessoa">Quem marcou</Label>
+              </Campo>
+              <Campo rotulo="Quem marcou" htmlFor="g-pessoa">
                 {sel("pessoa", f.pessoa, o.pessoas.map((p) => ({ v: p.login, t: p.nome })), "Todas as pessoas")}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-operadora">Operadora</Label>
+              </Campo>
+              <Campo rotulo="Operadora" htmlFor="g-operadora">
                 <NativeSelect id="g-operadora" name="operadora" defaultValue={f.operadora} className="w-full">
                   <option value="Particular">Particular</option>
                   <option value="SUS">SUS</option>
                   <option value="Convênios">Convênios</option>
                   <option value="todas">Todas</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-categoria">Categoria</Label>
+              </Campo>
+              <Campo rotulo="Categoria" htmlFor="g-categoria">
                 {sel("categoria", f.categoria, o.categorias.map((c) => ({ v: c, t: titulo(c) })), "Todas")}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-medico">Médico / agenda</Label>
+              </Campo>
+              <Campo rotulo="Médico / agenda" htmlFor="g-medico">
                 {sel("medico", f.medico, o.medicos.map((m) => ({ v: m, t: titulo(m) })), "Todos")}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-procedimento">Procedimento</Label>
+              </Campo>
+              <Campo rotulo="Procedimento" htmlFor="g-procedimento">
                 {sel("procedimento", f.procedimento, o.procedimentos.map((p) => ({ v: p, t: p })), "Todos")}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-cortesia">Cortesias</Label>
+              </Campo>
+              <Campo rotulo="Cortesias" htmlFor="g-cortesia">
                 <NativeSelect id="g-cortesia" name="cortesia" defaultValue={f.cortesia} className="w-full">
                   <option value="incluir">Incluir</option>
                   <option value="excluir">Tirar cortesias</option>
                   <option value="so">Só cortesias</option>
                 </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="g-agenda">Tipo de agenda</Label>
+              </Campo>
+              <Campo rotulo="Tipo de agenda" htmlFor="g-agenda">
                 <NativeSelect id="g-agenda" name="agenda" defaultValue={f.agenda} className="w-full">
                   <option value="todas">Médicos e exames</option>
                   <option value="medico">Só médicos</option>
                   <option value="exame">Só agendas de exame</option>
                 </NativeSelect>
-              </div>
+              </Campo>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button type="submit">Aplicar</Button>

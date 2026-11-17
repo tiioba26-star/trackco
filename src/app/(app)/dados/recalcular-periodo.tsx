@@ -6,9 +6,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { competenciaAnterior } from "@/engine/datas";
 import { recalcularMes } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 /** Recalcula um intervalo de meses, um de cada vez, mostrando o progresso. */
 export function RecalcularPeriodo({ atual }: { atual: string }) {
@@ -43,14 +43,12 @@ export function RecalcularPeriodo({ atual }: { atual: string }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-end gap-2">
-        <div className="space-y-1.5">
-          <Label>De</Label>
+        <Campo rotulo="De">
           <Input type="month" value={de} onChange={(e) => setDe(e.target.value)} className="w-40" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Até</Label>
+        </Campo>
+        <Campo rotulo="Até">
           <Input type="month" value={ate} max={atual} onChange={(e) => setAte(e.target.value)} className="w-40" />
-        </div>
+        </Campo>
         <Button variant="outline" onClick={rodar} disabled={rodando}>
           <History /> {rodando ? `Recalculando ${feitos}/${total}…` : "Recalcular período"}
         </Button>

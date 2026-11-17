@@ -5,8 +5,8 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { trocarSenha } from "./actions";
+import { Campo } from "@/components/ui/campo";
 
 export function FormSenha() {
   const router = useRouter();
@@ -25,18 +25,15 @@ export function FormSenha() {
         })
       }
     >
-      <div className="space-y-1.5">
-        <Label htmlFor="atual">Senha atual</Label>
+      <Campo rotulo="Senha atual" htmlFor="atual">
         <Input id="atual" name="atual" type="password" autoComplete="current-password" required />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="nova">Nova senha</Label>
+      </Campo>
+      <Campo rotulo="Nova senha" htmlFor="nova">
         <Input id="nova" name="nova" type="password" autoComplete="new-password" minLength={8} maxLength={72} required />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="confirmacao">Confirme a nova senha</Label>
+      </Campo>
+      <Campo rotulo="Confirme a nova senha" htmlFor="confirmacao">
         <Input id="confirmacao" name="confirmacao" type="password" autoComplete="new-password" minLength={8} required />
-      </div>
+      </Campo>
       {erro && <p className="text-sm text-destructive">{erro}</p>}
       <Button type="submit" disabled={pendente}>
         Salvar nova senha
