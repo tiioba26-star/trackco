@@ -12,6 +12,7 @@ import type { JanelaPeriodo, PeriodoRapido } from "@/engine/periodos";
 import type { Producao } from "@/engine/producao";
 import { fmtPct, fmtValor } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+import { ModosPeriodo, type ModoPeriodo } from "./periodo-modos";
 
 const ABAS: { p: PeriodoRapido; rotulo: string }[] = [
   { p: "hoje", rotulo: "Hoje" },
@@ -35,17 +36,22 @@ export function SeletorPeriodo({
   manter,
   mesAtual,
   personalizado,
+  modo = "atalhos",
 }: {
   janela: JanelaPeriodo;
   manter: Record<string, string | undefined>;
   mesAtual: string;
   personalizado: boolean;
+  /** forma de escolha em uso (no celular só ela aparece): atalhos, outro mês ou datas */
+  modo?: "atalhos" | "mes" | "datas";
 }) {
   const meses = Array.from({ length: 24 }, (_, i) => competenciaAnterior(mesAtual, i + 2));
-  return (
-    <div className="space-y-3" data-tour="periodo">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex rounded-lg border bg-card p-1" role="tablist" aria-label="Período">
+  const modos: ModoPeriodo[] = [
+    {
+      k: "atalhos",
+      rotulo: "Atalhos",
+      conteudo: (
+        <div className="inline-flex max-w-full overflow-x-auto rounded-lg border bg-card p-1" role="tablist" aria-label="Período">
           {ABAS.map((a) => (
             <Link
               key={a.p}
@@ -53,7 +59,7 @@ export function SeletorPeriodo({
               role="tab"
               aria-selected={janela.periodo === a.p}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                "rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
                 janela.periodo === a.p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
@@ -61,6 +67,12 @@ export function SeletorPeriodo({
             </Link>
           ))}
         </div>
+      ),
+    },
+    {
+      k: "mes",
+      rotulo: "Outro mês",
+      conteudo: (
         <Form action="" className="flex items-center gap-1.5">
           {Object.entries(manter).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
           <NativeSelect name="comp" defaultValue="" aria-label="Outro mês" className="h-9 w-40">
@@ -77,18 +89,45 @@ export function SeletorPeriodo({
             Ver
           </Button>
         </Form>
-        {personalizado && (
-          <Form action="" className="flex flex-wrap items-center gap-1.5">
-            {Object.entries(manter).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
-            <Input type="date" name="de" aria-label="De" className="h-9 w-36" defaultValue={janela.periodo === "personalizado" ? janela.inicio : ""} required />
-            <span className="text-sm text-muted-foreground">a</span>
-            <Input type="date" name="ate" aria-label="Até" className="h-9 w-36" defaultValue={janela.periodo === "personalizado" ? janela.fim : ""} required />
-            <Button type="submit" size="sm" variant="outline">
-              Aplicar
-            </Button>
-          </Form>
-        )}
-      </div>
+      ),
+    },
+    ...(personalizado
+      ? [
+          {
+            k: "datas",
+            rotulo: "Escolher datas",
+            conteudo: (
+              <Form action="" className="flex w-full items-center gap-1.5 sm:w-auto">
+                {Object.entries(manter).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
+                <Input
+                  type="date"
+                  name="de"
+                  aria-label="De"
+                  className="h-9 min-w-0 flex-1 px-2 sm:w-36 sm:flex-none"
+                  defaultValue={janela.periodo === "personalizado" ? janela.inicio : ""}
+                  required
+                />
+                <span className="text-sm text-muted-foreground">a</span>
+                <Input
+                  type="date"
+                  name="ate"
+                  aria-label="Até"
+                  className="h-9 min-w-0 flex-1 px-2 sm:w-36 sm:flex-none"
+                  defaultValue={janela.periodo === "personalizado" ? janela.fim : ""}
+                  required
+                />
+                <Button type="submit" size="sm" variant="outline" className="shrink-0">
+                  Aplicar
+                </Button>
+              </Form>
+            ),
+          },
+        ]
+      : []),
+  ];
+  return (
+    <div className="space-y-3" data-tour="periodo">
+      <ModosPeriodo key={modo} modos={modos} inicial={modo} />
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
         <CalendarDays className="size-4 text-primary" />
         <span className="text-muted-foreground">Mostrando:</span>

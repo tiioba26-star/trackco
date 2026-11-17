@@ -21,9 +21,7 @@ function ListaVariacao({ titulo, v }: { titulo: string; v: { ganhos: Variacao[];
   if (!v) return null;
   const linha = (x: Variacao) => (
     <li key={x.rotulo} className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="min-w-0 truncate" title={x.rotulo}>
-        {x.rotulo}
-      </span>
+      <span className="min-w-0 break-words">{x.rotulo}</span>
       <span className={cn("shrink-0 tabular-nums", x.diferenca > 0 ? "text-up" : "text-down")}>
         {x.diferenca > 0 ? "+" : "−"}
         {real(Math.abs(x.diferenca))}
@@ -71,6 +69,25 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
   const maxDec = dec ? Math.max(1, Math.abs(dec.dias), Math.abs(dec.volume), Math.abs(dec.valorMedio)) : 1;
   const valoresSaz = Object.values(d.sazonal.meses).map((m) => (saz === "dia" ? (m.porDia ?? 0) : m.valor));
   const maxSaz = Math.max(1, ...valoresSaz);
+  /** Um quadradinho do "É sazonal?": mês i (0–11) do ano a, em R$ mil. */
+  const celula = (a: number | string, i: number) => {
+    const m = d.sazonal.meses[`${a}-${String(i + 1).padStart(2, "0")}`];
+    const v = m ? (saz === "dia" ? m.porDia : m.valor) : null;
+    const forte = v ? v / maxSaz > 0.78 : false; // texto branco só no azul bem escuro (contraste)
+    return (
+      <td
+        key={`${a}-${i}`}
+        className={cn(
+          "h-9 rounded-md px-1 text-center text-[11px] leading-none font-medium tabular-nums",
+          v ? (forte ? "text-white" : "text-foreground") : "bg-muted/40",
+        )}
+        style={v ? calor(v / maxSaz) : undefined}
+        title={m ? `${MESES[i]}/${a}: ${real(m.valor)} · ${m.diasUteis} dias úteis · ${real(m.porDia)} por dia útil` : undefined}
+      >
+        {v ? fmtNum(v / 1000, saz === "dia" || v < 10_000 ? 1 : 0) : ""}
+      </td>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -202,7 +219,7 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              É sazonal? <Dica texto="Cada quadradinho é um mês. Quanto mais escuro, maior o faturamento. 'Por dia útil' divide pelos dias úteis do mês (segunda a sábado, sem feriados), para comparar meses curtos e longos." />
+              É sazonal? <Dica texto="Cada quadradinho é um mês, em milhares de reais (147 = R$ 147 mil). Quanto mais escuro, maior o faturamento. Toque ou passe o mouse para ver o valor exato. 'Por dia útil' divide pelos dias úteis do mês (segunda a sábado, sem feriados), para comparar meses curtos e longos." />
             </CardTitle>
             <CardDescription>
               Todos os meses guardados{f.operadora === "todas" ? "" : `, ${f.operadora}`}
@@ -223,10 +240,32 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-separate border-spacing-1 text-xs">
+          {/* celular: meses nas linhas, anos nas colunas (cabe sem rolar de lado) */}
+          <table className="w-full border-separate border-spacing-1 text-xs sm:hidden">
             <thead>
               <tr>
-                <th className="w-12" />
+                <th className="w-10 text-left text-[10px] font-normal text-muted-foreground">R$ mil</th>
+                {d.sazonal.anos.map((a) => (
+                  <th key={a} className="font-medium text-muted-foreground">
+                    {a}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MESES.map((mes, i) => (
+                <tr key={mes}>
+                  <th className="text-left font-medium text-muted-foreground">{mes}</th>
+                  {d.sazonal.anos.map((a) => celula(a, i))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* computador: anos nas linhas, meses nas colunas */}
+          <table className="hidden w-full min-w-[600px] border-separate border-spacing-1 text-xs sm:table">
+            <thead>
+              <tr>
+                <th className="w-12 text-right text-[10px] font-normal text-muted-foreground">R$ mil</th>
                 {MESES.map((m) => (
                   <th key={m} className="font-medium text-muted-foreground">
                     {m}
@@ -238,20 +277,7 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
               {d.sazonal.anos.map((a) => (
                 <tr key={a}>
                   <th className="pr-1 text-right font-medium text-muted-foreground">{a}</th>
-                  {MESES.map((_, i) => {
-                    const m = d.sazonal.meses[`${a}-${String(i + 1).padStart(2, "0")}`];
-                    const v = m ? (saz === "dia" ? m.porDia : m.valor) : null;
-                    return (
-                      <td
-                        key={i}
-                        className="h-10 rounded-md text-center tabular-nums"
-                        style={v ? calor(v / maxSaz) : undefined}
-                        title={m ? `${MESES[i]}/${a}: ${real(m.valor)} · ${m.diasUteis} dias úteis · ${real(m.porDia)} por dia útil` : undefined}
-                      >
-                        {v ? (v >= 1_000_000 ? `${fmtNum(v / 1_000_000, 1)} mi` : v >= 1000 ? `${fmtNum(v / 1000)} mil` : fmtNum(v)) : ""}
-                      </td>
-                    );
-                  })}
+                  {MESES.map((_, i) => celula(a, i))}
                 </tr>
               ))}
             </tbody>

@@ -97,7 +97,13 @@ async function ConteudoPainel(props: PageProps<"/">) {
         />
       )}
 
-      <SeletorPeriodo janela={janela} manter={manter} mesAtual={competenciaDe(hoje)} personalizado={gestao} />
+      <SeletorPeriodo
+        janela={janela}
+        manter={manter}
+        mesAtual={competenciaDe(hoje)}
+        personalizado={gestao}
+        modo={janela.periodo !== "personalizado" ? "atalhos" : typeof sp.comp === "string" ? "mes" : "datas"}
+      />
 
       {sp.erro === "restrito" && (
         <Alert>
