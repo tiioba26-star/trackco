@@ -86,9 +86,6 @@ export function EditarColaborador({
               Redefinir
             </Button>
           </FormAcao>
-          <p className="text-xs text-muted-foreground">
-            O login é compartilhado com o sistema de relatórios: a nova senha vale nos dois.
-          </p>
         </DialogContent>
       </Dialog>
     </>

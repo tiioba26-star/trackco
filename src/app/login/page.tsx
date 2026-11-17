@@ -56,10 +56,7 @@ export default function PaginaLogin(props: PageProps<"/login">) {
           <div className="lg:hidden">
             <Logo />
           </div>
-          <div className="space-y-1">
-            <h2 className="text-2xl font-semibold">Entrar</h2>
-            <p className="text-sm text-muted-foreground">Use o mesmo usuário e senha do sistema de relatórios da IOBA.</p>
-          </div>
+          <h2 className="text-2xl font-semibold">Entrar</h2>
           <Suspense fallback={<FormLogin next="/" />}>
             <FormComParametros searchParams={props.searchParams} />
           </Suspense>

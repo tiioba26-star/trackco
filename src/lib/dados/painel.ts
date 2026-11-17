@@ -127,14 +127,9 @@ export async function alertasGestao(db: Db, competencia: string) {
   const [contest, sync, semVinculo] = await Promise.all([
     db.from("contestacoes").select("id", { count: "exact", head: true }).in("status", ["aberta", "em_analise"]),
     ultimaSync(db),
-    // só quem é membro de equipe precisa do login do Klingo (administradores de fora, como tráfego pago e contador, não)
-    db
-      .from("colaboradores")
-      .select("id, equipe_membros!inner(funcao, fim)", { count: "exact", head: true })
-      .eq("ativo", true)
-      .is("login_klingo", null)
-      .eq("equipe_membros.funcao", "membro")
-      .is("equipe_membros.fim", null),
+    // só o perfil Colaborador precisa do login do Klingo; administrador, gestor e somente leitura não disparam o aviso
+    // (mas podem ter login do Klingo, se quiserem)
+    db.from("colaboradores").select("id", { count: "exact", head: true }).eq("ativo", true).eq("papel", "colaborador").is("login_klingo", null),
   ]);
   return {
     contestacoesAbertas: contest.count ?? 0,

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { redefinirSenha } from "./actions";
 
-/** O líder redefine a senha de quem está na equipe dele (a senha vale também no sistema de relatórios). */
+/** O líder redefine a senha de quem está na equipe dele. */
 export function RedefinirSenhaLider({ id, nome }: { id: string; nome: string }) {
   const [aberto, setAberto] = useState(false);
   return (
@@ -21,7 +21,7 @@ export function RedefinirSenhaLider({ id, nome }: { id: string; nome: string }) 
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Nova senha para {nome}</DialogTitle>
-            <DialogDescription>A senha é a mesma do sistema de relatórios: a nova vale nos dois. Passe para a pessoa pessoalmente.</DialogDescription>
+            <DialogDescription>Passe a nova senha para a pessoa pessoalmente.</DialogDescription>
           </DialogHeader>
           <FormAcao acao={redefinirSenha.bind(null, id)} className="flex items-end gap-2" limpar>
             <div className="flex-1 space-y-1.5">

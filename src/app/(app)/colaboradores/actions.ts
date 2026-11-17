@@ -44,7 +44,7 @@ export async function criarColaborador(fd: FormData): Promise<RetornoAcao> {
     const email = loginParaEmail(v.login);
 
     let authId = await authIdPorEmail(email);
-    let mensagem = "Colaborador vinculado ao login existente (mesma senha do relatório).";
+    let mensagem = "Colaborador cadastrado com o login que já existia (a senha continua a mesma).";
     if (!authId) {
       const senha = SenhaZ.parse(v.senha ?? "");
       const { data, error } = await admin.auth.admin.createUser({ email, password: senha, email_confirm: true });
@@ -140,7 +140,24 @@ export async function redefinirSenha(id: string, fd: FormData): Promise<RetornoA
     if (!c?.auth_id) throw new Error("Este colaborador não tem login vinculado.");
     const { error } = await admin.auth.admin.updateUserById(c.auth_id, { password: senha });
     if (error) throw new Error(error.message);
-    return { ok: true, mensagem: "Senha redefinida (vale também para o sistema de relatórios)." };
+    return { ok: true, mensagem: "Senha redefinida. Passe a nova senha para a pessoa." };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
+/**
+ * Desativa (a pessoa deixa de entrar e some das listas) ou reativa um colaborador. Nada é apagado: o histórico,
+ * as notas e os fechamentos continuam, e reativar devolve o acesso como era.
+ */
+export async function alternarAtivo(id: string, ativar: boolean): Promise<RetornoAcao> {
+  try {
+    const s = await sessaoAcao({ admin: true });
+    if (id === s.colaborador.id && !ativar) throw new Error("Você não pode desativar o próprio acesso.");
+    const { error } = await criarClienteAdmin().from("colaboradores").update({ ativo: ativar }).eq("id", id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/colaboradores");
+    return { ok: true, mensagem: ativar ? "Acesso reativado." : "Acesso desativado. O histórico continua guardado." };
   } catch (e) {
     return { ok: false, erro: msg(e) };
   }

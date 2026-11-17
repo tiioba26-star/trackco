@@ -11,7 +11,7 @@ export default async function PaginaTrocarSenha() {
     <div className="max-w-md">
       <CabecalhoPagina
         titulo="Trocar senha"
-        descricao="Seu login é compartilhado com o sistema de relatórios da IOBA: a nova senha vale nos dois."
+        descricao="Escolha uma senha nova com pelo menos 8 caracteres."
       />
       <Card>
         <CardContent>

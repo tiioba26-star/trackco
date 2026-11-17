@@ -65,7 +65,7 @@ export const DICAS = {
   "eq.prazo": "Quantos dias a equipe tem para contestar depois que o fechamento entra na etapa de contestação.",
 
   // ---------- Colaboradores ----------
-  "colab.usuario": "O usuário de login (o mesmo do sistema de relatórios). Vira usuario@acesso.iobaoftalmo.com.br por dentro.",
+  "colab.usuario": "O usuário que a pessoa digita para entrar no Trackco (ex.: maria.souza).",
   "colab.klingo":
     "O login da pessoa no Klingo (campo 'Responsável' dos relatórios). É o que liga os agendamentos do Klingo a esta pessoa. Sem ele, nada é atribuído.",
   "colab.perfil":

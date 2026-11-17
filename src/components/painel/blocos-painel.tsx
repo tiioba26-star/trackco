@@ -446,7 +446,7 @@ export async function BlocoEquipe({
           {alertas.semLoginKlingo > 0 && (
             <Alert>
               <UserX />
-              <AlertTitle>{alertas.semLoginKlingo} membro(s) de equipe sem login do Klingo</AlertTitle>
+              <AlertTitle>{alertas.semLoginKlingo} colaborador(es) ativo(s) sem login do Klingo</AlertTitle>
               <AlertDescription>
                 Sem o vínculo, os agendamentos não são atribuídos.{" "}
                 <Link href="/colaboradores" className="text-primary underline">

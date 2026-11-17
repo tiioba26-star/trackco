@@ -1,37 +1,76 @@
 import { CabecalhoPagina, NivelBadge } from "@/components/app/blocos";
-import { FormAcao } from "@/components/app/form-acao";
+import { BotaoAcao, FormAcao } from "@/components/app/form-acao";
+import { titulo } from "@/engine/classificacao";
+import { hojeNoFuso, somarDias } from "@/engine/datas";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { diaMes } from "@/engine/periodos";
 import { exigirGestaoOuLider } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { criarColaborador } from "./actions";
+import { alternarAtivo, criarColaborador } from "./actions";
+import { UsuariosDoKlingo, type UsuarioKlingo } from "./do-klingo";
 import { AniversariosDaEquipe, nascimentos } from "./aniversarios";
 import { EditarColaborador } from "./editar";
 import { Dica } from "@/components/ajuda/dica";
 
 export const metadata = { title: "Colaboradores" };
 
-const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor", leitura: "Somente leitura", colaborador: "Colaborador" };
+const PAPEL: Record<string, string> = {
+  admin: "Administrador",
+  gestor: "Gestor",
+  leitura: "Somente leitura",
+  colaborador: "Colaborador",
+};
 
 export default async function PaginaColaboradores() {
   const s = await exigirGestaoOuLider();
   // líder (e gestor) só lança aniversários; o resto da tela é do administrador (o somente leitura vê, não altera)
   if (!s.veComoAdmin) return <AniversariosDaEquipe s={s} />;
   const db = await criarClienteServidor();
-  const [{ data }, { data: klingo }, nasc] = await Promise.all([
-    db
-      .from("colaboradores")
-      .select("id, nome, login, login_klingo, papel, ativo, auth_id, equipe_membros(fim, funcao, equipes(nome))")
-      .order("ativo", { ascending: false })
-      .order("nome"),
-    db.from("klingo_usuarios").select("login, nome").order("nome"),
-    nascimentos(),
-  ]);
+  const desde = somarDias(hojeNoFuso(), -90);
+  const [{ data }, { data: klingo }, nasc, { data: semCadastro }] =
+    await Promise.all([
+      db
+        .from("colaboradores")
+        .select(
+          "id, nome, login, login_klingo, papel, ativo, auth_id, equipe_membros(fim, funcao, equipes(nome))",
+        )
+        .order("ativo", { ascending: false })
+        .order("nome"),
+      db.from("klingo_usuarios").select("login, nome").order("nome"),
+      nascimentos(),
+      db.rpc("logins_klingo_sem_vinculo", { p_desde: desde }),
+    ]);
+  const doKlingo: UsuarioKlingo[] = (
+    (semCadastro ?? []) as {
+      login: string;
+      nome: string | null;
+      agendamentos: number;
+      ultimo: string | null;
+    }[]
+  ).map((k) => ({
+    login: k.login,
+    nome: k.nome ? titulo(k.nome) : "",
+    agendamentos: Number(k.agendamentos),
+    ultimo: k.ultimo,
+  }));
   type C = {
     id: string;
     nome: string;
@@ -40,7 +79,11 @@ export default async function PaginaColaboradores() {
     papel: string;
     ativo: boolean;
     auth_id: string | null;
-    equipe_membros: { fim: string | null; funcao: string; equipes: { nome: string } | null }[];
+    equipe_membros: {
+      fim: string | null;
+      funcao: string;
+      equipes: { nome: string } | null;
+    }[];
   };
   const lista = (data ?? []) as unknown as C[];
   const hoje = new Date().toISOString().slice(0, 10);
@@ -49,11 +92,12 @@ export default async function PaginaColaboradores() {
     <div>
       <CabecalhoPagina
         titulo="Colaboradores"
-        descricao="Quem acessa o Trackco. O usuário e a senha são os mesmos do sistema de relatórios da IOBA."
+        descricao="Quem acessa o Trackco: perfil, login do Klingo, equipes e se o acesso está ativo."
       />
       {!nasc && (
         <p className="mb-4 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
-          Para guardar os aniversários, falta aplicar no banco a migração <code>20261115000013_trackco_aniversarios.sql</code>.
+          Para guardar os aniversários, falta aplicar no banco a migração{" "}
+          <code>20261115000013_trackco_aniversarios.sql</code>.
         </p>
       )}
       <datalist id="logins-klingo">
@@ -83,24 +127,67 @@ export default async function PaginaColaboradores() {
                   <TableRow key={c.id} className={c.ativo ? "" : "opacity-50"}>
                     <TableCell className="font-medium">
                       {c.nome}
-                      {!c.ativo && <span className="ml-2 text-xs text-muted-foreground">(inativo)</span>}
+                      {!c.ativo && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (inativo)
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{c.login ?? "—"}</TableCell>
-                    <TableCell>{c.login_klingo ?? <span className="text-down">não vinculado</span>}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {c.login ?? "—"}
+                    </TableCell>
                     <TableCell>
-                      <NivelBadge nivel={PAPEL[c.papel]} cor={c.papel === "admin" ? "var(--primary)" : "var(--muted-foreground)"} />
+                      {c.login_klingo ?? (
+                        <span className="text-down">não vinculado</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <NivelBadge
+                        nivel={PAPEL[c.papel]}
+                        cor={
+                          c.papel === "admin"
+                            ? "var(--primary)"
+                            : "var(--muted-foreground)"
+                        }
+                      />
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {c.equipe_membros
                         .filter((m) => !m.fim || m.fim >= hoje)
-                        .map((m) => `${m.equipes?.nome}${m.funcao === "lider" ? " (líder)" : ""}`)
+                        .map(
+                          (m) =>
+                            `${m.equipes?.nome}${m.funcao === "lider" ? " (líder)" : ""}`,
+                        )
                         .join(", ") || "—"}
                     </TableCell>
                     <TableCell className="text-sm tabular-nums">
-                      {nasc?.get(c.id) ? diaMes(nasc.get(c.id)!) : <span className="text-muted-foreground">—</span>}
+                      {nasc?.get(c.id) ? (
+                        diaMes(nasc.get(c.id)!)
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <EditarColaborador c={c} nascimento={nasc ? (nasc.get(c.id) ?? "") : null} />
+                      <div className="flex items-center justify-end gap-1">
+                        {s.ehAdmin && c.id !== s.colaborador.id && (
+                          <BotaoAcao
+                            size="sm"
+                            variant="ghost"
+                            acao={alternarAtivo.bind(null, c.id, !c.ativo)}
+                            confirmar={
+                              c.ativo
+                                ? `Desativar ${c.nome}? A pessoa deixa de entrar no Trackco e sai das listas; o histórico continua guardado.`
+                                : undefined
+                            }
+                          >
+                            {c.ativo ? "Desativar" : "Reativar"}
+                          </BotaoAcao>
+                        )}
+                        <EditarColaborador
+                          c={c}
+                          nascimento={nasc ? (nasc.get(c.id) ?? "") : null}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -108,47 +195,85 @@ export default async function PaginaColaboradores() {
             </Table>
           </CardContent>
         </Card>
-        <Card className="h-fit" data-tour="colab-novo">
-          <CardHeader>
-            <CardTitle>Novo colaborador</CardTitle>
-            <CardDescription>
-              Se o usuário já existe no sistema de relatórios, ele é só vinculado (a senha continua a mesma). Senão, é criado com a
-              senha inicial informada.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormAcao acao={criarColaborador} className="space-y-3" limpar>
-              <div className="space-y-1.5">
-                <Label>Nome completo</Label>
-                <Input name="nome" required />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Usuário de acesso</Label><Dica id="colab.usuario" /></div>
-                <Input name="login" required autoCapitalize="none" placeholder="ex.: maria.souza" />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Login no Klingo</Label><Dica id="colab.klingo" /></div>
-                <Input name="login_klingo" list="logins-klingo" autoCapitalize="none" />
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1"><Label>Perfil</Label><Dica id="colab.perfil" /></div>
-                <NativeSelect name="papel" defaultValue="colaborador">
-                  <option value="colaborador">Colaborador</option>
-                  <option value="gestor">Gestor</option>
-                  <option value="leitura">Somente leitura</option>
-                  <option value="admin">Administrador</option>
-                </NativeSelect>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Senha inicial (só para usuário novo)</Label>
-                <Input name="senha" type="password" autoComplete="new-password" minLength={8} />
-              </div>
-              <Button type="submit" className="w-full">
-                Salvar
-              </Button>
-            </FormAcao>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle>Do Klingo, ainda sem cadastro</CardTitle>
+              <CardDescription>
+                Quem marcou no Klingo nos últimos 90 dias e ainda não está no
+                Trackco.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UsuariosDoKlingo usuarios={doKlingo} podeAlterar={s.ehAdmin} />
+            </CardContent>
+          </Card>
+          <Card className="h-fit" data-tour="colab-novo">
+            <CardHeader>
+              <CardTitle>Novo colaborador</CardTitle>
+              <CardDescription>
+                Para quem não está na lista acima (ex.: quem não usa o Klingo).
+                Se o usuário de acesso já existir, ele é aproveitado e a senha
+                continua a mesma; senão, é criado com a senha inicial.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormAcao acao={criarColaborador} className="space-y-3" limpar>
+                <div className="space-y-1.5">
+                  <Label>Nome completo</Label>
+                  <Input name="nome" required />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1">
+                    <Label>Usuário de acesso</Label>
+                    <Dica id="colab.usuario" />
+                  </div>
+                  <Input
+                    name="login"
+                    required
+                    autoCapitalize="none"
+                    placeholder="ex.: maria.souza"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1">
+                    <Label>Login no Klingo</Label>
+                    <Dica id="colab.klingo" />
+                  </div>
+                  <Input
+                    name="login_klingo"
+                    list="logins-klingo"
+                    autoCapitalize="none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1">
+                    <Label>Perfil</Label>
+                    <Dica id="colab.perfil" />
+                  </div>
+                  <NativeSelect name="papel" defaultValue="colaborador">
+                    <option value="colaborador">Colaborador</option>
+                    <option value="gestor">Gestor</option>
+                    <option value="leitura">Somente leitura</option>
+                    <option value="admin">Administrador</option>
+                  </NativeSelect>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Senha inicial (só para usuário novo)</Label>
+                  <Input
+                    name="senha"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                  />
+                </div>
+                <Button type="submit" className="w-full">
+                  Salvar
+                </Button>
+              </FormAcao>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
