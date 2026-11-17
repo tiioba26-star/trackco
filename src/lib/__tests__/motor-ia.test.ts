@@ -92,6 +92,12 @@ describe("motor com reserva", () => {
     expect(r.esforco).toBe("high");
   });
 
+  it("'antigravity' e 'gemini' são o mesmo motor (agy, conta Google), com qualquer modelo que ele liste", async () => {
+    await new GrupoMotor({ motor: "antigravity", modelo: "claude-sonnet-4-6", esforco: "" }).chamar(BASE, "dados");
+    await new GrupoMotor({ motor: "gemini", modelo: "gemini-3.8-flash-high", esforco: "high" }).chamar(BASE, "dados");
+    expect(estado.chamadas).toEqual(["gemini:claude-sonnet-4-6", "gemini:gemini-3.8-flash-high"]);
+  });
+
   it("sem motor na configuração, é o Claude", async () => {
     await new GrupoMotor({ modelo: "sonnet", esforco: "medium" }).chamar(BASE, "dados");
     expect(estado.chamadas).toEqual(["claude:sonnet"]);

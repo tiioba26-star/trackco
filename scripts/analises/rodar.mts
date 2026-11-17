@@ -48,6 +48,9 @@ const valor = (n: string) => {
 
 const config = JSON.parse(readFileSync(join(RAIZ, "analises", "config.json"), "utf8")) as ConfigAnalises;
 
+/** "gemini" é o nome antigo do motor "antigravity" (o mesmo agy). */
+const motorDe = (m: Motor | undefined): "claude" | "antigravity" => (m === "gemini" || m === "antigravity" ? "antigravity" : "claude");
+
 const log = (...m: unknown[]) => console.log(new Date().toLocaleTimeString("pt-BR"), ...m);
 
 function lerExistente(arquivo: string) {
@@ -186,7 +189,7 @@ async function main() {
   };
   if (!amostra) {
     const usados = new Set<Motor>([cfgSecoes.motor ?? "claude", config.geral.motor ?? "claude"]);
-    for (const m of usados) log(`${m === "gemini" ? "Gemini (agy)" : "Claude"}: ${onde(m)}`);
+    for (const m of new Set([...usados].map(motorDe))) log(`${m === "claude" ? "Claude Code (Anthropic)" : "Antigravity agy (Google)"}: ${onde(m)}`);
   }
   log("Montando os dados…");
   const { ref, trabalhos } = await montarTrabalhos(hoje, { secoes: secao ? [secao] : undefined });
@@ -229,7 +232,7 @@ async function main() {
       }
       log(linhas.at(-1));
     };
-    const doMotor = (c: ConfigMotor) => !soMotor || (c.motor ?? "claude") === soMotor;
+    const doMotor = (c: ConfigMotor) => !soMotor || motorDe(c.motor) === motorDe(soMotor);
     for (const c of configs.filter(doMotor)) {
       for (const arq of escolhidos) await tentar(c.nome, c, trabalhos.find((x) => x.arquivo === arq)!, `${c.nome}__${arq}`);
     }
@@ -315,7 +318,8 @@ async function main() {
   // ---------------------------------------------------------------- a geral, por último
   const geral = trabalhos.find((t) => t.tipo === "geral");
   const existente = lerExistente(ARQUIVO_GERAL);
-  const fazerGeral = !secao && !so && geral && !status.limite_atingido && (tudo || !existente || existente.meta.dados_ate !== ref.ontem || feitos.size > 0);
+  // a geral sai uma vez por dia (Opus pela conta da Anthropic: gastar pouco); a repescagem das 13h só a refaz se ela falhou de manhã
+  const fazerGeral = !secao && !so && geral && !status.limite_atingido && (tudo || !existente || existente.meta.dados_ate !== ref.ontem);
   if (fazerGeral && geral) {
     try {
       log("Escrevendo a análise geral…");

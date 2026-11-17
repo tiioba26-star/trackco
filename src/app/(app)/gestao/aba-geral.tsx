@@ -60,7 +60,7 @@ export async function AbaAnaliseGeral() {
                 {Object.entries(st.por_modelo)
                   .map(
                     ([m, v]) =>
-                      `${nomeDoModelo(m)}: ${v.analises} análise(s), ${m.startsWith("gemini") ? "cota do Google AI Pro" : `US$ ${v.custo_equivalente_usd.toFixed(2)}`}`,
+                      `${nomeDoModelo(m)}: ${v.analises} análise(s), ${v.custo_equivalente_usd === 0 ? "cota do Google AI Pro" : `US$ ${v.custo_equivalente_usd.toFixed(2)}`}`,
                   )
                   .join(" · ")}
               </p>

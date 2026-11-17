@@ -1,11 +1,10 @@
 {
   "secoes": {
-    "motor": "gemini",
+    "motor": "antigravity",
     "modelo": "gemini-3.8-flash-high",
     "esforco": "high",
-    "reserva": { "motor": "claude", "modelo": "sonnet", "esforco": "medium" }
+    "reserva": { "motor": "antigravity", "modelo": "claude-sonnet-4-6", "esforco": "" }
   },
   "geral": { "motor": "claude", "modelo": "opus", "esforco": "high" },
-  "paralelo": 3,
-  "maximo_por_rodada": 20
+  "paralelo": 3
 }

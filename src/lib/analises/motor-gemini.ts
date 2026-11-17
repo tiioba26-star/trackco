@@ -93,8 +93,8 @@ function chamarGeminiUmaVez(o: {
   const args = [
     "--model",
     o.modelo,
-    "--effort",
-    o.esforco,
+    // nem todo modelo aceita esforço no agy (ex.: claude-sonnet-4-6): esforço vazio = não manda
+    ...(o.esforco ? ["--effort", o.esforco] : []),
     "--sandbox",
     "--disable-slash-commands",
     "--input-format",

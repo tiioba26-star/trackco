@@ -1,6 +1,11 @@
 # Análises comentadas pela IA (área Gestão)
 
-Uma rotina no computador da administração escreve estes textos todo dia às 5h, com repescagem às 13h. Ela usa as assinaturas, sem chave de API: o Claude Code (Claude Pro) e o Antigravity CLI `agy` (Google AI Pro, Gemini). Os textos aparecem no fim de cada aba da Gestão do Trackco, que só administradores veem.
+Uma rotina no computador da administração escreve estes textos todo dia às 5h, com repescagem às 13h. Ela usa duas assinaturas, sem chave de API, e os textos aparecem no fim de cada aba da Gestão do Trackco, que só administradores veem:
+
+- **Google AI Pro**, pelo Antigravity CLI `agy`: as 100 análises por seção (Gemini 3.8 Flash). Se a cota acabar, a reserva é o Claude Sonnet 4.6, também pela cota do Google.
+- **Anthropic (Claude Pro)**, pelo Claude Code: só a análise geral, uma vez por dia, no Opus 5.5. É a mesma conta usada para programar, por isso a rotina gasta pouco dela.
+
+Na calibração de 17/11/2026, cada análise do Gemini Flash gastou cerca de 0,1% da cota semanal do Google.
 
 - **`gestao/`**: as análises.
   - `<seção>__<período>__<comparação>__<recorte>.md` são 100 arquivos, que saem da combinação abaixo:
@@ -17,10 +22,13 @@ Uma rotina no computador da administração escreve estes textos todo dia às 5h
 - **`prompts/`**: as instruções que a IA recebe.
   - `base.md` vale para todas as análises.
   - Há um guia por seção e o `geral.md`. Para mudar o estilo ou o foco das análises, edite esses arquivos.
-- **`config.json`**: para as análises por seção e para a geral, define motor (`claude` ou `gemini`), modelo, esforço e quantas rodam ao mesmo tempo.
+- **`config.json`**: para as análises por seção e para a geral, define motor, modelo, esforço e quantas rodam ao mesmo tempo.
+  - O motor é `claude` (conta Anthropic) ou `antigravity` (conta Google; `gemini` é o nome antigo e também vale).
   - `reserva` (opcional) é o motor que assume se a cota do principal acabar no meio da rodada.
   - `maximo_por_rodada` (opcional) limita quantas análises por seção saem em cada rodada, as mais importantes primeiro (este mês, mês passado, 12 meses…). O resto fica pendente para a rodada seguinte.
-  - Modelos do Gemini disponíveis na conta: `agy models` (hoje, `gemini-3.8-flash-high`, `-medium` e `-low`; o Argon não aparece no Google AI Pro).
+  - Modelos da conta Google: `agy models`.
+    - Hoje: `gemini-3.8-flash-high`, `-medium` e `-low`, `claude-sonnet-4-6` e `claude-opus-4-6-thinking`. O Argon não aparece no Google AI Pro.
+    - Os modelos Claude do `agy` não aceitam esforço: deixe `"esforco": ""`.
   - O `agy` é achado em `~/.gemini/bin` (ou em `AGY_BIN`); o `claude`, na extensão do Antigravity, VS Code ou Cursor (ou em `CLAUDE_BIN`).
 - Ficam fora do git `.dados/` (os números enviados à IA, para conferência) e `logs/`.
 

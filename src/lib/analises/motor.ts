@@ -1,19 +1,25 @@
-// Escolhe o motor de cada análise (Claude Code ou Gemini pelo Antigravity CLI), conforme analises/config.json.
+// Escolhe o motor de cada análise, conforme analises/config.json. São duas contas diferentes:
+// - "claude": Claude Code pela assinatura da Anthropic (a mesma usada para programar: gastar pouco);
+// - "antigravity": Antigravity CLI (agy) pela assinatura Google AI Pro, com os modelos que `agy models` lista
+//   (Gemini 3.8 Flash e também Claude Sonnet/Opus 4.6 da cota do Google). "gemini" é o nome antigo do mesmo motor.
 // Se o motor principal bater no limite de uso e houver "reserva", o resto da rodada segue pela reserva.
 import { readFileSync } from "node:fs";
 import { LimiteDeUso, acharClaude, chamarClaude, type UsoClaude } from "./motor-claude";
 import { acharAgy, chamarGemini } from "./motor-gemini";
 
-export type Motor = "claude" | "gemini";
+export type Motor = "claude" | "antigravity" | "gemini";
+
+/** "gemini" e "antigravity" são o mesmo programa (agy). */
+const pelaGoogle = (m: Motor | undefined) => m === "antigravity" || m === "gemini";
 
 export interface ConfigMotor {
-  /** "claude" (padrão) ou "gemini" */
+  /** "claude" (padrão; conta Anthropic) ou "antigravity" (conta Google; "gemini" também vale) */
   motor?: Motor;
   modelo: string;
   esforco: string;
   /** quantas ao mesmo tempo neste grupo (padrão: o "paralelo" geral) */
   paralelo?: number;
-  /** motor usado quando este bate no limite de uso (ex.: o Gemini acabou → segue no Claude) */
+  /** motor usado quando este bate no limite de uso (ex.: o Gemini acabou → segue no Claude Sonnet da cota do Google) */
   reserva?: Omit<ConfigMotor, "reserva">;
 }
 
@@ -25,9 +31,9 @@ export interface ConfigAnalises {
   maximo_por_rodada?: number;
 }
 
-const binarios: Partial<Record<Motor, string>> = {};
+const binarios: Partial<Record<"claude" | "agy", string>> = {};
 function binario(m: Motor): string {
-  return (binarios[m] ??= m === "gemini" ? acharAgy() : acharClaude());
+  return pelaGoogle(m) ? (binarios.agy ??= acharAgy()) : (binarios.claude ??= acharClaude());
 }
 
 /** O motor está instalado nesta máquina? (sem lançar erro) */
@@ -46,9 +52,8 @@ export function onde(m: Motor): string {
 
 /** Uma chamada no motor indicado. arquivoSistema = regras de todas as análises (analises/prompts/base.md). */
 export function chamarMotor(c: Omit<ConfigMotor, "reserva">, arquivoSistema: string, mensagem: string): Promise<{ texto: string; uso: UsoClaude }> {
-  const motor = c.motor ?? "claude";
-  if (motor === "gemini") {
-    return chamarGemini({ bin: binario("gemini"), modelo: c.modelo, esforco: c.esforco, sistema: readFileSync(arquivoSistema, "utf8"), mensagem });
+  if (pelaGoogle(c.motor)) {
+    return chamarGemini({ bin: binario("antigravity"), modelo: c.modelo, esforco: c.esforco, sistema: readFileSync(arquivoSistema, "utf8"), mensagem });
   }
   return chamarClaude({ bin: binario("claude"), modelo: c.modelo, esforco: c.esforco, arquivoSistema, mensagem });
 }
