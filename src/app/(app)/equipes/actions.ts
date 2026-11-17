@@ -6,6 +6,7 @@ import type { RetornoAcao } from "@/components/app/form-acao";
 import { competenciaDe, hojeNoFuso } from "@/engine/datas";
 import { sessaoAcao } from "@/lib/auth";
 import { recalcularParcial } from "@/lib/calculo/recalcular";
+import { cadastrarDoKlingo } from "@/lib/dados/cadastro-klingo";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 const msg = (e: unknown) => (e instanceof z.ZodError ? e.issues.map((i) => i.message).join(" · ") : (e as Error).message);
@@ -66,13 +67,18 @@ export async function salvarEquipe(id: string, fd: FormData): Promise<RetornoAca
 export async function adicionarMembro(equipeId: string, fd: FormData): Promise<RetornoAcao> {
   try {
     await sessaoAcao({ admin: true });
-    const v = z
+    const bruto = z
       .object({
-        colaborador_id: z.string().uuid("Escolha o colaborador."),
+        // id do colaborador ou "klingo:<login>" (pessoa só do Klingo: o cadastro é criado sem login)
+        colaborador_id: z.string().min(1, "Escolha o colaborador."),
         funcao: z.enum(["lider", "membro"]),
         inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       })
       .parse(Object.fromEntries(fd));
+    const colaborador_id = bruto.colaborador_id.startsWith("klingo:")
+      ? await cadastrarDoKlingo(bruto.colaborador_id.slice("klingo:".length))
+      : z.string().uuid("Escolha o colaborador.").parse(bruto.colaborador_id);
+    const v = { ...bruto, colaborador_id };
     const db = await criarClienteServidor();
     const { error } = await db.from("equipe_membros").insert({ equipe_id: equipeId, ...v });
     if (error) throw new Error(error.code === "23505" ? "Essa pessoa já tem vínculo ativo na equipe." : error.message);

@@ -66,10 +66,12 @@ export const obterSessao = cache(async (): Promise<Sessao | null> => {
 
   const { data: colab } = await supabase
     .from("colaboradores")
-    .select("id, nome, login, login_klingo, papel, ativo, equipe_membros(equipe_id, funcao, fim, equipes(nome))")
+    // "*" traz a coluna acesso quando a migração 18 já foi aplicada (antes dela, todo mundo ativo entra)
+    .select("*, equipe_membros(equipe_id, funcao, fim, equipes(nome))")
     .eq("auth_id", authId)
     .maybeSingle();
-  if (!colab || !colab.ativo) return null;
+  // ativo = é da clínica; acesso = pode entrar no Trackco (desligado: continua nas equipes e relatórios, só não entra)
+  if (!colab || !colab.ativo || colab.acesso === false) return null;
 
   const hoje = hojeNoFuso();
   type Vinculo = { equipe_id: string; funcao: "lider" | "membro"; fim: string | null; equipes: { nome: string } | null };

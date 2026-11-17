@@ -423,6 +423,30 @@ describe("somente leitura", () => {
   });
 });
 
+describe("acesso (pode entrar) separado de ativo (é da clínica)", () => {
+  it("sem acesso, o banco não reconhece o login, mas a pessoa continua na equipe e nos números", async () => {
+    await db.exec(`update trackco.colaboradores set acesso = false where login = 'ana'`);
+    try {
+      const eu = await como(U.ana, () => db.query<{ id: string | null }>(`select trackco.meu_id() as id`));
+      expect(eu.rows[0].id).toBeNull();
+      const k = await como(U.ana, () => db.query<{ n: number }>(`select count(*)::int n from trackco.klingo_agendamentos`));
+      expect(k.rows[0].n).toBe(0);
+      // o líder continua vendo a Ana e as marcações dela
+      const lider = await como(U.leo, () => db.query<{ n: number }>(`select count(*)::int n from trackco.klingo_agendamentos where responsavel_login = 'ana.k'`));
+      expect(lider.rows[0].n).toBe(1);
+    } finally {
+      await db.exec(`update trackco.colaboradores set acesso = true where login = 'ana'`);
+    }
+  });
+
+  it("pessoa só do Klingo entra numa equipe sem login", async () => {
+    await db.exec(`insert into trackco.colaboradores (nome, login_klingo, acesso) values ('Rita Recepção', 'rita.k', false)`);
+    const r = await db.query<{ acesso: boolean; auth_id: string | null }>(`select acesso, auth_id from trackco.colaboradores where login_klingo = 'rita.k'`);
+    expect(r.rows[0]).toEqual({ acesso: false, auth_id: null });
+    await db.exec(`delete from trackco.colaboradores where login_klingo = 'rita.k'`);
+  });
+});
+
 describe("dados das análises da IA", () => {
   it("séries mensais por pessoa e desfechos pela data da consulta", async () => {
     const s = await db.query<{ r: unknown[][] }>(`select trackco.gestao_series_mensais('2026-10-01', '2026-10-31', '2026-11-16') as r`);

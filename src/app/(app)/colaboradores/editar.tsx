@@ -52,7 +52,7 @@ export function EditarColaborador({
               </NativeSelect>
             </div>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="ativo" defaultChecked={c.ativo} /> Acesso ativo
+              <input type="checkbox" name="ativo" defaultChecked={c.ativo} /> Ainda trabalha na clínica (desmarque só para quem saiu)
             </label>
             <Button type="submit">Salvar</Button>
           </FormAcao>

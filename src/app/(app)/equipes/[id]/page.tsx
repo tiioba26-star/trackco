@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { titulo } from "@/engine/classificacao";
 import { formatarDataBR, hojeNoFuso } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -29,7 +30,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
   await exigirAdmin();
   const { id } = await props.params;
   const db = await criarClienteServidor();
-  const [{ data: e }, { data: vinculos }, { data: colabs }] = await Promise.all([
+  const [{ data: e }, { data: vinculos }, { data: colabs }, { data: klingo }] = await Promise.all([
     db.from("equipes").select("*").eq("id", id).maybeSingle(),
     db
       .from("equipe_membros")
@@ -37,9 +38,13 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
       .eq("equipe_id", id)
       .order("fim", { ascending: false, nullsFirst: true })
       .order("funcao"),
-    db.from("colaboradores").select("id, nome").eq("ativo", true).order("nome"),
+    db.from("colaboradores").select("id, nome, login_klingo").eq("ativo", true).order("nome"),
+    db.from("klingo_usuarios").select("login, nome").order("nome"),
   ]);
   if (!e) notFound();
+  // quem está só no Klingo também pode entrar na equipe (o cadastro é criado sem login ao adicionar)
+  const jaCadastrados = new Set((colabs ?? []).map((c) => (c.login_klingo ?? "").toLowerCase()).filter(Boolean));
+  const soNoKlingo = (klingo ?? []).filter((k) => !jaCadastrados.has(k.login.toLowerCase()));
   const hoje = hojeNoFuso();
   type V = {
     id: string;
@@ -125,13 +130,24 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                   <option value="" disabled>
                     Escolha…
                   </option>
-                  {(colabs ?? [])
-                    .filter((c) => !ativos.has(c.id))
-                    .map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nome}
-                      </option>
-                    ))}
+                  <optgroup label="No Trackco">
+                    {(colabs ?? [])
+                      .filter((c) => !ativos.has(c.id))
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}
+                        </option>
+                      ))}
+                  </optgroup>
+                  {soNoKlingo.length > 0 && (
+                    <optgroup label="Só no Klingo (entra na equipe sem login)">
+                      {soNoKlingo.map((k) => (
+                        <option key={k.login} value={`klingo:${k.login}`}>
+                          {titulo(k.nome)} ({k.login})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </NativeSelect>
               </div>
               <div className="space-y-1.5">

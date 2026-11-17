@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { RetornoAcao } from "@/components/app/form-acao";
 import { sessaoAcao } from "@/lib/auth";
 import { loginParaEmail } from "@/lib/env";
+import { cadastrarDoKlingo } from "@/lib/dados/cadastro-klingo";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 const msg = (e: unknown) => (e instanceof z.ZodError ? e.issues.map((i) => i.message).join(" · ") : (e as Error).message);
@@ -146,18 +147,67 @@ export async function redefinirSenha(id: string, fd: FormData): Promise<RetornoA
   }
 }
 
+const FALTA_MIGRACAO = "Falta aplicar no banco a migração 20261118000018_trackco_acesso.sql.";
+
 /**
- * Desativa (a pessoa deixa de entrar e some das listas) ou reativa um colaborador. Nada é apagado: o histórico,
- * as notas e os fechamentos continuam, e reativar devolve o acesso como era.
+ * Liga ou desliga o ACESSO ao Trackco (o botão deslizante). Desligado, a pessoa só não entra no sistema:
+ * continua nas equipes, nos relatórios, na Gestão e no ranking. Nada é apagado.
  */
-export async function alternarAtivo(id: string, ativar: boolean): Promise<RetornoAcao> {
+export async function definirAcesso(id: string, ligar: boolean): Promise<RetornoAcao> {
   try {
     const s = await sessaoAcao({ admin: true });
-    if (id === s.colaborador.id && !ativar) throw new Error("Você não pode desativar o próprio acesso.");
-    const { error } = await criarClienteAdmin().from("colaboradores").update({ ativo: ativar }).eq("id", id);
-    if (error) throw new Error(error.message);
+    if (id === s.colaborador.id && !ligar) throw new Error("Você não pode tirar o seu próprio acesso.");
+    const admin = criarClienteAdmin();
+    if (ligar) {
+      const { data: c } = await admin.from("colaboradores").select("auth_id").eq("id", id).single();
+      if (!c?.auth_id) throw new Error("Essa pessoa ainda não tem usuário e senha: crie o acesso primeiro.");
+    }
+    const { error } = await admin.from("colaboradores").update({ acesso: ligar }).eq("id", id);
+    if (error) throw new Error(/acesso/.test(error.message) ? FALTA_MIGRACAO : error.message);
     revalidatePath("/colaboradores");
-    return { ok: true, mensagem: ativar ? "Acesso reativado." : "Acesso desativado. O histórico continua guardado." };
+    return { ok: true, mensagem: ligar ? "Acesso liberado." : "Acesso desligado. A pessoa continua nas equipes e nos relatórios." };
+  } catch (e) {
+    return { ok: false, erro: msg(e) };
+  }
+}
+
+/**
+ * Cria o acesso (usuário e senha) de quem ainda não entra no Trackco. `alvo` é o id do colaborador ou "klingo:<login>"
+ * (pessoa só do Klingo: o cadastro é criado na hora). Se o usuário de acesso já existir, ele é aproveitado.
+ */
+export async function darAcesso(alvo: string, fd: FormData): Promise<RetornoAcao> {
+  try {
+    await sessaoAcao({ admin: true });
+    const v = z
+      .object({
+        nome: z.string().trim().min(3, "Informe o nome completo."),
+        login: LoginZ,
+        papel: z.enum(["admin", "gestor", "leitura", "colaborador"]),
+        senha: z.string().optional(),
+      })
+      .parse(Object.fromEntries(fd));
+    const id = alvo.startsWith("klingo:") ? await cadastrarDoKlingo(alvo.slice("klingo:".length)) : z.string().uuid().parse(alvo);
+    const admin = criarClienteAdmin();
+    const email = loginParaEmail(v.login);
+    let authId = await authIdPorEmail(email);
+    let mensagem = "Acesso criado com o usuário que já existia (a senha continua a mesma).";
+    if (!authId) {
+      const senha = SenhaZ.parse(v.senha ?? "");
+      const { data, error } = await admin.auth.admin.createUser({ email, password: senha, email_confirm: true });
+      if (error) throw new Error(error.message);
+      authId = data.user.id;
+      mensagem = "Acesso criado. Passe o usuário e a senha inicial para a pessoa.";
+    }
+    const { error } = await admin
+      .from("colaboradores")
+      .update({ auth_id: authId, login: v.login, nome: v.nome, papel: v.papel, acesso: true })
+      .eq("id", id);
+    if (error) {
+      if (/acesso/.test(error.message)) throw new Error(FALTA_MIGRACAO);
+      throw new Error(error.code === "23505" ? "Esse usuário de acesso já pertence a outra pessoa." : error.message);
+    }
+    revalidatePath("/colaboradores");
+    return { ok: true, mensagem };
   } catch (e) {
     return { ok: false, erro: msg(e) };
   }

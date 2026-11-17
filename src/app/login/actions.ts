@@ -28,7 +28,7 @@ export async function entrar(_: EstadoLogin, form: FormData): Promise<EstadoLogi
 
   const { data: colab, error: erroColab } = await supabase
     .from("colaboradores")
-    .select("id, ativo")
+    .select("*")
     .eq("auth_id", data.user.id)
     .maybeSingle();
   if (erroColab) {
@@ -39,7 +39,8 @@ export async function entrar(_: EstadoLogin, form: FormData): Promise<EstadoLogi
       erro: `Usuário e senha conferem, mas o banco do Trackco ainda não está configurado (${erroColab.code ?? "erro"}). Avise o administrador.`,
     };
   }
-  if (!colab || !colab.ativo) {
+  // sem acesso (botão deslizante desligado em Colaboradores): continua nas equipes e relatórios, só não entra
+  if (!colab || !colab.ativo || colab.acesso === false) {
     await supabase.auth.signOut();
     return { erro: "Seu usuário ainda não tem acesso ao Trackco. Fale com o administrador." };
   }
