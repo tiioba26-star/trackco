@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GrupoMotor } from "@/lib/analises/motor";
 import { LimiteDeUso, alvoDoCmd } from "@/lib/analises/motor-claude";
-import { lerResultadoAgy, mensagemGemini } from "@/lib/analises/motor-gemini";
+import { PASSAGEIRO, lerResultadoAgy, mensagemGemini } from "@/lib/analises/motor-gemini";
 
 const estado = vi.hoisted(() => ({ chamadas: [] as string[], geminiSemCota: false }));
 
@@ -56,6 +56,12 @@ describe("saída do agy (stream-json)", () => {
     const r = lerResultadoAgy('{"event":"result","result":{"status":"ERROR","response":"","error":"RESOURCE_EXHAUSTED: quota"}}')!;
     expect(r.status).toBe("ERROR");
     expect(r.erro).toMatch(/quota/);
+  });
+
+  it("erro passageiro do Google ao abrir a conversa conta como 'tentar de novo'; limite e erro de formato não", () => {
+    expect(PASSAGEIRO.test("failed to start conversation: backend returned an empty conversation id")).toBe(true);
+    expect(PASSAGEIRO.test("RESOURCE_EXHAUSTED: quota")).toBe(false);
+    expect(PASSAGEIRO.test("o Gemini não devolveu texto")).toBe(false);
   });
 
   it("as regras vão no começo da mensagem, com o aviso de que não é programação", () => {

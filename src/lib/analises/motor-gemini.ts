@@ -62,8 +62,25 @@ export function lerResultadoAgy(saida: string): { status: string; texto: string;
   };
 }
 
-/** Uma análise pelo Gemini. Devolve o texto e o uso de tokens (custo 0: é cota da assinatura Google, sem preço de tabela). */
-export function chamarGemini(o: {
+/** Erros passageiros do serviço (vale tentar de novo depois de alguns segundos). */
+export const PASSAGEIRO = /empty conversation id|failed to start conversation|UNAVAILABLE|INTERNAL|ECONNRESET|ETIMEDOUT|socket hang up|\b50[234]\b|try again/i;
+
+type PedidoGemini = { bin: string; modelo: string; esforco: string; sistema: string; mensagem: string; tempoMaximoMs?: number };
+
+/** Uma análise pelo Gemini, com até 2 novas tentativas em erro passageiro (5 s e 15 s depois). Limite de uso não repete. */
+export async function chamarGemini(o: PedidoGemini, esperas = [5_000, 15_000]): Promise<{ texto: string; uso: UsoClaude }> {
+  for (let i = 0; ; i++) {
+    try {
+      return await chamarGeminiUmaVez(o);
+    } catch (e) {
+      if (e instanceof LimiteDeUso || i >= esperas.length || !PASSAGEIRO.test((e as Error).message)) throw e;
+      await new Promise((r) => setTimeout(r, esperas[i]));
+    }
+  }
+}
+
+/** Uma chamada ao agy. Devolve o texto e o uso de tokens (custo 0: é cota da assinatura Google, sem preço de tabela). */
+function chamarGeminiUmaVez(o: {
   bin: string;
   modelo: string;
   esforco: string;
