@@ -1,6 +1,7 @@
 "use client";
 
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { Loader2 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { clienteRealtime, type ComandoTv, type EstadoTv } from "@/lib/controle-tv";
@@ -418,7 +419,7 @@ function LinhaBarraTv({
         >
           {posicao}º
         </span>
-        <div className="mt-[0.4vh] text-[1.6vh] font-semibold tracking-[0.18em] text-sky-200/60 tabular-nums">#{it.id}</div>
+        <div className="mt-[0.4vh] text-[2vh] font-semibold tracking-[0.18em] text-sky-200/80 tabular-nums">#{it.id}</div>
       </div>
 
       <div className="relative flex flex-1 items-center">
@@ -452,10 +453,10 @@ function LinhaBarraTv({
               {fmt(it.valor, unidade)}
             </span>
             {it.detalhe ? (
-              <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">{it.detalhe}</span>
+              <span className="mt-[0.5vh] text-[2vh] font-semibold text-sky-200/80 tabular-nums">{it.detalhe}</span>
             ) : (
               it.bruto !== undefined &&
-              it.bruto > it.valor && <span className="mt-[0.5vh] text-[1.5vh] font-semibold text-sky-200/60 tabular-nums">de {fmt(it.bruto)} no total</span>
+              it.bruto > it.valor && <span className="mt-[0.5vh] text-[2vh] font-semibold text-sky-200/80 tabular-nums">de {fmt(it.bruto)} no total</span>
             )}
           </span>
         </motion.div>
@@ -477,20 +478,25 @@ function TelaBarras({
   const maxValor = Math.max(1, ...itens.map((i) => i.valor));
   return (
     <div className="relative flex flex-1 flex-col">
-      {tela.comparadoCom && (
-        <div className="absolute top-0 right-0 z-10 max-w-[30vw] text-right text-[2vh] font-semibold text-sky-200/70">
-          comparado com <span className="text-white">{tela.comparadoCom}</span>
-          <div className="text-[1.7vh] font-medium text-sky-200/50">só aparece quem cresceu</div>
-        </div>
-      )}
-      {tela.total !== undefined && (
-        <div className="absolute top-0 right-0 z-10 text-right">
-          <div className="text-[1.8vh] font-semibold tracking-wider text-sky-200/60 uppercase">Total da equipe · válidos</div>
-          <div className="text-[5.2vh] leading-none font-black text-white tabular-nums drop-shadow-[0_0_18px_rgba(56,189,248,0.45)]">
-            {fmt(tela.total)}
-          </div>
-          {tela.totalBruto !== undefined && tela.totalBruto > tela.total && (
-            <div className="mt-[0.6vh] text-[1.7vh] font-semibold text-sky-200/60 tabular-nums">{fmt(tela.totalBruto)} marcados no total</div>
+      {(tela.comparadoCom || tela.total !== undefined) && (
+        // os dois no mesmo canto, um embaixo do outro (antes ficavam sobrepostos quando vinham juntos)
+        <div className="absolute top-0 right-0 z-10 flex max-w-[32vw] flex-col items-end gap-[1.2vh] text-right">
+          {tela.total !== undefined && (
+            <div>
+              <div className="text-[2.2vh] font-semibold tracking-wider text-sky-200/80 uppercase">Total da equipe · válidos</div>
+              <div className="text-[5.2vh] leading-none font-black text-white tabular-nums drop-shadow-[0_0_18px_rgba(56,189,248,0.45)]">
+                {fmt(tela.total)}
+              </div>
+              {tela.totalBruto !== undefined && tela.totalBruto > tela.total && (
+                <div className="mt-[0.6vh] text-[2.1vh] font-semibold text-sky-200/80 tabular-nums">{fmt(tela.totalBruto)} agendados no total</div>
+              )}
+            </div>
+          )}
+          {tela.comparadoCom && (
+            <div className="text-[2vh] font-semibold text-sky-200/85">
+              comparado com <span className="text-white">{tela.comparadoCom}</span>
+              <div className="text-[2.1vh] font-medium text-sky-200/80">só aparece quem cresceu</div>
+            </div>
           )}
         </div>
       )}
@@ -511,7 +517,7 @@ function TelaBarras({
             />
           ))}
           {!itens.length && (
-            <li className="flex flex-1 items-center justify-center text-center text-[3vh] text-sky-200/50">Nenhuma marcação neste período ainda.</li>
+            <li className="flex flex-1 items-center justify-center text-center text-[3vh] text-sky-200/80">Nenhum agendamento neste período ainda.</li>
           )}
         </ul>
       </LayoutGroup>
@@ -529,7 +535,7 @@ function TelaPessoa({ tela }: { tela: TelaTv }) {
       <Painel className="col-span-3 flex flex-col items-center justify-center gap-[2vh] text-center">
         <AvatarPosicaoTv tipo={p.carinha} posicao={p.posicao} tamanho={150} />
         <div>
-          <div className="text-[1.8vh] font-semibold tracking-[0.25em] text-sky-200/60 uppercase">Código</div>
+          <div className="text-[2.2vh] font-semibold tracking-[0.25em] text-sky-200/80 uppercase">Código</div>
           <div className="text-[7vh] leading-none font-black tracking-[0.12em] text-white tabular-nums">{p.codigo}</div>
         </div>
         <div className="text-[2.6vh] font-bold" style={{ color: cor }}>
@@ -540,7 +546,7 @@ function TelaPessoa({ tela }: { tela: TelaTv }) {
       <Painel className="col-span-9 flex flex-col">
         <div className="flex flex-wrap items-center gap-8 text-[2.2vh] font-medium text-sky-100/90">
           <span className="flex items-center gap-2">
-            <span className="inline-block size-4 rounded" style={{ background: COR_MARCADAS }} /> Consultas marcadas por ela para o período
+            <span className="inline-block size-4 rounded" style={{ background: COR_MARCADAS }} /> Consultas agendadas pela pessoa para o período
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-block size-4 rounded" style={{ background: COR_REALIZADAS }} /> Dessas, o paciente compareceu
@@ -570,9 +576,9 @@ function TelaPessoa({ tela }: { tela: TelaTv }) {
               </div>
               <div className="mt-[1.4vh] border-t border-sky-500/20 pt-[1vh] text-center">
                 <div className="text-[2.3vh] font-bold text-white">{x.nome}</div>
-                <div className="text-[1.9vh] font-medium text-sky-200/70 tabular-nums">{x.datas}</div>
+                <div className="text-[2.3vh] font-medium text-sky-200/85 tabular-nums">{x.datas}</div>
                 {x.marcadas > 0 && (
-                  <div className="mt-[0.4vh] text-[1.8vh] font-semibold text-emerald-300/90 tabular-nums">
+                  <div className="mt-[0.4vh] text-[2.2vh] font-semibold text-emerald-300/90 tabular-nums">
                     {Math.round((x.realizadas / x.marcadas) * 100)}% compareceram
                   </div>
                 )}
@@ -787,7 +793,7 @@ export function TvCliente({ token }: { token: string }) {
                 {tela?.titulo ?? "Desempenho da Equipe"}
               </h1>
               {dados?.equipes?.[0] && (
-                <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-[1.6vh] font-semibold text-sky-300">
+                <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-[2vh] font-semibold text-sky-300">
                   {dados.equipes.join(" · ")}
                 </span>
               )}
@@ -798,7 +804,7 @@ export function TvCliente({ token }: { token: string }) {
                   <span className="text-[2.9vh] font-extrabold text-white">{tela.periodo.nome}</span>
                   <span className="text-[2.6vh] font-semibold text-sky-200 tabular-nums">{tela.periodo.datas}</span>
                 </span>
-                {tela.periodo.emAndamento && <span className="text-[1.9vh] font-medium text-sky-200/60">parcial · atualiza sozinho</span>}
+                {tela.periodo.emAndamento && <span className="text-[2.3vh] font-medium text-sky-200/80">parcial · atualiza sozinho</span>}
               </div>
             )}
             <div className={`mt-0.5 h-[2.5vh] overflow-hidden ${tela?.periodo ? "hidden 2xl:block" : ""}`}>
@@ -809,7 +815,7 @@ export function TvCliente({ token }: { token: string }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.5 }}
-                  className="text-[2.1vh] font-medium text-sky-200/70"
+                  className="text-[2.1vh] font-medium text-sky-200/85"
                 >
                   {subtitulos[subtituloIdx % subtitulos.length]}
                 </motion.p>
@@ -821,7 +827,7 @@ export function TvCliente({ token }: { token: string }) {
           <div className="text-[5.4vh] font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_15px_rgba(56,189,248,0.4)]">
             {agora ? agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Bahia" }) : "--:--"}
           </div>
-          <div className="text-[1.8vh] font-medium text-sky-200/60 capitalize">
+          <div className="text-[2.2vh] font-medium text-sky-200/80 capitalize">
             {erro ??
               (agora
                 ? agora.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Bahia" })
@@ -867,6 +873,22 @@ export function TvCliente({ token }: { token: string }) {
             )}
           </div>
         )}
+        {!tela && (
+          // antes a área ficava vazia enquanto carregava, e o "link inválido" aparecia minúsculo no canto
+          <div className="flex flex-1 flex-col items-center justify-center gap-[2vh] text-center" role="status">
+            {erro && !dados ? (
+              <>
+                <div className="text-[4.2vh] font-bold text-white">{erro}</div>
+                <div className="text-[2.6vh] text-sky-200/85">Gere um link novo em Painéis de TV, no Trackco, e abra de novo nesta TV.</div>
+              </>
+            ) : (
+              <>
+                <Loader2 className="size-[7vh] animate-spin text-sky-300 motion-reduce:animate-none" aria-hidden />
+                <div className="text-[2.8vh] font-medium text-sky-100">Carregando o painel…</div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* RODAPÉ: frase, indicador de telas (clicável) e pausa */}
@@ -890,7 +912,7 @@ export function TvCliente({ token }: { token: string }) {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             {pausado && (
-              <span className="rounded-full border border-amber-300/50 bg-amber-400/15 px-3 py-0.5 text-[1.8vh] font-bold text-amber-200">
+              <span className="rounded-full border border-amber-300/50 bg-amber-400/15 px-3 py-0.5 text-[2.2vh] font-bold text-amber-200">
                 ⏸ Pausado · espaço continua · ← → trocam
               </span>
             )}
@@ -910,20 +932,20 @@ export function TvCliente({ token }: { token: string }) {
                 ))}
               </div>
             )}
-            <span className="text-[1.7vh] font-semibold text-sky-200/50 tabular-nums">
+            <span className="text-[2.1vh] font-semibold text-sky-200/80 tabular-nums">
               {atual + 1}/{total}
             </span>
             <button
               type="button"
               onClick={() => setPausado((p) => !p)}
               aria-label={pausado ? "Continuar a rotação" : "Pausar a rotação"}
-              className={`flex size-[3.4vh] items-center justify-center rounded-full border text-[1.6vh] transition-colors ${
-                pausado ? "border-amber-300/60 bg-amber-400/20 text-amber-200" : "border-sky-400/30 bg-sky-400/10 text-sky-200/70 hover:text-white"
+              className={`flex size-[3.4vh] items-center justify-center rounded-full border text-[2vh] transition-colors ${
+                pausado ? "border-amber-300/60 bg-amber-400/20 text-amber-200" : "border-sky-400/30 bg-sky-400/10 text-sky-200/85 hover:text-white"
               }`}
             >
               {pausado ? "▶" : "❚❚"}
             </button>
-            <span className="text-[1.8vh] font-semibold tracking-wider text-sky-400/50 uppercase">Trackco · IOBA</span>
+            <span className="text-[2.2vh] font-semibold tracking-wider text-sky-400/50 uppercase">Trackco · IOBA</span>
           </div>
         </div>
       </footer>

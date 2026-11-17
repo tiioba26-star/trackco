@@ -40,7 +40,12 @@ export default async function PaginaFormularios() {
           <AlertTriangle />
           <AlertTitle>Falta uma atualização do banco</AlertTitle>
           <AlertDescription>
-            Cole a migration <code>20261113000011_trackco_confirmacoes_formularios.sql</code> no SQL Editor do Supabase e clique em Run. Depois recarregue esta página.
+            Os formulários ainda não podem ser usados.
+            <details className="mt-1 text-xs [&_summary]:cursor-pointer">
+              <summary>Detalhes técnicos</summary>
+              Cole a migração <code>20261113000011_trackco_confirmacoes_formularios.sql</code> no SQL Editor do Supabase e clique em Run. Depois
+              recarregue esta página.
+            </details>
           </AlertDescription>
         </Alert>
       ) : !formularios.length ? (
@@ -66,13 +71,13 @@ export default async function PaginaFormularios() {
                         {f.perguntas.length} perguntas · {textoAgenda(f)} · {publico}
                       </CardDescription>
                     </div>
-                    <LigarFormulario id={f.id} ativo={f.ativo} />
+                    <LigarFormulario id={f.id} ativo={f.ativo} titulo={f.titulo} />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex flex-wrap gap-1.5 text-xs">
                     {f.anonimo && <Badge variant="secondary">Anônimo</Badge>}
-                    {f.modelo === "sus" && <Badge variant="secondary">Nota SUS</Badge>}
+                    {f.modelo === "sus" && <Badge variant="secondary">Nota de facilidade de uso</Badge>}
                     {f.ativo && rodada && (
                       <Badge>
                         Aberto · rodada {nomeRodada(rodada)} · {nestaRodada} responderam

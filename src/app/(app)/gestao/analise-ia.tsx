@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { AlertTriangle, Info, Sparkles } from "lucide-react";
 import { Dica } from "@/components/ajuda/dica";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,16 +6,14 @@ import {
   COMPARACOES_IA,
   NOME_RECORTE,
   PERIODOS_IA,
-  RECORTES_IA,
   SECAO_DA_ABA,
   type ComparacaoIA,
   type PeriodoIA,
   type RecorteIA,
 } from "@/lib/analises/arquivos";
 import { NOME_ESFORCO, analiseDaSecao, nomeDoModelo, type Analise } from "@/lib/dados/analises-ia";
-import { filtrosParaUrl, type FiltrosGestao } from "@/lib/dados/gestao";
+import type { FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtDataHora } from "@/lib/formato";
-import { cn } from "@/lib/utils";
 import { TextoIA } from "./markdown";
 
 const AJUDA =
@@ -48,11 +45,9 @@ export async function AnaliseIA({ f, aba, ia }: { f: FiltrosGestao; aba: string;
   if (!secao) return null;
   const periodo = f.janela.periodo as PeriodoIA;
   const comparacao = f.comparar as ComparacaoIA;
-  const recorte: RecorteIA = (RECORTES_IA as readonly string[]).includes(ia ?? "")
-    ? (ia as RecorteIA)
-    : f.operadora === "Particular"
-      ? "particular"
-      : "todas";
+  // segue o filtro Operadora lá em cima (antes havia um botão próprio aqui, que repetia o filtro)
+  void ia;
+  const recorte: RecorteIA = f.operadora === "Particular" ? "particular" : "todas";
   const temPeriodo = (PERIODOS_IA as readonly string[]).includes(periodo);
   const temComparacao = (COMPARACOES_IA as readonly string[]).includes(comparacao);
   const a = temPeriodo && temComparacao ? await analiseDaSecao(secao, periodo, comparacao, recorte) : null;
@@ -82,21 +77,9 @@ export async function AnaliseIA({ f, aba, ia }: { f: FiltrosGestao; aba: string;
           </CardDescription>
         </div>
         {temPeriodo && temComparacao && (
-          <div className="inline-flex rounded-lg border bg-card p-1">
-            {RECORTES_IA.map((r) => (
-              <Link
-                key={r}
-                href={`/gestao?${filtrosParaUrl(f, { aba, ia: r })}`}
-                scroll={false}
-                className={cn(
-                  "rounded-md px-2.5 py-1 text-xs font-medium",
-                  recorte === r ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
-                )}
-              >
-                {r === "particular" ? "Particular" : "Clínica toda"}
-              </Link>
-            ))}
-          </div>
+          <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+            {recorte === "particular" ? "Particular" : "Clínica toda (todas as operadoras)"}
+          </span>
         )}
       </CardHeader>
       <CardContent className="space-y-3">
@@ -117,7 +100,7 @@ export async function AnaliseIA({ f, aba, ia }: { f: FiltrosGestao; aba: string;
                 Esta análise é de {a.meta.janela_datas || `${a.meta.janela_inicio} a ${a.meta.janela_fim}`}; a tela mostra {f.janela.datas}.
               </Aviso>
             )}
-            {(outrosFiltros.length > 0 || (f.operadora !== "Particular" && f.operadora !== "todas" && !ia)) && (
+            {(outrosFiltros.length > 0 || (f.operadora !== "Particular" && f.operadora !== "todas")) && (
               <Aviso>
                 A análise é sempre da clínica toda ({NOME_RECORTE[recorte].toLowerCase()}), sem os filtros de{" "}
                 {[...outrosFiltros, f.operadora !== "Particular" && f.operadora !== "todas" ? "operadora" : null].filter(Boolean).join(", ")} que você

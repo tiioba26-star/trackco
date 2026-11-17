@@ -12,12 +12,13 @@ import type { JanelaPeriodo, PeriodoRapido } from "@/engine/periodos";
 import type { Producao } from "@/engine/producao";
 import { fmtPct, fmtValor } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ModosPeriodo, type ModoPeriodo } from "./periodo-modos";
 
 const ABAS: { p: PeriodoRapido; rotulo: string }[] = [
   { p: "hoje", rotulo: "Hoje" },
   { p: "semana", rotulo: "Últimos 7 dias" },
-  { p: "mes", rotulo: "Mês" },
+  { p: "mes", rotulo: "Este mês" },
   { p: "mes_passado", rotulo: "Mês passado" },
 ];
 
@@ -148,11 +149,16 @@ export function Variacao({ atual, anterior, nome, unidade = "un" }: { atual: num
   const sobe = diff >= 0;
   const Icone = sobe ? TrendingUp : TrendingDown;
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs", sobe ? "text-up" : "text-down")} title={`Comparado com ${nome}: ${fmtValor(anterior, unidade)}`}>
-      <Icone className="size-3.5" />
-      {sobe ? "+" : "−"}
-      {unidade === "%" ? `${fmtValor(Math.abs(diff), "un")} p.p.` : `${fmtValor(Math.abs(Math.round(diff)), "un")}%`}
-      <span className="text-muted-foreground">vs {nome}</span>
+    <span className={cn("inline-flex flex-wrap items-center gap-x-1 text-xs", sobe ? "text-up" : "text-down")}>
+      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+        <Icone className="size-3.5" />
+        {sobe ? "+" : "−"}
+        {unidade === "%" ? `${fmtValor(Math.abs(diff), "un")} pontos` : `${fmtValor(Math.abs(Math.round(diff)), "un")}%`}
+      </span>
+      {/* o valor de antes fica escrito (antes só aparecia passando o mouse, o que não funciona no celular) */}
+      <span className="text-muted-foreground">
+        vs {nome} ({fmtValor(anterior, unidade)})
+      </span>
     </span>
   );
 }
@@ -180,7 +186,7 @@ export function CartaoKpi({
   destaque?: boolean;
 }) {
   return (
-    <Card className={cn("gap-2", destaque && "ring-1 ring-primary/30")} data-tour={tour}>
+    <Card className={cn("gap-2", destaque && "ring-2 ring-primary/40")} data-tour={tour}>
       <CardContent className="flex h-full flex-col gap-2">
         <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
           {titulo} <Dica id={dica} />
@@ -224,7 +230,9 @@ export function BarraDestino({ p }: { p: Producao }) {
         {DESTINOS.map((d) => (
           <li key={d.k} className="flex items-center gap-2">
             <span className="size-2.5 shrink-0 rounded-full" style={{ background: d.cor, opacity: d.k === "aguardando" ? 0.45 : 1 }} />
-            <span className="flex-1">{d.rotulo}</span>
+            <span className="inline-flex flex-1 items-center gap-1">
+              {d.rotulo} <Dica id={d.dica} />
+            </span>
             <b className="tabular-nums">{fmtValor(p[d.k])}</b>
             <span className="w-12 text-right text-xs text-muted-foreground tabular-nums">{fmtPct((p[d.k] / total) * 100)}</span>
           </li>
@@ -241,37 +249,44 @@ export function BarraDestino({ p }: { p: Producao }) {
 
 /**
  * Posição bem discreta: pódio (1º ouro com brilho, 2º prata, 3º bronze) ou medalha de menção honrosa.
- * Fica no cantinho do cabeçalho; o detalhe aparece só ao passar o mouse / tocar.
+ * Fica no cantinho do cabeçalho; tocar (ou clicar) abre o detalhe, que antes só aparecia passando o mouse.
  */
 export function IconePosicao({ posicao, de, periodo }: { posicao: number; de: number; periodo: string }) {
   const podio = posicao <= 3;
-  const cor = posicao === 1 ? "#e0a800" : posicao === 2 ? "#9aa5b1" : posicao === 3 ? "#b8732f" : "var(--muted-foreground)";
+  const cor = posicao === 1 ? "var(--ouro)" : posicao === 2 ? "var(--prata)" : posicao === 3 ? "var(--bronze)" : "var(--muted-foreground)";
   const texto = podio
     ? `${posicao}º lugar em agendamentos (${periodo}) entre ${de} pessoas${posicao === 1 ? " — você está liderando! 🎉" : ""}`
-    : `Menção honrosa: ${posicao}º de ${de} em agendamentos (${periodo}). Cada marcação te aproxima do pódio!`;
+    : `Menção honrosa: ${posicao}º de ${de} em agendamentos (${periodo}). Cada agendamento te aproxima do pódio!`;
   return (
-    <span className="group relative inline-flex" title={texto} aria-label={texto} data-tour="posicao">
-      <span
-        className={cn(
-          "inline-flex size-7 items-center justify-center rounded-full border bg-card text-[11px] font-bold tabular-nums",
-          posicao === 1 && "animate-[pulse_2.4s_ease-in-out_infinite] shadow-[0_0_10px_rgba(224,168,0,0.45)] motion-reduce:animate-none",
-        )}
-        style={{ borderColor: cor, color: cor }}
+    <Popover>
+      <PopoverTrigger
+        render={<button type="button" className="group relative inline-flex rounded-full focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none" aria-label={texto} data-tour="posicao" />}
       >
-        {podio ? (
-          <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
-            <path d="M9 9h6v12H9zM2 14h6v7H2zM16 12h6v9h-6z" opacity={0.9} />
-          </svg>
-        ) : (
-          <Medal className="size-3.5" />
-        )}
-      </span>
-      {podio && (
-        <span className="absolute -top-1 -right-1 rounded-full bg-card px-0.5 text-[9px] leading-none font-black" style={{ color: cor }}>
-          {posicao}º
+        <span
+          className={cn(
+            "inline-flex size-7 items-center justify-center rounded-full border bg-card text-[11px] font-bold tabular-nums",
+            posicao === 1 && "animate-[pulse_2.4s_ease-in-out_infinite] shadow-[0_0_10px_color-mix(in_oklab,var(--ouro)_45%,transparent)] motion-reduce:animate-none",
+          )}
+          style={{ borderColor: cor, color: cor }}
+        >
+          {podio ? (
+            <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
+              <path d="M9 9h6v12H9zM2 14h6v7H2zM16 12h6v9h-6z" opacity={0.9} />
+            </svg>
+          ) : (
+            <Medal className="size-3.5" />
+          )}
         </span>
-      )}
-    </span>
+        {podio && (
+          <span className="absolute -top-1 -right-1 rounded-full bg-card px-0.5 text-[9px] leading-none font-black" style={{ color: cor }}>
+            {posicao}º
+          </span>
+        )}
+      </PopoverTrigger>
+      <PopoverContent side="bottom" className="w-64 text-sm">
+        {texto}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -312,7 +327,9 @@ export function CartaoRitmo({
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="text-sm font-medium text-muted-foreground">{titulo}</div>
+            <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+              {titulo} <Dica id="pn.ritmo" />
+            </div>
             <div className="flex items-baseline gap-2">
               <span className="font-heading text-4xl font-semibold tabular-nums">{fmtValor(realizado)}</span>
               <span className="text-muted-foreground">de {fmtValor(meta)} na meta do mês</span>
@@ -326,7 +343,7 @@ export function CartaoRitmo({
           </div>
           {esperadoHoje !== null && emAndamento && realizado < meta && (
             <div className="absolute top-0 bottom-0 flex -translate-x-1/2 flex-col items-center" style={{ left: `${(esperadoHoje / escala) * 100}%` }}>
-              <span className="text-[10px] whitespace-nowrap text-muted-foreground">hoje: ~{fmtValor(Math.round(esperadoHoje))}</span>
+              <span className="text-[11px] whitespace-nowrap text-muted-foreground">esperado hoje: ~{fmtValor(Math.round(esperadoHoje))}</span>
               <span className="mt-0.5 w-0.5 flex-1 bg-foreground/60" />
             </div>
           )}

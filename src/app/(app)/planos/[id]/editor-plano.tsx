@@ -21,7 +21,10 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { Condicao, DefinicaoPlano, Faixa, Indicador, TipoRecompensa } from "@/engine/tipos";
+import { nomeCompetencia } from "@/engine/datas";
+import { useAvisoAoSair } from "@/hooks/use-aviso-sair";
 import { fmtPct } from "@/lib/formato";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
 import { alterarStatusPlano, publicarVersao, salvarRascunho, simularPlano, type LinhaSimulacao } from "../actions";
 import { Dica } from "@/components/ajuda/dica";
 import { Campo } from "@/components/ui/campo";
@@ -37,8 +40,20 @@ const RECOMPENSAS: { v: TipoRecompensa | ""; t: string }[] = [
   { v: "pontos", t: "Pontos" },
 ];
 
+const maiuscula = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
 interface Props {
-  plano: { id: string; nome: string; descricao: string; modalidade: string; status: string; equipe_id: string };
+  plano: {
+    id: string;
+    nome: string;
+    descricao: string;
+    modalidade: string;
+    status: string;
+    equipe_id: string;
+    equipe: string;
+    /** plano que está ativo hoje na equipe (será arquivado se este for ativado) */
+    outroAtivo: string | null;
+  };
   rascunho: DefinicaoPlano;
   metricas: { id: string; nome: string; unidade: string }[];
   competencia: string;
@@ -63,6 +78,12 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
   const [publicando, setPublicando] = useState(false);
   const [vigente, setVigente] = useState(competencia);
   const [obs, setObs] = useState("");
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
+  // alterações não salvas: compara com o que foi salvo por último
+  const foto = JSON.stringify({ nome, descricao, modalidade, def });
+  const [salvoComo, setSalvoComo] = useState(foto);
+  useAvisoAoSair(foto !== salvoComo && !leitura);
 
   const setInd = (i: number, p: Partial<Indicador>) =>
     setDef({ ...def, indicadores: def.indicadores.map((x, j) => (j === i ? { ...x, ...p } : x)) });
@@ -76,6 +97,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
     setSalvando(true);
     const r = await salvarRascunho(plano.id, { nome, descricao, modalidade, definicao: def });
     setSalvando(false);
+    if (r.ok) setSalvoComo(foto);
     if (!r.ok) toast.error(r.erro);
     else if (r.erro) toast.warning(r.erro);
     else toast.success("Rascunho salvo.");
@@ -109,6 +131,24 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
   }
 
   async function status(s: "ativo" | "arquivado") {
+    const mes = nomeCompetencia(competencia);
+    const ok = await confirmar(
+      s === "ativo"
+        ? {
+            titulo: `Ativar este plano para a equipe ${plano.equipe}?`,
+            texto: plano.outroAtivo
+              ? `O plano "${plano.outroAtivo}", que vale hoje, será arquivado, e ${mes} será recalculado com a versão publicada deste plano.`
+              : `${maiuscula(mes)} será recalculado com a versão publicada deste plano.`,
+            confirmar: "Ativar e recalcular",
+          }
+        : {
+            titulo: "Arquivar este plano?",
+            texto: `A equipe ${plano.equipe} fica sem plano ativo até você ativar outro. O histórico e as versões continuam guardados.`,
+            confirmar: "Arquivar",
+            perigo: true,
+          },
+    );
+    if (!ok) return;
     const r = await alterarStatusPlano(plano.id, s);
     if (r.ok) {
       toast.success(s === "ativo" ? "Plano ativado para a equipe." : "Plano arquivado.");
@@ -123,7 +163,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
           <Campo rotulo="Nome do plano">
             <Input value={nome} onChange={(e) => setNome(e.target.value)} />
           </Campo>
-          <Campo rotulo="Descrição" dica="cond.descricao">
+          <Campo rotulo="Descrição" dica="plano.descricao">
             <Input value={descricao} onChange={(e) => setDescricao(e.target.value)} />
           </Campo>
           <Campo rotulo="Modalidade" dica="plano.modalidade">
@@ -143,7 +183,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         <CardHeader>
           <CardTitle>Indicadores</CardTitle>
           <CardDescription>
-            O que entra na nota e com que peso. <b>Escopo equipe</b> soma a produção dos membros: use para avaliar o líder pelo
+            O que entra na nota e com que peso. <b>Conta a equipe toda</b> soma a produção dos membros: use para avaliar o líder pelo
             resultado do conjunto. Peso 0 = indicador só informativo (aparece, mas não pesa).
           </CardDescription>
         </CardHeader>
@@ -163,13 +203,13 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               <Campo rotulo="Nome no extrato (opcional)" dica="ind.nome" className="md:col-span-2">
                 <Input value={ind.nome ?? ""} onChange={(e) => setInd(i, { nome: e.target.value || undefined })} />
               </Campo>
-              <Campo rotulo="Escopo" dica="ind.escopo">
+              <Campo rotulo="Conta de quem" dica="ind.escopo">
                 <NativeSelect value={ind.escopo} onChange={(e) => setInd(i, { escopo: e.target.value as Indicador["escopo"] })}>
-                  <option value="individual">Individual</option>
-                  <option value="equipe">Equipe (agregado)</option>
+                  <option value="individual">De cada pessoa</option>
+                  <option value="equipe">Da equipe toda (soma)</option>
                 </NativeSelect>
               </Campo>
-              <Campo rotulo="Aplica-se a" dica="ind.aplica_a">
+              <Campo rotulo="Vale para" dica="ind.aplica_a">
                 <NativeSelect value={ind.aplica_a} onChange={(e) => setInd(i, { aplica_a: e.target.value as Indicador["aplica_a"] })}>
                   <option value="membros">Membros</option>
                   <option value="lider">Líder</option>
@@ -179,7 +219,7 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
               <Campo rotulo="Peso" dica="ind.peso">
                 <Input type="number" min={0} value={ind.peso} onChange={(e) => setInd(i, { peso: Number(e.target.value) })} />
               </Campo>
-              <Campo rotulo="Teto (%)" dica="ind.teto">
+              <Campo rotulo="Conta até no máximo (%)" dica="ind.teto">
                 <Input type="number" min={1} value={ind.teto_pct} onChange={(e) => setInd(i, { teto_pct: Number(e.target.value) })} />
               </Campo>
               <label className="flex items-center gap-2 self-end pb-1.5 text-sm md:col-span-2">
@@ -236,8 +276,8 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
         <CardHeader>
           <CardTitle>Faixas de atingimento</CardTitle>
           <CardDescription>
-            A nota geral (média ponderada) cai em uma faixa, que define o nível e a recompensa. Intervalo [de, até): &quot;até&quot; vazio
-            = sem limite.
+            A nota geral (média dos indicadores, com os pesos) cai em uma faixa, que define o nível e a recompensa. Cada faixa vai de
+            &quot;De&quot; até menos de &quot;Até&quot;; &quot;Até&quot; vazio = sem limite.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -354,21 +394,30 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
                 <NativeSelect value={c.indicador_id} onChange={(e) => setCd(i, { indicador_id: e.target.value })}>
                   {def.indicadores.map((ind) => (
                     <option key={ind.id} value={ind.id}>
-                      {nomeInd(ind)} · {ind.aplica_a}
+                      {nomeInd(ind)} · {ind.aplica_a === "lider" ? "líder" : ind.aplica_a === "todos" ? "todos" : "membros"}
                     </option>
                   ))}
                 </NativeSelect>
               </Campo>
-              <Campo rotulo="Base" dica="cond.base">
+              <Campo rotulo="Comparar" dica="cond.base">
                 <NativeSelect value={c.base} onChange={(e) => setCd(i, { base: e.target.value as Condicao["base"] })}>
-                  <option value="realizado">Realizado</option>
-                  <option value="atingimento">Atingimento %</option>
+                  <option value="realizado">O número feito</option>
+                  <option value="atingimento">O % da meta</option>
                 </NativeSelect>
               </Campo>
-              <Campo rotulo="Op.">
+              <Campo rotulo="Precisa ser">
                 <NativeSelect value={c.operador} onChange={(e) => setCd(i, { operador: e.target.value as Condicao["operador"] })}>
-                  {[">=", ">", "<=", "<"].map((o) => (
-                    <option key={o}>{o}</option>
+                  {(
+                    [
+                      [">=", "pelo menos"],
+                      [">", "mais que"],
+                      ["<=", "no máximo"],
+                      ["<", "menos que"],
+                    ] as const
+                  ).map(([o, t]) => (
+                    <option key={o} value={o}>
+                      {t}
+                    </option>
                   ))}
                 </NativeSelect>
               </Campo>
@@ -477,18 +526,18 @@ export function EditorPlano({ plano, rascunho, metricas, competencia, competenci
 
       <div className="sticky bottom-0 z-10 -mx-4 flex flex-wrap justify-end gap-2 border-t bg-background/90 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         {plano.status !== "ativo" ? (
-          <Button variant="outline" onClick={() => status("ativo")}>
+          <Button variant="outline" onClick={() => status("ativo")} disabled={leitura}>
             Ativar para a equipe
           </Button>
         ) : (
-          <Button variant="outline" onClick={() => status("arquivado")}>
+          <Button variant="outline" onClick={() => status("arquivado")} disabled={leitura}>
             Arquivar
           </Button>
         )}
-        <Button variant="outline" onClick={salvar} disabled={salvando}>
+        <Button variant="outline" onClick={salvar} disabled={salvando || leitura}>
           <Save /> Salvar rascunho
         </Button>
-        <Button onClick={() => setPublicar(true)} data-tour="plano-publicar">
+        <Button onClick={() => setPublicar(true)} data-tour="plano-publicar" disabled={leitura}>
           <Rocket /> Publicar versão
         </Button>
       </div>

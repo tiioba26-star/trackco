@@ -20,10 +20,10 @@ export async function AbaQuem({ f, mat }: { f: FiltrosGestao; mat: "n" | "pct" }
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              Quem marca para quem <Dica texto="Cada linha é quem marcou; cada coluna, o médico ou a agenda de exame. Mais escuro = mais marcações. Em '% da linha', cada linha soma 100%: mostra para quem cada pessoa mais marca." />
+              Quem agenda para quem <Dica texto="Cada linha é quem agendou; cada coluna, o médico ou a agenda de exame. Mais escuro = mais agendamentos. Em '% da linha', cada linha soma 100%: mostra para quem cada pessoa mais marca." />
             </CardTitle>
             <CardDescription>
-              Marcações feitas em {f.janela.datas} · os 11 profissionais que mais receberam e “Outros”.
+              Agendamentos feitos em {f.janela.datas} · os 11 profissionais que mais receberam e “Outros”.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export async function AbaQuem({ f, mat }: { f: FiltrosGestao; mat: "n" | "pct" }
             <table className="w-full border-separate border-spacing-0.5 text-xs">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 bg-card px-2 text-left font-medium text-muted-foreground">Quem marcou</th>
+                  <th className="sticky left-0 z-10 bg-card px-2 text-left font-medium text-muted-foreground">Quem agendou</th>
                   {d.profissionais.map((p) => (
                     <th key={p} className="h-28 min-w-14 align-bottom font-medium text-muted-foreground">
                       <span className="inline-block max-w-28 origin-bottom-left translate-x-1/2 -rotate-45 truncate text-left whitespace-nowrap" title={p}>
@@ -87,7 +87,7 @@ export async function AbaQuem({ f, mat }: { f: FiltrosGestao; mat: "n" | "pct" }
               </tbody>
             </table>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma marcação com estes filtros.</p>
+            <p className="text-sm text-muted-foreground">Nenhum agendamento com estes filtros.</p>
           )}
         </CardContent>
       </Card>
@@ -96,9 +96,9 @@ export async function AbaQuem({ f, mat }: { f: FiltrosGestao; mat: "n" | "pct" }
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              Detalhe: pessoa → procedimento → profissional <Dica texto="Abra uma pessoa para ver o que ela marcou e para quem. O % é o comparecimento: das marcações que já dá para conferir, quantas aconteceram." />
+              Detalhe: pessoa → procedimento → profissional <Dica texto="Abra uma pessoa para ver o que ela marcou e para quem. O % é o comparecimento: dos agendamentos que já dá para conferir, quantas aconteceram." />
             </CardTitle>
-            <CardDescription>Toque numa pessoa para abrir. Marcações feitas em {f.janela.datas}.</CardDescription>
+            <CardDescription>Toque numa pessoa para abrir. Agendamentos feitos em {f.janela.datas}.</CardDescription>
           </div>
           <Baixar href={`/api/gestao/csv?${filtrosParaUrl(f, { quadro: "detalhe" })}`} />
         </CardHeader>
@@ -136,7 +136,7 @@ export async function AbaQuem({ f, mat }: { f: FiltrosGestao; mat: "n" | "pct" }
               </div>
             </details>
           ))}
-          {!d.arvore.length && <p className="text-sm text-muted-foreground">Nenhuma marcação com estes filtros.</p>}
+          {!d.arvore.length && <p className="text-sm text-muted-foreground">Nenhum agendamento com estes filtros.</p>}
         </CardContent>
       </Card>
     </div>

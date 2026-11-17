@@ -6,23 +6,36 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { competenciaAnterior } from "@/engine/datas";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
+import { competenciaAnterior, nomeCompetencia } from "@/engine/datas";
 import { recalcularMes } from "./actions";
 import { Campo } from "@/components/ui/campo";
 
 /** Recalcula um intervalo de meses, um de cada vez, mostrando o progresso. */
 export function RecalcularPeriodo({ atual }: { atual: string }) {
   const router = useRouter();
-  const [de, setDe] = useState("2025-01");
+  // começa só no mês atual: recalcular muitos meses é demorado, então a pessoa amplia se quiser
+  const [de, setDe] = useState(atual);
   const [ate, setAte] = useState(atual);
   const [feitos, setFeitos] = useState(0);
   const [total, setTotal] = useState(0);
   const [rodando, setRodando] = useState(false);
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
 
   async function rodar() {
     const meses: string[] = [];
     for (let c = ate; c >= de && meses.length < 60; c = competenciaAnterior(c)) meses.push(c);
     if (!meses.length) return toast.error("Período inválido.");
+    const nome = (c: string) => nomeCompetencia(c, true);
+    if (
+      !(await confirmar({
+        titulo: meses.length === 1 ? `Recalcular ${nomeCompetencia(meses[0])}?` : `Recalcular ${meses.length} meses?`,
+        texto: `${meses.length === 1 ? "" : `De ${nome(meses.at(-1)!)} a ${nome(meses[0])}. `}Os números do painel e do extrato são refeitos com as regras e metas atuais. Meses com fechamento aprovado mantêm o resultado oficial.${meses.length > 6 ? " Pode levar alguns minutos." : ""}`,
+        confirmar: "Recalcular",
+      }))
+    )
+      return;
     setRodando(true);
     setTotal(meses.length);
     setFeitos(0);
@@ -49,7 +62,7 @@ export function RecalcularPeriodo({ atual }: { atual: string }) {
         <Campo rotulo="Até">
           <Input type="month" value={ate} max={atual} onChange={(e) => setAte(e.target.value)} className="w-40" />
         </Campo>
-        <Button variant="outline" onClick={rodar} disabled={rodando}>
+        <Button variant="outline" onClick={rodar} disabled={rodando || leitura}>
           <History /> {rodando ? `Recalculando ${feitos}/${total}…` : "Recalcular período"}
         </Button>
       </div>

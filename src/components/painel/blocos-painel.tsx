@@ -50,15 +50,16 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
         valor={t.agendouValidos}
         dica="pn.validos"
         tour="kpi-agendou"
+        destaque
         descricao={
           <>
-            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta. A marcação que virou remarque sai; fica só a nova.
+            Pacientes marcados {voce ? "por você" : "pela equipe"} de <b>{janela.datas}</b>, para qualquer data de consulta. O agendamento que virou remarcação sai; fica só o novo.
           </>
         }
         variacao={<Variacao atual={t.agendouValidos} anterior={a.total.agendouValidos} nome={a.nome} />}
         rodape={
           <span className="inline-flex flex-wrap items-center gap-1">
-            Total marcado <b className="text-foreground">{fmtValor(t.agendou)}</b>
+            Total agendado <b className="text-foreground">{fmtValor(t.agendou)}</b>
             <Dica id="pn.agendou" />
             {t.agendou > t.agendouValidos && (
               <>
@@ -96,7 +97,6 @@ function Kpis({ r, janela, quem }: { r: ResumoPeriodo; janela: JanelaPeriodo; qu
         unidade="%"
         dica="pn.conversao"
         tour="kpi-conversao"
-        destaque
         descricao={
           t.conversao === null
             ? "Ainda não há dia encerrado neste período (o dia de hoje entra amanhã)."
@@ -126,7 +126,7 @@ function GraficosDia({ r, quem }: { r: ResumoPeriodo; quem: "voce" | "equipe" })
             dados={r.dias.map((d) => ({ rotulo: rot(d.dia), data: d.dia, a: d.futuro ? null : d.validos, b: d.futuro ? null : d.agendou, futuro: d.futuro }))}
             rotuloA="Válidos"
             unidadeA="un"
-            rotuloB="Total marcado"
+            rotuloB="Total agendado"
             unidadeB="un"
             corB="var(--muted-foreground)"
             altura={220}
@@ -221,6 +221,8 @@ export async function BlocoMeu({
         </div>
       </div>
 
+      {/* ordem: os 4 números → ritmo da meta → o que confirmar → recordes → para onde foram as consultas e gráficos */}
+      {particular && <Kpis r={particular} janela={janela} quem="voce" />}
       {indAgend?.meta_ajustada && dias ? (
         <CartaoRitmo
           titulo={`Meta de agendamentos ${ritmoEmValidos ? "válidos" : "(total, como no plano)"} · ${nomeCompetencia(comp!)}`}
@@ -258,7 +260,6 @@ export async function BlocoMeu({
 
       {particular ? (
         <>
-          <Kpis r={particular} janela={janela} quem="voce" />
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="lg:col-span-2" data-tour="destino">
               <CardHeader>
@@ -272,7 +273,7 @@ export async function BlocoMeu({
                 <BarraDestino p={particular.total} />
               </CardContent>
             </Card>
-            {sus && <CartaoSus p={sus.total} />}
+            {sus && <CartaoSus p={sus.total} janela={janela} />}
           </div>
           <GraficosDia r={particular} quem="voce" />
         </>
@@ -313,29 +314,36 @@ export async function BlocoMeu({
   );
 }
 
-function CartaoSus({ p }: { p: Producao }) {
+function CartaoSus({ p, janela }: { p: Producao; janela: JanelaPeriodo }) {
   return (
     <Card data-tour="sus">
       <CardHeader>
         <CardTitle className="flex items-center gap-1.5">
           SUS <Dica id="pn.sus" />
         </CardTitle>
-        <CardDescription>Só acompanhamento: não conta para meta, nota ou prêmios.</CardDescription>
+        <CardDescription>
+          {janela.datas}. Só acompanhamento: não conta para meta, nota ou prêmios.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <dl className="space-y-2 text-sm">
-          {(
-            [
-              ["Agendou no período", p.agendou],
-              ["Consultas marcadas para o período", p.marcadasPara],
-              ["Compareceram", p.compareceram],
-            ] as const
-          ).map(([r, v]) => (
-            <div key={r} className="flex justify-between gap-3">
-              <dt className="text-muted-foreground">{r}</dt>
-              <dd className="font-semibold tabular-nums">{fmtValor(v)}</dd>
-            </div>
-          ))}
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Agendou (válidos)</dt>
+            <dd className="text-right">
+              <span className="font-semibold tabular-nums">{fmtValor(p.agendouValidos)}</span>
+              {p.agendou > p.agendouValidos && <span className="block text-xs text-muted-foreground tabular-nums">{fmtValor(p.agendou)} no total</span>}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              Consultas marcadas para {diaMes(janela.inicio)} a {diaMes(janela.fimPara)}
+            </dt>
+            <dd className="font-semibold tabular-nums">{fmtValor(p.marcadasPara)}</dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Compareceram</dt>
+            <dd className="font-semibold tabular-nums">{fmtValor(p.compareceram)}</dd>
+          </div>
         </dl>
       </CardContent>
     </Card>
@@ -386,7 +394,7 @@ export async function BlocoEquipe({
     comp ? apuracoesDaEquipe(db, equipe.id, comp) : Promise.resolve([]),
     s.veComoAdmin ? coberturaFaturamento(undefined, 2) : Promise.resolve([]),
   ]);
-  // mês passado (fechado) com menos de 95% do faturamento ligado a marcações: vale conferir os dados
+  // mês passado (fechado) com menos de 95% do faturamento ligado a agendamentos: vale conferir os dados
   const coberturaBaixa = cobertura.find((c) => c.mes < competenciaDe(hoje) && c.pct !== null && c.pct < 95);
   const nivelDe = new Map(aps.map((a) => [a.colaborador_id, a]));
   const lider = aps.find((a) => a.funcao === "lider");
@@ -459,10 +467,10 @@ export async function BlocoEquipe({
             <Alert>
               <AlertTriangle />
               <AlertTitle>
-                Só {Math.round(coberturaBaixa.pct!)}% do faturamento Particular de {coberturaBaixa.mes} ligado a marcações
+                Só {Math.round(coberturaBaixa.pct!)}% do faturamento Particular de {coberturaBaixa.mes} ligado a agendamentos
               </AlertTitle>
               <AlertDescription>
-                Pode ser atendimento sem marcação ou falha no cruzamento.{" "}
+                Pode ser atendimento sem agendamento ou falha no cruzamento.{" "}
                 <Link href="/dados" className="text-primary underline">
                   Conferir
                 </Link>

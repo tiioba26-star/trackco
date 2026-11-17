@@ -49,6 +49,9 @@
   --color-up: var(--up);
   --color-down: var(--down);
   --color-warn: var(--warn);
+  --color-ouro: var(--ouro);
+  --color-prata: var(--prata);
+  --color-bronze: var(--bronze);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -92,7 +95,12 @@
   --chart-10: #8a6d3b;
   --up: #0f7b4f;
   --down: #c4361f;
-  --warn: #b7791f;
+  /* mais escuro que antes (#b7791f): texto pequeno precisa de contraste 4,5:1 sobre branco */
+  --warn: #94600d;
+  /* pódio: ouro, prata e bronze legíveis no tema claro */
+  --ouro: #9a7400;
+  --prata: #6b7785;
+  --bronze: #9a5a1f;
   --radius: 0.75rem;
   --sidebar: #ffffff;
   --sidebar-foreground: #1d2939;
@@ -137,6 +145,9 @@
   --up: #3fb97f;
   --down: #ef6b5b;
   --warn: #e0a43a;
+  --ouro: #f0c34a;
+  --prata: #b8c2cc;
+  --bronze: #d99a5b;
   --sidebar: #0f1520;
   --sidebar-foreground: #dfe5ee;
   --sidebar-primary: #3987e5;
@@ -157,6 +168,16 @@
   }
   html {
     @apply font-sans;
+    /* barra de navegação de baixo (colaborador, celular): o resto da tela sobe por cima dela */
+    --nav-inferior: 0px;
+  }
+  @media (max-width: 767px) {
+    html:has([data-nav-inferior]) {
+      --nav-inferior: calc(4rem + env(safe-area-inset-bottom));
+    }
+    html:has([data-nav-inferior]) body {
+      padding-bottom: var(--nav-inferior);
+    }
   }
   h1,
   h2,

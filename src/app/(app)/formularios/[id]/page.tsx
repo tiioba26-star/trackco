@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Resultados do formulário" };
 
-const COR_FAIXA = { ruim: "text-red-600", ok: "text-amber-600", bom: "text-sky-600", otimo: "text-emerald-600" } as const;
+const COR_FAIXA = { ruim: "text-down", ok: "text-warn", bom: "text-primary", otimo: "text-up" } as const;
 const um = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
 
 /** Barras de distribuição (quantas pessoas marcaram cada nota). */

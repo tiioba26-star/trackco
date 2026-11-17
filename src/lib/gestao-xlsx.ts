@@ -63,10 +63,10 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
     const comp = fu.verificaveis ? (fu.atendidas / fu.verificaveis) * 100 : null;
     const compB = conv.funilBase?.verificaveis ? (conv.funilBase.atendidas / conv.funilBase.verificaveis) * 100 : null;
     const linhas: [string, number | null, number | null, string, string][] = [
-      ["Marcações", fu.marcadas, conv.funilBase?.marcadas ?? null, INT, "Marcações feitas no período (pela data em que foram marcadas)"],
-      ["Aconteceram", fu.atendidas, conv.funilBase?.atendidas ?? null, INT, "Marcações que apareceram no faturamento"],
-      ["Comparecimento (%)", comp, compB, PCT, "Aconteceram ÷ marcações que já dá para conferir"],
-      ["R$ gerado pelas marcações", fu.valor, conv.funilBase?.valor ?? null, R$, "Valor das visitas que aconteceram"],
+      ["Agendamentos", fu.marcadas, conv.funilBase?.marcadas ?? null, INT, "Agendamentos feitos no período (pela data em que foram feitos)"],
+      ["Aconteceram", fu.atendidas, conv.funilBase?.atendidas ?? null, INT, "Agendamentos que apareceram no faturamento"],
+      ["Comparecimento (%)", comp, compB, PCT, "Aconteceram ÷ agendamentos que já dá para conferir"],
+      ["R$ gerado pelos agendamentos", fu.valor, conv.funilBase?.valor ?? null, R$, "Valor das visitas que aconteceram"],
       ["Faturamento", fat.atual.valor, fat.base?.valor ?? null, R$, "Tudo o que o Klingo faturou (319), pela data do atendimento"],
       ["Procedimentos realizados", fat.atual.qtd, fat.base?.qtd ?? null, INT, "Quantidade faturada"],
       ["Valor médio", fat.atual.valorMedio, fat.base?.valorMedio ?? null, R$, "Faturamento ÷ procedimentos"],
@@ -138,10 +138,10 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
         posicao: { col: sers.length + 3, linha: 3, largura: 10, altura: 18 },
       });
 
-    // marcações por equipe
+    // agendamentos por equipe
     const ini = 8 + n;
     const eqSers = eqs.porEquipe.series;
-    ws.getCell(ini - 1, 1).value = "Marcações por equipe";
+    ws.getCell(ini - 1, 1).value = "Agendamentos por equipe";
     ws.getCell(ini - 1, 1).font = { bold: true, color: { argb: AZUL } };
     cabecalho(ws, ini, ["Período", ...eqSers]);
     eqs.porEquipe.pontos.forEach((p, i) => {
@@ -154,7 +154,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
       graficos.push({
         aba: "Evolução",
         tipo: "linha",
-        titulo: "Marcações por equipe",
+        titulo: "Agendamentos por equipe",
         categorias: ref("Evolução", 1, ini + 1, 1, ini + m),
         series: eqSers.map((s, j) => ({ nome: s, valores: ref("Evolução", 2 + j, ini + 1, 2 + j, ini + m) })),
         posicao: { col: sers.length + 3, linha: ini - 1, largura: 10, altura: 18 },
@@ -166,7 +166,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
   {
     const ws = wb.addWorksheet("Colaboradores");
     tituloAba(ws, "Colaboradores: volume, comparecimento e R$", periodo);
-    const cab = ["Pessoa", "Equipe", "Marcações", "Marcações (comparação)", "Conferíveis", "Aconteceram", "Comparecimento", "R$ gerado", "R$ por consulta", "Posição"];
+    const cab = ["Pessoa", "Equipe", "Agendamentos", "Agendamentos (comparação)", "Conferíveis", "Aconteceram", "Comparecimento", "R$ gerado", "R$ por consulta", "Posição"];
     cabecalho(ws, 4, cab);
     conv.pessoas.forEach((p, i) => {
       const r = ws.getRow(5 + i);
@@ -242,7 +242,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
   {
     const ws = wb.addWorksheet("Equipes");
     tituloAba(ws, "Todas as equipes", periodo);
-    cabecalho(ws, 4, ["Equipe", "Pessoas", "Marcações", "Marcações (comparação)", "Participação", "Viraram consulta", "R$ gerado"]);
+    cabecalho(ws, 4, ["Equipe", "Pessoas", "Agendamentos", "Agendamentos (comparação)", "Participação", "Viraram consulta", "R$ gerado"]);
     eqs.equipes.forEach((e, i) => {
       const r = ws.getRow(5 + i);
       r.values = [e.equipe, e.pessoas, e.marcacoes, e.marcacoesBase, e.participacao, e.atendidas, e.valor];
@@ -254,7 +254,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
       graficos.push({
         aba: "Equipes",
         tipo: "coluna",
-        titulo: f.base ? "Marcações: período × comparação" : "Marcações por equipe",
+        titulo: f.base ? "Agendamentos: período × comparação" : "Agendamentos por equipe",
         categorias: ref("Equipes", 1, 5, 1, 4 + eqs.equipes.length),
         series: [
           { nome: "Período", valores: ref("Equipes", 3, 5, 3, 4 + eqs.equipes.length) },
@@ -276,7 +276,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
   // ---------------------------------------------------------------- Bases (Power BI)
   {
     const ws = wb.addWorksheet("Base");
-    tituloAba(ws, "Base de marcações (para Power BI / tabela dinâmica)", `${periodo} · tabela tblBase · sem paciente`);
+    tituloAba(ws, "Base de agendamentos (para Power BI / tabela dinâmica)", `${periodo} · tabela tblBase · sem paciente`);
     const linhas = base.map((l) => [
       l.mes,
       l.nome,
@@ -303,7 +303,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
       style: { theme: "TableStyleLight9", showRowStripes: true },
       columns: [
         "Mês",
-        "Quem marcou",
+        "Quem agendou",
         "Login Klingo",
         "Equipe",
         "Procedimento",
@@ -312,7 +312,7 @@ export async function planilhaGestao(f: FiltrosGestao): Promise<Buffer> {
         "Tipo de agenda",
         "Operadora",
         "Grupo da operadora",
-        "Marcações",
+        "Agendamentos",
         "Conferíveis",
         "Aconteceram",
         "Faltas",

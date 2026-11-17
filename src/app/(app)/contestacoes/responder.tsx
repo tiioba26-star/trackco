@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { DICA_LEITURA, useSomenteLeitura } from "@/components/app/confirmacao";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +30,7 @@ export function Responder({
   ehAdmin: boolean;
 }) {
   const [aberto, setAberto] = useState(false);
+  const leitura = useSomenteLeitura();
   const [decisao, setDecisao] = useState<"aceita" | "recusada" | "em_analise">("aceita");
   const [resposta, setResposta] = useState("");
   const [delta, setDelta] = useState("");
@@ -54,7 +56,7 @@ export function Responder({
 
   return (
     <>
-      <Button size="sm" onClick={() => setAberto(true)}>
+      <Button size="sm" onClick={() => setAberto(true)} disabled={leitura} title={leitura ? DICA_LEITURA : undefined}>
         Responder
       </Button>
       <Dialog open={aberto} onOpenChange={setAberto}>

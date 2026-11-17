@@ -5,7 +5,7 @@ import { ROTULO_FAIXA, quartis } from "@/engine/faturamento";
 import { abaConversao, filtrosParaUrl, type FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtNum, fmtPct } from "@/lib/formato";
 import { cn } from "@/lib/utils";
-import { Baixar, Barrinha, Delta, ErroGestao, real } from "./blocos";
+import { Baixar, Barrinha, Delta, ErroGestao, real, textoBase } from "./blocos";
 import { GraficoDispersao } from "./graficos";
 
 const COR_FAIXA = { acima: "text-up", media_alta: "text-foreground", media_baixa: "text-muted-foreground", abaixo: "text-down" } as const;
@@ -15,13 +15,13 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
   if (d instanceof Error) return <ErroGestao erro={d} />;
   const fu = d.funil;
   const etapas = [
-    { t: "Marcadas", v: fu.marcadas, ajuda: "Marcações feitas no período, pela data em que foram marcadas (qualquer data de consulta)." },
+    { t: "Agendamentos", v: fu.marcadas, ajuda: "Agendamentos feitos no período, pela data em que foram feitos (qualquer data de consulta)." },
     {
       t: "Já dá para conferir",
       v: fu.verificaveis,
       ajuda: "Das marcadas, as que a data da consulta já passou, sem remarcações, bloqueios e erros de cadastro, e fora dos procedimentos que nunca entram no faturamento.",
     },
-    { t: "Aconteceram", v: fu.atendidas, ajuda: "O paciente veio: a marcação apareceu no faturamento do Klingo." },
+    { t: "Aconteceram", v: fu.atendidas, ajuda: "O paciente veio: o agendamento apareceu no faturamento do Klingo." },
   ];
   const comp = fu.verificaveis ? (fu.atendidas / fu.verificaveis) * 100 : null;
   const compBase = d.funilBase?.verificaveis ? (d.funilBase.atendidas / d.funilBase.verificaveis) * 100 : null;
@@ -35,10 +35,10 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
-            Marcação vira faturamento? <Dica texto="O caminho de cada marcação feita no período: marcou → já dá para conferir → aconteceu → quanto gerou em R$ (valor da visita no faturamento do Klingo)." />
+            Agendamento vira faturamento? <Dica texto="O caminho de cada agendamento feito no período: marcou → já dá para conferir → aconteceu → quanto gerou em R$ (valor da visita no faturamento do Klingo)." />
           </CardTitle>
           <CardDescription>
-            Marcações feitas em {f.janela.datas}
+            Agendamentos feitos em {f.janela.datas}
             {f.equipe ? ` · equipe ${f.equipe}` : " · clínica toda"}
             {f.operadora === "todas" ? "" : ` · ${f.operadora}`}.
           </CardDescription>
@@ -62,14 +62,14 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
           </ul>
           <div className="grid content-start gap-4 rounded-xl border p-4">
             <div>
-              <div className="text-xs text-muted-foreground">R$ gerado pelas marcações</div>
+              <div className="text-xs text-muted-foreground">R$ gerado pelos agendamentos</div>
               <div className="font-heading text-2xl font-semibold tabular-nums">{real(fu.valor)}</div>
-              <Delta atual={fu.valor} base={d.funilBase?.valor} nome="comparação" />
+              <Delta atual={fu.valor} base={d.funilBase?.valor} nome={textoBase(f.base)} />
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Comparecimento</div>
               <div className="font-heading text-2xl font-semibold tabular-nums">{fmtPct(comp)}</div>
-              <Delta atual={comp} base={compBase} nome="comparação" pp />
+              <Delta atual={comp} base={compBase} nome={textoBase(f.base)} pp />
             </div>
             <div>
               <div className="text-xs text-muted-foreground">R$ por consulta que aconteceu</div>
@@ -83,11 +83,11 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              Colaboradores: volume, comparecimento e R$ <Dica texto="Posição = em que quarto a pessoa está pelo número de marcações, entre quem marcou pelo menos 10 no período (25% maiores, acima da mediana, abaixo da mediana, 25% menores)." />
+              Colaboradores: volume, comparecimento e R$ <Dica texto="Posição = em que quarto a pessoa está pelo número de agendamentos, entre quem marcou pelo menos 10 no período (25% maiores, acima da mediana, abaixo da mediana, 25% menores)." />
             </CardTitle>
             <CardDescription>
               {fmtNum(d.pessoas.length)} pessoas marcaram em {f.janela.datas}
-              {d.quartis ? ` · mediana de ${fmtNum(d.quartis.mediana)} marcações (metade marcou mais, metade menos)` : ""}.
+              {d.quartis ? ` · mediana de ${fmtNum(d.quartis.mediana)} agendamentos (metade marcou mais, metade menos)` : ""}.
             </CardDescription>
           </div>
           <Baixar href={`/api/gestao/csv?${filtrosParaUrl(f, { quadro: "colaboradores" })}`} />
@@ -98,7 +98,10 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
               <TableRow>
                 <TableHead>Pessoa</TableHead>
                 <TableHead>Equipe</TableHead>
-                <TableHead className="text-right">Marcações</TableHead>
+                <TableHead className="text-right">
+                  Agendamentos
+                  {f.base && <span className="block text-[11px] font-normal text-muted-foreground">variação vs {textoBase(f.base)}</span>}
+                </TableHead>
                 <TableHead className="text-right">Comparecimento</TableHead>
                 <TableHead className="text-right">R$ gerado</TableHead>
                 <TableHead className="text-right">R$ por consulta</TableHead>
@@ -125,7 +128,7 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
               {!d.pessoas.length && (
                 <TableRow>
                   <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                    Nenhuma marcação com estes filtros.
+                    Nenhum agendamento com estes filtros.
                   </TableCell>
                 </TableRow>
               )}
@@ -139,20 +142,26 @@ export async function AbaConversao({ f }: { f: FiltrosGestao }) {
           <CardTitle className="flex items-center gap-1.5">
             Volume × comparecimento <Dica texto="Cada bolinha é uma pessoa (quem marcou pelo menos 10). Para a direita = marca mais; para cima = mais pacientes vêm. As linhas tracejadas são as medianas: o quadrante de cima à direita é quem marca muito e bem. Bolinha maior = mais R$ gerado." />
           </CardTitle>
-          <CardDescription>Marcações feitas em {f.janela.datas}.</CardDescription>
+          <CardDescription>Agendamentos feitos em {f.janela.datas}.</CardDescription>
         </CardHeader>
         <CardContent>
           {pontos.length ? (
-            <GraficoDispersao pontos={pontos} medianaX={d.quartis?.mediana ?? null} medianaY={qComp?.mediana ?? null} />
+            <>
+              <GraficoDispersao pontos={pontos} medianaX={d.quartis?.mediana ?? null} medianaY={qComp?.mediana ?? null} />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Cada bolinha é uma pessoa; quanto maior, mais R$ ela gerou. As linhas tracejadas marcam o meio da equipe: metade agenda mais que a linha
+                vertical e metade tem comparecimento acima da horizontal.
+              </p>
+            </>
           ) : (
-            <p className="text-sm text-muted-foreground">Ninguém com pelo menos 10 marcações neste filtro.</p>
+            <p className="text-sm text-muted-foreground">Ninguém com pelo menos 10 agendamentos neste filtro.</p>
           )}
         </CardContent>
       </Card>
 
       {d.semProducao.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          Fora da conta do comparecimento ({d.semProducao.length}): procedimentos que quase nunca aparecem no faturamento (menos de 10% das marcações),
+          Fora da conta do comparecimento ({d.semProducao.length}): procedimentos que quase nunca aparecem no faturamento (menos de 10% dos agendamentos),
           como entregas e retornos. Ex.: {d.semProducao.slice(0, 4).join(", ")}
           {d.semProducao.length > 4 ? "…" : "."}
         </p>

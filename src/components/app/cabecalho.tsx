@@ -1,6 +1,6 @@
 "use client";
 
-import { Cake, KeyRound, LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { Cake, ChevronLeft, KeyRound, LogOut, Monitor, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -30,7 +30,10 @@ const PAPEL: Record<string, string> = { admin: "Administrador", gestor: "Gestor"
 
 export function Cabecalho({ nome, papel, equipes }: { nome: string; papel: string; equipes: string }) {
   const pathname = usePathname();
-  const titulo = itemAtivo(pathname)?.titulo ?? "Trackco";
+  const item = itemAtivo(pathname);
+  const titulo = item?.titulo ?? (pathname === "/trocar-senha" ? "Trocar senha" : "Trackco");
+  // tela de detalhe (uma equipe, um plano…): o topo vira "‹ Equipes" para voltar à lista
+  const detalhe = item && item.href !== "/" && pathname !== item.href ? item : null;
   const { theme, setTheme } = useTheme();
   const proximo = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
   const IconeTema = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
@@ -39,7 +42,17 @@ export function Cabecalho({ nome, papel, equipes }: { nome: string; papel: strin
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background/85 px-3 backdrop-blur md:px-5">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mx-1 h-5" />
-      <h1 className="truncate text-base font-semibold">{titulo}</h1>
+      {/* o título grande já está na página: aqui ele fica só para o leitor de tela (antes aparecia duas vezes) */}
+      <h1 className="sr-only">{titulo}</h1>
+      {detalhe && (
+        <Link
+          href={detalhe.href}
+          className="-ml-1 inline-flex min-h-9 items-center gap-1 rounded-md px-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <ChevronLeft className="size-4" />
+          {detalhe.titulo}
+        </Link>
+      )}
       <div className="ml-auto flex items-center gap-1.5">
         <BotaoAjuda />
         <Button

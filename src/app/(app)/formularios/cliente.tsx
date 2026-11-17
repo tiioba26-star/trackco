@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { MODELOS } from "@/lib/formularios";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
 import { alternarFormulario, excluirFormulario } from "./actions";
 
 export function NovoFormulario() {
@@ -43,14 +44,27 @@ export function NovoFormulario() {
   );
 }
 
-export function LigarFormulario({ id, ativo }: { id: string; ativo: boolean }) {
+export function LigarFormulario({ id, ativo, titulo }: { id: string; ativo: boolean; titulo?: string }) {
   const [valor, setValor] = useState(ativo);
   const [, iniciar] = useTransition();
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
   return (
     <label className="flex items-center gap-2 text-sm">
       <Switch
         checked={valor}
-        onCheckedChange={(v) => {
+        disabled={leitura}
+        onCheckedChange={async (v) => {
+          // ligar trava o site de quem ainda não respondeu até responder: pergunta antes
+          if (
+            v &&
+            !(await confirmar({
+              titulo: titulo ? `Ligar “${titulo}”?` : "Ligar este formulário?",
+              texto: "Quem ainda não respondeu a rodada aberta vai ver o formulário por cima do sistema no próximo acesso e só continua depois de responder.",
+              confirmar: "Ligar",
+            }))
+          )
+            return;
           setValor(v);
           iniciar(async () => {
             const r = await alternarFormulario(id, v);
@@ -69,9 +83,10 @@ export function LigarFormulario({ id, ativo }: { id: string; ativo: boolean }) {
 export function ExcluirFormulario({ id, titulo, respostas }: { id: string; titulo: string; respostas: number }) {
   const [aberto, setAberto] = useState(false);
   const [excluindo, iniciar] = useTransition();
+  const leitura = useSomenteLeitura();
   return (
     <>
-      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setAberto(true)}>
+      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setAberto(true)} disabled={leitura}>
         <Trash2 className="size-3.5" /> Excluir
       </Button>
       <Dialog open={aberto} onOpenChange={setAberto}>

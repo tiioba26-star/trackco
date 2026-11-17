@@ -3,15 +3,17 @@
 import { ChevronLeft, ChevronRight, Sparkles, X } from "lucide-react";
 import { MotionConfig, motion } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { obterRetrospectiva } from "@/app/(app)/acoes-retrospectiva";
 import { ConfetesTv, type DisparoConfete } from "@/app/tv/[token]/confetes";
 import { Button } from "@/components/ui/button";
 import type { Retrospectiva } from "@/lib/dados/retrospectiva";
+import { teclaEmCampoDeTexto } from "@/lib/teclado";
 import { fotoDoTema } from "./fotos";
 
-const SEGUNDOS = 7;
+/** mínimo por tela; telas com mais texto ficam mais (ver o tempo de leitura abaixo) */
+const SEGUNDOS = 8;
 /** a tela "E sabia que…" fica mais tempo, para dar tempo de ler */
 const SEGUNDOS_COM_FATO = 11;
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
@@ -166,7 +168,7 @@ function montarSlides(d: Retrospectiva, fechar: () => void): Slide[] {
         ) : null}
         {numeros.total > numeros.validos && (
           <Linha atraso={1.5} className="text-sm text-white/70">
-            {numeros.total} marcações no total, contando remarcações, bloqueios e erros.
+            {numeros.total} agendamentos no total, contando remarcações, bloqueios e erros.
           </Linha>
         )}
       </>
@@ -421,9 +423,17 @@ export function Historias({
   const ir = useCallback((d: number) => setI((x) => Math.min(ultimo, Math.max(0, x + d))), [ultimo]);
 
   const duracao = slides[i]?.segundos ?? SEGUNDOS;
+  // tempo de leitura: ~3,5 palavras por segundo + 4 s para olhar os números (até 20 s). Calculado antes de desenhar,
+  // e passado à barra de progresso pela variável --retro-tempo, para a barra e a troca de tela andarem juntas.
+  const tempo = useRef(duracao);
+  useLayoutEffect(() => {
+    const palavras = (caixa.current?.innerText ?? "").split(/\s+/).filter(Boolean).length;
+    tempo.current = Math.max(duracao, SEGUNDOS, Math.min(20, 4 + palavras / 3.5));
+    caixa.current?.style.setProperty("--retro-tempo", `${tempo.current}s`);
+  }, [i, duracao]);
   useEffect(() => {
     if (pausado || i >= ultimo) return;
-    const t = setTimeout(() => ir(1), duracao * 1000);
+    const t = setTimeout(() => ir(1), tempo.current * 1000);
     return () => clearTimeout(t);
   }, [i, pausado, ultimo, ir, duracao]);
 
@@ -438,6 +448,8 @@ export function Historias({
 
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
+      // digitando num campo (ex.: pesquisa obrigatória por cima): o espaço e as setas são do campo
+      if (teclaEmCampoDeTexto(e.target as HTMLElement | null)) return;
       if (e.key === "ArrowRight") ir(1);
       else if (e.key === "ArrowLeft") ir(-1);
       else if (e.key === "Escape") onFechar();
@@ -495,7 +507,7 @@ export function Historias({
                     k < i
                       ? { width: "100%" }
                       : k === i
-                        ? { width: "100%", animation: `retro-barra ${duracao}s linear forwards`, animationPlayState: pausado || i === ultimo ? "paused" : "running" }
+                        ? { width: "100%", animation: `retro-barra var(--retro-tempo, ${duracao}s) linear forwards`, animationPlayState: pausado || i === ultimo ? "paused" : "running" }
                         : { width: 0 }
                   }
                   key={k === i ? `ativo-${i}` : k}
@@ -544,6 +556,8 @@ export function ConviteRetrospectiva({ mes, mesAtual, chave, equipe, abrir }: { 
   const { ler, marcar } = useLocal(chave);
   const [dados, setDados] = useState<Retrospectiva | null>(null);
   const [estado, setEstado] = useState<"fechado" | "carregando" | "aberto" | "vazio">("fechado");
+  // já viu (ou dispensou)? então vira uma faixa fina; lido depois de montar, para não divergir do servidor
+  const [visto, setVisto] = useState(false);
 
   const carregar = useCallback(() => {
     setEstado("carregando");
@@ -559,15 +573,55 @@ export function ConviteRetrospectiva({ mes, mesAtual, chave, equipe, abrir }: { 
   useEffect(() => {
     if (auto.current) return;
     auto.current = true;
-    if (abrir || !ler()) void Promise.resolve().then(carregar);
+    if (!abrir && ler()) {
+      void Promise.resolve().then(() => setVisto(true));
+      return;
+    }
+    // a pesquisa obrigatória vem primeiro: a retrospectiva só abre sozinha depois que ela fecha
+    const pesquisaAberta = () => !!document.querySelector("[data-formulario-raiz]");
+    if (!pesquisaAberta()) {
+      void Promise.resolve().then(carregar);
+      return;
+    }
+    const obs = new MutationObserver(() => {
+      if (pesquisaAberta()) return;
+      obs.disconnect();
+      carregar();
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+    return () => obs.disconnect();
   }, [abrir, ler, carregar]);
 
   const fechar = useCallback(() => {
     marcar();
+    setVisto(true);
     setEstado("fechado");
   }, [marcar]);
 
   if (estado === "vazio") return null;
+  const historias = estado === "aberto" && dados && (
+    <Historias slides={montarSlides(dados, fechar)} titulo={`Retrospectiva de ${dados.mes}`} rotulo={dados.mes} onFechar={fechar} />
+  );
+  if (visto)
+    return (
+      <>
+        <button
+          type="button"
+          onClick={carregar}
+          disabled={estado === "carregando"}
+          className="flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+          data-tour="retrospectiva"
+        >
+          <Sparkles className="size-4 shrink-0 text-primary" />
+          <span className="min-w-0 flex-1 truncate">
+            {equipe ? `Retrospectiva de ${mes} da equipe` : `Sua retrospectiva de ${mes}`}
+            <span className="text-muted-foreground"> · até o fim de {mesAtual}</span>
+          </span>
+          <span className="shrink-0 font-medium text-primary">{estado === "carregando" ? "Preparando…" : "Ver de novo"}</span>
+        </button>
+        {historias}
+      </>
+    );
   return (
     <>
       <div className="flex flex-col gap-3 rounded-xl bg-gradient-to-r from-[#1c5cab] via-[#4338ca] to-[#7c3aed] p-4 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between" data-tour="retrospectiva">
@@ -578,11 +632,16 @@ export function ConviteRetrospectiva({ mes, mesAtual, chave, equipe, abrir }: { 
             <div className="text-sm text-white/80">Fica disponível até o fim de {mesAtual}.</div>
           </div>
         </div>
-        <Button variant="secondary" onClick={carregar} disabled={estado === "carregando"}>
-          {estado === "carregando" ? "Preparando…" : "Ver retrospectiva"}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" className="text-white hover:bg-white/15 hover:text-white" onClick={fechar}>
+            Agora não
+          </Button>
+          <Button variant="secondary" onClick={carregar} disabled={estado === "carregando"}>
+            {estado === "carregando" ? "Preparando…" : "Ver retrospectiva"}
+          </Button>
+        </div>
       </div>
-      {estado === "aberto" && dados && <Historias slides={montarSlides(dados, fechar)} titulo={`Retrospectiva de ${dados.mes}`} rotulo={dados.mes} onFechar={fechar} />}
+      {historias}
     </>
   );
 }

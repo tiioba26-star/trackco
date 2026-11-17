@@ -15,6 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { competenciaDe, inicioCompetencia } from "@/engine/datas";
 import { type DadosFormulario, nomeRodada, type Pergunta, proximaAbertura, rodadaAtual, ROTULO_TIPO, type TipoPergunta } from "@/lib/formularios";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
+import { useAvisoAoSair } from "@/hooks/use-aviso-sair";
 import { salvarFormulario } from "./actions";
 import { Campo } from "@/components/ui/campo";
 
@@ -39,6 +41,12 @@ export function EditorFormulario({
   const [f, setF] = useState(inicial);
   const [pedirAgora, setPedirAgora] = useState(false);
   const [salvando, iniciar] = useTransition();
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
+  const foto = JSON.stringify({ f, pedirAgora });
+  const [salvoComo] = useState(foto);
+  const sujo = foto !== salvoComo && !leitura;
+  useAvisoAoSair(sujo && !salvando);
   const mudar = <K extends keyof Inicial>(k: K, v: Inicial[K]) => setF((x) => ({ ...x, [k]: v }));
   const mudarPergunta = (i: number, p: Partial<Pergunta>) => mudar("perguntas", f.perguntas.map((q, k) => (k === i ? { ...q, ...p } : q)));
   const mover = (i: number, d: -1 | 1) => {
@@ -94,7 +102,7 @@ export function EditorFormulario({
           <CardContent className="space-y-3">
             {f.modelo === "sus" && (
               <p className="rounded-lg bg-primary-soft px-3 py-2 text-xs">
-                Este formulário calcula a <b>nota SUS</b> (0 a 100) com as 10 primeiras perguntas de 1 a 5, na ordem. Pode reescrever as frases, mas mantenha o
+                Este formulário calcula a <b>nota de facilidade de uso (SUS)</b> (0 a 100) com as 10 primeiras perguntas de 1 a 5, na ordem. Pode reescrever as frases, mas mantenha o
                 sentido e a ordem (as ímpares são positivas, as pares negativas). Perguntas extras podem vir depois da 10ª.
               </p>
             )}
@@ -140,7 +148,19 @@ export function EditorFormulario({
                       size="sm"
                       variant="ghost"
                       className="ml-auto text-destructive"
-                      onClick={() => mudar("perguntas", f.perguntas.filter((_, k) => k !== i))}
+                      onClick={async () => {
+                        if (
+                          temRespostas &&
+                          !(await confirmar({
+                            titulo: "Tirar esta pergunta?",
+                            texto: "Este formulário já tem respostas. As respostas antigas desta pergunta deixam de aparecer nos resultados.",
+                            confirmar: "Tirar pergunta",
+                            perigo: true,
+                          }))
+                        )
+                          return;
+                        mudar("perguntas", f.perguntas.filter((_, k) => k !== i));
+                      }}
                       disabled={f.perguntas.length === 1}
                     >
                       <Trash2 className="size-3.5" /> Tirar
@@ -290,7 +310,7 @@ export function EditorFormulario({
             </label>
             <label className="flex items-start justify-between gap-3 text-sm">
               <span>
-                Calcular nota SUS
+                Calcular a nota de facilidade de uso (SUS)
                 <span className="block text-xs text-muted-foreground">Só para o questionário de facilidade de uso (10 frases de 1 a 5).</span>
               </span>
               <Switch checked={f.modelo === "sus"} onCheckedChange={(v) => mudar("modelo", v ? "sus" : null)} />
@@ -303,13 +323,26 @@ export function EditorFormulario({
               <Switch checked={f.ativo} onCheckedChange={(v) => mudar("ativo", v)} />
             </label>
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={salvar} disabled={salvando}>
+              <Button className="flex-1" onClick={salvar} disabled={salvando || leitura}>
                 {salvando ? "Salvando…" : "Salvar"}
               </Button>
-              <Button variant="outline" onClick={() => {
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (
+                    sujo &&
+                    !(await confirmar({
+                      titulo: "Sair sem salvar?",
+                      texto: "As alterações deste formulário ainda não foram salvas e vão se perder.",
+                      confirmar: "Sair sem salvar",
+                      perigo: true,
+                    }))
+                  )
+                    return;
                   avisarNavegacao();
                   router.push("/formularios");
-                }}>
+                }}
+              >
                 Cancelar
               </Button>
             </div>

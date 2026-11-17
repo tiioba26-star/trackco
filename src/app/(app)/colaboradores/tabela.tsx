@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { useConfirmar } from "@/components/app/confirmacao";
 import { NivelBadge } from "@/components/app/blocos";
 import { FormAcao } from "@/components/app/form-acao";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export interface LinhaColab {
   aniversario: string | null;
   /** AAAA-MM-DD; null quando a migração de aniversários não foi aplicada */
   nascimento: string | null;
-  /** marcações no Klingo nos últimos 90 dias (para quem está só no Klingo) */
+  /** agendamentos no Klingo nos últimos 90 dias (para quem está só no Klingo) */
   marcacoes90: number;
 }
 
@@ -55,6 +56,7 @@ function sugerirUsuario(base: string): string {
 /** Todo mundo numa tabela só: quem está no Trackco e quem está só no Klingo. O botão deslizante liga o acesso ao sistema. */
 export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: LinhaColab[]; podeAlterar: boolean; meuId: string }) {
   const router = useRouter();
+  const confirmar = useConfirmar();
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [busca, setBusca] = useState("");
   const [criar, setCriar] = useState<LinhaColab | null>(null);
@@ -79,9 +81,19 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
     });
   }, [linhas, filtro, busca]);
 
-  const alternar = (l: LinhaColab, ligar: boolean) => {
+  const alternar = async (l: LinhaColab, ligar: boolean) => {
     if (ligar && !l.temLogin) return setCriar(l); // ainda sem usuário e senha: cria o acesso
     if (!l.id) return;
+    if (
+      !ligar &&
+      !(await confirmar({
+        titulo: `Tirar o acesso de ${l.nome}?`,
+        texto: "A pessoa deixa de entrar no Trackco na hora. Os números dela continuam sendo contados e você pode devolver o acesso quando quiser.",
+        confirmar: "Tirar acesso",
+        perigo: true,
+      }))
+    )
+      return;
     iniciar(async () => {
       const r = await definirAcesso(l.id!, ligar);
       if (r.ok) {
@@ -143,7 +155,7 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
                   <div className="font-medium">{l.nome}</div>
                   {!l.id && (
                     <div className="text-xs text-muted-foreground">
-                      Só no Klingo{l.marcacoes90 ? ` · ${l.marcacoes90} marcação(ões) em 90 dias` : " · sem marcações recentes"}
+                      Só no Klingo{l.marcacoes90 ? ` · ${l.marcacoes90} agendamento(s) em 90 dias` : " · sem agendamentos recentes"}
                     </div>
                   )}
                   {!l.ativo && <div className="text-xs text-muted-foreground">Saiu da clínica</div>}
@@ -164,7 +176,7 @@ export function TabelaColaboradores({ linhas, podeAlterar, meuId }: { linhas: Li
                     <Switch
                       checked={l.acesso}
                       disabled={!podeAlterar || pendente || (l.id === meuId && l.acesso)}
-                      onCheckedChange={(v) => alternar(l, v)}
+                      onCheckedChange={(v) => void alternar(l, v)}
                       aria-label={l.acesso ? `Tirar o acesso de ${l.nome}` : `Dar acesso a ${l.nome}`}
                       title={l.acesso ? "Pode entrar no Trackco" : l.temLogin ? "Acesso desligado" : "Sem usuário e senha"}
                     />

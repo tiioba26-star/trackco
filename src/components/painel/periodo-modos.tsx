@@ -10,15 +10,15 @@ export interface ModoPeriodo {
 }
 
 /**
- * Formas de escolher o período (atalhos, outro mês, datas). No celular mostra uma por vez, com a troca do tipo logo acima;
- * do tamanho sm para cima, todas lado a lado como sempre.
+ * Formas de escolher o período (atalhos, outro mês, datas): uma por vez, em qualquer tela, com a troca do tipo ao lado
+ * (no celular, logo acima). Mostrar as três juntas confundia.
  */
 export function ModosPeriodo({ modos, inicial }: { modos: ModoPeriodo[]; inicial: string }) {
   const [ativo, setAtivo] = useState(modos.some((m) => m.k === inicial) ? inicial : modos[0]?.k);
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       {modos.length > 1 && (
-        <div className="inline-flex rounded-lg border bg-muted/40 p-0.5 sm:hidden" role="tablist" aria-label="Tipo de filtro do período">
+        <div className="inline-flex w-fit shrink-0 rounded-lg border bg-muted/40 p-0.5" role="tablist" aria-label="Tipo de filtro do período">
           {modos.map((m) => (
             <button
               key={m.k}
@@ -36,9 +36,9 @@ export function ModosPeriodo({ modos, inicial }: { modos: ModoPeriodo[]; inicial
           ))}
         </div>
       )}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         {modos.map((m) => (
-          <div key={m.k} className={cn(ativo === m.k ? "flex" : "hidden", "w-full min-w-0 sm:flex sm:w-auto")}>
+          <div key={m.k} role="tabpanel" className={cn(ativo === m.k ? "flex" : "hidden", "w-full min-w-0 sm:w-auto")}>
             {m.conteudo}
           </div>
         ))}

@@ -62,6 +62,6 @@ export function explicarMetrica(d: DefinicaoMetrica): string {
     );
   }
   const cond = condicoes(d);
-  const oQue = d.fonte === "lancamentos" ? "Lançamentos manuais contados" : "Marcações do Klingo contadas";
+  const oQue = d.fonte === "lancamentos" ? "Lançamentos manuais contados" : "Agendamentos do Klingo contados";
   return `${oQue} ${PELA_DATA[d.campo_data] ?? ""}, ${ateQuando(d)}${cond.length ? `, só quando: ${cond.join("; ")}` : ""}.`;
 }

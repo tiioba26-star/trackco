@@ -39,7 +39,7 @@ export interface LinhaOrigem {
 }
 
 
-const PAPEL: Record<string, string> = { realizado: "conta", numerador: "numerador", denominador: "base" };
+const PAPEL: Record<string, string> = { realizado: "conta", numerador: "conta (o que deu certo)", denominador: "conta no total" };
 
 export function LinhasOrigem({
   linhas,
@@ -214,7 +214,12 @@ export function LinhasOrigem({
               agendada por outra pessoa&quot;.
             </DialogDescription>
           </DialogHeader>
-          <Textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={5} placeholder="Descreva a divergência…" />
+          <Textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={5} placeholder="Descreva a divergência…" aria-describedby="contestar-falta" />
+          {texto.trim().length < 5 && (
+            <p id="contestar-falta" className="text-xs text-muted-foreground">
+              Escreva pelo menos 5 letras para poder enviar.
+            </p>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setContestar(null)}>
               Cancelar

@@ -4,7 +4,6 @@ import { CabecalhoPagina, NivelBadge } from "@/components/app/blocos";
 import { GraficoMensal } from "@/components/graficos/mensal";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { competenciaAnterior, competenciaDe, hojeNoFuso, nomeCompetencia } from "@/engine/datas";
@@ -14,6 +13,7 @@ import { competenciaValida, fmtNum, fmtPct, fmtValor } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { ROTULO_SITUACAO } from "@/lib/situacao";
 import { Campo } from "@/components/ui/campo";
+import { PeriodoMeses } from "@/components/app/periodo-meses";
 
 export const metadata = { title: "Relatórios" };
 
@@ -23,7 +23,7 @@ function ListaQuebra({ titulo, dados }: { titulo: string; dados: Quebra[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">{titulo}</CardTitle>
-        <CardDescription>Agendados no período · % que virou consulta</CardDescription>
+        <CardDescription>Agendados no período · % realizados (realizados ÷ agendados, inclusive os que ainda vão acontecer)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2.5">
         {dados.slice(0, 10).map((d) => (
@@ -85,6 +85,12 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
   const indicadores = Array.from(
     new Map(membros.flatMap((l) => l.resultado.indicadores).filter((i) => i.unidade !== "%").map((i) => [i.metrica_id, i.nome])),
   );
+  // R$ e quantidade não dividem o mesmo eixo: um gráfico por unidade
+  const unidadeDe = new Map(membros.flatMap((l) => l.resultado.indicadores).map((i) => [i.metrica_id, i.unidade]));
+  const porUnidade = Array.from(new Set(indicadores.map(([m]) => unidadeDe.get(m) ?? "un"))).map((u) => ({
+    unidade: u,
+    series: indicadores.filter(([m]) => (unidadeDe.get(m) ?? "un") === u).map(([chave, rotulo]) => ({ chave, rotulo })),
+  }));
   const serieMensal = meses.map((m) => {
     const ponto: Record<string, string | number> = { mes: nomeCompetencia(m, true) };
     for (const [metrica] of indicadores) {
@@ -115,13 +121,8 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
       />
       <Card data-tour="rel-filtros">
         <CardContent>
-          <Form className="grid items-end gap-x-3 gap-y-5 md:grid-cols-[1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
-            <Campo rotulo="De">
-              <Input type="month" name="de" defaultValue={de} />
-            </Campo>
-            <Campo rotulo="Até">
-              <Input type="month" name="ate" defaultValue={ate} max={atual} />
-            </Campo>
+          <Form className="grid items-start gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr_1.3fr_auto]" action="/relatorios">
+            <PeriodoMeses key={`${de}|${ate}`} de={de} ate={ate} atual={atual} id="rel" />
             <Campo rotulo="Equipe">
               <NativeSelect name="equipe" defaultValue={equipeId}>
                 {equipes.map((e) => (
@@ -151,10 +152,17 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
       <Card data-tour="rel-evolucao">
         <CardHeader>
           <CardTitle>Realizado por mês</CardTitle>
-          <CardDescription>Soma dos membros {colaboradorId ? "(pessoa selecionada)" : "da equipe"}.</CardDescription>
+          <CardDescription>
+            Soma dos membros {colaboradorId ? "(pessoa selecionada)" : "da equipe"}, de {nomeCompetencia(de)} a {nomeCompetencia(ate)}.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <GraficoMensal dados={serieMensal} series={indicadores.map(([chave, rotulo]) => ({ chave, rotulo }))} />
+        <CardContent className="space-y-6">
+          {porUnidade.map((g) => (
+            <div key={g.unidade} className="space-y-2">
+              {porUnidade.length > 1 && <div className="text-sm font-medium">{g.unidade === "R$" ? "Em R$" : "Em quantidade"}</div>}
+              <GraficoMensal dados={serieMensal} series={g.series} dinheiro={g.unidade === "R$"} />
+            </div>
+          ))}
         </CardContent>
       </Card>
 

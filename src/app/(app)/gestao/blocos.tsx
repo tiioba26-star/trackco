@@ -2,10 +2,18 @@ import { AlertTriangle, Download, TrendingDown, TrendingUp } from "lucide-react"
 import { Dica } from "@/components/ajuda/dica";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { BaseGestao } from "@/engine/periodos-gestao";
+import { textoDatas } from "@/engine/periodos";
 import { fmtNum, fmtValor } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
 export const real = (v: number | null | undefined) => fmtValor(v ?? null, "R$");
+
+/** "outubro (01/10 a 17/10)": com o que a variação está sendo comparada, sempre com as datas. */
+export function textoBase(base: BaseGestao | null | undefined): string | undefined {
+  if (!base) return undefined;
+  return base.nome.includes("(") ? base.nome : `${base.nome} (${textoDatas(base.inicio, base.fim)})`;
+}
 
 /** ▲▼ contra a base de comparação. Em pontos percentuais quando o número já é %. */
 /** `inverso`: subir é ruim (ex.: faltas), então sobe em vermelho. */
@@ -29,11 +37,13 @@ export function Delta({
   const sobe = d > 0;
   const Icone = sobe ? TrendingUp : TrendingDown;
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs whitespace-nowrap", sobe !== inverso ? "text-up" : "text-down")}>
-      <Icone className="size-3.5" />
-      {sobe ? "+" : "−"}
-      {fmtNum(Math.abs(d), 1)}
-      {pp ? " p.p." : "%"}
+    <span className={cn("inline-flex flex-wrap items-center gap-x-1 text-xs", sobe !== inverso ? "text-up" : "text-down")}>
+      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+        <Icone className="size-3.5" />
+        {sobe ? "+" : "−"}
+        {fmtNum(Math.abs(d), 1)}
+        {pp ? " pontos" : "%"}
+      </span>
       {nome && <span className="text-muted-foreground">vs {nome}</span>}
     </span>
   );
@@ -103,7 +113,11 @@ export function ErroGestao({ erro }: { erro: Error }) {
         <AlertTriangle className="mt-0.5 size-5 shrink-0 text-down" />
         <div className="space-y-1">
           <p className="font-medium">Não deu para carregar esta parte.</p>
-          <p className="text-muted-foreground">{erro.message}</p>
+          <p className="text-muted-foreground">Tente recarregar a página. Se continuar, avise o administrador.</p>
+          <details className="text-xs text-muted-foreground [&_summary]:cursor-pointer">
+            <summary>Detalhes técnicos</summary>
+            {erro.message}
+          </details>
         </div>
       </CardContent>
     </Card>

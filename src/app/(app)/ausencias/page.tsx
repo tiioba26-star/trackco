@@ -45,9 +45,12 @@ export default async function PaginaAusencias() {
         descricao="Férias, atestados e folgas reduzem a meta proporcionalmente aos dias úteis trabalhados. Lançadas pelo admin ou pelo líder da equipe."
       />
       <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
-        <Card>
+        <Card className="order-2 xl:order-1">
           <CardHeader>
-            <CardTitle>Últimos 4 meses</CardTitle>
+            <CardTitle>Ausências recentes</CardTitle>
+            <CardDescription>
+              Que terminam de {formatarDataBR(desde)} em diante (últimos 4 meses). A meta usa só os dias úteis dentro de cada ausência.
+            </CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <Table>
@@ -95,7 +98,8 @@ export default async function PaginaAusencias() {
             </Table>
           </CardContent>
         </Card>
-        <Card className="h-fit" data-tour="aus-form">
+        {/* no celular o formulário vem antes da lista: é o que a pessoa veio fazer */}
+        <Card className="order-1 h-fit xl:order-2" data-tour="aus-form">
           <CardHeader>
             <CardTitle>Lançar ausência</CardTitle>
             <CardDescription>Ex.: 22 dias úteis no mês e 5 de férias → meta × 17/22.</CardDescription>

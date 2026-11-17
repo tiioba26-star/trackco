@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Copy, ExternalLink, Eye, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, Ellipsis, ExternalLink, Eye, Gamepad2, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState, useTransition } from "react";
@@ -14,6 +14,7 @@ import { Pilula } from "@/components/ui/pilula";
 import { Textarea } from "@/components/ui/textarea";
 import { PERIODOS_RAPIDOS, type PeriodoRapido } from "@/engine/periodos";
 import { BLOCOS_TV, type ConfigTv, normalizarConfig, segundosDoBloco } from "@/lib/tv-config";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
 import { FormAcao } from "@/components/app/form-acao";
 import { atualizarPainel, criarPainel, excluirPainel, guardarLinkAtual, regenerarToken, verLinkPainel } from "./actions";
 import { Campo } from "@/components/ui/campo";
@@ -103,11 +104,71 @@ function ListaModos({ config }: { config?: ConfigTv }) {
   );
 }
 
+/** Campos do painel, iguais ao criar e ao editar (antes eram dois formulários diferentes). */
+function CamposPainel({ equipes, painel }: { equipes: { id: string; nome: string }[]; painel?: { nome: string; equipes: string[]; config: ConfigTv } }) {
+  const [mostrarTextos, setMostrarTextos] = useState(false);
+  const cfg = painel?.config;
+  const linhas = (v?: string[]) => (v ?? []).join("\n");
+  const textos: { name: string; rotulo: string; valor: string; exemplo: string; linhas: number }[] = [
+    { name: "frases_rodape", rotulo: "Frases do rodapé", valor: linhas(cfg?.frases_rodape), exemplo: "Grandes conquistas começam com uma equipe unida.\nCada agendamento aproxima a nossa equipe da superação.", linhas: 3 },
+    { name: "subtitulos", rotulo: "Subtítulos do topo", valor: linhas(cfg?.subtitulos), exemplo: "Ritmo contínuo, consistência e excelência em cada atendimento", linhas: 2 },
+    { name: "msg_meta_batida", rotulo: "Na barra, quando bate a meta", valor: linhas(cfg?.mensagens_barra?.meta_batida), exemplo: "Meta batida! 🎯\nExcelente resultado! ⭐", linhas: 2 },
+    { name: "msg_quase_la", rotulo: "Na barra, quando falta pouco", valor: linhas(cfg?.mensagens_barra?.quase_la), exemplo: "Falta pouco! 🔥\nNa reta final!", linhas: 2 },
+    { name: "msg_evoluindo", rotulo: "Na barra, para incentivar", valor: linhas(cfg?.mensagens_barra?.evoluindo), exemplo: "Vamos lá! 💪\nEstamos evoluindo!", linhas: 2 },
+  ];
+  return (
+    <>
+      <Campo rotulo="Nome do painel">
+        <Input name="nome" defaultValue={painel?.nome} placeholder="TV da recepção comercial" required />
+      </Campo>
+      <Campo rotulo="Equipes">
+        {equipes.map((e) => (
+          <label key={e.id} className="flex items-center gap-2 text-sm">
+            <Checkbox name="equipes" value={e.id} defaultChecked={painel ? painel.equipes.includes(e.id) : equipes.length === 1} /> {e.nome}
+          </label>
+        ))}
+      </Campo>
+      <ListaModos config={cfg} />
+      <div className="grid grid-cols-2 gap-x-2 gap-y-5">
+        <Campo
+          rotulo="😊 a partir de (% da meta)"
+          dicaTexto="Quem chega a esta % da meta ganha a carinha feliz. Abaixo dela a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos."
+        >
+          <Input type="number" name="feliz" min={0} max={300} defaultValue={cfg?.limites?.feliz ?? 80} />
+        </Campo>
+        <Campo rotulo="🤩 a partir de (% da meta)" dicaTexto="Quem chega a esta % da meta ganha a carinha de festa.">
+          <Input type="number" name="mega_feliz" min={0} max={300} defaultValue={cfg?.limites?.mega_feliz ?? 100} />
+        </Campo>
+      </div>
+      <div className="border-t pt-3">
+        <button
+          type="button"
+          onClick={() => setMostrarTextos((v) => !v)}
+          aria-expanded={mostrarTextos}
+          className="flex w-full items-center justify-between text-sm font-semibold text-primary hover:underline"
+        >
+          <span>Textos que aparecem na TV (opcional)</span>
+          {mostrarTextos ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+        </button>
+        {/* recolhido, mas sempre no formulário: se sumisse, salvar apagaria os textos personalizados */}
+        <div hidden={!mostrarTextos} className="mt-3 space-y-5 rounded-lg border bg-muted/40 p-3">
+          <p className="text-xs text-muted-foreground">Um texto por linha; eles se alternam na TV. Vazio = textos padrão.</p>
+          {textos.map((t) => (
+            <Campo key={t.name} rotulo={t.rotulo}>
+              <Textarea name={t.name} rows={t.linhas} className="font-sans text-xs" defaultValue={t.valor} placeholder={t.exemplo} />
+            </Campo>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[] }) {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
-  const [mostrarTextos, setMostrarTextos] = useState(false);
+  const leitura = useSomenteLeitura();
 
   return (
     <>
@@ -124,83 +185,9 @@ export function NovoPainel({ equipes }: { equipes: { id: string; nome: string }[
           })
         }
       >
-        <Campo rotulo="Nome do Painel">
-          <Input name="nome" placeholder="TV da recepção comercial" required />
-        </Campo>
-        <Campo rotulo="Equipes">
-          {equipes.map((e) => (
-            <label key={e.id} className="flex items-center gap-2 text-sm">
-              <Checkbox name="equipes" value={e.id} defaultChecked={equipes.length === 1} /> {e.nome}
-            </label>
-          ))}
-        </Campo>
-        <ListaModos />
-        <div className="grid grid-cols-2 gap-x-2 gap-y-5">
-          <Campo rotulo="😊 a partir de" dicaTexto="Abaixo deste limite a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos.">
-            <Input type="number" name="feliz" defaultValue={80} />
-          </Campo>
-          <Campo rotulo="🤩 a partir de">
-            <Input type="number" name="mega_feliz" defaultValue={100} />
-          </Campo>
-        </div>
+        <CamposPainel equipes={equipes} />
 
-        {/* Seção retrátil para personalizar textos da TV */}
-        <div className="border-t pt-3">
-          <button
-            type="button"
-            onClick={() => setMostrarTextos((prev) => !prev)}
-            className="flex w-full items-center justify-between text-xs font-semibold text-primary hover:underline"
-          >
-            <span>Personalizar Frases e Textos da TV</span>
-            {mostrarTextos ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-          </button>
-
-          {mostrarTextos && (
-            <div className="mt-3 space-y-3 rounded-lg border bg-muted/40 p-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Frases do Rodapé (uma por linha)</Label>
-                <Textarea
-                  name="frases_rodape"
-                  rows={3}
-                  className="text-xs font-sans"
-                  placeholder="Grandes conquistas começam com uma equipe unida.&#10;Cada agendamento aproxima a nossa equipe da superação."
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Subtítulos do Topo (um por linha)</Label>
-                <Textarea
-                  name="subtitulos"
-                  rows={2}
-                  className="text-xs font-sans"
-                  placeholder="Ritmo contínuo, consistência e excelência em cada atendimento&#10;Evolução diária da equipe rumo à superação de metas"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Mensagens de Meta Batida (uma por linha)</Label>
-                <Textarea
-                  name="msg_meta_batida"
-                  rows={2}
-                  className="text-xs font-sans"
-                  placeholder="Meta batida! 🎯&#10;Excelente resultado! ⭐"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Mensagens de Incentivo / Vamos lá (uma por linha)</Label>
-                <Textarea
-                  name="msg_evoluindo"
-                  rows={2}
-                  className="text-xs font-sans"
-                  placeholder="Vamos lá! 💪&#10;Estamos evoluindo!&#10;Seguimos crescendo!"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <Button type="submit" className="w-full" disabled={pendente}>
+        <Button type="submit" className="w-full" disabled={pendente || leitura}>
           Criar painel e gerar link
         </Button>
       </form>
@@ -224,22 +211,34 @@ export function EditarPainel({
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
   const [pendente, iniciar] = useTransition();
+  const [sujo, setSujo] = useState(false);
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
 
-  const cfg = painel.config;
+  // fechar o diálogo com alterações perde tudo: pergunta antes
+  async function mudarAberto(o: boolean) {
+    if (o) setSujo(false);
+    else if (sujo && !pendente) {
+      const sair = await confirmar({
+        titulo: "Fechar sem salvar?",
+        texto: "As alterações deste painel ainda não foram salvas e vão se perder.",
+        confirmar: "Fechar sem salvar",
+        perigo: true,
+      });
+      if (!sair) return;
+    }
+    setAberto(o);
+  }
 
-  const frasesRodapeTexto = (cfg.frases_rodape ?? []).join("\n");
-  const subtitulosTexto = (cfg.subtitulos ?? []).join("\n");
-  const msgMetaBatida = (cfg.mensagens_barra?.meta_batida ?? []).join("\n");
-  const msgQuaseLa = (cfg.mensagens_barra?.quase_la ?? []).join("\n");
-  const msgEvoluindo = (cfg.mensagens_barra?.evoluindo ?? []).join("\n");
+
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setAberto(true)}>
+      <Button variant="outline" size="sm" onClick={() => void mudarAberto(true)} disabled={leitura}>
         <Pencil className="size-3.5" /> Editar
       </Button>
 
-      <Dialog open={aberto} onOpenChange={setAberto}>
+      <Dialog open={aberto} onOpenChange={(o) => void mudarAberto(o)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Editar Painel de TV</DialogTitle>
@@ -250,11 +249,17 @@ export function EditarPainel({
 
           <form
             className="space-y-4"
+            onChange={() => setSujo(true)}
+            onClickCapture={(e) => {
+              // caixas de marcar do kit não disparam "change" no formulário
+              if ((e.target as Element).closest("[role=checkbox],[role=switch]")) setSujo(true);
+            }}
             action={(fd) =>
               iniciar(async () => {
                 const r = await atualizarPainel(painel.id, fd);
                 if (r.ok) {
                   toast.success(r.mensagem ?? "Painel atualizado!");
+                  setSujo(false);
                   setAberto(false);
                   router.refresh();
                 } else {
@@ -263,92 +268,10 @@ export function EditarPainel({
               })
             }
           >
-            <Campo rotulo="Nome do Painel">
-              <Input name="nome" defaultValue={painel.nome} required />
-            </Campo>
-
-            <Campo rotulo="Equipes">
-              {equipes.map((e) => (
-                <label key={e.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox name="equipes" value={e.id} defaultChecked={painel.equipes.includes(e.id)} />
-                  {e.nome}
-                </label>
-              ))}
-            </Campo>
-
-            <ListaModos config={painel.config} />
-
-            <div className="grid grid-cols-2 gap-x-2 gap-y-5">
-              <Campo rotulo="😊 a partir de" dicaTexto="Abaixo deste limite a carinha fica neutra. Nunca aparece carinha triste, nome, foto, iniciais, valores de comissão ou pontos.">
-                <Input type="number" name="feliz" defaultValue={cfg.limites?.feliz ?? 80} />
-              </Campo>
-              <Campo rotulo="🤩 a partir de">
-                <Input type="number" name="mega_feliz" defaultValue={cfg.limites?.mega_feliz ?? 100} />
-              </Campo>
-            </div>
-
-            {/* Configuração de Textos da TV */}
-            <div className="space-y-3 rounded-lg border bg-muted/30 p-3.5">
-              <div className="text-xs font-semibold text-primary">Textos Personalizados da TV</div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Frases do Rodapé (uma por linha)</Label>
-                <Textarea
-                  name="frases_rodape"
-                  rows={3}
-                  className="text-xs font-sans"
-                  defaultValue={frasesRodapeTexto}
-                  placeholder="Grandes conquistas começam com uma equipe unida.&#10;Cada agendamento aproxima a nossa equipe da superação."
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Subtítulos do Topo (um por linha)</Label>
-                <Textarea
-                  name="subtitulos"
-                  rows={2}
-                  className="text-xs font-sans"
-                  defaultValue={subtitulosTexto}
-                  placeholder="Ritmo contínuo, consistência e excelência em cada atendimento&#10;Evolução diária da equipe rumo à superação de metas"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Mensagens de Meta Batida (uma por linha)</Label>
-                <Textarea
-                  name="msg_meta_batida"
-                  rows={2}
-                  className="text-xs font-sans"
-                  defaultValue={msgMetaBatida}
-                  placeholder="Meta batida! 🎯&#10;Excelente resultado! ⭐"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Mensagens de Quase Lá / Falta Pouco (uma por linha)</Label>
-                <Textarea
-                  name="msg_quase_la"
-                  rows={2}
-                  className="text-xs font-sans"
-                  defaultValue={msgQuaseLa}
-                  placeholder="Falta pouco! 🔥&#10;Na reta final!"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs">Mensagens de Incentivo / Vamos lá (uma por linha)</Label>
-                <Textarea
-                  name="msg_evoluindo"
-                  rows={2}
-                  className="text-xs font-sans"
-                  defaultValue={msgEvoluindo}
-                  placeholder="Vamos lá! 💪&#10;Estamos evoluindo!&#10;Seguimos crescendo!"
-                />
-              </div>
-            </div>
+            <CamposPainel equipes={equipes} painel={painel} />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setAberto(false)}>
+              <Button type="button" variant="outline" onClick={() => void mudarAberto(false)}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={pendente}>
@@ -466,14 +389,24 @@ export function VerLink({ id }: { id: string }) {
 export function RegenerarLink({ id }: { id: string }) {
   const [token, setToken] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
   return (
     <>
       <Button
         variant="outline"
         size="sm"
-        disabled={pendente}
-        onClick={() => {
-          if (!confirm("Gerar um novo link? O link atual deixa de funcionar.")) return;
+        disabled={pendente || leitura}
+        onClick={async () => {
+          if (
+            !(await confirmar({
+              titulo: "Gerar um novo link?",
+              texto: "O link atual deixa de funcionar: a TV que usa ele precisa receber o novo.",
+              confirmar: "Gerar novo link",
+              perigo: true,
+            }))
+          )
+            return;
           iniciar(async () => {
             const r = await regenerarToken(id);
             if (r.ok && r.token) setToken(r.token);
@@ -507,5 +440,21 @@ export function BotaoControle({ id }: { id: string }) {
     >
       <Gamepad2 className="size-4" /> Controle remoto
     </Button>
+  );
+}
+
+/**
+ * "Mais": as ações menos usadas de cada painel (ver link, novo link, ativar/desativar, excluir) abrem na própria linha.
+ * Não é um menu flutuante porque as caixas de "Ver link" e "Excluir" vivem dentro desses botões.
+ */
+export function MaisAcoes({ children }: { children: React.ReactNode }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <>
+      <Button variant="ghost" size="sm" onClick={() => setAberto((v) => !v)} aria-expanded={aberto}>
+        <Ellipsis className="size-3.5" /> {aberto ? "Menos" : "Mais"}
+      </Button>
+      {aberto && <div className="flex w-full flex-wrap items-center gap-2 border-t pt-2 md:w-auto md:border-t-0 md:pt-0">{children}</div>}
+    </>
   );
 }

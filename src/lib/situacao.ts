@@ -1,4 +1,4 @@
-// Situação de uma marcação do Klingo (por que a consulta aconteceu ou não).
+// Situação de um agendamento do Klingo (por que a consulta aconteceu ou não).
 // "conta" = entra na base da taxa de comparecimento.
 export const ROTULO_SITUACAO: Record<string, { t: string; c: string; conta: boolean }> = {
   realizada: { t: "Realizada", c: "text-up", conta: true },

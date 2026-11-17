@@ -44,7 +44,7 @@ export function GraficoEmpilhado({
       <BarChart data={dados} margin={{ left: 4, right: 8, top: 8 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="ponto" tickLine={false} axisLine={false} tickMargin={8} minTickGap={10} />
-        <YAxis tickLine={false} axisLine={false} width={dinheiro ? 56 : 40} tickFormatter={(v: number) => (dinheiro ? curto(v) : String(v))} />
+        <YAxis tickLine={false} axisLine={false} width={dinheiro ? 72 : 40} tickFormatter={(v: number) => (dinheiro ? `R$ ${curto(v)}` : String(v))} />
         <ChartTooltip
           content={<ChartTooltipContent formatter={dinheiro ? (v, nome) => <Valor nome={String(config[String(nome)]?.label ?? nome)} v={real(Number(v))} /> : undefined} />}
           cursor={{ fill: "var(--muted)", opacity: 0.5 }}
@@ -67,7 +67,7 @@ function Valor({ nome, v }: { nome: string; v: string }) {
   );
 }
 
-/** Várias linhas ao longo do tempo (ex.: marcações por equipe). */
+/** Várias linhas ao longo do tempo (ex.: agendamentos por equipe). */
 export function GraficoLinhas({ series, pontos, altura = 280 }: { series: string[]; pontos: Record<string, string | number>[]; altura?: number }) {
   const { config, dados } = preparar(series, pontos);
   return (
@@ -132,10 +132,28 @@ export function GraficoDispersao({
   const config: ChartConfig = { pessoas: { label: "Pessoas", color: "var(--chart-1)" } };
   return (
     <ChartContainer config={config} className="w-full" style={{ height: altura }}>
-      <ScatterChart margin={{ left: 4, right: 16, top: 12, bottom: 8 }}>
+      <ScatterChart margin={{ left: 4, right: 16, top: 12, bottom: 24 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" dataKey="x" name="Marcações" tickLine={false} axisLine={false} allowDecimals={false} />
-        <YAxis type="number" dataKey="y" name="Comparecimento" unit="%" domain={[0, 100]} tickLine={false} axisLine={false} width={44} />
+        <XAxis
+          type="number"
+          dataKey="x"
+          name="Agendamentos"
+          tickLine={false}
+          axisLine={false}
+          allowDecimals={false}
+          label={{ value: "Agendamentos no período →", position: "insideBottom", offset: -16, fontSize: 12, fill: "var(--muted-foreground)" }}
+        />
+        <YAxis
+          type="number"
+          dataKey="y"
+          name="Comparecimento"
+          unit="%"
+          domain={[0, 100]}
+          tickLine={false}
+          axisLine={false}
+          width={52}
+          label={{ value: "Comparecimento", angle: -90, position: "insideLeft", offset: 6, fontSize: 12, fill: "var(--muted-foreground)" }}
+        />
         <ZAxis type="number" dataKey="valor" range={[50, 400]} />
         {medianaX !== null && <ReferenceLine x={medianaX} stroke="var(--muted-foreground)" strokeDasharray="4 4" />}
         {medianaY !== null && <ReferenceLine y={medianaY} stroke="var(--muted-foreground)" strokeDasharray="4 4" />}
@@ -147,7 +165,7 @@ export function GraficoDispersao({
             return (
               <div className="rounded-lg border bg-background px-3 py-2 text-xs shadow-md">
                 <div className="mb-1 font-medium">{p.nome}</div>
-                <div>{p.x.toLocaleString("pt-BR")} marcações</div>
+                <div>{p.x.toLocaleString("pt-BR")} agendamentos</div>
                 <div>{p.y.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% de comparecimento</div>
                 <div>{real(p.valor)} gerados</div>
               </div>

@@ -94,7 +94,11 @@ export default async function PaginaColaboradores() {
       />
       {!nasc && (
         <p className="mb-4 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
-          Para guardar os aniversários, falta aplicar no banco a migração <code>20261115000013_trackco_aniversarios.sql</code>.
+          Para guardar os aniversários, falta uma atualização do banco.
+          <details className="mt-1 text-xs [&_summary]:cursor-pointer">
+            <summary>Detalhes técnicos</summary>
+            Aplicar a migração <code>20261115000013_trackco_aniversarios.sql</code> no SQL Editor do Supabase.
+          </details>
         </p>
       )}
       <datalist id="logins-klingo">

@@ -37,7 +37,7 @@ export async function recordesDe(db: Db, s: Sessao, metricas: Metrica[], hoje: s
 }
 
 export interface PacienteConfirmar {
-  /** as marcações do paciente no dia (pode ter mais de um procedimento) */
+  /** os agendamentos do paciente no dia (pode ter mais de um procedimento) */
   chaves: string[];
   paciente: string;
   procedimentos: string[];

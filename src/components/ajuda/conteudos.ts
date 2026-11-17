@@ -20,11 +20,11 @@ export interface Ajuda {
 const GLOSSARIO: Ajuda["glossario"] = [
   {
     termo: "Agendou (válidos)",
-    texto: "O número principal: pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data), sem remarcações, bloqueios da clínica e erros. Cada marcação conta uma vez: a que foi remarcada sai e fica só a nova (dois procedimentos diferentes contam 2). É o que vale no ranking.",
+    texto: "O número principal: pacientes que a pessoa marcou dentro do período, contados pelo DIA EM QUE MARCOU (a consulta pode ser em qualquer data), sem remarcações, bloqueios da clínica e erros. Cada agendamento conta uma vez: a que foi remarcada sai e fica só a nova (dois procedimentos diferentes contam 2). É o que vale no ranking.",
   },
   {
-    termo: "Total marcado e remarques",
-    texto: "Toda remarcação vira uma marcação nova no Klingo. O 'total' conta todas, inclusive remarcações, bloqueios e erros; por isso é maior que 'válidos'. Aparece sempre ao lado, para comparar.",
+    termo: "Total agendado e remarcações",
+    texto: "Toda remarcação vira um agendamento novo no Klingo. O 'total' conta todas, inclusive remarcações, bloqueios e erros; por isso é maior que 'válidos'. Aparece sempre ao lado, para comparar.",
   },
   {
     termo: "Consultas marcadas para o período",
@@ -77,13 +77,13 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "ritmo", titulo: "2. Ritmo da meta", texto: "Quanto já foi feito, onde deveria estar hoje (o tracinho) e quanto falta por dia útil para bater a meta do mês." },
       { alvo: "confirmar", titulo: "Confirmar amanhã", texto: "Os pacientes que você marcou para o próximo dia com consultas. Ligue na véspera e marque quem confirmou: é o que mais evita falta." },
       { alvo: "recordes", titulo: "Seus recordes", texto: "Seu melhor dia, seu melhor mês e seu melhor comparecimento nos últimos 12 meses. Quando estiver perto de bater, aparece quanto falta." },
-      { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que a marcação foi feita, sem remarcações, bloqueios e erros (a remarcada sai, fica só a nova). Embaixo: o total marcado, com as remarcações." },
+      { alvo: "kpi-agendou", titulo: "3. Agendou (válidos)", texto: "Pacientes marcados no período, pelo dia em que o agendamento foi feito, sem remarcações, bloqueios e erros (a remarcada sai, fica só a nova). Embaixo: o total marcado, com as remarcações." },
       { alvo: "kpi-marcadas", titulo: "4. Consultas marcadas para o período", texto: "Agora pela DATA DA CONSULTA: consultas que caem no período. No mês atual inclui as que ainda vão acontecer." },
       { alvo: "kpi-compareceram", titulo: "5. Compareceram", texto: "Dessas consultas, quantos pacientes vieram." },
       { alvo: "kpi-conversao", titulo: "6. Taxa de comparecimento", texto: "Compareceram ÷ marcadas, só em dias que já passaram (o dia de hoje entra amanhã). O ▲▼ compara com o mesmo ponto do período anterior." },
       { alvo: "destino", titulo: "7. O que aconteceu com as consultas", texto: "Cada consulta marcada para o período termina em: compareceu, faltou, desmarcou ou ainda vai acontecer. É onde dá para agir (ex.: confirmar na véspera)." },
       { alvo: "sus", titulo: "SUS", texto: "Só acompanhamento: não conta para meta, nota ou prêmios." },
-      { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantas marcações foram feitas em cada dia: válidos × total. Mostra os dias fortes e fracos e onde as remarcações pesaram." },
+      { alvo: "grafico-agendou", titulo: "8. Agendamentos por dia", texto: "Quantos agendamentos foram feitos em cada dia: válidos × total. Mostra os dias fortes e fracos e onde as remarcações pesaram." },
       { alvo: "grafico-consultas", titulo: "9. Consultas de cada dia", texto: "Pelo dia da consulta: marcadas × compareceram. Barras claras são dias que ainda vão chegar." },
       { alvo: "categoria", titulo: "Particular ou SUS", texto: "Troca todos os números da equipe entre Particular e SUS." },
       { alvo: "tabela-producao", titulo: "10. Produção por pessoa", texto: "Responde: quanto cada uma agendou no período (total), quanto foi remarque, quantos são válidos, quantas consultas estavam marcadas para o período e o que aconteceu com elas. Cada coluna tem o seu ?." },
@@ -93,7 +93,7 @@ export const AJUDA: Record<string, Ajuda> = {
     ],
   },
   "/extrato": {
-    titulo: "Extrato e memorial de cálculo",
+    titulo: "Extrato: como chegamos no seu número",
     resumo: [
       "O extrato é a prova do cálculo: mostra cada indicador, a regra aplicada (com a versão do plano), a meta original e a ajustada (férias, entrada no meio do mês), os ajustes manuais e o resultado.",
       "Abaixo do resumo estão TODAS as linhas do Klingo usadas no cálculo. Assim você confere paciente por paciente.",
@@ -104,9 +104,9 @@ export const AJUDA: Record<string, Ajuda> = {
     ],
     passos: [
       { alvo: "extrato-cabecalho", titulo: "Resumo", texto: "Pessoa, mês, nível e nota geral." },
-      { alvo: "extrato-indicadores", titulo: "Cálculo por indicador", texto: "Realizado, meta, meta ajustada, atingimento e peso de cada indicador." },
-      { alvo: "extrato-memorial", titulo: "Memorial", texto: "O passo a passo do cálculo em texto, com a versão das regras usada." },
-      { alvo: "extrato-linhas", titulo: "Linhas de origem", texto: "Cada agendamento/consulta que entrou na conta. Use o filtro por indicador." },
+      { alvo: "extrato-indicadores", titulo: "Conta de cada indicador", texto: "O que foi feito, os ajustes, a meta do mês, a meta pelos dias disponíveis, o % da meta e o peso de cada indicador." },
+      { alvo: "extrato-memorial", titulo: "Como chegamos neste número", texto: "O passo a passo do cálculo em texto, com a versão das regras usada." },
+      { alvo: "extrato-linhas", titulo: "Agendamentos que entraram na conta", texto: "Cada agendamento/consulta que entrou na conta. Use o filtro por indicador." },
       { alvo: "contestar", titulo: "Contestar", texto: "Abra uma contestação quando algo estiver errado. Ela fica registrada e é respondida pelo líder ou admin." },
     ],
   },
@@ -132,7 +132,7 @@ export const AJUDA: Record<string, Ajuda> = {
     titulo: "Sobre o Trackco",
     resumo: [
       "No topo, para que serve o Trackco e o que ele busca. Logo abaixo, em Como é contado, a página explica cada número do Trackco: de onde vem, em que data conta e o que entra nele.",
-      "A tabela 'O que conta para quê' mostra, para cada situação de uma marcação (realizada, faltou, remarcada…), em quais números ela entra.",
+      "A tabela 'O que conta para quê' mostra, para cada situação de um agendamento (realizada, faltou, remarcada…), em quais números ela entra.",
       "As regras de nota e nível vêm do plano da sua equipe que vale neste mês.",
     ],
     glossario: GLOSSARIO,
@@ -165,13 +165,13 @@ export const AJUDA: Record<string, Ajuda> = {
     titulo: "Gestão",
     resumo: [
       "A visão da administração: a clínica toda e o dinheiro. Só administradores veem esta área e os valores em R$.",
-      "Faturamento vem do relatório 319 do Klingo (pela data do atendimento, sem repasse médico). Marcações vêm do 2331 (pela data em que foram marcadas).",
+      "Faturamento vem do relatório 319 do Klingo (pela data do atendimento, sem repasse médico). Agendamentos vêm do 2331 (pela data em que foram feitos).",
       "Todo número diz de quando é. A comparação usa sempre os mesmos dias: um mês em andamento é comparado com o outro mês até o mesmo dia.",
     ],
     dicas: [
       "Faturamento: total, valor médio, 'por que mudou' (dias × volume × valor médio) e se é sazonal.",
-      "Marcação → R$: de cada 100 marcações, quantas viram consulta e quanto geram; quem marca muito e bem.",
-      "Equipes: todas lado a lado. Quem marca para quem: médicos e procedimentos de cada pessoa.",
+      "Agendamento → R$: de cada 100 agendamentos, quantos viram consulta e quanto geram; quem marca muito e bem.",
+      "Equipes: todas lado a lado. Quem agenda para quem: médicos e procedimentos de cada pessoa.",
       "Perdas: faltas e cancelamentos com o motivo do Klingo, e o mix de operadoras.",
       "Gerar Excel baixa uma planilha com painel, evolução, colaboradores, financeiro e a base pronta para o Power BI (sem nome de paciente).",
       "No fim de cada aba há uma análise comentada pela IA, escrita todo dia às 5h com os mesmos números (Particular ou clínica toda, para cada período pronto e comparação). A aba Análise geral (IA) junta tudo: o que mudou, pessoas em destaque e em atenção, e um plano de ação com as evidências.",
@@ -320,6 +320,14 @@ export const AJUDA: Record<string, Ajuda> = {
       { alvo: "tv-novo", titulo: "Novo painel", texto: "Escolha equipes, tipos de tela, períodos e quanto tempo cada tela fica." },
       { alvo: "tv-controle", titulo: "Controle remoto", texto: "Abra no PC ou no celular para pausar e passar as telas da TV." },
     ],
+  },
+  "/trocar-senha": {
+    titulo: "Trocar senha",
+    resumo: [
+      "Escolha uma senha nova para entrar no Trackco. Ela vale só aqui: não muda a senha do Klingo.",
+      "Se esquecer a senha, peça ao administrador para definir uma nova.",
+    ],
+    passos: [],
   },
   "/auditoria": {
     titulo: "Auditoria",

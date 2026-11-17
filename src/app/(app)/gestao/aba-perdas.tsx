@@ -3,14 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { abaPerdas, filtrosParaUrl, type AbaPerdas as Dados, type FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtNum, fmtPct } from "@/lib/formato";
-import { Baixar, Barrinha, Delta, Kpi, ErroGestao, real } from "./blocos";
+import { Baixar, Barrinha, Delta, Kpi, ErroGestao, real, textoBase } from "./blocos";
 
-function Quebra({ titulo, linhas }: { titulo: string; linhas: Dados["porPessoa"] }) {
+function Quebra({ titulo, linhas, datas }: { titulo: string; linhas: Dados["porPessoa"]; datas: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{titulo}</CardTitle>
-        <CardDescription>Os 15 com mais faltas + cancelamentos.</CardDescription>
+        <CardTitle className="flex items-center gap-1.5 text-base">
+          {titulo}
+          <Dica texto="Faltas: o dia da consulta passou e o paciente não veio. Cancelamentos: desmarcou e não remarcou. Conta pela data da consulta." />
+        </CardTitle>
+        <CardDescription>Os 15 com mais faltas + cancelamentos · consultas marcadas para {datas}.</CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <Table>
@@ -18,7 +21,7 @@ function Quebra({ titulo, linhas }: { titulo: string; linhas: Dados["porPessoa"]
             <TableRow>
               <TableHead />
               <TableHead className="text-right">Faltas</TableHead>
-              <TableHead className="text-right">Cancel.</TableHead>
+              <TableHead className="text-right">Cancelamentos</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -51,7 +54,7 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
   const maxMot = Math.max(1, ...d.porMotivo.map((m) => m.n));
   const totM = d.mixMarcacoes.reduce((s, x) => s + x.n, 0);
   const totF = d.mixFaturamento.reduce((s, x) => s + x.valor, 0);
-  const nomeBase = f.base ? "comparação" : undefined;
+  const nomeBase = textoBase(f.base);
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-3">
@@ -59,20 +62,20 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
           titulo="Faltas"
           valor={fmtNum(d.totais.faltas)}
           descricao={`Consultas marcadas para ${f.janela.datas} em que o paciente não veio e não remarcou.`}
-          ajuda="Pela DATA DA CONSULTA. Faltou = o dia passou e o paciente não apareceu no faturamento (relatórios 8440 e 319 do Klingo)."
+          ajuda="Pela DATA DA CONSULTA. Faltou = o dia passou e o paciente não apareceu no faturamento do Klingo."
           delta={<Delta atual={d.totais.faltas} base={d.totaisBase?.faltas} nome={nomeBase} inverso />}
         />
         <Kpi
           titulo="Cancelamentos"
           valor={fmtNum(d.totais.canceladas)}
           descricao={`Consultas marcadas para ${f.janela.datas} que foram desmarcadas e não remarcadas.`}
-          ajuda="Pela DATA DA CONSULTA, com o motivo que a recepção registrou no Klingo (relatório 47)."
+          ajuda="Pela DATA DA CONSULTA, com o motivo que a recepção registrou no Klingo."
           delta={<Delta atual={d.totais.canceladas} base={d.totaisBase?.canceladas} nome={nomeBase} inverso />}
         />
         <Kpi
           titulo="Remarcações"
           valor={fmtNum(d.totais.remarcadas)}
-          descricao="Consultas que mudaram de data (o paciente continua: não é perda, mas dá retrabalho)."
+          descricao={`Consultas marcadas para ${f.janela.datas} que mudaram de data (o paciente continua: não é perda, mas dá retrabalho).`}
           ajuda="Inclui quem faltou e remarcou. Não entram na taxa de comparecimento."
           delta={<Delta atual={d.totais.remarcadas} base={d.totaisBase?.remarcadas} nome={nomeBase} inverso />}
         />
@@ -105,18 +108,18 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-3">
-        <Quebra titulo="Por médico / agenda" linhas={d.porProfissional} />
-        <Quebra titulo="Por procedimento" linhas={d.porProcedimento} />
-        <Quebra titulo="Por quem marcou" linhas={d.porPessoa} />
+        <Quebra titulo="Por médico / agenda" linhas={d.porProfissional} datas={f.janela.datas} />
+        <Quebra titulo="Por procedimento" linhas={d.porProcedimento} datas={f.janela.datas} />
+        <Quebra titulo="Por quem agendou" linhas={d.porPessoa} datas={f.janela.datas} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5">
-              Mix de operadoras: marcações <Dica texto="Todas as operadoras (o filtro de operadora não vale aqui), pela data em que foram marcadas." />
+              Mix de operadoras: agendamentos <Dica texto="Todas as operadoras (o filtro de operadora não vale aqui), pela data em que foram feitos." />
             </CardTitle>
-            <CardDescription>{fmtNum(totM)} marcações feitas em {f.janela.datas}.</CardDescription>
+            <CardDescription>{fmtNum(totM)} agendamentos feitos em {f.janela.datas}.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2.5">
             {d.mixMarcacoes.slice(0, 12).map((m) => (
@@ -137,7 +140,7 @@ export async function AbaPerdas({ f }: { f: FiltrosGestao }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5">
-              Mix de operadoras: faturamento <Dica texto="Todas as operadoras, pela data do atendimento (relatório 319)." />
+              Mix de operadoras: faturamento <Dica texto="Todas as operadoras, pela data do atendimento, do faturamento do Klingo." />
             </CardTitle>
             <CardDescription>{real(totF)} faturados em {f.janela.datas}.</CardDescription>
           </CardHeader>

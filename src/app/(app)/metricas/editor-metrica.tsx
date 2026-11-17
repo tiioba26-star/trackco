@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { camposDeData, campoDaFonte, FONTES, OPERADORES_POR_TIPO, ROTULO_OPERADOR } from "@/engine/fontes";
 import { descreverContagem } from "@/engine/metricas";
 import type { Contagem, DefinicaoMetrica, FonteId, Metrica, OperadorFiltro } from "@/engine/tipos";
+import { useConfirmar, useSomenteLeitura } from "@/components/app/confirmacao";
+import { useAvisoAoSair } from "@/hooks/use-aviso-sair";
 import { fmtValor } from "@/lib/formato";
 import { salvarMetrica, testarMetrica, type ResultadoTeste } from "./actions";
 import { Dica } from "@/components/ajuda/dica";
@@ -43,6 +45,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
   const fonte = FONTES[valor.fonte];
   const rotulo = (c: string) => campoDaFonte(valor.fonte, c)?.rotulo.toLowerCase() ?? c;
   const set = (p: Partial<Contagem>) => onChange({ ...valor, ...p });
+  const confirmar = useConfirmar();
 
   return (
     <div className="space-y-5 rounded-xl border p-4">
@@ -51,8 +54,18 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
         <Campo rotulo="Fonte de dados" dica="met.fonte">
           <NativeSelect
             value={valor.fonte}
-            onChange={(e) => {
+            onChange={async (e) => {
               const f = e.target.value as FonteId;
+              if (
+                valor.filtros.length > 0 &&
+                !(await confirmar({
+                  titulo: "Trocar a fonte de dados?",
+                  texto: `Os ${valor.filtros.length} filtro(s) desta contagem só valem para a fonte atual e serão apagados.`,
+                  confirmar: "Trocar e apagar filtros",
+                  perigo: true,
+                }))
+              )
+                return;
               set({ fonte: f, campo_data: camposDeData(f)[0].id, filtros: [], campo_valor: undefined });
             }}
           >
@@ -63,7 +76,7 @@ function EditorContagem({ valor, onChange, titulo }: { valor: Contagem; onChange
             ))}
           </NativeSelect>
         </Campo>
-        <Campo rotulo="Como agregar" dica="met.agregacao">
+        <Campo rotulo="Como contar" dica="met.agregacao">
           <NativeSelect value={valor.agregacao} onChange={(e) => set({ agregacao: e.target.value as Contagem["agregacao"] })}>
             <option value="contar">Contar registros</option>
             <option value="somar">Somar um campo</option>
@@ -186,6 +199,12 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
   const [testando, setTestando] = useState(false);
   const [teste, setTeste] = useState<ResultadoTeste[] | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const confirmar = useConfirmar();
+  const leitura = useSomenteLeitura();
+  const foto = JSON.stringify({ nome, codigo, descricao, tipo, unidade, ativo, def });
+  const [inicial] = useState(foto);
+  const sujo = foto !== inicial && !leitura;
+  useAvisoAoSair(sujo && !salvando);
 
   function mudarTipoCalculo(t: "simples" | "taxa") {
     if (t === def.tipo_calculo) return;
@@ -247,7 +266,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
                 placeholder="Ex.: Agendamentos"
               />
             </Campo>
-            <Campo rotulo="Código" dica="met.codigo">
+            <Campo rotulo="Nome interno (sem espaços)" dica="met.codigo">
               <Input value={codigo} onChange={(e) => setCodigo(slug(e.target.value))} placeholder="agendamentos" />
             </Campo>
             <Campo rotulo="Descrição (aparece para os colaboradores)" className="md:col-span-2">
@@ -255,8 +274,8 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
             </Campo>
             <Campo rotulo="Análise" dica="met.analise">
               <NativeSelect value={tipo} onChange={(e) => setTipo(e.target.value as Metrica["tipo"])}>
-                <option value="quantitativa">Quantitativa (volume)</option>
-                <option value="qualitativa">Qualitativa (resultado/qualidade)</option>
+                <option value="quantitativa">Volume (quantos)</option>
+                <option value="qualitativa">Qualidade (quão bem)</option>
               </NativeSelect>
             </Campo>
             <Campo rotulo="Unidade" dica="met.unidade">
@@ -295,7 +314,7 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
               <Campo rotulo="Tipo de cálculo" dica="met.tipo_calculo">
                 <NativeSelect value={def.tipo_calculo} onChange={(e) => mudarTipoCalculo(e.target.value as "simples" | "taxa")}>
                   <option value="simples">Contagem / soma</option>
-                  <option value="taxa">Taxa (numerador ÷ denominador)</option>
+                  <option value="taxa">Porcentagem (o que conta ÷ sobre o total de)</option>
                 </NativeSelect>
               </Campo>
               <Campo rotulo="No mês em andamento, contar até" dica="met.corte">
@@ -312,20 +331,33 @@ export function EditorMetrica({ metrica, competencia }: { metrica: Metrica | nul
               />
             ) : (
               <>
-                <EditorContagem titulo="Numerador" valor={def.numerador} onChange={(c) => setDef({ ...def, numerador: c })} />
-                <EditorContagem titulo="Denominador" valor={def.denominador} onChange={(c) => setDef({ ...def, denominador: c })} />
+                <EditorContagem titulo="O que conta (parte de cima da conta)" valor={def.numerador} onChange={(c) => setDef({ ...def, numerador: c })} />
+                <EditorContagem titulo="Sobre o total de (parte de baixo da conta)" valor={def.denominador} onChange={(c) => setDef({ ...def, denominador: c })} />
               </>
             )}
           </CardContent>
         </Card>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => {
+          <Button
+            variant="outline"
+            onClick={async () => {
+              if (
+                sujo &&
+                !(await confirmar({
+                  titulo: "Sair sem salvar?",
+                  texto: "As alterações desta métrica ainda não foram salvas e vão se perder.",
+                  confirmar: "Sair sem salvar",
+                  perigo: true,
+                }))
+              )
+                return;
               avisarNavegacao();
               router.push("/metricas");
-            }}>
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={salvar} disabled={salvando || nome.trim().length < 2}>
+          <Button onClick={salvar} disabled={salvando || leitura || nome.trim().length < 2}>
             <Save /> Salvar métrica
           </Button>
         </div>

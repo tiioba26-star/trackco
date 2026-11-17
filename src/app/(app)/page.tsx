@@ -82,6 +82,14 @@ async function ConteudoPainel(props: PageProps<"/">) {
         </p>
       </div>
 
+      <SeletorPeriodo
+        janela={janela}
+        manter={manter}
+        mesAtual={competenciaDe(hoje)}
+        personalizado={gestao}
+        modo={janela.periodo !== "personalizado" ? "atalhos" : typeof sp.comp === "string" ? "mes" : "datas"}
+      />
+
       {(minhaEquipe || equipeSel) && (
         <ConviteRetrospectiva
           mes={nomeMes(competenciaAnterior(competenciaDe(hoje)))}
@@ -91,14 +99,6 @@ async function ConteudoPainel(props: PageProps<"/">) {
           abrir={sp.retro === "1"}
         />
       )}
-
-      <SeletorPeriodo
-        janela={janela}
-        manter={manter}
-        mesAtual={competenciaDe(hoje)}
-        personalizado={gestao}
-        modo={janela.periodo !== "personalizado" ? "atalhos" : typeof sp.comp === "string" ? "mes" : "datas"}
-      />
 
       {sp.erro === "restrito" && (
         <Alert>

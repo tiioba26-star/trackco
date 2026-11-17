@@ -48,11 +48,11 @@ export default async function PaginaMetricas() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="font-medium">{m.nome}</div>
-                      <div className="font-mono text-xs text-muted-foreground">{m.codigo}</div>
+
                     </div>
                     <div className="flex flex-wrap justify-end gap-1">
-                      <Badge variant={m.tipo === "quantitativa" ? "secondary" : "outline"}>{m.tipo}</Badge>
-                      <Badge variant="outline">{m.unidade}</Badge>
+                      <Badge variant={m.tipo === "quantitativa" ? "secondary" : "outline"}>{m.tipo === "quantitativa" ? "volume" : "qualidade"}</Badge>
+                      <Badge variant="outline">{m.unidade === "un" ? "quantidade" : m.unidade === "%" ? "porcentagem" : m.unidade}</Badge>
                       {m.definicao.somente_analise && <Badge variant="outline">só análise</Badge>}
                       {!m.ativo && <Badge variant="destructive">inativa</Badge>}
                     </div>

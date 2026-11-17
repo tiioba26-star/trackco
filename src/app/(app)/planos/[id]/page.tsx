@@ -26,6 +26,15 @@ export default async function PaginaPlano(props: PageProps<"/planos/[id]">) {
   if (!plano) notFound();
   const atual = competenciaDe(hojeNoFuso());
   const equipe = (plano.equipes as unknown as { nome: string } | null)?.nome;
+  // para a confirmação de "Ativar": qual plano da equipe vai ser arquivado
+  const { data: outroAtivo } = await db
+    .from("planos")
+    .select("nome")
+    .eq("equipe_id", plano.equipe_id)
+    .eq("status", "ativo")
+    .neq("id", plano.id)
+    .limit(1)
+    .maybeSingle();
 
   return (
     <div className="space-y-6">
@@ -50,6 +59,8 @@ export default async function PaginaPlano(props: PageProps<"/planos/[id]">) {
           modalidade: plano.modalidade,
           status: plano.status,
           equipe_id: plano.equipe_id,
+          equipe: equipe ?? "",
+          outroAtivo: outroAtivo?.nome ?? null,
         }}
         rascunho={plano.rascunho as DefinicaoPlano}
         metricas={(metricas ?? [])

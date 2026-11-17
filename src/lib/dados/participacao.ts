@@ -19,7 +19,7 @@ export interface Fatia {
 }
 
 /**
- * Quanto cada equipe marcou (todas as marcações, todos os convênios) em cada janela.
+ * Quanto cada equipe marcou (todos os agendamentos, todos os convênios) em cada janela.
  * A equipe do painel usa os logins do Trackco; as outras vêm do cadastro de equipes do sistema relatorio.
  */
 export async function participacaoPorEquipe(

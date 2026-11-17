@@ -70,7 +70,8 @@ export function NivelBadge({ nivel, cor, className }: { nivel: string | null | u
       className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium", className)}
       style={{
         background: `color-mix(in oklab, ${cor ?? "var(--primary)"} 14%, transparent)`,
-        color: cor ?? "var(--primary)",
+        // a cor vem do plano (pode ser um amarelo clarinho): misturada com a cor do texto, fica sempre legível
+        color: `color-mix(in oklab, ${cor ?? "var(--primary)"} 60%, var(--foreground))`,
       }}
     >
       <span className="size-1.5 rounded-full" style={{ background: cor ?? "var(--primary)" }} />

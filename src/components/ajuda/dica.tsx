@@ -15,7 +15,8 @@ export function Dica({ id, texto }: { id?: ChaveDica; texto?: string }) {
           <button
             type="button"
             aria-label="O que é isso?"
-            className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none"
+            // o desenho continua pequeno (16 px), mas a área de toque tem 36 px (o ::after invisível em volta)
+            className="relative inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors after:absolute after:-inset-2.5 after:content-[''] hover:text-primary focus-visible:text-primary focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
           />
         }
       >

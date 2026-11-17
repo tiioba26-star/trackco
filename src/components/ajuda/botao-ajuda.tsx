@@ -12,19 +12,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { toast } from "sonner";
 import { ajudaPara, type PassoTour } from "./conteudos";
 
 // v2: o Painel mudou; todo mundo vê o tour novo uma vez
 const CHAVE_VISTO = "trackco:tour-visto-v2";
 
-export function iniciarTour(passos: PassoTour[]) {
+/** Abre o tour com os passos cujo alvo está na tela. Devolve false se não sobrou nenhum. */
+export function iniciarTour(passos: PassoTour[]): boolean {
   const steps: DriveStep[] = passos
     .filter((p) => document.querySelector(`[data-tour="${p.alvo}"]`))
     .map((p) => ({
       element: `[data-tour="${p.alvo}"]`,
       popover: { title: p.titulo, description: p.texto },
     }));
-  if (!steps.length) return;
+  if (!steps.length) return false;
   driver({
     showProgress: true,
     progressText: "{{current}} de {{total}}",
@@ -34,6 +36,7 @@ export function iniciarTour(passos: PassoTour[]) {
     popoverClass: "trackco-tour",
     steps,
   }).drive();
+  return true;
 }
 
 export function BotaoAjuda() {
@@ -101,15 +104,20 @@ export function BotaoAjuda() {
                 </ul>
               </div>
             ) : null}
-            <Button
-              className="w-full"
-              onClick={() => {
-                setAberto(false);
-                setTimeout(() => iniciarTour(ajuda.passos), 250);
-              }}
-            >
-              <PlayCircle /> Fazer o tour guiado desta tela
-            </Button>
+            {ajuda.passos.length > 0 && (
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setAberto(false);
+                  setTimeout(() => {
+                    // no celular os itens do menu ficam escondidos; se nada sobrar, avisa em vez de não fazer nada
+                    if (!iniciarTour(ajuda.passos)) toast.info("Esta tela não tem passos do tour para mostrar agora. A explicação acima vale para ela.");
+                  }, 250);
+                }}
+              >
+                <PlayCircle /> Fazer o tour guiado desta tela
+              </Button>
+            )}
           </div>
         </SheetContent>
       </Sheet>

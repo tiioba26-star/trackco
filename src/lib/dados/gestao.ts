@@ -210,7 +210,7 @@ const perdas = (db: Db, ini: string, fim: string) =>
     ),
   );
 
-/** Conferência mensal: R$ do faturamento que ficou ligado a uma marcação ÷ faturamento total. */
+/** Conferência mensal: R$ do faturamento que ficou ligado a um agendamento ÷ faturamento total. */
 export async function coberturaFaturamento(db: Db = criarClienteAdmin(), meses = 6) {
   const desde = `${competenciaAnterior(competenciaDe(hojeNoFuso()), meses - 1)}-01`;
   try {
@@ -408,7 +408,7 @@ export async function abaFaturamento(f: FiltrosGestao, por: AgruparPor = "catego
   };
 }
 
-// ------------------------------------------------------------------ aba Marcação → faturamento
+// ------------------------------------------------------------------ aba Agendamento → faturamento
 
 export interface LinhaColaborador {
   login: string;
@@ -502,7 +502,7 @@ export async function abaConversao(f: FiltrosGestao, db: Db = criarClienteAdmin(
     p.comparecimento = p.verificaveis ? (p.atendidas / p.verificaveis) * 100 : null;
     p.valorMedio = p.atendidas ? p.valor / p.atendidas : null;
   }
-  // quartis só de quem marca de verdade (ignora quem fez uma ou outra marcação avulsa)
+  // quartis só de quem marca de verdade (ignora quem fez um ou outro agendamento avulso)
   const q = quartis(lista.filter((p) => p.marcacoes >= 10).map((p) => p.marcacoes));
   if (q) for (const p of lista) p.faixa = p.marcacoes >= 10 ? faixaDoQuartil(p.marcacoes, q) : null;
   lista.sort((x, y) => y.valor - x.valor || y.marcacoes - x.marcacoes);
@@ -519,23 +519,26 @@ export interface LinhaEquipe {
   atendidas: number;
   valor: number;
   participacao: number;
+  /** aconteceram ÷ já dá para conferir: a mesma conta da aba Agendamento → R$ */
+  comparecimento: number | null;
 }
 
 export interface AbaEquipes {
   equipes: LinhaEquipe[];
   /** dia a dia acumulado: período × base, alinhados pelo nº do dia */
   acumulado: { dia: number; rotulo: string; atual: number | null; base: number | null }[];
-  /** marcações por equipe ao longo do tempo (até 6 linhas) */
+  /** agendamentos por equipe ao longo do tempo (até 6 linhas) */
   porEquipe: { grao: Grao; series: string[]; pontos: Record<string, string | number>[] };
   totalAtual: number;
   totalBase: number | null;
 }
 
 export async function abaEquipes(f: FiltrosGestao, db: Db = criarClienteAdmin()): Promise<AbaEquipes> {
-  const [diasA, diasB, pessoas] = await Promise.all([
+  const [diasA, diasB, pessoas, porLogin] = await Promise.all([
     marcacoesDia(db, f.janela.inicio, f.janela.fim),
     f.base ? marcacoesDia(db, f.base.inicio, f.base.fim) : Promise.resolve([] as LinhaMarcDia[]),
     pessoasDaClinica(db),
+    marcacoes(db, f.janela.inicio, f.janela.fim, f.hoje),
   ]);
   const quem = new Map(pessoas.map((p) => [p.login, p]));
   const equipeDe = (login: string) => quem.get(login)?.equipe ?? "Sem equipe";
@@ -548,7 +551,17 @@ export async function abaEquipes(f: FiltrosGestao, db: Db = criarClienteAdmin())
 
   const eq = new Map<string, LinhaEquipe & { logins: Set<string> }>();
   const linha = (nome: string) => {
-    const o = eq.get(nome) ?? { equipe: nome, pessoas: 0, marcacoes: 0, marcacoesBase: f.base ? 0 : null, atendidas: 0, valor: 0, participacao: 0, logins: new Set<string>() };
+    const o = eq.get(nome) ?? {
+      equipe: nome,
+      pessoas: 0,
+      marcacoes: 0,
+      marcacoesBase: f.base ? 0 : null,
+      atendidas: 0,
+      valor: 0,
+      participacao: 0,
+      comparecimento: null,
+      logins: new Set<string>(),
+    };
     eq.set(nome, o);
     return o;
   };
@@ -563,8 +576,26 @@ export async function abaEquipes(f: FiltrosGestao, db: Db = criarClienteAdmin())
     const o = linha(equipeDe(l.login));
     o.marcacoesBase = (o.marcacoesBase ?? 0) + l.n;
   }
+  // comparecimento por equipe: só conta o que já dá para conferir (data passada, sem remarcações/erros)
+  const conferir = new Map<string, { verificaveis: number; atendidas: number }>();
+  for (const l of porLogin) {
+    if (f.operadora !== "todas" && grupoOperadora(l.operadora) !== f.operadora) continue;
+    const c = conferir.get(equipeDe(l.login)) ?? { verificaveis: 0, atendidas: 0 };
+    c.verificaveis += l.verificaveis;
+    c.atendidas += l.atendidas;
+    conferir.set(equipeDe(l.login), c);
+  }
   const equipes = [...eq.values()]
-    .map(({ logins, ...o }) => ({ ...o, pessoas: logins.size, valor: Math.round(o.valor * 100) / 100, participacao: totalAtual ? (o.marcacoes / totalAtual) * 100 : 0 }))
+    .map(({ logins, ...o }) => {
+      const c = conferir.get(o.equipe);
+      return {
+        ...o,
+        pessoas: logins.size,
+        valor: Math.round(o.valor * 100) / 100,
+        participacao: totalAtual ? (o.marcacoes / totalAtual) * 100 : 0,
+        comparecimento: c?.verificaveis ? (c.atendidas / c.verificaveis) * 100 : null,
+      };
+    })
     .sort((x, y) => y.marcacoes - x.marcacoes);
 
   // acumulado dia a dia, alinhado pelo nº do dia (comparação justa: mesmos dias)
@@ -767,7 +798,7 @@ export async function opcoesDosFiltros(f: FiltrosGestao, db: Db = criarClienteAd
   };
 }
 
-/** Base para o Excel/Power BI: marcações do período somadas por mês × pessoa × procedimento × profissional × operadora. */
+/** Base para o Excel/Power BI: agendamentos do período somados por mês × pessoa × procedimento × profissional × operadora. */
 export async function baseMarcacoes(f: FiltrosGestao, db: Db = criarClienteAdmin()) {
   const [todas, pessoas] = await Promise.all([marcacoes(db, f.janela.inicio, f.janela.fim, f.hoje), pessoasDaClinica(db)]);
   const quem = new Map(pessoas.map((p) => [p.login, p]));

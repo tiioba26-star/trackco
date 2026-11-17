@@ -8,7 +8,7 @@ import { competenciaDe, hojeNoFuso, nomeCompetencia } from "@/engine/datas";
 import type { Contagem, Indicador, Metrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
 import { planoVigente } from "@/lib/calculo/carregar";
-import { fmtDataHora, fmtPct } from "@/lib/formato";
+import { fmtDataHora, fmtNum, fmtPct } from "@/lib/formato";
 import { metricaPorPapel } from "@/lib/metricas-papel";
 import { ultimaSync } from "@/lib/dados/painel";
 import { ROTULO_SITUACAO } from "@/lib/situacao";
@@ -31,10 +31,10 @@ const SITUACOES: { chave: string; texto: string }[] = [
   { chave: "realizada", texto: "O paciente veio e foi atendido (aparece no faturamento do Klingo)." },
   { chave: "nao_realizada", texto: "O dia passou e o paciente não veio, sem cancelar nem remarcar." },
   { chave: "cancelada", texto: "Cancelada sem remarcar (ex.: o paciente desistiu)." },
-  { chave: "remarcada", texto: "Trocada por outra data. A marcação antiga sai; a nova conta no dia em que foi feita." },
+  { chave: "remarcada", texto: "Trocada por outra data. O agendamento antigo sai; o novo conta no dia em que foi feita." },
   { chave: "falta_remarcada", texto: "O paciente faltou e depois a consulta foi remarcada." },
   { chave: "bloqueio_clinica", texto: "A clínica bloqueou a agenda (ex.: médico ausente, aparelho parado). Não é culpa de quem marcou." },
-  { chave: "erro", texto: "Erro de cadastro, marcação duplicada ou unificada." },
+  { chave: "erro", texto: "Erro de cadastro, agendamento duplicado ou unificado." },
   { chave: "futura", texto: "A consulta ainda vai acontecer." },
 ];
 
@@ -148,14 +148,14 @@ export default async function PaginaComoEContado() {
       <div className="space-y-1 border-t pt-6">
         <h2 className="text-xl font-semibold tracking-tight">Como é contado</h2>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Cada número do Trackco, de onde vem e o que entra nele. Tudo vem do Klingo, por quem aparece como responsável pela marcação, e
+          Cada número do Trackco, de onde vem e o que entra nele. Tudo vem do Klingo, por quem aparece como responsável pelo agendamento, e
           atualiza sozinho de hora em hora{sync?.finalizado_em ? ` (última vez: ${fmtDataHora(sync.finalizado_em)})` : ""}.
         </p>
       </div>
 
       {/* 1. as duas datas */}
       <section className="space-y-3">
-        <h3 className="text-lg font-semibold">1. Toda marcação tem duas datas</h3>
+        <h3 className="text-lg font-semibold">1. Todo agendamento tem duas datas</h3>
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="flex gap-3">
@@ -194,11 +194,11 @@ export default async function PaginaComoEContado() {
           {[
             {
               t: "Agendamentos (total)",
-              d: "Todas as marcações que você fez no período, pelo dia em que marcou. Inclui remarcações, bloqueios e erros. Aparece sempre ao lado dos válidos, para comparar.",
+              d: "Todos os agendamentos que você fez no período, pelo dia em que marcou. Inclui remarcações, bloqueios e erros. Aparece sempre ao lado dos válidos, para comparar.",
             },
             {
               t: "Agendamentos válidos",
-              d: "O total sem as marcações que não valem (veja a tabela abaixo). É o número principal: vale para ranking, meta e nota. Cada marcação conta uma vez: dois procedimentos diferentes contam 2.",
+              d: "O total sem os agendamentos que não valem (veja a tabela abaixo). É o número principal: vale para ranking, meta e nota. Cada agendamento conta uma vez: dois procedimentos diferentes contam 2.",
             },
             {
               t: "Consultas marcadas para o período",
@@ -227,12 +227,12 @@ export default async function PaginaComoEContado() {
         </div>
       </section>
 
-      {/* 3. o que acontece com cada marcação */}
+      {/* 3. o que acontece com cada agendamento */}
       <section className="space-y-3">
         <div>
           <h3 className="text-lg font-semibold">3. O que conta para quê</h3>
           <p className="text-sm text-muted-foreground">
-            Cada marcação termina numa destas situações. A tabela mostra em quais números ela entra (Particular; o SUS segue a mesma lógica, só
+            Cada agendamento termina numa destas situações. A tabela mostra em quais números ela entra (Particular; o SUS segue a mesma lógica, só
             para acompanhar).
           </p>
         </div>
@@ -333,7 +333,11 @@ export default async function PaginaComoEContado() {
                       <span className="size-3 shrink-0 rounded-full" style={{ background: f.cor ?? "var(--muted-foreground)" }} />
                       <span className="w-40 font-medium">{f.nivel}</span>
                       <span className="text-sm text-muted-foreground">
-                        {f.ate_pct === null ? `${f.de_pct}% ou mais` : f.de_pct === 0 ? `abaixo de ${f.ate_pct}%` : `de ${f.de_pct}% a ${f.ate_pct - 0.1}%`}
+                        {f.ate_pct === null
+                          ? `${fmtNum(f.de_pct, 1)}% ou mais`
+                          : f.de_pct === 0
+                            ? `abaixo de ${fmtNum(f.ate_pct, 1)}%`
+                            : `de ${fmtNum(f.de_pct, 1)}% até menos de ${fmtNum(f.ate_pct, 1)}%`}
                         {f.recompensa ? ` · ${descreverRecompensa(f.recompensa)}` : ""}
                       </span>
                     </li>
@@ -375,17 +379,17 @@ export default async function PaginaComoEContado() {
           <CardContent>
             <ul className="space-y-3 text-sm">
               {[
-                ["Mesmo paciente, dois procedimentos diferentes", "Conta 2: são duas marcações."],
-                ["Paciente que volta em outro mês (retorno)", "Conta de novo: é uma nova marcação."],
+                ["Mesmo paciente, dois procedimentos diferentes", "Conta 2: são dois agendamentos."],
+                ["Paciente que volta em outro mês (retorno)", "Conta de novo: é um novo agendamento."],
                 [
-                  "Duas marcações do mesmo paciente para o mesmo dia e só uma aconteceu",
-                  "A realizada fica com quem fez a marcação que não foi cancelada (o Klingo registra de quem era a cancelada).",
+                  "Dois agendamentos do mesmo paciente para o mesmo dia e só uma aconteceu",
+                  "A realizada fica com quem fez o agendamento que não foi cancelado (o Klingo registra de quem era o cancelado).",
                 ],
-                ["Marcação Particular, mas o paciente foi atendido pelo SUS", "Não conta como realizada Particular."],
+                ["Agendamento Particular, mas o paciente foi atendido pelo SUS", "Não conta como realizada Particular."],
                 ["Consulta de hoje", "Só entra no comparecimento amanhã: o dia ainda não terminou."],
                 [
                   "Remarcação depois que o mês acabou",
-                  "Se uma marcação de outubro for remarcada em novembro, os válidos de outubro diminuem. O fechamento do mês congela os números.",
+                  "Se um agendamento de outubro for remarcado em novembro, os válidos de outubro diminuem. O fechamento do mês congela os números.",
                 ],
               ].map(([t, d]) => (
                 <li key={t} className="flex gap-3">
@@ -405,7 +409,7 @@ export default async function PaginaComoEContado() {
         <Link href="/extrato" className="font-medium text-primary underline-offset-4 hover:underline">
           Extrato
         </Link>{" "}
-        você vê cada marcação que entrou na conta e pode abrir uma{" "}
+        você vê cada agendamento que entrou na conta e pode abrir uma{" "}
         <Link href="/contestacoes" className="font-medium text-primary underline-offset-4 hover:underline">
           contestação
         </Link>

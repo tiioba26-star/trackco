@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { descreverRecompensa } from "@/engine/apuracao";
-import { competenciaDe, formatarDataBR, hojeNoFuso, inicioCompetencia, nomeCompetencia } from "@/engine/datas";
+import { competenciaDe, fimCompetencia, formatarDataBR, hojeNoFuso, inicioCompetencia, nomeCompetencia } from "@/engine/datas";
+import { textoDatas } from "@/engine/periodos";
 import type { DefinicaoMetrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
 import { explicarMetrica } from "@/lib/explicar-metrica";
@@ -62,14 +63,20 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
   );
 
   if (!ap) {
+    // só aparece na lista quem o usuário pode consultar: fora dela, é falta de permissão, não de cálculo
+    const podeVer = colabId === s.colaborador.id || pessoas.some((p) => p.id === colabId);
     return (
       <div className="space-y-6">
         <div className="flex justify-end">{seletor}</div>
-        <Vazio
-          icone={FileText}
-          titulo="Sem apuração neste mês"
-          texto="Não há cálculo para esta pessoa no mês escolhido (ou você não tem permissão para vê-lo)."
-        />
+        {podeVer ? (
+          <Vazio
+            icone={FileText}
+            titulo={`Ainda não há cálculo de ${nomeCompetencia(comp)}`}
+            texto="O extrato aparece quando o mês tem regras ativas e a pessoa está numa equipe. Se deveria ter, avise o administrador."
+          />
+        ) : (
+          <Vazio icone={Lock} titulo="Você não tem acesso a este extrato" texto="Cada pessoa vê o próprio extrato; líderes veem os da equipe deles." />
+        )}
       </div>
     );
   }
@@ -131,8 +138,9 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">Extrato de {r.nome}</h2>
-          <p className="text-sm text-muted-foreground capitalize">
-            {nomeCompetencia(comp)} · {ap.equipes?.nome} · {r.funcao === "lider" ? "líder" : "membro"}
+          <p className="text-sm text-muted-foreground">
+            <span className="capitalize">{nomeCompetencia(comp)}</span> ({textoDatas(inicioCompetencia(comp), fimCompetencia(comp))}) · {ap.equipes?.nome} ·{" "}
+            {r.funcao === "lider" ? "líder" : "membro"}
           </p>
         </div>
         {seletor}
@@ -158,10 +166,10 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
         </Card>
         <Card>
           <CardContent className="space-y-2 text-sm">
-            <Rotulo>Regras aplicadas</Rotulo>
+            <Rotulo>Regras do mês</Rotulo>
             <div className="font-medium">{versao?.planos?.nome ?? "Plano"}</div>
             <div className="text-muted-foreground">
-              Versão {versao?.numero ?? "—"} · vigente desde {versao ? formatarDataBR(versao.vigente_desde) : "—"}
+              Versão {versao?.numero ?? "—"} · vale desde {versao ? formatarDataBR(versao.vigente_desde) : "—"}
             </div>
             {versao?.observacao && <div className="text-xs text-muted-foreground">{versao.observacao}</div>}
             <Badge variant="secondary" className="capitalize">
@@ -171,14 +179,14 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
         </Card>
         <Card>
           <CardContent className="space-y-2 text-sm">
-            <Rotulo>Situação do cálculo</Rotulo>
+            <Rotulo>Situação</Rotulo>
             <div className="flex items-center gap-2 font-medium">
               {congelado ? <Lock className="size-4 text-up" /> : null}
-              {ehFinal ? (congelado ? "Resultado oficial (fechamento aprovado)" : "Resultado do fechamento em revisão") : "Parcial (tempo real)"}
+              {ehFinal ? (congelado ? "Resultado oficial (fechamento aprovado)" : "Em revisão no fechamento do mês") : "Atualizado até hoje, ainda pode mudar"}
             </div>
-            <div className="text-muted-foreground">Calculado em {fmtDataHora(ap.calculado_em)}</div>
+            <div className="text-muted-foreground">Última atualização: {fmtDataHora(ap.calculado_em)}</div>
             <div className="text-muted-foreground">
-              Dias úteis: {r.dias.uteis_total} · disponíveis: {r.dias.disponiveis_total}
+              Dias úteis no mês: {r.dias.uteis_total} · dias em que a pessoa estava disponível: {r.dias.disponiveis_total}
               {r.dias.ausentes > 0 ? ` · ausências: ${r.dias.ausentes}` : ""}
             </div>
           </CardContent>
@@ -187,8 +195,10 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
 
       <Card data-tour="extrato-indicadores">
         <CardHeader>
-          <CardTitle>Cálculo por indicador</CardTitle>
-          <CardDescription>Realizado ÷ meta ajustada = atingimento. A nota geral é a média dos atingimentos ponderada pelos pesos.</CardDescription>
+          <CardTitle>Conta de cada indicador</CardTitle>
+          <CardDescription>
+            Total ÷ meta pelos dias disponíveis = % da meta. A nota geral é a média desses %, com o peso de cada indicador.
+          </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
@@ -196,12 +206,12 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
               <TableRow>
                 <TableHead>Indicador</TableHead>
                 <TableHead className="text-right">Peso</TableHead>
-                <TableHead className="text-right">Apurado</TableHead>
+                <TableHead className="text-right">Feito</TableHead>
                 <TableHead className="text-right">Ajustes</TableHead>
-                <TableHead className="text-right">Realizado</TableHead>
-                <TableHead className="text-right">Meta</TableHead>
-                <TableHead className="text-right">Meta ajustada</TableHead>
-                <TableHead className="min-w-40">Atingimento</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Meta do mês</TableHead>
+                <TableHead className="text-right">Meta pelos dias disponíveis</TableHead>
+                <TableHead className="min-w-40">% da meta</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -210,7 +220,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
                   <TableCell>
                     <div className="font-medium">{i.nome}</div>
                     <div className="text-xs text-muted-foreground">
-                      {i.escopo === "equipe" ? "agregado da equipe" : "individual"}
+                      {i.escopo === "equipe" ? "conta a equipe toda" : "conta só a pessoa"}
                       {i.denominador !== undefined ? ` · ${fmtValor(i.numerador ?? 0)} ÷ ${fmtValor(i.denominador)}` : ""}
                     </div>
                     {comoConta.get(i.metrica_id) && (
@@ -241,7 +251,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
                       <span className="text-sm tabular-nums">{i.sem_meta ? "sem meta" : fmtPct(i.atingimento_pct)}</span>
                     </div>
                     {i.atingimento_considerado_pct !== i.atingimento_pct && (
-                      <div className="text-xs text-muted-foreground">considerado {fmtPct(i.atingimento_considerado_pct)} (teto)</div>
+                      <div className="text-xs text-muted-foreground">conta no máximo {fmtPct(i.atingimento_considerado_pct)}</div>
                     )}
                   </TableCell>
                 </TableRow>
@@ -264,7 +274,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
       <Card data-tour="extrato-memorial">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ScrollText className="size-5" /> Memorial de cálculo
+            <ScrollText className="size-5" /> Como chegamos neste número
           </CardTitle>
           <CardDescription>O passo a passo que o sistema seguiu, com os dados e as regras usadas.</CardDescription>
         </CardHeader>
@@ -284,7 +294,7 @@ export default async function PaginaExtrato(props: PageProps<"/extrato">) {
 
       <Card data-tour="extrato-linhas">
         <CardHeader>
-          <CardTitle>Linhas de origem</CardTitle>
+          <CardTitle>Agendamentos que entraram na conta</CardTitle>
           <CardDescription>
             Cada registro do Klingo (ou lançamento) que entrou no cálculo. {linhas.length} linha(s).
           </CardDescription>

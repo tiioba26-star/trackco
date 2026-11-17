@@ -2,6 +2,7 @@
 
 import { Lightbulb, Save, Wand2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useConfirmar, usePedirValor, useSomenteLeitura } from "@/components/app/confirmacao";
 import { avisarNavegacao } from "@/components/app/indicador-navegacao";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -44,13 +45,15 @@ function DicaHistorico({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; u
   if (!h || h.base === "sem_dados") return <div className="mt-1 text-[11px] text-muted-foreground">sem histórico</div>;
   if (h.base === "media_equipe")
     return (
-      <div className="mt-1 text-[11px] text-muted-foreground" title="Sem atividade nos últimos meses: usa a média por pessoa da equipe">
+      <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
         novo · média equipe {fmt(h.referencia, unidade)}
+        <Dica texto="Sem atividade nos últimos meses: a sugestão usa a média por pessoa da equipe." />
       </div>
     );
   return (
-    <div className="mt-1 text-[11px] text-muted-foreground" title={`Média de ${h.meses} mês(es) com atividade, dentre os últimos ${nMeses}`}>
+    <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
       média {fmt(h.media, unidade)} · último {fmt(h.ultimo, unidade)}
+      <Dica texto={`Média de ${h.meses} mês(es) com atividade, dentre os últimos ${nMeses}. "Último" é o mês mais recente com atividade.`} />
     </div>
   );
 }
@@ -59,6 +62,9 @@ const chave = (metrica: string, colab: string | null) => `${metrica}|${colab ?? 
 
 export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais, historico, nMeses }: Props) {
   const router = useRouter();
+  const confirmar = useConfirmar();
+  const pedirValor = usePedirValor();
+  const leitura = useSomenteLeitura();
   const pathname = usePathname();
   const params = useSearchParams();
   const [crescimento, setCrescimento] = useState(5);
@@ -89,7 +95,15 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
 
   async function preencherSugestoes() {
     const preenchidos = Object.values(valores).some((v) => v.trim() !== "");
-    if (preenchidos && !confirm("Substituir os valores da grade pelas sugestões? (nada é salvo até clicar em Salvar)")) return;
+    if (
+      preenchidos &&
+      !(await confirmar({
+        titulo: "Substituir os valores da grade pelas sugestões?",
+        texto: "Os números digitados são trocados pelas sugestões. Nada é salvo até você clicar em Salvar metas.",
+        confirmar: "Substituir",
+      }))
+    )
+      return;
     if (base === "anterior") return copiarMesAnterior();
     const novos: Record<string, string> = {};
     for (const m of metricas) {
@@ -126,8 +140,14 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     toast.success(crescimento ? `Metas do mês anterior +${crescimento}% preenchidas. Revise e salve.` : "Metas do mês anterior copiadas. Revise e salve.");
   }
 
-  function aplicarATodos(metricaId: string) {
-    const v = prompt("Valor da meta para todos os membros:");
+  async function aplicarATodos(metricaId: string) {
+    const v = await pedirValor({
+      titulo: "Mesma meta para todos",
+      texto: "O valor vai para todos os membros nesta métrica. Nada é salvo até você clicar em Salvar metas.",
+      rotulo: "Meta de cada membro",
+      tipo: "number",
+      confirmar: "Aplicar",
+    });
     if (v === null) return;
     setValores((s) => {
       const n = { ...s };
@@ -170,7 +190,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         </Button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={salvar} disabled={salvando}>
+        <Button onClick={salvar} disabled={salvando || leitura}>
           <Save /> {salvando ? "Salvando…" : "Salvar metas"}
         </Button>
       </div>

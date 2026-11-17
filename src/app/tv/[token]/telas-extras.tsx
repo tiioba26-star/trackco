@@ -52,7 +52,7 @@ function ColunaCategoria({
         <span className={`rounded-xl ${c.fundo} px-4 py-1 text-[3.4vh] font-black tracking-wide uppercase`} style={{ color: c.texto }}>
           {cat === "particular" ? "Particular" : "SUS"}
         </span>
-        {cat === "sus" && <span className="text-[1.8vh] font-semibold text-sky-200/50">só acompanhamento</span>}
+        {cat === "sus" && <span className="text-[2.2vh] font-semibold text-sky-200/80">só acompanhamento</span>}
       </div>
 
       <div>
@@ -60,7 +60,7 @@ function ColunaCategoria({
         <div className="flex items-baseline gap-3">
           <span className="text-[9vh] leading-none font-black text-white tabular-nums">{fmt(agendamentos)}</span>
           {bruto !== undefined && bruto > agendamentos && (
-            <span className="text-[2.2vh] font-semibold text-sky-200/60">de {fmt(bruto)} marcados no total</span>
+            <span className="text-[2.2vh] font-semibold text-sky-200/80">de {fmt(bruto)} agendados no total</span>
           )}
         </div>
       </div>
@@ -69,7 +69,7 @@ function ColunaCategoria({
         <div className="text-[2.2vh] font-semibold text-sky-100/80">Consultas realizadas</div>
         <div className="flex items-baseline gap-3">
           <span className="text-[6.5vh] leading-none font-black text-white tabular-nums">{fmt(realizadas)}</span>
-          <span className="text-[2.4vh] font-semibold text-sky-200/70">de {clinica !== null ? fmt(clinica) : "—"} na clínica inteira</span>
+          <span className="text-[2.4vh] font-semibold text-sky-200/85">de {clinica !== null ? fmt(clinica) : "—"} na clínica inteira</span>
         </div>
         <div className="h-[2vh] overflow-hidden rounded-full border border-white/10 bg-white/5">
           <motion.div className="h-full rounded-full" style={{ background: c.barra }} initial={{ width: 0 }} animate={{ width: `${pct ?? 0}%` }} transition={{ duration: 1.2 }} />
@@ -163,7 +163,7 @@ export function TelaParticipacao({ tela }: { tela: TelaTv }) {
   return (
     <div className="flex flex-1 flex-col gap-[2vh] py-[1vh]">
       <p className="text-[2.2vh] text-sky-100/80">
-        De todas as marcações da clínica (todos os convênios), quanto cada equipe fez. Em <b style={{ color: COR_DESTAQUE }}>azul</b>, {destaque}.
+        De todos os agendamentos da clínica (todos os convênios), quanto cada equipe fez. Em <b style={{ color: COR_DESTAQUE }}>azul</b>, {destaque}.
       </p>
       <div className={`grid flex-1 gap-[2vh] ${periodos.length > 2 ? "grid-cols-4" : "grid-cols-2"}`}>
         {periodos.map((p) => {
@@ -174,7 +174,7 @@ export function TelaParticipacao({ tela }: { tela: TelaTv }) {
             <Cartao key={p.nome} className="flex flex-col items-center gap-[1.4vh]">
               <div className="text-center">
                 <div className="text-[2.5vh] font-extrabold text-white">{p.nome}</div>
-                <div className="text-[1.8vh] font-semibold text-sky-200/70 tabular-nums">{p.datas}</div>
+                <div className="text-[2.2vh] font-semibold text-sky-200/85 tabular-nums">{p.datas}</div>
               </div>
               <div className="relative">
                 <Rosca fatias={p.fatias.map((f) => ({ valor: f.valor, cor: cor(f.equipe, f.destaque) }))} tamanho={250} />
@@ -182,10 +182,10 @@ export function TelaParticipacao({ tela }: { tela: TelaTv }) {
                   <span className="text-[3.3vh] leading-none font-black tabular-nums" style={{ color: COR_DESTAQUE }}>
                     {fmt(pct, "%")}
                   </span>
-                  <span className="text-[1.5vh] font-semibold text-sky-200/70">{destaque}</span>
+                  <span className="text-[2vh] font-semibold text-sky-200/85">{destaque}</span>
                 </div>
               </div>
-              <ul className="w-full space-y-[0.5vh] text-[1.8vh]">
+              <ul className="w-full space-y-[0.5vh] text-[2.2vh]">
                 {[...p.fatias]
                   .sort((a, b) => Number(b.destaque) - Number(a.destaque) || b.valor - a.valor)
                   .map((f) => (
@@ -195,11 +195,11 @@ export function TelaParticipacao({ tela }: { tela: TelaTv }) {
                         <span className="truncate">{f.equipe}</span>
                       </span>
                       <span className="tabular-nums">
-                        {fmt(f.valor)} <span className="text-sky-200/50">· {fmt(total ? (f.valor / total) * 100 : 0, "%")}</span>
+                        {fmt(f.valor)} <span className="text-sky-200/80">· {fmt(total ? (f.valor / total) * 100 : 0, "%")}</span>
                       </span>
                     </li>
                   ))}
-                <li className="flex justify-between border-t border-white/10 pt-[0.5vh] text-sky-200/60">
+                <li className="flex justify-between border-t border-white/10 pt-[0.5vh] text-sky-200/80">
                   <span>Clínica</span>
                   <span className="tabular-nums">{fmt(total)}</span>
                 </li>
@@ -223,8 +223,8 @@ export function TelaDestaques({ tela }: { tela: TelaTv }) {
         <div>
           <div className="text-[2.3vh] font-semibold text-sky-100/80">A equipe marcou em {d.mes}</div>
           <div className="text-[10vh] leading-none font-black text-white tabular-nums">{fmt(e.validos)}</div>
-          <div className="text-[2.1vh] text-sky-200/70">
-            pacientes válidos{e.total > e.validos ? ` · ${fmt(e.total)} marcações no total` : ""}
+          <div className="text-[2.1vh] text-sky-200/85">
+            pacientes válidos{e.total > e.validos ? ` · ${fmt(e.total)} agendamentos no total` : ""}
           </div>
           {e.crescimento !== null && e.crescimento > 0 && (
             <div className="mt-[1vh] inline-block rounded-full bg-emerald-400/15 px-3 py-0.5 text-[2.2vh] font-bold text-emerald-300">
@@ -236,7 +236,7 @@ export function TelaDestaques({ tela }: { tela: TelaTv }) {
           <div>
             <div className="text-[2.3vh] font-semibold text-sky-100/80">Comparecimento</div>
             <div className="text-[6vh] leading-none font-black text-emerald-300 tabular-nums">{fmt(e.taxa, "%")}</div>
-            <div className="text-[2vh] text-sky-200/70">de cada 100 pacientes marcados para {d.mes}, {Math.round(e.taxa)} vieram</div>
+            <div className="text-[2vh] text-sky-200/85">de cada 100 pacientes marcados para {d.mes}, {Math.round(e.taxa)} vieram</div>
           </div>
         )}
         {e.melhorDia && (
@@ -262,7 +262,7 @@ export function TelaDestaques({ tela }: { tela: TelaTv }) {
             </div>
             <div className="text-right">
               <div className="text-[5.2vh] leading-none font-black text-white tabular-nums">{v.valor}</div>
-              <div className="text-[1.8vh] text-sky-200/70">{v.detalhe}</div>
+              <div className="text-[2.2vh] text-sky-200/85">{v.detalhe}</div>
             </div>
           </motion.div>
         ))}

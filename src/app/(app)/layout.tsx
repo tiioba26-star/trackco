@@ -6,6 +6,8 @@ import { Cabecalho } from "@/components/app/cabecalho";
 import { ConviteInstalar } from "@/components/app/convite-instalar";
 import { FormularioObrigatorio } from "@/components/app/formulario-obrigatorio";
 import { IndicadorNavegacao } from "@/components/app/indicador-navegacao";
+import { ProvedorLeitura } from "@/components/app/confirmacao";
+import { NavInferior } from "@/components/app/nav-inferior";
 import { RodapeVersiculo } from "@/components/app/versiculo";
 import { HistoriaParabens, OuvinteMeusParabens } from "@/components/retrospectiva/parabens";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -74,11 +76,13 @@ async function Shell({ children }: { children: React.ReactNode }) {
               </div>
             }
           >
-            {children}
+            <ProvedorLeitura ativo={s.somenteLeitura}>{children}</ProvedorLeitura>
           </Suspense>
         </div>
         <RodapeVersiculo className="mt-6 border-t" />
       </SidebarInset>
+      {/* só o perfil Colaborador (sem gestão nem admin) ganha a barra de baixo no celular */}
+      {!s.veComoAdmin && !(s.vêTudo || s.lidera.length > 0) && <NavInferior />}
       <Suspense fallback={null}>
         <BloqueioFormulario s={s} />
       </Suspense>

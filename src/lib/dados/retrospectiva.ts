@@ -191,7 +191,7 @@ export async function carregarRetrospectiva(s: Sessao, hoje: string): Promise<Re
   const porId = (id: string | null) => d.pessoas.find((x) => x.id === id);
   const destaques: NonNullable<Retrospectiva["destaques"]> = [];
   const v = porId(d.vencedores.volume);
-  if (v) destaques.push({ titulo: "Mais agendamentos válidos", nome: nome(v.id), valor: String(v.validos), detalhe: `${v.total} marcações no total` });
+  if (v) destaques.push({ titulo: "Mais agendamentos válidos", nome: nome(v.id), valor: String(v.validos), detalhe: `${v.total} agendamentos no total` });
   const m = porId(d.vencedores.melhorou);
   if (m && m.crescimento !== null) destaques.push({ titulo: "Quem mais melhorou", nome: nome(m.id), valor: `+${pct(m.crescimento)}`, detalhe: `${m.validos} contra ${m.validosAnt}` });
   const c = porId(d.vencedores.comparecimento);

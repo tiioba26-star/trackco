@@ -17,7 +17,7 @@ export async function AbaAnaliseGeral() {
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
             <Sparkles className="size-4 text-primary" /> Análise geral da clínica{" "}
-            <Dica texto="Escrita todo dia às 5h a partir de todos os relatórios do Trackco: Gestão (faturamento, marcações, equipes, quem marca para quem, perdas e operadoras), desempenho de cada pessoa (notas, níveis e metas), contestações, fechamentos e qualidade dos dados. Cada conclusão traz os números que a sustentam." />
+            <Dica texto="Escrita todo dia às 5h a partir de todos os relatórios do Trackco: Gestão (faturamento, agendamentos, equipes, quem agenda para quem, perdas e operadoras), desempenho de cada pessoa (notas, níveis e metas), contestações, fechamentos e qualidade dos dados. Cada conclusão traz os números que a sustentam." />
           </CardTitle>
           <CardDescription>{a ? <OrigemAnalise a={a} /> : "A primeira análise geral sai na próxima rodada (todo dia às 5h)."}</CardDescription>
         </CardHeader>
@@ -32,14 +32,14 @@ export async function AbaAnaliseGeral() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5 text-base">
-              Última rodada <Dica texto="O que a rotina das 5h fez: quantas análises escreveu, quantas não mudaram (números iguais aos da véspera), o que falhou e quanto gastou. O custo é o equivalente pelo preço de tabela da API do Claude, só como régua: na assinatura não é cobrado assim. O que sai pelo Gemini usa a cota do Google AI Pro e entra só nos tokens." />
+              Última rodada <Dica texto="O que a rotina das 5h fez: quantas análises escreveu, quantas não mudaram (números iguais aos da véspera) e o que falhou. O uso da IA fica em Detalhes técnicos." />
             </CardTitle>
             <CardDescription>
               {fmtDataHora(st.gerado_em)} · dados até {formatarDataBR(st.dados_ate)}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <ul className="grid gap-2 sm:grid-cols-3">
+            <ul className="grid gap-2 sm:grid-cols-2">
               <li className="rounded-lg border p-3">
                 <div className="text-xs text-muted-foreground">Escritas</div>
                 <div className="text-xl font-semibold tabular-nums">{fmtNum(st.feitas)}</div>
@@ -48,23 +48,23 @@ export async function AbaAnaliseGeral() {
                 <div className="text-xs text-muted-foreground">Sem mudança (mantidas)</div>
                 <div className="text-xl font-semibold tabular-nums">{fmtNum(st.sem_mudanca)}</div>
               </li>
-              <li className="rounded-lg border p-3">
-                <div className="text-xs text-muted-foreground">Tokens · equivalente API</div>
-                <div className="text-xl font-semibold tabular-nums">
-                  {fmtNum(tokens / 1000)} mil · US$ {st.custo_equivalente_usd.toFixed(2)}
-                </div>
-              </li>
             </ul>
-            {Object.entries(st.por_modelo).length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {Object.entries(st.por_modelo)
-                  .map(
-                    ([m, v]) =>
-                      `${nomeDoModelo(m)}: ${v.analises} análise(s), ${v.custo_equivalente_usd === 0 ? "cota do Google AI Pro" : `US$ ${v.custo_equivalente_usd.toFixed(2)}`}`,
-                  )
-                  .join(" · ")}
+            <details className="text-xs text-muted-foreground [&_summary]:cursor-pointer [&_summary]:font-medium">
+              <summary>Detalhes técnicos: quanto a IA usou</summary>
+              <p className="mt-1">
+                {fmtNum(tokens / 1000)} mil tokens · equivalente pela tabela da API: US$ {st.custo_equivalente_usd.toFixed(2)}
               </p>
-            )}
+              {Object.entries(st.por_modelo).length > 0 && (
+                <p className="mt-1">
+                  {Object.entries(st.por_modelo)
+                    .map(
+                      ([m, v]) =>
+                        `${nomeDoModelo(m)}: ${v.analises} análise(s), ${v.custo_equivalente_usd === 0 ? "cota do Google AI Pro" : `US$ ${v.custo_equivalente_usd.toFixed(2)}`}`,
+                    )
+                    .join(" · ")}
+                </p>
+              )}
+            </details>
             {st.falhas.length === 0 && st.pendentes.length === 0 ? (
               <p className="flex items-center gap-1.5 text-up">
                 <CheckCircle2 className="size-4" /> Tudo certo na última rodada.
@@ -73,7 +73,7 @@ export async function AbaAnaliseGeral() {
               <div className="space-y-1.5">
                 {st.limite_atingido && (
                   <p className="flex items-center gap-1.5 text-down">
-                    <TriangleAlert className="size-4" /> O limite de uso da IA acabou no meio: o que faltou sai na repescagem das 13h ou amanhã.
+                    <TriangleAlert className="size-4" /> O limite de uso da IA acabou no meio: o que faltou sai na rodada das 13h ou amanhã.
                   </p>
                 )}
                 {st.falhas.length > 0 && (

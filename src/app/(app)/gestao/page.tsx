@@ -16,6 +16,7 @@ import { AbaEquipes } from "./aba-equipes";
 import { AbaFaturamento } from "./aba-faturamento";
 import { AbaAnaliseGeral } from "./aba-geral";
 import { AnaliseIA } from "./analise-ia";
+import { textoBase } from "./blocos";
 import { FiltrosRecolhiveis } from "./filtros-recolhiveis";
 import { AbaPerdas } from "./aba-perdas";
 import { AbaQuem } from "./aba-quem";
@@ -26,9 +27,9 @@ export const metadata = { title: "Gestão" };
 
 const ABAS = [
   { k: "faturamento", t: "Faturamento" },
-  { k: "conversao", t: "Marcação → R$" },
+  { k: "conversao", t: "Agendamento → R$" },
   { k: "equipes", t: "Equipes" },
-  { k: "quem", t: "Quem marca para quem" },
+  { k: "quem", t: "Quem agenda para quem" },
   { k: "perdas", t: "Perdas e operadoras" },
   { k: "geral", t: "Análise geral (IA)" },
 ] as const;
@@ -36,36 +37,60 @@ type Aba = (typeof ABAS)[number]["k"];
 
 const um = <T extends string>(v: unknown, ops: readonly T[], padrao: T): T => (typeof v === "string" && (ops as readonly string[]).includes(v) ? (v as T) : padrao);
 
-/** Quantos filtros saem do padrão (o período não conta: ele aparece sempre na linha "Mostrando"). */
-function filtrosAtivos(f: FiltrosGestao): number {
-  return [
-    f.equipe,
-    f.pessoa,
-    f.categoria,
-    f.medico,
-    f.procedimento,
-    f.operadora !== "Particular",
-    f.cortesia !== "incluir",
-    f.agenda !== "todas",
-  ].filter(Boolean).length;
+/** Quantos filtros saem do padrão e valem nesta aba (o período não conta: ele aparece sempre na linha "Mostrando"). */
+function filtrosAtivos(f: FiltrosGestao, ignorados: string[] = []): number {
+  const fora: Record<string, boolean> = {
+    equipe: !!f.equipe,
+    pessoa: !!f.pessoa,
+    categoria: !!f.categoria,
+    medico: !!f.medico,
+    procedimento: !!f.procedimento,
+    operadora: f.operadora !== "Particular",
+    cortesia: f.cortesia !== "incluir",
+    agenda: f.agenda !== "todas",
+  };
+  return Object.entries(fora).filter(([k, v]) => v && !ignorados.includes(k)).length;
 }
+
+/** Filtros que a aba ignora (os dados dela não têm esse recorte): aparecem apagados, mas o valor segue para as outras abas. */
+const NAO_VALE: Record<Aba, string[]> = {
+  faturamento: ["equipe", "pessoa"],
+  conversao: ["categoria"],
+  quem: ["categoria"],
+  perdas: ["categoria"],
+  equipes: ["equipe", "pessoa", "categoria", "medico", "procedimento", "cortesia", "agenda"],
+  geral: [],
+};
 
 async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
   const o = await opcoesDosFiltros(f);
-  const sel = (nome: string, valor: string, opcoes: { v: string; t: string }[], todos: string) => (
-    <NativeSelect id={`g-${nome}`} name={nome} defaultValue={valor} className="w-full">
-      <option value="">{todos}</option>
-      {opcoes.map((x) => (
+  const ignora = (nome: string) => NAO_VALE[aba].includes(nome);
+  const opcoes = (lista: { v: string; t: string }[], todos?: string) => (
+    <>
+      {todos !== undefined && <option value="">{todos}</option>}
+      {lista.map((x) => (
         <option key={x.v} value={x.v}>
           {x.t}
         </option>
       ))}
-    </NativeSelect>
+    </>
   );
+  // um filtro: desligado quando a aba não usa (com o valor guardado num campo escondido, para não se perder)
+  const filtro = (nome: string, rotulo: string, valor: string, conteudo: React.ReactNode) => {
+    const off = ignora(nome);
+    return (
+      <Campo rotulo={rotulo} htmlFor={`g-${nome}`} ajuda={off ? "Não vale nesta aba" : undefined}>
+        {off && <input type="hidden" name={nome} value={valor} />}
+        <NativeSelect id={`g-${nome}`} name={off ? undefined : nome} defaultValue={valor} disabled={off} className="w-full">
+          {conteudo}
+        </NativeSelect>
+      </Campo>
+    );
+  };
   return (
     <Card data-tour="gestao-filtros">
       <CardContent className="space-y-4">
-        <FiltrosRecolhiveis ativos={filtrosAtivos(f)}>
+        <FiltrosRecolhiveis ativos={filtrosAtivos(f, NAO_VALE[aba])}>
           <Form action="/gestao" className="space-y-5">
             <input type="hidden" name="aba" value={aba} />
             <div className="grid items-end gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
@@ -79,44 +104,43 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
                 hoje={f.hoje}
               />
             </div>
-            <div className="grid items-end gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-              <Campo rotulo="Equipe" htmlFor="g-equipe">
-                {sel("equipe", f.equipe, o.equipes.map((e) => ({ v: e, t: e })), "Clínica toda")}
-              </Campo>
-              <Campo rotulo="Quem marcou" htmlFor="g-pessoa">
-                {sel("pessoa", f.pessoa, o.pessoas.map((p) => ({ v: p.login, t: p.nome })), "Todas as pessoas")}
-              </Campo>
-              <Campo rotulo="Operadora" htmlFor="g-operadora">
-                <NativeSelect id="g-operadora" name="operadora" defaultValue={f.operadora} className="w-full">
-                  <option value="Particular">Particular</option>
-                  <option value="SUS">SUS</option>
-                  <option value="Convênios">Convênios</option>
-                  <option value="todas">Todas</option>
-                </NativeSelect>
-              </Campo>
-              <Campo rotulo="Categoria" htmlFor="g-categoria">
-                {sel("categoria", f.categoria, o.categorias.map((c) => ({ v: c, t: titulo(c) })), "Todas")}
-              </Campo>
-              <Campo rotulo="Médico / agenda" htmlFor="g-medico">
-                {sel("medico", f.medico, o.medicos.map((m) => ({ v: m, t: titulo(m) })), "Todos")}
-              </Campo>
-              <Campo rotulo="Procedimento" htmlFor="g-procedimento">
-                {sel("procedimento", f.procedimento, o.procedimentos.map((p) => ({ v: p, t: p })), "Todos")}
-              </Campo>
-              <Campo rotulo="Cortesias" htmlFor="g-cortesia">
-                <NativeSelect id="g-cortesia" name="cortesia" defaultValue={f.cortesia} className="w-full">
-                  <option value="incluir">Incluir</option>
-                  <option value="excluir">Tirar cortesias</option>
-                  <option value="so">Só cortesias</option>
-                </NativeSelect>
-              </Campo>
-              <Campo rotulo="Tipo de agenda" htmlFor="g-agenda">
-                <NativeSelect id="g-agenda" name="agenda" defaultValue={f.agenda} className="w-full">
-                  <option value="todas">Médicos e exames</option>
-                  <option value="medico">Só médicos</option>
-                  <option value="exame">Só agendas de exame</option>
-                </NativeSelect>
-              </Campo>
+            <div className="grid items-start gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+              {filtro("equipe", "Equipe", f.equipe, opcoes(o.equipes.map((e) => ({ v: e, t: e })), "Clínica toda"))}
+              {filtro("pessoa", "Quem agendou", f.pessoa, opcoes(o.pessoas.map((p) => ({ v: p.login, t: p.nome })), "Todas as pessoas"))}
+              {filtro(
+                "operadora",
+                "Operadora",
+                f.operadora,
+                opcoes([
+                  { v: "Particular", t: "Particular" },
+                  { v: "SUS", t: "SUS" },
+                  { v: "Convênios", t: "Convênios" },
+                  { v: "todas", t: "Todas" },
+                ]),
+              )}
+              {filtro("categoria", "Categoria", f.categoria, opcoes(o.categorias.map((c) => ({ v: c, t: titulo(c) })), "Todas"))}
+              {filtro("medico", "Médico / agenda", f.medico, opcoes(o.medicos.map((m) => ({ v: m, t: titulo(m) })), "Todos"))}
+              {filtro("procedimento", "Procedimento", f.procedimento, opcoes(o.procedimentos.map((p) => ({ v: p, t: p })), "Todos"))}
+              {filtro(
+                "cortesia",
+                "Cortesias",
+                f.cortesia,
+                opcoes([
+                  { v: "incluir", t: "Incluir" },
+                  { v: "excluir", t: "Tirar cortesias" },
+                  { v: "so", t: "Só cortesias" },
+                ]),
+              )}
+              {filtro(
+                "agenda",
+                "Tipo de agenda",
+                f.agenda,
+                opcoes([
+                  { v: "todas", t: "Médicos e exames" },
+                  { v: "medico", t: "Só médicos" },
+                  { v: "exame", t: "Só agendas de exame" },
+                ]),
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               <Button type="submit">Aplicar</Button>
@@ -132,7 +156,7 @@ async function Filtros({ f, aba }: { f: FiltrosGestao; aba: Aba }) {
           <b>{f.janela.nome}</b>
           <span className="rounded-md bg-muted px-1.5 py-0.5 font-medium tabular-nums">{f.janela.datas}</span>
           {f.janela.emAndamento && <span className="text-muted-foreground">· parcial, ainda vai mudar</span>}
-          {f.base && <span className="text-muted-foreground">· comparado com {f.base.nome}</span>}
+          {f.base && <span className="text-muted-foreground">· comparado com {textoBase(f.base)}</span>}
         </div>
       </CardContent>
     </Card>
@@ -167,16 +191,19 @@ export default async function PaginaGestao(props: PageProps<"/gestao">) {
     <div className="space-y-6">
       <CabecalhoPagina
         titulo="Gestão"
-        descricao="A clínica toda, com o dinheiro: faturamento, quanto cada marcação gerou, equipes, quem marca para quem e por que consultas se perdem. Só administradores veem esta área."
+        descricao="A clínica toda, com o dinheiro: faturamento, quanto cada agendamento gerou, equipes, quem agenda para quem e por que consultas se perdem. Só administradores veem esta área."
         acoes={
           <a href={`/api/gestao/xlsx?${filtrosParaUrl(f)}`} className={buttonVariants({ variant: "outline" })} data-tour="gestao-excel">
             <FileSpreadsheet /> Gerar Excel
           </a>
         }
       />
-      <Suspense fallback={<Skeleton className="h-56 rounded-xl" />}>
-        <Filtros f={f} aba={aba} />
-      </Suspense>
+      {/* a análise geral da IA não usa filtros: o período dela aparece na própria aba */}
+      {aba !== "geral" && (
+        <Suspense fallback={<Skeleton className="h-56 rounded-xl" />}>
+          <Filtros f={f} aba={aba} />
+        </Suspense>
+      )}
       <nav className="flex gap-1 overflow-x-auto rounded-lg border bg-card p-1" aria-label="Seções da Gestão" data-tour="gestao-abas">
         {ABAS.map((a) => (
           <Link

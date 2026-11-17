@@ -53,7 +53,7 @@ export const BLOCOS_TV: { bloco: BlocoTv; rotulo: string; descricao: string; seg
   {
     bloco: "participacao",
     rotulo: "Comercial × outras equipes (pizza)",
-    descricao: "Que fatia de todas as marcações da clínica cada equipe fez: hoje, 7 dias, mês e mês passado.",
+    descricao: "Que fatia de todos os agendamentos da clínica cada equipe fez: hoje, 7 dias, mês e mês passado.",
     segundos: 25,
     padrao: true,
   },

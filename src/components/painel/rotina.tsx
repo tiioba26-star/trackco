@@ -51,7 +51,7 @@ export async function CartaoRecordes({ db, s, metricas, hoje }: { db: Db; s: Ses
   else if (r.melhorDia && r.melhorDia.dia === hoje && r.hoje > 0) frase = { texto: "Hoje é o seu melhor dia dos últimos 12 meses!", festa: true };
   else if (r.melhorMes && r.mesAtual >= r.melhorMes.valor * 0.7)
     frase = {
-      texto: `Neste mês: ${fmtValor(r.mesAtual)}. Faltam ${fmtValor(r.melhorMes.valor - r.mesAtual + 1)} para passar o seu melhor mês.`,
+      texto: `Em ${nomeCompetencia(mesAtual)}, até hoje: ${fmtValor(r.mesAtual)}. Faltam ${fmtValor(r.melhorMes.valor - r.mesAtual + 1)} para passar o seu melhor mês.`,
       festa: false,
     };
   else if (r.melhorDia && r.hoje > 0 && r.hoje >= r.melhorDia.valor * 0.6)
@@ -67,18 +67,21 @@ export async function CartaoRecordes({ db, s, metricas, hoje }: { db: Db; s: Ses
     <Card data-tour="recordes">
       <CardHeader>
         <CardTitle className="flex items-center gap-1.5">
-          <Trophy className="size-4 text-amber-500" />
+          <Trophy className="size-4 text-ouro" />
           Seus recordes
           <Dica id="pn.recordes" />
         </CardTitle>
-        <CardDescription>Você contra você mesmo, nos últimos 12 meses. Só conta paciente válido (remarcação não bate recorde).</CardDescription>
+        <CardDescription>
+          Você contra você mesmo, nos últimos 12 meses (não segue o período escolhido lá em cima). Só conta paciente válido: remarcação não bate
+          recorde.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {frase && (
           <p
             className={
               frase.festa
-                ? "flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-300"
+                ? "flex items-center gap-2 rounded-lg bg-ouro/10 px-3 py-2 text-sm font-medium text-ouro"
                 : "rounded-lg bg-primary-soft px-3 py-2 text-sm"
             }
           >

@@ -17,13 +17,28 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { itemAtivo, NAV, type Perfil } from "./nav";
+import { itemAtivo, NAV, type ItemNav, type Perfil } from "./nav";
+
+/**
+ * Grupos do menu com o que a pessoa pode ver. Para quem não é administrador, o que sobra de
+ * "Configuração" (Colaboradores, Painéis de TV) vai para "Gestão": um grupo com 2 itens soltos confunde.
+ */
+function gruposVisiveis(admin: boolean, pode: (p: Perfil) => boolean): { titulo: string; itens: ItemNav[] }[] {
+  const grupos = NAV.map((g) => ({ titulo: g.titulo, itens: g.itens.filter((i) => pode(i.perfil)) })).filter((g) => g.itens.length);
+  if (admin) return grupos;
+  const config = grupos.find((g) => g.titulo === "Configuração");
+  const gestao = grupos.find((g) => g.titulo === "Gestão");
+  if (!config || !gestao) return grupos;
+  gestao.itens = [...gestao.itens, ...config.itens];
+  return grupos.filter((g) => g !== config);
+}
 
 export function AppSidebar({ perfil }: { perfil: { admin: boolean; gestao: boolean } }) {
   const pathname = usePathname();
   const ativo = itemAtivo(pathname);
   const { setOpenMobile } = useSidebar();
   const pode = (p: Perfil) => p === "todos" || (p === "lider" && perfil.gestao) || (p === "admin" && perfil.admin);
+  const grupos = gruposVisiveis(perfil.admin, pode);
 
   return (
     <Sidebar collapsible="icon" data-tour="menu">
@@ -33,9 +48,8 @@ export function AppSidebar({ perfil }: { perfil: { admin: boolean; gestao: boole
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        {NAV.map((g) => {
-          const itens = g.itens.filter((i) => pode(i.perfil));
-          if (!itens.length) return null;
+        {grupos.map(({ titulo, itens }) => {
+          const g = { titulo };
           return (
             <SidebarGroup key={g.titulo}>
               <SidebarGroupLabel>{g.titulo}</SidebarGroupLabel>

@@ -54,7 +54,7 @@ export default async function PaginaDados() {
     <div className="space-y-6">
       <CabecalhoPagina
         titulo="Dados e lançamentos"
-        descricao={`Fonte principal: Klingo (relatórios 2331 e 319), sincronizado de hora em hora em horário comercial. ${totalLinhas ?? 0} agendamentos na base.`}
+        descricao={`Fonte principal: Klingo (agendamentos e faturamento), sincronizado de hora em hora em horário comercial. ${totalLinhas ?? 0} agendamentos na base.`}
         acoes={
           <BotaoAcao acao={recalcularAgora} sucesso="Recalculado." data-tour="dados-recalc">
             <RefreshCw /> Recalcular agora
@@ -66,7 +66,7 @@ export default async function PaginaDados() {
         <Card data-tour="dados-sync">
           <CardHeader>
             <CardTitle>Sincronizações com o Klingo</CardTitle>
-            <CardDescription>Rodam pelo GitHub Actions. Uma falha não apaga dados: a próxima execução completa o que faltou.</CardDescription>
+            <CardDescription>Rodam sozinhas de hora em hora. Uma falha não apaga dados: a próxima execução completa o que faltou.</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <Table>
@@ -101,7 +101,7 @@ export default async function PaginaDados() {
                             {Object.entries(s.detalhes.meses).map(([m, d]) => (
                               <li key={m}>
                                 <b>{m}</b>
-                                {d.marcacoes !== undefined && ` · ${d.marcacoes} marcações`}
+                                {d.marcacoes !== undefined && ` · ${d.marcacoes} agendamentos`}
                                 {d.cruzamento && ` · ${d.cruzamento.atendidas}/${d.cruzamento.verificadas} atendidas`}
                                 {d.faturamento && ` · faturamento ${fmtValor(d.faturamento.valor, "R$")}`}
                               </li>
@@ -115,7 +115,11 @@ export default async function PaginaDados() {
                 {!syncs?.length && (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                      O robô ainda não rodou. Veja o README para configurar o GitHub Actions.
+                      A sincronização com o Klingo ainda não rodou.
+                      <details className="text-xs text-muted-foreground [&_summary]:cursor-pointer [&_summary]:font-medium">
+                        <summary>Detalhes técnicos</summary>
+                        Veja o README do projeto para configurar o GitHub Actions.
+                      </details>
                     </TableCell>
                   </TableRow>
                 )}
@@ -161,7 +165,7 @@ export default async function PaginaDados() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
-            Conferência do faturamento <Dica texto="Do faturamento Particular de cada mês (relatório 319), quanto ficou ligado a uma marcação (2331). Abaixo de 95% vale olhar: pode ser atendimento sem marcação ou falha no cruzamento." />
+            Conferência do faturamento <Dica texto="Do faturamento Particular de cada mês, quanto ficou ligado a um agendamento. Abaixo de 95% vale olhar: pode ser atendimento sem agendamento ou falha no cruzamento." />
           </CardTitle>
           <CardDescription>Últimos 6 meses · Particular · usado na área Gestão.</CardDescription>
         </CardHeader>
@@ -172,7 +176,7 @@ export default async function PaginaDados() {
                 <TableRow>
                   <TableHead>Mês</TableHead>
                   <TableHead className="text-right">Faturamento</TableHead>
-                  <TableHead className="text-right">Ligado a marcações</TableHead>
+                  <TableHead className="text-right">Ligado a agendamentos</TableHead>
                   <TableHead className="text-right">%</TableHead>
                 </TableRow>
               </TableHeader>

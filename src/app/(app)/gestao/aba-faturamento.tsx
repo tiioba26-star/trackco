@@ -6,7 +6,7 @@ import type { Variacao } from "@/engine/faturamento";
 import { abaFaturamento, filtrosParaUrl, type AgruparPor, type FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtNum } from "@/lib/formato";
 import { cn } from "@/lib/utils";
-import { Baixar, Delta, Kpi, calor, ErroGestao, real } from "./blocos";
+import { Baixar, Delta, Kpi, calor, ErroGestao, real, textoBase } from "./blocos";
 import { GraficoEmpilhado } from "./graficos";
 
 const AGRUPAR: { k: AgruparPor; t: string }[] = [
@@ -48,7 +48,7 @@ function ListaVariacao({ titulo, v }: { titulo: string; v: { ganhos: Variacao[];
 export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: AgruparPor; saz: "total" | "dia" }) {
   const d = await abaFaturamento(f, por).catch((e: Error) => e);
   if (d instanceof Error) return <ErroGestao erro={d} />;
-  const nomeBase = f.base ? (f.comparar === "ano" || f.janela.periodo === "ano" ? "ano anterior" : "período anterior") : undefined;
+  const nomeBase = textoBase(f.base);
   const qs = (extra: Record<string, string>) => `/gestao?${filtrosParaUrl(f, { aba: "faturamento", por, saz, ...extra })}`;
 
   if (d.semDados) {
@@ -56,10 +56,14 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
       <Card>
         <CardContent className="space-y-2 py-8 text-center text-sm text-muted-foreground">
           <p className="font-medium text-foreground">Ainda não há faturamento guardado.</p>
-          <p>
-            O robô passa a guardar o faturamento (relatório 319) na próxima sincronização. Para trazer o histórico desde 2024, rode a
-            sincronização “Sincronizar Klingo” no GitHub com <b>desde = 2024-01</b> e <b>só faturamento</b> marcado.
-          </p>
+          <p>O faturamento do Klingo passa a ser guardado na próxima sincronização (de hora em hora).</p>
+          <details className="text-xs text-muted-foreground [&_summary]:cursor-pointer [&_summary]:font-medium">
+            <summary>Detalhes técnicos: trazer o histórico</summary>
+            <p className="mt-1">
+              Para trazer desde 2024, rode a sincronização “Sincronizar Klingo” no GitHub com <b>desde = 2024-01</b> e <b>só faturamento</b>
+              marcado (relatório 319).
+            </p>
+          </details>
         </CardContent>
       </Card>
     );
@@ -95,7 +99,7 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
         <p className="flex items-start gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
           <Info className="mt-0.5 size-4 shrink-0" />
           O faturamento é da clínica toda: o relatório de faturamento do Klingo não diz quem marcou. Por isso equipe e pessoa não mudam esta aba (veja
-          o R$ de cada pessoa em “Marcação → R$”).
+          o R$ de cada pessoa em “Agendamento → R$”).
         </p>
       )}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -103,14 +107,14 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
           titulo="Faturamento"
           valor={real(d.atual.valor)}
           descricao={`Tudo o que o Klingo faturou em ${f.janela.datas}${f.operadora === "todas" ? "" : ` (${f.operadora})`}.`}
-          ajuda="Soma do valor dos atendimentos do relatório de faturamento (319) do Klingo, pela data do atendimento. Sem repasse médico."
+          ajuda="Soma do valor dos atendimentos do faturamento do Klingo, pela data do atendimento. Sem repasse médico."
           delta={<Delta atual={d.atual.valor} base={d.base?.valor} nome={nomeBase} />}
           antes={d.base ? real(d.base.valor) : null}
         />
         <Kpi
           titulo="Procedimentos realizados"
           valor={fmtNum(d.atual.qtd)}
-          descricao="Quantidade de procedimentos faturados (consultas, exames e procedimentos)."
+          descricao={`Procedimentos faturados em ${f.janela.datas} (consultas, exames e procedimentos).`}
           ajuda="Soma da coluna quantidade do faturamento. Uma consulta com dois exames conta 3."
           delta={<Delta atual={d.atual.qtd} base={d.base?.qtd} nome={nomeBase} />}
           antes={d.base ? fmtNum(d.base.qtd) : null}
@@ -118,7 +122,7 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
         <Kpi
           titulo="Valor médio"
           valor={real(d.atual.valorMedio)}
-          descricao="Faturamento ÷ procedimentos realizados (ticket médio de cada procedimento)."
+          descricao={`Faturamento ÷ procedimentos realizados em ${f.janela.datas}.`}
           ajuda="Se o valor médio cai, a clínica está fazendo mais procedimentos baratos (ou dando mais desconto)."
           delta={<Delta atual={d.atual.valorMedio} base={d.base?.valorMedio} nome={nomeBase} />}
           antes={d.base ? real(d.base.valorMedio) : null}
@@ -126,7 +130,7 @@ export async function AbaFaturamento({ f, por, saz }: { f: FiltrosGestao; por: A
         <Kpi
           titulo="Dias de atendimento"
           valor={fmtNum(d.atual.dias)}
-          descricao={`Dias com algum atendimento faturado · ${fmtNum(d.atual.porDia, 1)} procedimentos por dia.`}
+          descricao={`Dias com algum atendimento faturado em ${f.janela.datas} · ${fmtNum(d.atual.porDia, 1)} procedimentos por dia.`}
           ajuda="Dias em que o Klingo faturou alguma coisa. Feriados e dias sem agenda não entram."
           delta={<Delta atual={d.atual.dias} base={d.base?.dias} nome={nomeBase} />}
           antes={d.base ? fmtNum(d.base.dias) : null}

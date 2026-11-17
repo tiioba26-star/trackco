@@ -7,7 +7,7 @@ import { type ConfigTv, normalizarConfig } from "@/lib/tv-config";
 import { fmtDataHora } from "@/lib/formato";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { alternarPainel } from "./actions";
-import { BotaoControle, EditarPainel, ExcluirPainel, NovoPainel, RegenerarLink, VerLink } from "./cliente";
+import { BotaoControle, EditarPainel, ExcluirPainel, MaisAcoes, NovoPainel, RegenerarLink, VerLink } from "./cliente";
 
 export const metadata = { title: "Painéis de TV" };
 
@@ -60,12 +60,29 @@ export default async function PaginaPaineis() {
                       }}
                       equipes={equipesDisponiveis}
                     />
-                    <VerLink id={p.id} />
-                    <RegenerarLink id={p.id} />
-                    <BotaoAcao size="sm" variant="ghost" acao={alternarPainel.bind(null, p.id, !p.ativo)}>
-                      {p.ativo ? "Desativar" : "Ativar"}
-                    </BotaoAcao>
-                    <ExcluirPainel id={p.id} nome={p.nome} />
+                    <MaisAcoes>
+                      <VerLink id={p.id} />
+                      <RegenerarLink id={p.id} />
+                      <BotaoAcao
+                        size="sm"
+                        variant="ghost"
+                        acao={alternarPainel.bind(null, p.id, !p.ativo)}
+                        confirmar={
+                          p.ativo
+                            ? {
+                                titulo: `Desativar “${p.nome}”?`,
+                                texto:
+                                  "A TV que mostra este painel sai do ar na hora e passa a mostrar o aviso de painel desativado. Dá para ativar de novo depois.",
+                                confirmar: "Desativar",
+                                perigo: true,
+                              }
+                            : undefined
+                        }
+                      >
+                        {p.ativo ? "Desativar" : "Ativar"}
+                      </BotaoAcao>
+                      <ExcluirPainel id={p.id} nome={p.nome} />
+                    </MaisAcoes>
                   </div>
                 </CardContent>
               </Card>

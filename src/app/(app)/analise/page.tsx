@@ -21,6 +21,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { EscolhaMetricas, LETRAS } from "./metricas-escolha";
 import { Campo } from "@/components/ui/campo";
+import { PeriodoMeses } from "@/components/app/periodo-meses";
 
 export const metadata = { title: "Análise" };
 
@@ -350,28 +351,22 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
               iniciais={selecionadas.map((m) => m.codigo)}
               maximo={MAX_METRICAS}
             />
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1">
-                <Label>Ver por</Label>
-                <Dica texto="Dia = cada dia de um mês (dias futuros mostram o que já está marcado para eles, em cor mais clara). Mês = um ponto por mês num intervalo." />
-              </div>
+            <Campo
+              rotulo="Ver por"
+              dicaTexto="Dia = cada dia de um mês (dias futuros mostram o que já está agendado para eles, em cor mais clara). Mês = um ponto por mês num intervalo."
+            >
               <NativeSelect name="g" defaultValue={g}>
                 <option value="dia">Dia (um mês)</option>
                 <option value="mes">Mês (intervalo)</option>
               </NativeSelect>
-            </div>
+            </Campo>
             {g === "dia" ? (
               <Campo rotulo="Mês">
                 <Input type="month" name="mes" defaultValue={mes} className="bg-background" />
               </Campo>
             ) : (
-              <div className="grid grid-cols-2 gap-x-2 gap-y-5">
-                <Campo rotulo="De">
-                  <Input type="month" name="de" defaultValue={de} className="bg-background" />
-                </Campo>
-                <Campo rotulo="Até">
-                  <Input type="month" name="ate" defaultValue={ateMes} className="bg-background" />
-                </Campo>
+              <div className="grid gap-x-2 gap-y-5 sm:grid-cols-3 md:col-span-2 xl:col-span-3">
+                <PeriodoMeses key={`${de}|${ateMes}`} de={de} ate={ateMes} atual={atual} id="an" />
               </div>
             )}
             {seletorQuem || <div />}

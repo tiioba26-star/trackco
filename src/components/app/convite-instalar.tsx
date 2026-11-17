@@ -89,7 +89,7 @@ export function ConviteInstalar() {
       role="dialog"
       aria-modal="false"
       aria-labelledby="convite-instalar-titulo"
-      className="fixed inset-x-0 bottom-0 z-40 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 bottom-[var(--nav-inferior)] z-40 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
       <div className="mx-auto max-w-md rounded-2xl border bg-card p-4 text-card-foreground shadow-lg animate-in fade-in slide-in-from-bottom-4">
         <div className="flex items-start gap-3">

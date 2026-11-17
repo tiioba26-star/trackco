@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { abaEquipes, filtrosParaUrl, type FiltrosGestao } from "@/lib/dados/gestao";
 import { fmtNum, fmtPct } from "@/lib/formato";
-import { Baixar, Barrinha, Delta, ErroGestao, real } from "./blocos";
+import { Baixar, Barrinha, Delta, ErroGestao, real, textoBase } from "./blocos";
 import { GraficoAcumulado, GraficoLinhas } from "./graficos";
 
 export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
@@ -15,10 +15,10 @@ export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle className="flex items-center gap-1.5">
-              Todas as equipes <Dica texto="Marcações feitas no período por quem é de cada equipe (cadastro do Trackco; quem não está no Trackco usa a equipe do cadastro antigo). 'Viraram consulta' = marcações que já apareceram no faturamento." />
+              Todas as equipes <Dica texto="Agendamentos feitos no período por quem é de cada equipe (cadastro do Trackco; quem não está no Trackco usa a equipe do cadastro antigo). Comparecimento = das que já dá para conferir, quantas o paciente veio." />
             </CardTitle>
             <CardDescription>
-              {fmtNum(d.totalAtual)} marcações em {f.janela.datas}
+              {fmtNum(d.totalAtual)} agendamentos em {f.janela.datas}
               {f.operadora === "todas" ? "" : ` (${f.operadora})`}
               {d.totalBase !== null && f.base ? ` · ${fmtNum(d.totalBase)} em ${f.base.nome}` : ""}.
             </CardDescription>
@@ -31,9 +31,16 @@ export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
               <TableRow>
                 <TableHead>Equipe</TableHead>
                 <TableHead className="text-right">Pessoas</TableHead>
-                <TableHead className="text-right">Marcações</TableHead>
+                <TableHead className="text-right">
+                  Agendamentos
+                  {f.base && <span className="block text-[11px] font-normal text-muted-foreground">variação vs {textoBase(f.base)}</span>}
+                </TableHead>
                 <TableHead className="w-40">Participação</TableHead>
-                <TableHead className="text-right">Viraram consulta</TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">
+                    Comparecimento <Dica texto="Dos agendamentos que já dá para conferir (data passada, sem remarcações, bloqueios e erros de cadastro), em quantos o paciente veio. É a mesma conta da aba Agendamento → R$." />
+                  </span>
+                </TableHead>
                 <TableHead className="text-right">R$ gerado</TableHead>
               </TableRow>
             </TableHeader>
@@ -52,14 +59,14 @@ export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
                     <div className="mb-1 text-xs tabular-nums">{fmtPct(e.participacao)}</div>
                     <Barrinha pct={e.participacao} />
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">{fmtPct(e.marcacoes ? (e.atendidas / e.marcacoes) * 100 : null)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPct(e.comparecimento)}</TableCell>
                   <TableCell className="text-right tabular-nums">{real(e.valor)}</TableCell>
                 </TableRow>
               ))}
               {!d.equipes.length && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                    Nenhuma marcação no período.
+                    Nenhum agendamento no período.
                   </TableCell>
                 </TableRow>
               )}
@@ -71,11 +78,11 @@ export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
-            Comparação dia a dia <Dica texto="Total acumulado de marcações, dia 1, dia 2, dia 3… do período e da comparação, lado a lado. Assim um mês ainda em andamento é comparado com os mesmos dias do outro." />
+            Comparação dia a dia <Dica texto="Total acumulado de agendamentos, dia 1, dia 2, dia 3… do período e da comparação, lado a lado. Assim um mês ainda em andamento é comparado com os mesmos dias do outro." />
           </CardTitle>
           <CardDescription>
             Clínica toda{f.operadora === "todas" ? "" : `, ${f.operadora}`}: {f.janela.datas}
-            {f.base ? ` × ${f.base.nome}` : ""}.
+            {f.base ? ` × ${textoBase(f.base)}` : ""}.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +94,8 @@ export async function AbaEquipes({ f }: { f: FiltrosGestao }) {
         <CardHeader>
           <CardTitle>Equipes ao longo do tempo</CardTitle>
           <CardDescription>
-            Marcações por {d.porEquipe.grao === "dia" ? "dia" : d.porEquipe.grao === "semana" ? "semana" : "mês"}, as 6 equipes que mais marcaram.
+            Agendamentos por {d.porEquipe.grao === "dia" ? "dia" : d.porEquipe.grao === "semana" ? "semana" : "mês"} em {f.janela.datas}, das 6 equipes que mais
+            agendaram.
           </CardDescription>
         </CardHeader>
         <CardContent>

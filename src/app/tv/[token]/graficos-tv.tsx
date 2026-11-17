@@ -14,16 +14,18 @@ const fmt = (n: number, unidade?: string) => {
 };
 
 const C = { atual: "#38bdf8", anterior: "#94a3b8", sus: "#a78bfa", ok: "#34d399", ouro: "#f5c542" };
-const EIXO = { fill: "rgba(186,230,253,0.7)", fontSize: 16 };
+/** Tamanho em px proporcional à altura da tela (os gráficos do Recharts não aceitam vh): legível de 3 a 5 m em qualquer TV. */
+const px = (vh: number) => Math.round(((typeof window === "undefined" ? 1080 : window.innerHeight) * vh) / 100);
+const EIXO = { fill: "rgba(186,230,253,0.85)", fontSize: px(1.8) };
 const GRADE = "rgba(255,255,255,0.07)";
 
 // eixo dos dias na TV: letras maiores, sábado e domingo em dourado
 const EIXO_DIAS_TV: EstiloEixoDias = {
-  numero: "rgba(186,230,253,0.7)",
-  letra: "rgba(186,230,253,0.45)",
-  fimDeSemana: "rgba(245,197,66,0.85)",
-  tamanhoNumero: 16,
-  tamanhoLetra: 13,
+  numero: "rgba(186,230,253,0.85)",
+  letra: "rgba(186,230,253,0.7)",
+  fimDeSemana: "rgba(245,197,66,0.9)",
+  tamanhoNumero: px(1.8),
+  tamanhoLetra: px(1.5),
 };
 
 /** Etiqueta da média no fim da linha tracejada (fica na margem direita, sem cobrir os pontos). */
@@ -76,14 +78,14 @@ function ColunaRanking({ c, unidade, mais }: { c: ColunaTv; unidade?: string; ma
       titulo={
         <div className="space-y-[0.4vh]">
           <div className="truncate text-[2.6vh] font-extrabold text-white">{c.periodo.nome}</div>
-          <div className="text-[1.8vh] font-semibold text-sky-200/70 tabular-nums">{c.periodo.datas}</div>
+          <div className="text-[2.2vh] font-semibold text-sky-200/85 tabular-nums">{c.periodo.datas}</div>
           {c.total !== undefined && (
             <div className="text-[2vh] font-bold text-sky-200 tabular-nums">
               equipe {fmt(c.total)}
-              {c.totalBruto !== undefined && c.totalBruto > c.total && <span className="font-medium text-sky-200/60"> de {fmt(c.totalBruto)} no total</span>}
+              {c.totalBruto !== undefined && c.totalBruto > c.total && <span className="font-medium text-sky-200/80"> de {fmt(c.totalBruto)} no total</span>}
             </div>
           )}
-          {c.comparadoCom && <div className="text-[1.6vh] text-sky-200/55">vs {c.comparadoCom}</div>}
+          {c.comparadoCom && <div className="text-[2vh] text-sky-200/80">vs {c.comparadoCom}</div>}
         </div>
       }
     >
@@ -111,13 +113,13 @@ function ColunaRanking({ c, unidade, mais }: { c: ColunaTv; unidade?: string; ma
                 </span>
               </div>
               {(it.detalhe || (it.bruto !== undefined && it.bruto > it.valor)) && (
-                <div className="pl-[7.6vw] text-[1.5vh] text-sky-200/55 tabular-nums">{it.detalhe ?? `de ${fmt(it.bruto!)} no total`}</div>
+                <div className="pl-[7.6vw] text-[2vh] text-sky-200/80 tabular-nums">{it.detalhe ?? `de ${fmt(it.bruto!)} no total`}</div>
               )}
             </motion.li>
           ))}
         </ul>
       ) : (
-        <div className="flex h-full items-center justify-center text-center text-[2.2vh] text-sky-200/60">{c.vazio ?? "Sem dados ainda"}</div>
+        <div className="flex h-full items-center justify-center text-center text-[2.2vh] text-sky-200/80">{c.vazio ?? "Sem dados ainda"}</div>
       )}
     </Caixa>
   );
@@ -156,7 +158,7 @@ function MesDiaADia({ g }: { g: Extract<GraficoTv, { tipo: "mes_dia_a_dia" }> })
             <span className="text-[2.2vh]">
               Até hoje: <b className="text-white">{fmt(g.totalAtual)}</b> × {fmt(g.totalAnteriorMesmoPonto)} em {g.mesAnterior}
               {diff !== null && (
-                <b className={diff >= 0 ? "ml-2 text-emerald-300" : "ml-2 text-sky-200/70"}>
+                <b className={diff >= 0 ? "ml-2 text-emerald-300" : "ml-2 text-sky-200/85"}>
                   {diff >= 0 ? "+" : ""}
                   {fmt(diff, "%")}
                 </b>
@@ -172,7 +174,7 @@ function MesDiaADia({ g }: { g: Extract<GraficoTv, { tipo: "mes_dia_a_dia" }> })
             <YAxis tick={EIXO} tickLine={false} axisLine={false} width={44} allowDecimals={false} />
             <Line dataKey="anterior" stroke={C.anterior} strokeWidth={2.5} strokeDasharray="7 6" dot={false} isAnimationActive={false} connectNulls />
             <Line dataKey="atual" stroke={C.atual} strokeWidth={4.5} dot={{ r: 4, fill: C.atual }} animationDuration={1200}>
-              <LabelList dataKey="atual" position="top" style={{ fill: "#e0f2fe", fontSize: 14, fontWeight: 700 }} />
+              <LabelList dataKey="atual" position="top" style={{ fill: "#e0f2fe", fontSize: px(1.9), fontWeight: 700 }} />
             </Line>
           </LineChart>
         </ResponsiveContainer>
@@ -182,7 +184,7 @@ function MesDiaADia({ g }: { g: Extract<GraficoTv, { tipo: "mes_dia_a_dia" }> })
         <div className="flex h-full flex-col gap-[0.8vh]">
           <div className="grid gap-[0.6vh]" style={{ gridTemplateColumns: `repeat(${dows.length}, minmax(0,1fr))` }}>
             {dows.map((w) => (
-              <div key={w} className="text-center text-[1.8vh] font-bold text-sky-200/80">
+              <div key={w} className="text-center text-[2.2vh] font-bold text-sky-200/80">
                 {NOMES[w - 1]}
               </div>
             ))}
@@ -200,7 +202,7 @@ function MesDiaADia({ g }: { g: Extract<GraficoTv, { tipo: "mes_dia_a_dia" }> })
                     background: d.valor === null ? "rgba(255,255,255,0.03)" : `rgba(56,189,248,${0.08 + 0.72 * ((d.valor ?? 0) / max)})`,
                   }}
                 >
-                  <span className="absolute top-[0.3vh] left-[0.4vw] text-[1.3vh] text-white/60">{d.dia}</span>
+                  <span className="absolute top-[0.3vh] left-[0.4vw] text-[1.9vh] text-white/80">{d.dia}</span>
                   <span className="text-[2.4vh] font-black text-white tabular-nums">{d.valor ?? ""}</span>
                 </div>
               ))}
@@ -211,7 +213,7 @@ function MesDiaADia({ g }: { g: Extract<GraficoTv, { tipo: "mes_dia_a_dia" }> })
                 <div className="text-[2.2vh] font-black tabular-nums" style={{ color: t === maxDow && t > 0 ? C.ouro : "#e0f2fe" }}>
                   {fmt(t)}
                 </div>
-                <div className="text-[1.3vh] text-sky-200/50">no mês</div>
+                <div className="text-[1.9vh] text-sky-200/80">no mês</div>
               </div>
             ))}
           </div>
@@ -254,7 +256,7 @@ function Semanas({ g }: { g: Extract<GraficoTv, { tipo: "semanas" }> }) {
               label={etiquetaMedia(`média ${fmt(media)}`, cor, 18)}
             />
             <Line dataKey={chave} stroke={cor} strokeWidth={4} dot={{ r: 3.5, fill: cor }} animationDuration={1200}>
-              <LabelList dataKey={chave} position="top" style={{ fill: "#e0f2fe", fontSize: 13, fontWeight: 700 }} />
+              <LabelList dataKey={chave} position="top" style={{ fill: "#e0f2fe", fontSize: px(1.9), fontWeight: 700 }} />
             </Line>
           </LineChart>
         </ResponsiveContainer>
@@ -303,7 +305,7 @@ function ComparecimentoSemanas({ g }: { g: Extract<GraficoTv, { tipo: "compareci
               />
             )}
             <Line dataKey="taxa" stroke={C.ok} strokeWidth={4.5} dot={{ r: 4, fill: C.ok }} connectNulls animationDuration={1200}>
-              <LabelList dataKey="taxa" position="top" formatter={(v: unknown) => (typeof v === "number" ? `${Math.round(v)}` : "")} style={{ fill: "#d1fae5", fontSize: 14, fontWeight: 700 }} />
+              <LabelList dataKey="taxa" position="top" formatter={(v: unknown) => (typeof v === "number" ? `${Math.round(v)}` : "")} style={{ fill: "#d1fae5", fontSize: px(1.9), fontWeight: 700 }} />
             </Line>
           </LineChart>
         </ResponsiveContainer>
@@ -333,13 +335,13 @@ function DiaSemana({ g }: { g: Extract<GraficoTv, { tipo: "dia_semana" }> }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={g.dias} margin={{ top: 36, right: 18, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke={GRADE} />
-            <XAxis dataKey="rotulo" tick={{ ...EIXO, fontSize: 22, fontWeight: 700 }} tickLine={false} axisLine={false} />
+            <XAxis dataKey="rotulo" tick={{ ...EIXO, fontSize: px(2.2), fontWeight: 700 }} tickLine={false} axisLine={false} />
             <YAxis tick={EIXO} tickLine={false} axisLine={false} width={44} />
             <Bar dataKey="media" radius={[10, 10, 0, 0]} animationDuration={1000}>
               {g.dias.map((d) => (
                 <Cell key={d.rotulo} fill={d.media === max ? C.ouro : C.atual} fillOpacity={d.media === max ? 1 : 0.75} />
               ))}
-              <LabelList dataKey="media" position="top" formatter={(v: unknown) => (typeof v === "number" ? v.toLocaleString("pt-BR") : "")} style={{ fill: "#fff", fontSize: 22, fontWeight: 800 }} />
+              <LabelList dataKey="media" position="top" formatter={(v: unknown) => (typeof v === "number" ? v.toLocaleString("pt-BR") : "")} style={{ fill: "#fff", fontSize: px(2.2), fontWeight: 800 }} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -392,7 +394,7 @@ function DozeMeses({ g }: { g: Extract<GraficoTv, { tipo: "doze_meses" }> }) {
             <YAxis tick={EIXO} tickLine={false} axisLine={false} width={56} allowDecimals={false} />
             <Line dataKey="meta" stroke={C.ouro} strokeWidth={3} strokeDasharray="8 6" dot={false} connectNulls isAnimationActive={false} />
             <Line dataKey="validos" stroke={C.atual} strokeWidth={4.5} dot={{ r: 5, fill: C.atual }} animationDuration={1200}>
-              <LabelList dataKey="validos" position="top" style={{ fill: "#e0f2fe", fontSize: 16, fontWeight: 700 }} />
+              <LabelList dataKey="validos" position="top" style={{ fill: "#e0f2fe", fontSize: px(2), fontWeight: 700 }} />
             </Line>
           </LineChart>
         </ResponsiveContainer>
@@ -433,7 +435,7 @@ export function LinhaPeriodo({ linha, cat, cor }: { linha: LinhaEquipe; cat: "pa
   const diaMaior = linha.dias[valores.indexOf(maior)];
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[1.6vh] text-sky-200/70">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[2vh] text-sky-200/85">
         <span className="flex items-center gap-2">
           <span className="inline-block h-[0.4vh] w-6 rounded-full" style={{ background: cor }} />
           {linha.rotulo} · {linha.dias[0]} a {linha.dias[linha.dias.length - 1]}

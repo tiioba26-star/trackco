@@ -92,7 +92,7 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <NivelBadge nivel={v.funcao === "lider" ? "Líder" : "Membro"} cor={v.funcao === "lider" ? "#f59e0b" : undefined} />
+                          <NivelBadge nivel={v.funcao === "lider" ? "Líder" : "Membro"} cor={v.funcao === "lider" ? "var(--ouro)" : undefined} />
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {formatarDataBR(v.inicio)} → {v.fim ? formatarDataBR(v.fim) : "atual"}
@@ -104,13 +104,31 @@ export default async function PaginaEquipe(props: PageProps<"/equipes/[id]">) {
                                 size="sm"
                                 variant="outline"
                                 acao={alterarVinculo.bind(null, id, v.id, { funcao: v.funcao === "lider" ? "membro" : "lider" })}
+                                confirmar={
+                                  v.funcao === "lider"
+                                    ? {
+                                        titulo: `Tornar ${v.colaboradores?.nome ?? "esta pessoa"} membro?`,
+                                        texto: "Ela deixa de ver os números da equipe e de conferir o fechamento. Passa a ser avaliada pelas próprias metas.",
+                                        confirmar: "Tornar membro",
+                                      }
+                                    : {
+                                        titulo: `Tornar ${v.colaboradores?.nome ?? "esta pessoa"} líder?`,
+                                        texto: "Ela passa a ver os números de toda a equipe, conferir o fechamento e ser avaliada pelo resultado do conjunto.",
+                                        confirmar: "Tornar líder",
+                                      }
+                                }
                               >
                                 {v.funcao === "lider" ? "Tornar membro" : "Tornar líder"}
                               </BotaoAcao>
                               <BotaoAcao
                                 size="sm"
                                 variant="ghost"
-                                confirmar="Encerrar o vínculo hoje? O histórico é mantido."
+                                confirmar={{
+                                  titulo: `Encerrar o vínculo de ${v.colaboradores?.nome ?? "esta pessoa"} hoje?`,
+                                  texto: "Ela sai da equipe a partir de hoje. O histórico e os meses anteriores continuam guardados.",
+                                  confirmar: "Encerrar vínculo",
+                                  perigo: true,
+                                }}
                                 acao={alterarVinculo.bind(null, id, v.id, { encerrar: true })}
                               >
                                 Encerrar
