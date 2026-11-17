@@ -27,6 +27,8 @@
   --color-chart-6: var(--chart-6);
   --color-chart-7: var(--chart-7);
   --color-chart-8: var(--chart-8);
+  --color-chart-9: var(--chart-9);
+  --color-chart-10: var(--chart-10);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -86,6 +88,8 @@
   --chart-6: #e87ba4;
   --chart-7: #008300;
   --chart-8: #e34948;
+  --chart-9: #0b8ea0;
+  --chart-10: #8a6d3b;
   --up: #0f7b4f;
   --down: #c4361f;
   --warn: #b7791f;
@@ -128,6 +132,8 @@
   --chart-6: #d55181;
   --chart-7: #2fa32f;
   --chart-8: #e66767;
+  --chart-9: #2ab3c4;
+  --chart-10: #b0905a;
   --up: #3fb97f;
   --down: #ef6b5b;
   --warn: #e0a43a;

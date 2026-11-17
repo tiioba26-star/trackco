@@ -177,8 +177,7 @@ export async function realEsperado(
             const serie =
               metrica && conjunto.length && !futuro
                 ? await serieAnalise(db, {
-                    a: metrica,
-                    b: null,
+                    metricas: [metrica],
                     colaboradores: conjunto.map((m) => ({ id: m.colaborador_id, login_klingo: m.login_klingo })),
                     granularidade: "mes",
                     de: comp,
@@ -211,8 +210,7 @@ export async function realEsperado(
         const conjunto = conjuntoDe(ind, comp);
         const serie = metrica
           ? await serieAnalise(db, {
-              a: metrica,
-              b: null,
+              metricas: [metrica],
               colaboradores: conjunto.map((m) => ({ id: m.colaborador_id, login_klingo: m.login_klingo })),
               granularidade: "dia",
               de: comp,

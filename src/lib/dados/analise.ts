@@ -11,6 +11,9 @@ export type Granularidade = "dia" | "mes";
 export interface PontoAnalise {
   chave: string; // AAAA-MM-DD ou AAAA-MM
   rotulo: string;
+  /** um valor por métrica, na ordem escolhida */
+  valores: (number | null)[];
+  /** atalhos para as duas primeiras (gráfico de A × B) */
   a: number | null;
   b: number | null;
   futuro: boolean;
@@ -18,9 +21,14 @@ export interface PontoAnalise {
 
 export interface ResultadoAnalise {
   pontos: PontoAnalise[];
+  /** total de cada métrica no período */
+  totais: number[];
   totalA: number;
   totalB: number;
 }
+
+/** Até quantas métricas a análise livre compara. */
+export const MAX_METRICAS = 10;
 
 /** Só métricas do Klingo entram na análise livre (lançamentos manuais ficam no extrato/relatórios). */
 export function usaSoKlingo(d: DefinicaoMetrica): boolean {
@@ -54,7 +62,7 @@ function atribuir(brutas: Record<string, unknown>[], porLogin: Map<string, strin
 }
 
 /**
- * Série comparando duas métricas no tempo.
+ * Série comparando métricas no tempo (uma ou mais; as perguntas prontas usam A e B).
  * - dia: um ponto por dia do mês "de"; dias futuros mostram o que já está marcado para eles.
  * - mes: um ponto por mês entre "de" e "ate" (no máx. 36).
  * - acumulado: soma desde o início do período (para taxas, a taxa acumulada).
@@ -62,8 +70,7 @@ function atribuir(brutas: Record<string, unknown>[], porLogin: Map<string, strin
 export async function serieAnalise(
   db: Db,
   op: {
-    a: Metrica;
-    b: Metrica | null;
+    metricas: Metrica[];
     colaboradores: { id: string; login_klingo: string | null }[];
     granularidade: Granularidade;
     de: string;
@@ -83,6 +90,22 @@ export async function serieAnalise(
     return r.denominador === 0 ? null : r.valor;
   };
 
+  const mets = op.metricas.slice(0, MAX_METRICAS);
+  const ponto = (chave: string, rotulo: string, valores: (number | null)[], futuro: boolean): PontoAnalise => ({
+    chave,
+    rotulo,
+    valores,
+    a: valores[0] ?? null,
+    b: mets.length > 1 ? (valores[1] ?? null) : null,
+    futuro,
+  });
+  const resultado = (pontos: PontoAnalise[], totais: number[]): ResultadoAnalise => ({
+    pontos,
+    totais,
+    totalA: totais[0] ?? 0,
+    totalB: totais[1] ?? 0,
+  });
+
   if (op.granularidade === "dia") {
     const ini = inicioCompetencia(op.de);
     const fim = fimCompetencia(op.de);
@@ -92,41 +115,23 @@ export async function serieAnalise(
       // dia futuro: conta o que já está marcado para ele (o "hoje" do cálculo passa a ser o próprio dia)
       const hojeCalc = futuro ? dia : op.hoje;
       const de = op.acumulado ? ini : dia;
-      return {
-        chave: dia,
-        rotulo: dia.slice(8, 10),
-        a: valor(op.a, linhas, de, dia, hojeCalc),
-        b: valor(op.b, linhas, de, dia, hojeCalc),
-        futuro,
-      };
+      return ponto(dia, dia.slice(8, 10), mets.map((m) => valor(m, linhas, de, dia, hojeCalc)), futuro);
     });
-    return {
-      pontos,
-      totalA: valor(op.a, linhas, ini, fim, fim) ?? 0,
-      totalB: valor(op.b, linhas, ini, fim, fim) ?? 0,
-    };
+    return resultado(pontos, mets.map((m) => valor(m, linhas, ini, fim, fim) ?? 0));
   }
 
   const meses: string[] = [];
   for (let c = op.ate; c >= op.de && meses.length < 36; c = competenciaAnterior(c)) meses.unshift(c);
   const linhasPorMes = await Promise.all(meses.map((m) => linhasKlingo(db, logins, m)));
-  let somaA = 0;
-  let somaB = 0;
-  const pontos = meses.map((m, i) => {
+  const somas = mets.map(() => 0);
+  const pontos = meses.map((mes, i) => {
     const linhas = atribuir(linhasPorMes[i], porLogin);
-    const va = valor(op.a, linhas, inicioCompetencia(m), fimCompetencia(m), op.hoje);
-    const vb = valor(op.b, linhas, inicioCompetencia(m), fimCompetencia(m), op.hoje);
-    somaA += va ?? 0;
-    somaB += vb ?? 0;
-    const taxaA = op.a.unidade === "%";
-    const taxaB = op.b?.unidade === "%";
-    return {
-      chave: m,
-      rotulo: nomeCompetencia(m, true),
-      a: op.acumulado && !taxaA ? somaA : va,
-      b: op.b ? (op.acumulado && !taxaB ? somaB : vb) : null,
-      futuro: m > op.hoje.slice(0, 7),
-    };
+    const valores = mets.map((m, k) => {
+      const v = valor(m, linhas, inicioCompetencia(mes), fimCompetencia(mes), op.hoje);
+      somas[k] += v ?? 0;
+      return op.acumulado && m.unidade !== "%" ? somas[k] : v;
+    });
+    return ponto(mes, nomeCompetencia(mes, true), valores, mes > op.hoje.slice(0, 7));
   });
-  return { pontos, totalA: somaA, totalB: somaB };
+  return resultado(pontos, somas);
 }

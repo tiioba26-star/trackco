@@ -98,7 +98,14 @@ describe("seed", () => {
   });
   it("cria métricas, plano ativo e versão 1", async () => {
     const m = await db.query(`select codigo from trackco.metricas`);
-    expect(m.rows.length).toBe(8); // 6 do seed + "marcadas_para" (0010) + "agendamentos_validos" (0011)
+    // 6 do seed + "marcadas_para" (0010) + "agendamentos_validos" (0011) + 9 só de análise (0019)
+    expect(m.rows.length).toBe(17);
+    const novas = await db.query<{ codigo: string; so: boolean }>(
+      `select codigo, (definicao->>'somente_analise')::boolean as so from trackco.metricas where codigo like '%_sus' or codigo like '%_particular' order by codigo`,
+    );
+    expect(novas.rows.filter((r) => r.so).map((r) => r.codigo)).toEqual(
+      expect.arrayContaining(["agendamentos_validos_sus", "cancelamentos_particular", "comparecimento_sus", "faltas_sus", "marcadas_sus", "remarcacoes_sus"]),
+    );
     const v = await db.query<{ n: number }>(`select count(*)::int as n from trackco.plano_versoes`);
     expect(v.rows[0].n).toBe(1);
   });

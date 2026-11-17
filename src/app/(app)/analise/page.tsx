@@ -3,7 +3,7 @@ import Form from "next/form";
 import Link from "next/link";
 import { Dica } from "@/components/ajuda/dica";
 import { CabecalhoPagina, Rotulo } from "@/components/app/blocos";
-import { GraficoComparativo } from "@/components/graficos/comparativo";
+import { CORES_SERIES, GraficoComparativo, GraficoMultiplo } from "@/components/graficos/comparativo";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { competenciaAnterior, competenciaDe, formatarDataBR, hojeNoFuso, nomeCompetencia, somarDias } from "@/engine/datas";
 import type { Metrica } from "@/engine/tipos";
 import { exigirSessao } from "@/lib/auth";
-import { type Granularidade, metricaMarcadasPara, type PontoAnalise, serieAnalise, usaSoKlingo } from "@/lib/dados/analise";
+import { type Granularidade, MAX_METRICAS, metricaMarcadasPara, type PontoAnalise, serieAnalise, usaSoKlingo } from "@/lib/dados/analise";
 import { competenciaValida, fmtPct, fmtValor } from "@/lib/formato";
 import { resolverMetrica } from "@/lib/metricas-papel";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { EscolhaMetricas, LETRAS } from "./metricas-escolha";
 
 export const metadata = { title: "Análise" };
 
@@ -97,11 +98,11 @@ const PERGUNTAS: readonly {
 const ddmm = (dia: string) => formatarDataBR(dia).slice(0, 5);
 const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
-/** Valor de uma série até um dia (inclusive): soma dos dias ou, no acumulado, o próprio ponto. */
-function ate(pontos: PontoAnalise[], campo: "a" | "b", limite: string, acumulado: boolean): number {
+/** Valor de uma série (índice da métrica) até um dia (inclusive): soma dos dias ou, no acumulado, o próprio ponto. */
+function ate(pontos: PontoAnalise[], campo: number, limite: string, acumulado: boolean): number {
   const antes = pontos.filter((p) => p.chave <= limite);
-  if (acumulado) return antes.at(-1)?.[campo] ?? 0;
-  return antes.reduce((s, p) => s + (p[campo] ?? 0), 0);
+  if (acumulado) return antes.at(-1)?.valores[campo] ?? 0;
+  return antes.reduce((s, p) => s + (p.valores[campo] ?? 0), 0);
 }
 
 export default async function PaginaAnalise(props: PageProps<"/analise">) {
@@ -138,10 +139,22 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const mes = competenciaValida(sp.mes) ?? atual;
   const ateMes = competenciaValida(sp.ate) ?? atual;
   const de = competenciaValida(sp.de) ?? competenciaAnterior(ateMes, 11);
-  const refA = modo === "prontas" ? pergunta.a : String(sp.a ?? "marcadas_para");
-  const refB = modo === "prontas" ? pergunta.b : sp.b === "" ? "" : String(sp.b ?? "realizadas");
-  const a = achar(refA) ?? metricas[0];
-  const b = refB === "" ? null : (achar(refB) ?? null);
+  // análise livre: até 10 métricas (?m=…&m=…); links antigos com ?a=…&b=… continuam valendo
+  const refs: string[] =
+    modo === "prontas"
+      ? [pergunta.a, pergunta.b].filter(Boolean)
+      : sp.m
+        ? (Array.isArray(sp.m) ? sp.m : [sp.m]).map(String)
+        : [String(sp.a ?? "marcadas_para"), ...(sp.b === "" ? [] : [String(sp.b ?? "realizadas")])];
+  const selecionadas: Metrica[] = [];
+  for (const r of refs) {
+    const m = achar(r);
+    if (m && !selecionadas.some((x) => x.id === m.id) && selecionadas.length < MAX_METRICAS) selecionadas.push(m);
+  }
+  if (!selecionadas.length && metricas[0]) selecionadas.push(metricas[0]);
+  const a = selecionadas[0];
+  const b = selecionadas[1] ?? null;
+  const varias = selecionadas.length > 2;
   const equipe = equipes.find((e) => e.id === sp.equipe) ?? equipes[0];
   const pessoa = pessoas.find((p) => p.id === sp.pessoa);
 
@@ -157,8 +170,7 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   const resultado =
     !escolhendo && a && alvo.length
       ? await serieAnalise(db, {
-          a,
-          b,
+          metricas: selecionadas,
           colaboradores: alvo,
           granularidade: g,
           de: g === "dia" ? mes : de,
@@ -167,7 +179,8 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
           hoje,
         })
       : null;
-  const contagens = a?.unidade !== "%" && (!b || b.unidade !== "%") && a?.unidade === b?.unidade;
+  // proporção B ÷ A: só com exatamente duas contagens da mesma unidade
+  const contagens = !varias && a?.unidade !== "%" && (!b || b.unidade !== "%") && a?.unidade === b?.unidade;
   const qs = (extra: Record<string, string>) =>
     new URLSearchParams({
       ...(equipe ? { equipe: equipe.id } : {}),
@@ -188,8 +201,8 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
   let razao: { a: number; b: number; texto: string } | null = null;
   if (resultado && b && contagens) {
     if (g === "dia" && mesCorrente) {
-      const ra = ate(resultado.pontos, "a", ontem, acumulado);
-      const rb = ate(resultado.pontos, "b", ontem, acumulado);
+      const ra = ate(resultado.pontos, 0, ontem, acumulado);
+      const rb = ate(resultado.pontos, 1, ontem, acumulado);
       razao = {
         a: ra,
         b: rb,
@@ -206,11 +219,11 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
       };
     }
   }
-  const textoTotal = (campo: "a" | "b", m: Metrica) => {
+  const textoTotal = (campo: number, m: Metrica) => {
     if (!resultado) return "";
     if (g !== "dia") return `soma de ${periodo}`;
     if (!mesCorrente) return `no mês todo de ${nomeCompetencia(mes)}`;
-    const total = campo === "a" ? resultado.totalA : resultado.totalB;
+    const total = resultado.totais[campo] ?? 0;
     const atéHoje = ate(resultado.pontos, campo, hoje, acumulado);
     const futuro = total - atéHoje;
     return futuro > 0
@@ -330,30 +343,12 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
           </div>
           <Form action="/analise" className="grid items-end gap-3 md:grid-cols-3 xl:grid-cols-6">
             <input type="hidden" name="modo" value="livre" />
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1">
-                <Label>Métrica A</Label>
-                <Dica texto="A primeira série do gráfico. As métricas vêm da tela Métricas: crie novas lá para analisar outros recortes." />
-              </div>
-              <NativeSelect name="a" defaultValue={a?.codigo}>
-                {metricas.map((m) => (
-                  <option key={m.codigo} value={m.codigo}>
-                    {m.nome}
-                  </option>
-                ))}
-              </NativeSelect>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Comparar com (B)</Label>
-              <NativeSelect name="b" defaultValue={b?.codigo ?? ""}>
-                <option value="">— nenhuma —</option>
-                {metricas.map((m) => (
-                  <option key={m.codigo} value={m.codigo}>
-                    {m.nome}
-                  </option>
-                ))}
-              </NativeSelect>
-            </div>
+            <EscolhaMetricas
+              key={selecionadas.map((m) => m.codigo).join(",")}
+              metricas={metricas.map((m) => ({ codigo: m.codigo, nome: m.nome }))}
+              iniciais={selecionadas.map((m) => m.codigo)}
+              maximo={MAX_METRICAS}
+            />
             <div className="space-y-1.5">
               <div className="flex items-center gap-1">
                 <Label>Ver por</Label>
@@ -406,23 +401,24 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
               {quem} · {periodo}
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardContent className="space-y-1">
-                <Rotulo>{a.nome}</Rotulo>
-                <div className="font-heading text-3xl font-semibold tabular-nums">{a.unidade === "%" ? "—" : fmtValor(resultado.totalA, a.unidade)}</div>
-                <div className="text-xs text-muted-foreground">{textoTotal("a", a)}</div>
-              </CardContent>
-            </Card>
-            {b && (
-              <Card>
+          <div className={cn("grid gap-4", varias ? "grid-cols-2 md:grid-cols-3 xl:grid-cols-5" : "md:grid-cols-3")}>
+            {selecionadas.map((m, i) => (
+              <Card key={m.id}>
                 <CardContent className="space-y-1">
-                  <Rotulo>{b.nome}</Rotulo>
-                  <div className="font-heading text-3xl font-semibold tabular-nums">{b.unidade === "%" ? "—" : fmtValor(resultado.totalB, b.unidade)}</div>
-                  <div className="text-xs text-muted-foreground">{textoTotal("b", b)}</div>
+                  <Rotulo>
+                    {varias && (
+                      <span className="mr-1.5 inline-block size-2.5 rounded-full align-middle" style={{ background: CORES_SERIES[i] }} aria-hidden />
+                    )}
+                    {varias ? `${LETRAS[i]} · ` : ""}
+                    {m.nome}
+                  </Rotulo>
+                  <div className={cn("font-heading font-semibold tabular-nums", varias ? "text-2xl" : "text-3xl")}>
+                    {m.unidade === "%" ? "—" : fmtValor(resultado.totais[i] ?? 0, m.unidade)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{textoTotal(i, m)}</div>
                 </CardContent>
               </Card>
-            )}
+            ))}
             {b && contagens && (
               <Card>
                 <CardContent className="space-y-1">
@@ -445,65 +441,62 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
 
           <Card data-tour="analise-grafico">
             <CardHeader>
-              <CardTitle>
-                {a.nome}
-                {b ? ` × ${b.nome}` : ""}
-              </CardTitle>
+              <CardTitle>{varias ? `${selecionadas.length} métricas lado a lado` : `${a.nome}${b ? ` × ${b.nome}` : ""}`}</CardTitle>
               <CardDescription>
                 {g === "dia" ? `Dia a dia em ${nomeCompetencia(mes)}` : `Mês a mês, ${periodo}`}
                 {acumulado ? " · acumulado" : ""}
-                {g === "dia" ? " · barras claras = dias que ainda vão acontecer (o que já está marcado para eles)" : ""}
+                {g === "dia" && !varias ? " · barras claras = dias que ainda vão acontecer (o que já está marcado para eles)" : ""}
+                {varias && new Set(selecionadas.map((m) => m.unidade)).size > 1 ? " · um gráfico por unidade (quantidade e %)" : ""}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <GraficoComparativo
-                dados={resultado.pontos.map((p) => ({ ...p, data: g === "dia" ? p.chave : null }))}
-                rotuloA={a.nome}
-                unidadeA={a.unidade}
-                rotuloB={b?.nome}
-                unidadeB={b?.unidade}
-                linhas={acumulado}
-                altura={300}
-              />
+              {varias ? (
+                <GraficoMultiplo
+                  dados={resultado.pontos.map((p) => ({ ...p, data: g === "dia" ? p.chave : null }))}
+                  series={selecionadas.map((m) => ({ rotulo: m.nome, unidade: m.unidade }))}
+                  altura={320}
+                />
+              ) : (
+                <GraficoComparativo
+                  dados={resultado.pontos.map((p) => ({ ...p, data: g === "dia" ? p.chave : null }))}
+                  rotuloA={a.nome}
+                  unidadeA={a.unidade}
+                  rotuloB={b?.nome}
+                  unidadeB={b?.unidade}
+                  linhas={acumulado}
+                  altura={300}
+                />
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>
-                {a.nome}
-                {b ? ` e ${b.nome}` : ""}, {g === "dia" ? "dia a dia" : "mês a mês"}
+                {varias ? `As ${selecionadas.length} métricas` : `${a.nome}${b ? ` e ${b.nome}` : ""}`}, {g === "dia" ? "dia a dia" : "mês a mês"}
               </CardTitle>
               <CardDescription>{g === "dia" ? nomeCompetencia(mes) : periodo}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* no celular as colunas viram A / B: a legenda diz quem é quem (mesmas cores do gráfico) */}
-              <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground sm:hidden">
-                <li className="flex items-center gap-1.5">
-                  <span className="size-2.5 shrink-0 rounded-full" style={{ background: "var(--chart-1)" }} />
-                  <b className="text-foreground">A</b> {a.nome}
-                </li>
-                {b && (
-                  <li className="flex items-center gap-1.5">
-                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: "var(--chart-3)" }} />
-                    <b className="text-foreground">B</b> {b.nome}
+              {/* as colunas viram letras no celular (e no computador quando são mais de duas): a legenda diz quem é quem */}
+              <ul className={cn("flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground", !varias && "sm:hidden")}>
+                {selecionadas.map((m, i) => (
+                  <li key={m.id} className="flex items-center gap-1.5">
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: CORES_SERIES[i] }} />
+                    <b className="text-foreground">{LETRAS[i]}</b> {m.nome}
                   </li>
-                )}
+                ))}
               </ul>
               <Table containerClassName="max-h-[440px] overflow-y-auto rounded-lg border">
                 <TableHeader className="sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_var(--border)] [&_tr]:border-b-0">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="sticky left-0 z-20 bg-card">{g === "dia" ? "Dia" : "Mês"}</TableHead>
-                    <TableHead className="text-right">
-                      <span className="sm:hidden">A</span>
-                      <span className="hidden sm:inline">{a.nome}</span>
-                    </TableHead>
-                    {b && (
-                      <TableHead className="text-right">
-                        <span className="sm:hidden">B</span>
-                        <span className="hidden sm:inline">{b.nome}</span>
+                    {selecionadas.map((m, i) => (
+                      <TableHead key={m.id} className="text-right">
+                        <span className={cn(!varias && "sm:hidden")}>{LETRAS[i]}</span>
+                        {!varias && <span className="hidden sm:inline">{m.nome}</span>}
                       </TableHead>
-                    )}
+                    ))}
                     {b && contagens && <TableHead className="text-right">B ÷ A</TableHead>}
                   </TableRow>
                 </TableHeader>
@@ -528,8 +521,11 @@ export default async function PaginaAnalise(props: PageProps<"/analise">) {
                           )}
                           {marca && <span className="block text-[11px] text-muted-foreground normal-case sm:inline sm:text-sm"><span className="hidden sm:inline"> · </span>{marca}</span>}
                         </TableCell>
-                        <TableCell className="text-right tabular-nums">{fmtValor(p.a, a.unidade)}</TableCell>
-                        {b && <TableCell className="text-right tabular-nums">{fmtValor(p.b, b.unidade)}</TableCell>}
+                        {selecionadas.map((met, i) => (
+                          <TableCell key={met.id} className="text-right tabular-nums">
+                            {fmtValor(p.valores[i] ?? null, met.unidade)}
+                          </TableCell>
+                        ))}
                         {b && contagens && (
                           <TableCell className="text-right tabular-nums">{p.futuro || !p.a ? "—" : fmtPct(((p.b ?? 0) / p.a) * 100)}</TableCell>
                         )}
