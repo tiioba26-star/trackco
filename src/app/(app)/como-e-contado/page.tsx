@@ -100,8 +100,8 @@ export default async function PaginaComoEContado() {
             Para que serve o Trackco
           </h3>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            O Trackco mostra, com clareza, o resultado do trabalho de cada pessoa e de cada equipe da IOBA: quantas consultas foram marcadas,
-            quantas aconteceram e como isso se compara com a meta. Os números vêm direto do Klingo, sem planilha e sem conta feita à mão.
+            O Trackco mostra o resultado do trabalho de cada pessoa e de cada equipe da IOBA: quantas consultas foram marcadas, quantas
+            aconteceram e quanto falta para a meta. Os números vêm do Klingo e se atualizam sozinhos.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -111,9 +111,9 @@ export default async function PaginaComoEContado() {
               <div className="space-y-1">
                 <div className="font-semibold">Reconhecer quem faz bem feito</div>
                 <p className="text-sm text-muted-foreground">
-                  Notas, níveis e reconhecimento a cada mês. A meta de cada pessoa leva em conta o momento dela (quem acabou de chegar não
-                  tem a mesma meta de quem já tem experiência), e todos são avaliados do mesmo jeito: cada um pela própria meta. Começamos
-                  pelo reconhecimento; prêmios e outras recompensas vêm depois, sempre com as regras combinadas antes.
+                  Todo mês, cada pessoa recebe nota e nível pelo próprio resultado. A meta considera o momento de cada um: quem acabou de
+                  chegar não tem a mesma meta de quem já tem experiência, mas todos são avaliados do mesmo jeito. Por enquanto, o resultado
+                  vira reconhecimento; prêmios e outras recompensas vêm depois, com as regras combinadas antes.
                 </p>
               </div>
             </CardContent>
@@ -122,10 +122,10 @@ export default async function PaginaComoEContado() {
             <CardContent className="flex gap-3">
               <Eye className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
               <div className="space-y-1">
-                <div className="font-semibold">Deixar tudo transparente</div>
+                <div className="font-semibold">Mostrar de onde vem cada número</div>
                 <p className="text-sm text-muted-foreground">
-                  Todo número diz de onde vem e de que período é. Se algo estiver errado, você contesta pelo próprio sistema e a liderança
-                  analisa.
+                  Cada número diz o que conta e de que período é. Se você achar algo errado, pode contestar pelo próprio Trackco, e a
+                  liderança responde.
                 </p>
               </div>
             </CardContent>
@@ -136,8 +136,8 @@ export default async function PaginaComoEContado() {
               <div className="space-y-1">
                 <div className="font-semibold">Ajudar a equipe a crescer</div>
                 <p className="text-sm text-muted-foreground">
-                  Líderes e gestão acompanham o ritmo, o comparecimento e as perdas para apoiar cada pessoa com conversa e treinamento,
-                  nunca para vigiar. Somos uma equipe.
+                  Os líderes acompanham o ritmo da equipe, quantos pacientes compareceram e quantas consultas se perderam. Assim fica mais
+                  fácil perceber quem precisa de uma ajuda e oferecer treinamento na hora certa.
                 </p>
               </div>
             </CardContent>
