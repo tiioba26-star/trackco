@@ -101,7 +101,7 @@ export default async function PaginaComoEContado() {
           </h3>
           <p className="max-w-3xl text-sm text-muted-foreground">
             O Trackco mostra o resultado do trabalho de cada pessoa e de cada equipe da IOBA: quantas consultas foram marcadas, quantas
-            aconteceram e quanto falta para a meta. Os números vêm do Klingo e se atualizam sozinhos.
+            aconteceram e quanto falta para a meta. Os números vêm do Klingo e se atualizam sozinhos, de hora em hora.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -136,8 +136,8 @@ export default async function PaginaComoEContado() {
               <div className="space-y-1">
                 <div className="font-semibold">Ajudar a equipe a crescer</div>
                 <p className="text-sm text-muted-foreground">
-                  Os líderes acompanham o ritmo da equipe, quantos pacientes compareceram e quantas consultas se perderam. Assim fica mais
-                  fácil perceber quem precisa de uma ajuda e oferecer treinamento na hora certa.
+                  Com esses números, o líder percebe cedo quando alguém está com menos consultas acontecendo do que costuma e pode oferecer
+                  ajuda ou treinamento antes de o mês fechar.
                 </p>
               </div>
             </CardContent>
