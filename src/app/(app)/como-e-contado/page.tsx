@@ -111,9 +111,8 @@ export default async function PaginaComoEContado() {
               <div className="space-y-1">
                 <div className="font-semibold">Reconhecer quem faz bem feito</div>
                 <p className="text-sm text-muted-foreground">
-                  Todo mês, cada pessoa recebe nota e nível pelo próprio resultado. A meta considera o momento de cada um: quem acabou de
-                  chegar não tem a mesma meta de quem já tem experiência, mas todos são avaliados do mesmo jeito. Por enquanto, o resultado
-                  vira reconhecimento; prêmios e outras recompensas vêm depois, com as regras combinadas antes.
+                  Todo mês, cada pessoa recebe nota e nível conforme a própria meta, que leva em conta o momento de cada um. Por enquanto, o
+                  resultado vira reconhecimento; prêmios vêm depois.
                 </p>
               </div>
             </CardContent>
