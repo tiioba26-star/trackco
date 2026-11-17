@@ -127,7 +127,14 @@ export async function alertasGestao(db: Db, competencia: string) {
   const [contest, sync, semVinculo] = await Promise.all([
     db.from("contestacoes").select("id", { count: "exact", head: true }).in("status", ["aberta", "em_analise"]),
     ultimaSync(db),
-    db.from("colaboradores").select("id", { count: "exact", head: true }).eq("ativo", true).is("login_klingo", null),
+    // só quem é membro de equipe precisa do login do Klingo (administradores de fora, como tráfego pago e contador, não)
+    db
+      .from("colaboradores")
+      .select("id, equipe_membros!inner(funcao, fim)", { count: "exact", head: true })
+      .eq("ativo", true)
+      .is("login_klingo", null)
+      .eq("equipe_membros.funcao", "membro")
+      .is("equipe_membros.fim", null),
   ]);
   return {
     contestacoesAbertas: contest.count ?? 0,
