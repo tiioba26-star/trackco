@@ -1,4 +1,4 @@
-import { CalendarCheck, CalendarPlus, Check, Minus, Stethoscope } from "lucide-react";
+import { Award, CalendarCheck, CalendarPlus, Check, Eye, HeartHandshake, Minus, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { CabecalhoPagina, Rotulo } from "@/components/app/blocos";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import { ROTULO_SITUACAO } from "@/lib/situacao";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Como é contado" };
+export const metadata = { title: "Sobre o Trackco" };
 
 // Sem os filtros cadastrados (ex.: métrica nova), usa a regra combinada com a IOBA.
 const FORA_PADRAO = ["remarcada", "falta_remarcada", "bloqueio_clinica", "erro"];
@@ -91,15 +91,67 @@ export default async function PaginaComoEContado() {
 
   return (
     <div className="space-y-8">
-      <CabecalhoPagina
-        titulo="Como é contado"
-        descricao={
-          <>
-            Cada número do Trackco, de onde vem e o que entra nele. Tudo vem do Klingo, por quem aparece como responsável pela marcação, e
-            atualiza sozinho de hora em hora{sync?.finalizado_em ? ` (última vez: ${fmtDataHora(sync.finalizado_em)})` : ""}.
-          </>
-        }
-      />
+      <CabecalhoPagina titulo="Sobre o Trackco" descricao="Para que o sistema existe e como cada número dele é contado." />
+
+      {/* para que serve: bem resumido, antes de qualquer número */}
+      <section className="space-y-4" aria-labelledby="sobre-titulo">
+        <div className="space-y-1">
+          <h3 id="sobre-titulo" className="text-lg font-semibold">
+            Para que serve o Trackco
+          </h3>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            O Trackco mostra, com clareza, o resultado do trabalho de cada pessoa e de cada equipe da IOBA: quantas consultas foram marcadas,
+            quantas aconteceram e como isso se compara com a meta. Os números vêm direto do Klingo, sem planilha e sem conta feita à mão.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardContent className="flex gap-3">
+              <Award className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
+              <div className="space-y-1">
+                <div className="font-semibold">Reconhecer quem faz bem feito</div>
+                <p className="text-sm text-muted-foreground">
+                  Notas, níveis e reconhecimento a cada mês, com as mesmas regras para todos. Começamos pelo reconhecimento; prêmios e outras
+                  recompensas vêm depois, sempre com as regras combinadas antes.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex gap-3">
+              <Eye className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
+              <div className="space-y-1">
+                <div className="font-semibold">Deixar tudo transparente</div>
+                <p className="text-sm text-muted-foreground">
+                  Todo número diz de onde vem e de que período é. Se algo estiver errado, você contesta pelo próprio sistema e a liderança
+                  analisa.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex gap-3">
+              <HeartHandshake className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
+              <div className="space-y-1">
+                <div className="font-semibold">Ajudar a equipe a crescer</div>
+                <p className="text-sm text-muted-foreground">
+                  Líderes e gestão acompanham o ritmo, o comparecimento e as perdas para apoiar cada pessoa com conversa e treinamento,
+                  nunca para vigiar. Somos uma equipe.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* daqui para baixo: como cada número é contado (sem mudanças) */}
+      <div className="space-y-1 border-t pt-6">
+        <h2 className="text-xl font-semibold tracking-tight">Como é contado</h2>
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          Cada número do Trackco, de onde vem e o que entra nele. Tudo vem do Klingo, por quem aparece como responsável pela marcação, e
+          atualiza sozinho de hora em hora{sync?.finalizado_em ? ` (última vez: ${fmtDataHora(sync.finalizado_em)})` : ""}.
+        </p>
+      </div>
 
       {/* 1. as duas datas */}
       <section className="space-y-3">

@@ -44,7 +44,7 @@ export const NAV: GrupoNav[] = [
       { href: "/extrato", titulo: "Extrato", icone: FileText, perfil: "todos", tour: "nav-extrato" },
       { href: "/analise", titulo: "Análise", icone: LineChart, perfil: "todos", tour: "nav-analise" },
       { href: "/contestacoes", titulo: "Contestações", icone: MessageSquareWarning, perfil: "todos", tour: "nav-contestacoes" },
-      { href: "/como-e-contado", titulo: "Como é contado", icone: BookOpen, perfil: "todos", tour: "nav-como" },
+      { href: "/como-e-contado", titulo: "Sobre o Trackco", icone: BookOpen, perfil: "todos", tour: "nav-como" },
     ],
   },
   {

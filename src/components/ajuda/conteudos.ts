@@ -46,8 +46,8 @@ const PASSOS_MENU: PassoTour[] = [
   { alvo: "ajuda", titulo: "Ajuda em qualquer tela", texto: "Sempre que tiver dúvida, toque no ? para ver a explicação da seção e refazer este tour." },
   {
     alvo: "nav-como",
-    titulo: "Como é contado",
-    texto: "O que é agendamento válido, total, remarcação, comparecimento e o que conta para quê, além das regras de nota e nível.",
+    titulo: "Sobre o Trackco",
+    texto: "Para que serve o Trackco e como cada número é contado: o que é agendamento válido, total, remarcação, comparecimento e o que conta para quê, além das regras de nota e nível.",
   },
 ];
 
@@ -129,9 +129,9 @@ export const AJUDA: Record<string, Ajuda> = {
     ],
   },
   "/como-e-contado": {
-    titulo: "Como é contado",
+    titulo: "Sobre o Trackco",
     resumo: [
-      "Esta página explica cada número do Trackco: de onde vem, em que data conta e o que entra nele.",
+      "No topo, para que serve o Trackco e o que ele busca. Logo abaixo, em Como é contado, a página explica cada número do Trackco: de onde vem, em que data conta e o que entra nele.",
       "A tabela 'O que conta para quê' mostra, para cada situação de uma marcação (realizada, faltou, remarcada…), em quais números ela entra.",
       "As regras de nota e nível vêm do plano da sua equipe que vale neste mês.",
     ],
