@@ -8,47 +8,44 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: mesmo período de 2025 (01/10/2025 a 31/10/2025)
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:00:50.427Z
-assinatura: 89580c89
-tokens_entrada: 12832
-tokens_saida: 20803
+gerado_em: 2026-11-18T08:41:44.942Z
+assinatura: f9caa638
+tokens_entrada: 12861
+tokens_saida: 15141
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-Em outubro, as marcações do Particular concentraram-se em Mauricio Mateus (229 marcações, +18,0% vs outubro de 2025) e Gustavo Gomes (217 marcações, +36,5% vs outubro de 2025). Em contrapartida, Fabiana Morais (72 marcações, −69,0% vs outubro de 2025) e André Born (123 marcações, −55,9% vs outubro de 2025) registraram quedas pontuais expressivas. Não há dependência crítica acima de 50% de um único colaborador, mas o comparecimento de Isis Alice atingiu apenas 38,1% em outubro (comparação anterior ausente nos dados).
+O volume do Particular em outubro concentrou-se nos médicos Mauricio Mateus, com 229 marcações (+18,0% vs outubro de 2025), e Gustavo Gomes, com 217 marcações (+36,5% vs outubro de 2025). Em contrapartida, ocorreram quedas pontuais expressivas nas agendas de Fabiana Morais, com 72 marcações (−69,0% vs outubro de 2025), e André Born, com 123 marcações (−55,9% vs outubro de 2025). Nenhuma agenda apresenta risco de dependência acima de 50,0% de um único colaborador, demonstrando distribuição equilibrada na equipe.
 
 ## O que os números mostram
-- Os números mostram alta de Maria Maeve com 65 marcações em outubro (+160,0% vs 25 em outubro de 2025), além de Gustavo Gomes com 217 marcações (+36,5% vs 159 em outubro de 2025) e Mauricio Mateus com 229 marcações (+18,0% vs 194 em outubro de 2025).
-- Fabiana Morais (72 marcações em outubro, −69,0% vs 232 em outubro de 2025) e André Born (123 marcações em outubro, −55,9% vs 279 em outubro de 2025) apresentaram quedas pontuais acentuadas.
-- Ana Luiza Batista Teles liderou o Comercial com 228 marcações em outubro e Maiane Fiais Ramos Albuquerque somou 190 marcações (comparações globais ausentes nos dados).
-- O mix de marcações para André Born recuou na carteira de Ana Luiza Batista Teles (12,7% em outubro vs 19,1% em outubro de 2025) e de Igor Luis Soares de Jesus da Silva (12,2% em outubro vs 20,6% em outubro de 2025).
-- Nenhuma agenda depende de uma só pessoa em mais da metade das marcações; a maior fatia individual pertence a Ana Luiza Batista Teles na agenda de Isis Alice (28,6% em outubro).
-- O comparecimento de Isis Alice foi de 38,1% em outubro (56 marcações, queda pontual de −35,6% vs 87 em outubro de 2025), o menor índice entre os profissionais.
+- Mauricio Mateus e Gustavo Gomes lideraram a procura com 229 marcações (+18,0% vs outubro de 2025) e 217 marcações (+36,5% vs outubro de 2025); Maria Maeve obteve 65 marcações em outubro (+160,0% vs outubro de 2025).
+- Os números mostram quedas pontuais em Fabiana Morais, com 72 marcações em outubro (−69,0% vs outubro de 2025), André Born, com 123 marcações (−55,9% vs outubro de 2025), e Uyara Queiroz, com 63 marcações (−42,7% vs outubro de 2025).
+- Ana Luiza Batista Teles liderou o volume com 228 marcações em outubro (sem histórico comparativo anterior), destinando 21,1% a Mauricio Mateus (vs 15,0% em outubro de 2025); Maiane Fiais Ramos Albuquerque somou 190 marcações em outubro (sem histórico anterior), alocando 22,6% a Mauricio Mateus.
+- Não há risco de dependência operacional: a maior fatia individual foi de 28,6% em Isis Alice por Ana Luiza Batista Teles em outubro. No comparecimento, André Born teve a menor taxa, com 55,1% em outubro (sem histórico comparativo anterior).
 
 ## Pontos de atenção
-- **Isis Alice**: registrou comparecimento de 38,1% em outubro (comparação ausente nos dados) e 56 marcações (queda pontual de −35,6% vs 87 em outubro de 2025). Uma explicação possível é o preparo de exames ou tempo de espera da agenda (confirmar com a recepção); a ação é contatar os pacientes ausentes para mapear os motivos de falta.
-- **Fabiana Morais e André Born**: tiveram queda pontual expressiva de marcações em outubro vs outubro de 2025 (−69,0% e −55,9%, respectivamente). Uma explicação possível é a redução na oferta de vagas ou na procura espontânea (confirmar com a gestão médica); a ação é auditar a disponibilidade de horários na grade.
+- **Fabiana Morais**: 72 marcações em outubro (−69,0% vs outubro de 2025), caracterizando queda pontual neste mês. Uma explicação possível é redução na grade de horários disponíveis (confirmar com a gestão médica); cabe checar a oferta de vagas antes de buscar novos agendamentos.
+- **André Born**: 123 marcações em outubro (−55,9% vs outubro de 2025) e comparecimento de 55,1% em outubro (sem taxa comparativa anterior), configurando queda pontual no mês. Uma explicação possível é agendamento com data muito distante (confirmar com recepção); cabe intensificar confirmações prévias.
+- **Luciana Arrais**: 28 marcações em outubro (sem histórico em outubro de 2025) e dados de comparecimento ausentes no primeiro mês de registro. Uma explicação possível é agenda nova; cabe treinar a equipe para apresentar a profissional aos pacientes particulares.
 
 ## O que fazer
-- **Auditar vagas com a gestão médica**: a administração deve checar se houve corte na grade de horários de Fabiana Morais e André Born. Medir no próximo período pelas vagas ofertadas e preenchidas em novembro.
-- **Mapear absenteísmo de Isis Alice**: a líder da recepção deve acompanhar o processo de confirmação e contatar pacientes ausentes. Medir no próximo período pela taxa de comparecimento em novembro vs 38,1% de outubro.
-- **Revisar oferta de agendas no Comercial**: o líder do Comercial deve orientar a equipe sobre a distribuição ativa das opções de agendamento. Medir no próximo período pela proporção do mix de marcações em novembro.
+- **Líder do Comercial**: orientar a equipe sobre a divulgação da médica Luciana Arrais no Particular. Medição: verificar se a profissional alcança 40 marcações em novembro.
+- **Administração**: consultar a gestão médica sobre vagas e horários de Fabiana Morais e André Born. Medição: relatório de vagas abertas versus preenchidas em novembro.
+- **Recepção**: reforçar a confirmação ativa com 48 horas de antecedência para pacientes de André Born. Medição: acompanhar se o comparecimento do médico atinge 65,0% em novembro.
 
 ## Dados usados
 | Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
 | Marcações Mauricio Mateus | 229 em outubro | 194 em outubro de 2025 | +18,0% |
 | Marcações Gustavo Gomes | 217 em outubro | 159 em outubro de 2025 | +36,5% |
-| Marcações André Born | 123 em outubro | 279 em outubro de 2025 | −55,9% |
 | Marcações Fabiana Morais | 72 em outubro | 232 em outubro de 2025 | −69,0% |
+| Marcações André Born | 123 em outubro | 279 em outubro de 2025 | −55,9% |
 | Marcações Maria Maeve | 65 em outubro | 25 em outubro de 2025 | +160,0% |
-| Marcações Isis Alice | 56 em outubro | 87 em outubro de 2025 | −35,6% |
-| Comparecimento Isis Alice | 38,1% em outubro | Não informado | N/A |
-| Marcações Ana Luiza Batista Teles | 228 em outubro | Não informado | N/A |
-| Marcações Maiane Fiais Ramos Albuquerque | 190 em outubro | Não informado | N/A |
-| Fatia André Born (Ana Luiza) | 12,7% em outubro | 19,1% em outubro de 2025 | −6,4 p.p. (12,7% − 19,1%) |
-| Fatia André Born (Igor Luis) | 12,2% em outubro | 20,6% em outubro de 2025 | −8,4 p.p. (12,2% − 20,6%) |
+| Marcações Uyara Queiroz | 63 em outubro | 110 em outubro de 2025 | −42,7% |
+| Marcações Luciana Arrais | 28 em outubro | 0 em outubro de 2025 | Dado ausente |
+| Comparecimento André Born | 55,1% em outubro | Dado ausente | Dado ausente |
+| Marcações Ana Luiza Teles | 228 em outubro | Dado ausente | Dado ausente |

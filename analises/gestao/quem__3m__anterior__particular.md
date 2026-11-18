@@ -8,47 +8,47 @@ janela_fim: 2026-10-31
 janela_nome: Últimos 3 meses fechados
 janela_datas: 01/08 a 31/10
 base_nome: maio a julho
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:43:42.812Z
-assinatura: f2b5fd56
-tokens_entrada: 13321
-tokens_saida: 6069
+gerado_em: 2026-11-18T08:19:18.657Z
+assinatura: d99d61b0
+tokens_entrada: 13367
+tokens_saida: 7408
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No trimestre de agosto a outubro, as marcações particulares concentraram-se em Gustavo Gomes (648 marcações, +16,5% vs maio a julho) e Mauricio Mateus (618 marcações, +3,7% vs maio a julho). O exame de Curva Tensional Diaria teve expansão expressiva de 94,3% no período (408 marcações vs 210 no trimestre anterior). A distribuição entre a equipe é equilibrada e não há dependência superior a 50%, mas as agendas de André Born e Isis Alice demandam acompanhamento pelo baixo comparecimento.
+No período de 01/08 a 31/10 (vs maio a julho), o volume Particular concentrou-se no Dr. Gustavo Gomes (648 marcações, +16,5%) e no Dr. Mauricio Mateus (618 marcações, +3,7%), além da expansão da Curva Tensional Diária (408 marcações, +94,3%). A distribuição entre os colaboradores manteve-se equilibrada, sem dependência superior a 50% em nenhuma agenda. O comparecimento médio geral situou-se entre 62,5% e 81,6%, com ponto de atenção para o Dr. André Born (54,9%).
 
 ## O que os números mostram
-- Os números mostram Gustavo Gomes na liderança com 648 marcações de agosto a outubro (+16,5% vs 556 de maio a julho), seguido por Mauricio Mateus com 618 (+3,7% vs 596) e André Born com 513 (−2,1% vs 524).
-- O exame Curva Tensional Diaria somou 408 marcações de agosto a outubro (+94,3% vs 210 no período anterior), e a Tomografia de Coerencia Optica Oct alcançou 299 marcações (+35,3% vs 221).
-- As profissionais Maria Maeve (118 marcações de agosto a outubro) e Fabiana Morais (93 marcações) são novas agendas particulares; faltam dados de períodos anteriores para medir variação.
-- Ana Luiza Batista Teles (652 marcações de agosto a outubro, sem comparação informada) e Igor Luis Soares de Jesus da Silva (618 marcações) concentraram as maiores emissões, distribuindo o volume de forma regular entre os médicos principais.
-- Não há risco de dependência crítica acima de 50%; a maior fatia individual é de Igor Luis em Lorena Campos Wen, respondendo por 35,3% das 119 marcações da médica em agosto a outubro.
+- **Médicos mais demandados**: Dr. Gustavo Gomes liderou com 648 marcações no período de 01/08 a 31/10 (+16,5% vs 556 em maio a julho), seguido pelo Dr. Mauricio Mateus com 618 marcações (+3,7% vs 596).
+- **Crescimento de exames**: A Curva Tensional Diária alcançou 408 marcações (+94,3% vs 210 em maio a julho), e a Tomografia de Coerência Óptica (OCT) registrou 299 marcações (+35,3% vs 221).
+- **Novas agendas**: Dra. Maria Maeve (118 marcações) e Dra. Fabiana Morais (93 marcações) iniciaram atendimentos no trimestre (sem marcações registradas em maio a julho).
+- **Volume por marcador**: Ana Luiza Batista Teles (652 marcações) e Igor Luis Soares de Jesus da Silva (618 marcações) lideraram as marcações, distribuindo o fluxo de forma equilibrada entre os principais médicos.
+- **Ausência de dependência crítica**: Nenhuma agenda teve mais de 50% das suas marcações dependentes de um único operador; a maior fatia foi de Igor Luis na agenda de Lorena Campos Wen (35,3% de 119 marcações).
 
 ## Pontos de atenção
-- **André Born**: comparecimento de 54,9% nas 513 marcações de agosto a outubro (sem histórico de comparação). Os números mostram taxa abaixo da equipe. Uma explicação possível é tempo de espera longo até o dia da consulta (confirmar com a recepção Particular). Ação: revisar o processo de confirmação ativa.
-- **Isis Alice**: comparecimento de 55,9% nas 153 marcações de agosto a outubro (sem histórico de comparação). Os números mostram adesão reduzida. Uma explicação possível é falta de alinhamento sobre preparo prévio ou datas distantes (confirmar com o Comercial). Ação: checar roteiro de orientações no ato da marcação.
+- **André Born**: registrou taxa de comparecimento de 54,9% nas 513 marcações de 01/08 a 31/10 (−2,1% vs 524 em maio a julho), valor distante da média dos demais colegas. Queda pontual de volume no período. Uma explicação possível é oferta de agenda muito distante ou falta de confirmação prévia (confirmar com recepção e comercial). Ação: revisar prazos de agendamento e reforçar a confirmação com pacientes.
+- **Curva Tensional Diária**: forte alta de demanda, somando 408 marcações de 01/08 a 31/10 (+94,3% vs 210 em maio a julho), com destaque para Anna Clara dos Santos Bulcão (60 marcações, 27,5% do seu mix) e Nathalia Evelen Teixeira do Monte (fatia subiu de 4,8% para 22,0%). Hipótese: direcionamento ativo da recepção para exames. Ação: monitorar capacidade de atendimento para acolher os pacientes sem atrasos.
 
 ## O que fazer
-- Alinhamento de confirmações: líder do Comercial e recepção Particular devem aplicar contato de confirmação ativa com 48 horas de antecedência para André Born e Isis Alice. Medição: comparecimento geral de ambos acima de 65% no próximo trimestre.
-- Orientação sobre novas agendas: líder do Comercial deve apresentar à equipe o perfil de atendimento de Maria Maeve e Fabiana Morais. Medição: aumento de 15% nas marcações dessas agendas no próximo trimestre.
-- Gestão de capacidade de exames: administração deve alinhar com a equipe técnica a capacidade da Curva Tensional Diaria para absorver a alta demanda. Medição: comparecimento mantido acima de 75% no próximo fechamento.
+- **Líder do Comercial**: orientar a equipe a reforçar a confirmação ativa das consultas do Dr. André Born e avaliar a distância da data marcada. Medir pelo comparecimento_pct no próximo trimestre (meta: aproximar de 65,0%).
+- **Recepção**: acompanhar o fluxo de sala e acolhimento para o exame de Curva Tensional Diária diante do salto de volume. Medir pela manutenção da taxa de comparecimento (atualmente 78,2%) no fechamento seguinte.
+- **Administração**: informar à gestão médica a consolidação das Dras. Maria Maeve e Fabiana Morais para apoio às escalas. Medir pelo volume de marcações do próximo período.
 
 ## Dados usados
-| Indicador | Período | Comparação | Variação |
+| Indicador | Período (01/08 a 31/10) | Comparação (maio a julho) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações Gustavo Gomes | 648 (01/08 a 31/10) | 556 (01/05 a 31/07) | 16,5% |
-| Marcações Mauricio Mateus | 618 (01/08 a 31/10) | 596 (01/05 a 31/07) | 3,7% |
-| Marcações André Born | 513 (01/08 a 31/10) | 524 (01/05 a 31/07) | −2,1% |
-| Marcações Curva Tensional Diaria | 408 (01/08 a 31/10) | 210 (01/05 a 31/07) | 94,3% |
-| Marcações Tomografia Oct | 299 (01/08 a 31/10) | 221 (01/05 a 31/07) | 35,3% |
-| Marcações Maria Maeve | 118 (01/08 a 31/10) | 0 (01/05 a 31/07) | Sem dado |
-| Marcações Fabiana Morais | 93 (01/08 a 31/10) | 0 (01/05 a 31/07) | Sem dado |
-| Comparecimento André Born | 54,9% (01/08 a 31/10) | Sem dado | Sem dado |
-| Comparecimento Isis Alice | 55,9% (01/08 a 31/10) | Sem dado | Sem dado |
-| Marcações Ana Luiza Teles | 652 (01/08 a 31/10) | Sem dado | Sem dado |
-| Marcações Igor Luis Soares | 618 (01/08 a 31/10) | Sem dado | Sem dado |
-| Fatia Igor Luis em Lorena Wen | 35,3% (01/08 a 31/10) | Sem dado | Sem dado |
+| Marcações Gustavo Gomes | 648 | 556 | +16,5% |
+| Marcações Mauricio Mateus | 618 | 596 | +3,7% |
+| Marcações André Born | 513 | 524 | −2,1% |
+| Comparecimento André Born | 54,9% | Não informado | Não informado |
+| Marcações Curva Tensional Diária | 408 | 210 | +94,3% |
+| Comparecimento Curva Tensional Diária | 78,2% | Não informado | Não informado |
+| Marcações Tomografia (OCT) | 299 | 221 | +35,3% |
+| Marcações Lorena Campos Wen | 119 | 103 | +15,5% |
+| Marcações Maria Maeve | 118 | 0 | Sem comparação |
+| Marcações Fabiana Morais | 93 | 0 | Sem comparação |
+| Marcações Ana Luiza Batista Teles | 652 | Não informado | Não informado |
+| Marcações Igor Luis Soares | 618 | Não informado | Não informado |

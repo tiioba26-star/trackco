@@ -4,52 +4,46 @@ periodo: ano
 comparacao: ano
 recorte: todas
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:18:34.803Z
-assinatura: 67b8728b
-tokens_entrada: 11259
-tokens_saida: 10790
+gerado_em: 2026-11-18T09:07:19.950Z
+assinatura: 5651ddd3
+tokens_entrada: 11296
+tokens_saida: 10663
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-A clínica acumula 126.857 marcações em 2026 até 16/11 (+9,0% vs 116.380 no mesmo período de 2025), mantendo o ritmo à frente da comparação no mesmo dia 320. O crescimento foi puxado pelo Comercial (+96,7%) e pela Recepção SUS (+93,8%), que ganharam participação no período. Como o período está em andamento, os números são parciais e ainda vão mudar, sem projeção disponível na fonte de dados.
+No acumulado de 2026 até 17/11, a clínica realizou 127.264 marcações, ritmo 8,9% acima do mesmo período de 2025 (116.888 marcações). O crescimento geral foi puxado por Comercial (+96,6% vs 2025) e Recepção SUS (+93,4% vs 2025), enquanto a projeção de fechamento não consta nos dados. Como o período está em andamento, os totais ainda vão mudar.
 
 ## O que os números mostram
-- No acumulado dia a dia até 16/11/2026 (dia 320), a clínica atingiu 126.857 marcações (+9,0% vs 116.380 no mesmo dia de 2025), sustentando ritmo superior.
-- O Comercial somou 47.470 marcações em 2026 até 16/11 (+96,7% vs 24.130 em 2025), elevando sua participação de 20,7% (conta: 24.130 ÷ 116.380) para 37,4% e gerando R$ 1.803.846,03 (comparação não informada), com 27,2% virando consulta; teve queda pontual em outubro (−3,4% vs setembro).
-- A Recepção SUS alcançou 14.669 marcações em 2026 até 16/11 (+93,8% vs 7.570 em 2025), subindo sua participação de 6,5% (conta: 7.570 ÷ 116.380) para 11,6% e gerando R$ 650.659,87 (comparação não informada), com 45,9% virando consulta.
-- A Recepção Particular registrou 5.309 marcações em 2026 até 16/11 (−15,7% vs 6.300 em 2025), reduzindo sua fatia de 5,4% (conta: 6.300 ÷ 116.380) para 4,2% e gerando R$ 379.506,02 (comparação não informada), com a maior taxa de conversão em consulta: 56,1%.
-- O grupo Sem equipe teve 59.409 marcações em 2026 até 16/11 (−24,2% vs 78.380 em 2025), perdendo espaço de 67,3% (conta: 78.380 ÷ 116.380) para 46,8%, gerando R$ 4.060.255,71, com 54,3% virando consulta.
+- No ritmo acumulado até o dia 321, a clínica totalizou 127.264 marcações em 2026 contra 116.888 em 2025 (+8,9% vs mesmo período).
+- O Comercial marcou 47.626 consultas em 2026 (+96,6% vs 2025), ganhando participação ao atingir 37,4% do total, com 27,2% virando consulta e R$ 1.811.810,52 gerados.
+- A Recepção SUS somou 14.731 marcações em 2026 (+93,4% vs 2025), ampliando sua participação para 11,6%, com 45,9% virando consulta e R$ 656.650,88 gerados.
+- A categoria "Sem equipe" somou 59.587 marcações em 2026 (−24,3% vs 2025), perdendo participação para 46,8%, com 54,4% virando consulta e R$ 4.085.286,76 gerados.
+- A Recepção Particular registrou 5.320 marcações em 2026 (−15,8% vs 2025), recuando a participação para 4,2%, com 56,2% virando consulta e R$ 381.914,35 gerados.
+- Nas tendências recentes, "Sem equipe" caiu 3 meses seguidos (agosto 5.372, setembro 4.734, outubro 4.027) e Recepção Particular caiu 2 meses seguidos (setembro 946, outubro 471), enquanto o Comercial teve queda pontual em outubro (−3,4% vs setembro) e a Recepção SUS alta pontual (+53,2% vs setembro).
 
 ## Pontos de atenção
-- **Sem equipe**: os números mostram 28 pessoas sem setor oficial, acumulando 46,8% do volume total em 2026 até 16/11 e queda por 3 meses seguidos (ago: 5.372, set: 4.734, out: 4.027; −14,9% em out vs set). Uma explicação possível é desatualização cadastral no Klingo (confirmar com administração).
-- **Conversão do Comercial**: os números mostram que apenas 27,2% das marcações em 2026 até 16/11 viraram consulta, abaixo das demais equipes. Uma explicação possível é falta de confirmação prévia com os pacientes (confirmar com líder do Comercial).
-- **Recepção Particular**: os números mostram retração de 15,7% em 2026 até 16/11 vs 2025 e queda por 2 meses seguidos (set: 946, out: 471; −50,2% em out vs set). Uma explicação possível é sobrecarga de atendimento presencial ou migração para canais digitais (confirmar com recepção).
+- **Sem equipe**: os números mostram 28 colaboradores sem setor no período de 2026 até 17/11, somando 59.587 marcações (−24,3% vs 2025). Uma explicação possível é falta de cadastro de novos colaboradores no sistema (confirmar com a recepção e administração). Ação: cadastrar e alocar cada membro em sua equipe.
+- **Comercial**: os números mostram que em 2026 até 17/11 apenas 27,2% das marcações viraram consulta (47.626 marcações vs 24.228 em 2025). Uma explicação possível é descompasso entre o perfil agendado e as agendas abertas (confirmar com o líder do Comercial). Ação: realizar acompanhamento e treinamento para qualificação do contato.
+- **Recepção Particular**: os números mostram queda de 2 meses seguidos nas marcações (setembro 946 e outubro 471, sendo −50,2% em outubro vs setembro). Uma explicação possível é sobrecarga no atendimento presencial (confirmar com a equipe de recepção). Ação: conversar com a equipe e planejar apoio nos horários de pico.
 
 ## O que fazer
-- Administração: cadastrar a equipe dos 28 colaboradores que marcam como "Sem equipe"; medir a redução de marcações sem equipe no fechamento de novembro.
-- Líder do Comercial: alinhar processo de acompanhamento e confirmação prévia com os atendentes para elevar o comparecimento; medir a taxa de consultas efetivas em dezembro.
-- Recepção: reunir-se com os 3 colaboradores da Recepção Particular para acolher as dificuldades e organizar os fluxos de balcão; medir a evolução das marcações no próximo período parcial.
+1. Administração: auditar o cadastro dos 28 colaboradores sem equipe e vinculá-los às suas respectivas áreas no sistema. Medir no próximo período pela redução da participação de "Sem equipe" (atualmente em 46,8%).
+2. Líder do Comercial: realizar alinhamento de processos e treinamento com a equipe para melhorar a qualificação das marcações. Medir no próximo período pelo percentual de marcações que viram consulta (atualmente em 27,2%).
+3. Recepção: acolher a equipe da Recepção Particular e redistribuir tarefas nos dias de pico para reverter a sequência de 2 meses de queda. Medir no próximo período pelo volume de marcações mensais da equipe.
 
 ## Dados usados
-| Indicador | Período | Comparação | Variação |
-| :--- | :--- | :--- | :--- |
-| Total de marcações | 2026 até agora (01/01 a 16/11): 126.857 | Mesmo período de 2025 (01/01 a 16/11): 116.380 | +9,0% |
-| Ritmo diário acumulado (dia 320) | 2026 até 16/11: 126.857 | Mesmo dia de 2025: 116.380 | +9,0% |
-| Marcações Comercial | 2026 até agora (01/01 a 16/11): 47.470 | Mesmo período de 2025 (01/01 a 16/11): 24.130 | +96,7% |
-| Marcações Recepção SUS | 2026 até agora (01/01 a 16/11): 14.669 | Mesmo período de 2025 (01/01 a 16/11): 7.570 | +93,8% |
-| Marcações Recepção Particular | 2026 até agora (01/01 a 16/11): 5.309 | Mesmo período de 2025 (01/01 a 16/11): 6.300 | −15,7% |
-| Marcações Sem equipe | 2026 até agora (01/01 a 16/11): 59.409 | Mesmo período de 2025 (01/01 a 16/11): 78.380 | −24,2% |
-| R$ gerado Comercial | 2026 até agora (01/01 a 16/11): R$ 1.803.846,03 | Dado não informado | Dado não informado |
-| R$ gerado Recepção SUS | 2026 até agora (01/01 a 16/11): R$ 650.659,87 | Dado não informado | Dado não informado |
-| R$ gerado Recepção Particular | 2026 até agora (01/01 a 16/11): R$ 379.506,02 | Dado não informado | Dado não informado |
-| R$ gerado Sem equipe | 2026 até agora (01/01 a 16/11): R$ 4.060.255,71 | Dado não informado | Dado não informado |
-| Tendência Sem equipe | Outubro de 2026: 4.027 | Setembro de 2026: 4.734 | −14,9% |
-| Tendência Recepção Particular | Outubro de 2026: 471 | Setembro de 2026: 946 | −50,2% |
+| Indicador | Período (01/01 a 17/11/2026) | Comparação (01/01 a 17/11/2025) | Variação |
+|---|---|---|---|
+| Total de marcações | 127.264 | 116.888 | +8,9% |
+| Marcações Comercial | 47.626 | 24.228 | +96,6% |
+| Marcações Recepção SUS | 14.731 | 7.618 | +93,4% |
+| Marcações Sem equipe | 59.587 | 78.722 | −24,3% |
+| Marcações Recepção Particular | 5.320 | 6.320 | −15,8% |

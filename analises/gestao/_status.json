@@ -1,21 +1,38 @@
 {
-  "gerado_em": "2026-11-17T11:34:37.057Z",
-  "dados_ate": "2026-11-16",
-  "feitas": 82,
-  "sem_mudanca": 18,
-  "falhas": [],
+  "gerado_em": "2026-11-18T08:00:45.469Z",
+  "dados_ate": "2026-11-17",
+  "feitas": 75,
+  "sem_mudanca": 23,
+  "falhas": [
+    {
+      "arquivo": "equipes__12m__ano__todas.md",
+      "erro": "failed to start conversation: backend returned an empty conversation id"
+    },
+    {
+      "arquivo": "equipes__12m__ano__particular.md",
+      "erro": "API error (attempt 5): UNAVAILABLE (code 503): No capacity available for model gemini-3.8-flash-high on the server"
+    },
+    {
+      "arquivo": "equipes__12m__anterior__todas.md",
+      "erro": "failed to start conversation: backend returned an empty conversation id"
+    }
+  ],
   "pendentes": [],
   "tokens": {
-    "entrada": 1165146,
-    "saida": 944773,
-    "pensamento": 827073,
+    "entrada": 1126149,
+    "saida": 845178,
+    "pensamento": 737557,
     "cache": 0
   },
-  "custo_equivalente_usd": 0,
+  "custo_equivalente_usd": 0.4501,
   "por_modelo": {
     "gemini-3.8-flash-high": {
-      "analises": 82,
+      "analises": 74,
       "custo_equivalente_usd": 0
+    },
+    "claude-opus-5-5": {
+      "analises": 1,
+      "custo_equivalente_usd": 0.4501
     }
   },
   "limite_atingido": false

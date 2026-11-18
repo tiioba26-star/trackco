@@ -4,52 +4,47 @@ periodo: ano
 comparacao: ano
 recorte: todas
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:18:14.565Z
-assinatura: 53baa130
-tokens_entrada: 26524
-tokens_saida: 13337
+gerado_em: 2026-11-18T09:04:13.229Z
+assinatura: e844dc6b
+tokens_entrada: 26947
+tokens_saida: 5988
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período de 01/01 a 16/11/2026 (parcial, em andamento), o faturamento gerado totalizou R$ 6.894.267,63 (+61,6% vs R$ 4.266.391,39 no mesmo período de 2025), impulsionado pela alta no comparecimento para 77,8% (+16,8 p.p. vs 61,0% em 2025). As consultas realizadas cresceram para 54.567 atendimentos (+25,7% vs 43.420 em 2025), elevando o valor médio para R$ 126,35 por consulta (+28,6% vs R$ 98,26 em 2025). O resultado geral é de expansão, mas a queda de comparecimento de operadores-chave no último trimestre exige acompanhamento imediato.
+No período de 2026 até 17/11 (parcial), a IOBA alcançou R$ 6.935.662,51 em faturamento gerado (+60,9% vs R$ 4.311.158,64 em 2025), impulsionada pela alta no comparecimento geral, que atingiu 77,8% (+16,7 p.p. vs 61,1%). O volume de atendimentos realizados cresceu 25,5% (54.805 vs 43.672), acompanhado pela valorização do valor médio por consulta, que subiu para R$ 126,55 (+28,2% vs R$ 98,72). No entanto, quedas recentes de comparecimento em outubro em marcadores de alto volume exigem diálogo e acompanhamento imediato.
 
 ## O que os números mostram
-- As marcações da clínica somaram 126.857 em 2026 até 16/11 (+9,0% vs 116.380 em 2025), gerando 54.567 atendimentos realizados (+25,7% vs 43.420 em 2025).
-- O comparecimento global atingiu 77,8% em 2026 até 16/11 (+16,8 p.p. vs 61,0% em 2025), e o R$ gerado alcançou R$ 6.894.267,63 (+61,6% vs R$ 4.266.391,39 em 2025).
-- **Maiane Fiais** liderou as marcações da clínica com 16.805 agendamentos em 2026 até 16/11 (sem base em 2025) e comparecimento de 71,0%, acima da mediana do Comercial (68,4%).
-- **Murilo Damasceno** registrou o maior faturamento com R$ 1.059.505,97 em 2026 até 16/11 e 16.035 marcações (+192,8% vs 5.476 em 2025), com comparecimento acumulado de 76,1% (mediana Sem equipe: 83,2%).
-- **Ariane Souza Cruz** manteve consistência com 7.103 marcações em 2026 até 16/11 (−6,2% vs 7.570 em 2025) e comparecimento de 80,9% (mediana Recepção SUS: 80,5%), com marcações em alta por 2 meses seguidos (760 em setembro e 830 em outubro de 2026).
+- O funil geral converteu com maior eficiência: foram 127.264 consultas marcadas (+8,9% vs 116.888 em 2025) e 54.805 realizadas (+25,5% vs 43.672), elevando o comparecimento da clínica para 77,8% (vs 61,1%).
+- A receita média gerada por consulta subiu para R$ 126,55 (+28,2% vs R$ 98,72), sustentando a expansão financeira no período em andamento.
+- No Comercial, Maiane Fiais lidera com 16.868 marcações e R$ 586.691,92 gerados, mantendo comparecimento de 70,8%, acima da mediana da sua equipe (68,5%).
+- Murilo Damasceno e Esmeralda Pinto lideram o total de receita gerada na clínica (R$ 1.075.302,69 e R$ 790.800,75), mas ambos sofreram forte perda de comparecimento em outubro.
+- Na Recepção SUS, Ariane Souza Cruz aumentou o volume de agendamentos por 2 meses seguidos (760 em setembro e 830 em outubro), sustentando 80,9% de presença (mediana do SUS: 80,5%).
 
 ## Pontos de atenção
-- **Murilo Damasceno de Abreu**: comparecimento mensal caiu 3 meses seguidos (83,5% em agosto, 67,2% em setembro e 38,5% em outubro de 2026), acumulando 76,1% em 2026 vs mediana da equipe de 83,2%. Hipótese a confirmar: horários marcados muito distantes da data ou falha na confirmação de véspera. Ação: conversa individual para revisar o fluxo de agendamento.
-- **Esmeralda Pinto da Silva**: comparecimento mensal caiu 3 meses seguidos (82,3% em agosto, 74,8% em setembro e 29,0% em outubro de 2026) e marcações caíram 3 meses seguidos (1.477 em agosto, 1.009 em setembro e 658 em outubro de 2026). Hipótese a confirmar: aumento de pacientes de primeira vez desorientados sobre o comparecimento. Ação: escuta com liderança para suporte na rotina diária.
-- **Michele Pereira de Souza**: comparecimento mensal caiu 3 meses seguidos (83,6% em julho, 68,7% em agosto, 52,2% em setembro e 42,2% em outubro de 2026), com 76,5% no acumulado de 2026 vs mediana da equipe de 83,2%. Hipótese a confirmar: fragilidade nos contatos prévios de confirmação. Ação: alinhamento com supervisão para apoio nos agendamentos.
+- **Murilo Damasceno de Abreu**: o comparecimento caiu por 3 meses consecutivos, fechando outubro em 38,5% (−34,0 p.p. vs 72,5% em setembro e 83,0% em agosto). Uma hipótese a confirmar com ele é a marcação para datas muito distantes ou falhas no contato prévio de confirmação.
+- **Esmeralda Pinto da Silva**: registra 3 meses seguidos de queda em marcações (1.477 em agosto, 1.009 em setembro e 658 em outubro) e em presença (82,2% em agosto, 77,0% em setembro e 29,0% em outubro). Uma explicação possível é sobrecarga em outras tarefas ou mudança de rotina (confirmar com a colaboradora).
+- **Michele Pereira de Souza**: comparecimento em queda há 3 meses seguidos (68,7% em agosto, 56,0% em setembro e 42,2% em outubro). Uma hipótese é o preparo inadequado informado ao paciente para exames ou falta de confirmação na véspera (confirmar com ela).
+- **Caio Constantino Silva Lima Souza**: volume de marcações em queda há 3 meses consecutivos (367 em agosto, 359 em setembro e 325 em outubro, −9,5% vs setembro). Hipótese: redução de cotas ou redistribuição de guias no SUS (confirmar com a liderança do setor).
 
 ## O que fazer
-- **Líder do Comercial e Gestão de Atendimento**: realizar conversas individuais com Murilo Damasceno, Esmeralda Pinto e Michele Pereira para acolher dificuldades e alinhar rotinas de confirmação prévia; medir a recuperação do comparecimento mensal no relatório de fechamento de novembro de 2026.
-- **Supervisão de Atendimento**: parear os operadores em queda com Danusa dos Santos (83,5% de comparecimento em 2026 até 16/11) para troca de práticas sobre contato na véspera e reforço de preparo; medir a presença semanal a partir de 17/11/2026.
-- **Administração**: reconhecer em reunião de equipe os resultados de Maiane Fiais (volume) e Ariane Souza Cruz (regularidade no SUS); medir a manutenção do volume e do comparecimento no próximo fechamento mensal.
+1. Liderança Comercial e Administração: realizar conversas individuais de apoio e escuta com Murilo Damasceno e Esmeralda Pinto para entender a rotina de agendamentos e reforçar a confirmação na véspera; medir pela retomada do comparecimento mensal acima de 70% no próximo fechamento.
+2. Liderança de Recepção: sentar com Michele Pereira e Caio Constantino para mapear dificuldades no contato prévio e distribuição de guias; medir pela estabilização das taxas no próximo relatório mensal.
+3. Administração e Recepção: formar duplas de troca de experiências práticas entre Maiane Fiais, Ariane Souza Cruz e os demais marcadores; medir pela manutenção da taxa de comparecimento global da clínica acima de 75%.
 
 ## Dados usados
-| Indicador | Período (01/01 a 16/11/2026, parcial) | Comparação (01/01 a 16/11/2025) | Variação |
+| Indicador | 2026 até agora (01/01 a 17/11) | Comparação 2025 (01/01 a 17/11) | Variação |
 | :--- | :--- | :--- | :--- |
-| Consultas marcadas (clínica toda) | 126.857 | 116.380 | +9,0% |
-| Consultas realizadas (clínica toda) | 54.567 | 43.420 | +25,7% |
-| Taxa de comparecimento (clínica toda) | 77,8% | 61,0% | +16,8 p.p. |
-| R$ gerado total (clínica toda) | R$ 6.894.267,63 | R$ 4.266.391,39 | +61,6% |
-| R$ médio por consulta (clínica toda) | R$ 126,35 | R$ 98,26 | +28,6% |
-| Marcações - Murilo Damasceno | 16.035 | 5.476 | +192,8% |
-| Comparecimento mensal - Murilo Damasceno | 38,5% (outubro/2026) | 67,2% (setembro/2026) | −28,7 p.p. |
-| Marcações - Esmeralda Pinto | 10.955 | 3.419 | +220,4% |
-| Comparecimento mensal - Esmeralda Pinto | 29,0% (outubro/2026) | 74,8% (setembro/2026) | −45,8 p.p. |
-| Comparecimento mensal - Michele Pereira | 42,2% (outubro/2026) | 52,2% (setembro/2026) | −10,0 p.p. |
-| Marcações - Maiane Fiais | 16.805 | 0 | N/A |
-| Marcações - Ariane Souza Cruz | 7.103 | 7.570 | −6,2% |
+| Marcações totais | 127.264 | 116.888 | +8,9% |
+| Consultas conferíveis | 70.476 | 71.452 | −1,4% |
+| Consultas realizadas | 54.805 | 43.672 | +25,5% |
+| Comparecimento | 77,8% | 61,1% | +16,7 p.p. |
+| R$ gerado | R$ 6.935.662,51 | R$ 4.311.158,64 | +60,9% |
+| R$ por consulta | R$ 126,55 | R$ 98,72 | +28,2% |

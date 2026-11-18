@@ -4,49 +4,46 @@ periodo: mes
 comparacao: anterior
 recorte: todas
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: outubro até o dia 16
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: outubro até o dia 17
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:04:03.082Z
-assinatura: cbd03134
-tokens_entrada: 11273
-tokens_saida: 13629
+gerado_em: 2026-11-18T08:05:06.420Z
+assinatura: 9c79262a
+tokens_entrada: 11326
+tokens_saida: 7858
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-De 01/11 a 16/11, a clínica registrou 5.549 marcações (−18,9% vs 6.846 em outubro até o dia 16), ritmo parcial que ainda vai mudar. Pela projeção atual em dias úteis, o mês fechará com 10.636 marcações, abaixo de outubro inteiro (12.134). O Comercial gerou a maior receita com R$ 42.110,40 de 01/11 a 16/11 (sem comparativo no período), mas todas as frentes recuaram no volume de agendamentos.
+No período parcial de 01/11 a 17/11, a clínica registrou 5.956 marcações, ficando 18,1% abaixo das 7.274 marcações do mesmo período de outubro. Como o mês está em andamento, trata-se de um ritmo preliminar, cuja projeção aponta fechamento em 10.538 marcações, abaixo das 12.134 realizadas em outubro inteiro. O Comercial sustenta a maior participação nas marcações e a maior receita gerada, enquanto o grupo sem equipe cadastrada ainda retém volume expressivo de atendentes e agendamentos.
 
 ## O que os números mostram
-- **Ritmo e projeção geral**: A clínica acumula 5.549 marcações de 01/11 a 16/11 (−18,9% vs 6.846 no mesmo período de outubro). Por ser período parcial, a projeção calculada para o fim do mês indica 10.636 marcações, o que ficaria abaixo do mês de outubro inteiro (12.134).
-- **Comercial**: Somou 2.288 marcações de 01/11 a 16/11 (−18,8% vs 2.817 na comparação), mantendo 41,2% de participação total. Gerou R$ 42.110,40 no período (sem comparativo), teve 13,1% virando consulta e registrou queda pontual em outubro (−3,4% vs setembro).
-- **Recepção SUS**: Teve 1.164 marcações de 01/11 a 16/11 (−25,4% vs 1.560 na comparação), perdendo participação de 22,8% para 21,0% (cálculo: 1.560 ÷ 6.846 na comparação). Teve 22,0% virando consulta e gerou R$ 22.227,74 no período (sem comparativo).
-- **Recepção Particular**: Registrou 201 marcações de 01/11 a 16/11 (−19,0% vs 248 na comparação), mantendo 3,6% de participação, com a maior conversão em consultas (31,8%) e R$ 8.696,35 gerados no período (sem comparativo).
-- **Sem equipe**: Concentrou 1.896 marcações de 01/11 a 16/11 (−14,6% vs 2.221 na comparação), ganhando participação de 32,4% para 34,2% (cálculo: 2.221 ÷ 6.846 na comparação), com 8,6% virando consulta e R$ 7.702,16 gerados no período (sem comparativo).
+- O ritmo geral da clínica atingiu 5.956 marcações entre 01/11 e 17/11 (−18,1% vs 7.274 em 01/10 a 17/10), com todas as equipes apresentando recuo no comparativo parcial.
+- No ritmo atual por dia útil, a projeção para o encerramento de novembro é de 10.538 marcações, ficando abaixo de outubro inteiro (12.134 marcações); vale lembrar que o dado é uma projeção e pode mudar até o fim do mês.
+- O Comercial obteve 2.444 marcações (−13,9% vs 2.837 na comparação), elevando sua participação para 41,0%, com 13,3% de conversão em consultas e R$ 47.450,82 em R$ gerado; nos meses fechados, teve queda pontual em outubro (4.826 marcações, −3,4% vs setembro).
+- O grupo "Sem equipe" respondeu por 2.074 marcações (−20,2% vs 2.599 na comparação), concentrando 34,8% de participação, 8,1% de conversão e R$ 7.872,69 gerados por 12 colaboradores não identificados por setor.
+- A Recepção SUS somou 1.226 marcações (−22,5% vs 1.582 na comparação), com 20,6% de participação, 22,8% de conversão em consultas e R$ 27.192,38 gerados; após alta pontual em outubro (2.810 marcações, +53,2% vs setembro), o ritmo desacelerou em novembro.
+- A Recepção Particular registrou 212 marcações (−17,2% vs 256 na comparação) e 3,6% de participação, destacando-se com a maior taxa de conversão em consulta da clínica (31,6%) e R$ 9.051,03 em R$ gerado.
 
 ## Pontos de atenção
-- **Sem equipe**: Os números mostram 12 pessoas marcando sem equipe cadastrada de 01/11 a 16/11 (1.896 marcações) e queda por 3 meses seguidos nos fechamentos (agosto 5.372, setembro 4.734, outubro 4.027). Uma explicação possível é a ausência de parametrização no cadastro de novos colaboradores (confirmar com Recursos Humanos e TI); ação: cadastrar a equipe de quem está sem vínculo no sistema.
-- **Recepção Particular**: Os números mostram retração de −19,0% no período parcial (201 vs 248) e queda por 2 meses seguidos nos fechamentos (setembro 946 e outubro 471, −50,2% vs setembro). Uma explicação possível é a migração de agendamentos para o Comercial (confirmar com a liderança da Recepção); ação: revisar o fluxo de atendimento presencial e alinhar rotinas com as 2 colaboradoras.
+- **Sem equipe**: reúne 12 colaboradores e 2.074 marcações no parcial atual (−20,2% vs 01/10 a 17/10), com queda contínua por 3 meses seguidos no fechado (agosto 5.372, setembro 4.734, outubro 4.027). Uma explicação possível é a falta de parametrização cadastral no sistema Klingo para colaboradores recém-chegados ou remanejados (confirmar com TI e RH). Ação: mapear nominalmente os 12 profissionais e vinculá-los às suas equipes.
+- **Recepção Particular**: somou 212 marcações no período parcial (−17,2% vs 01/10 a 17/10) e caiu 2 meses seguidos nos períodos fechados (setembro 946 e outubro 471, quando variou −50,2% vs setembro). Uma explicação possível é a absorção das demandas particulares pelo Comercial ou direcionamento exclusivo dos 2 recepcionistas ao atendimento presencial (confirmar com a coordenação de recepção). Ação: acompanhar a rotina de atendimento do guichê particular.
 
 ## O que fazer
-- **Administração e TI**: Cadastrar a equipe dos 12 colaboradores que marcam no grupo "Sem equipe". Como medir: zerar as marcações na categoria "Sem equipe" nos relatórios da segunda quinzena de novembro.
-- **Líder da Recepção Particular**: Reunir-se com as 2 colaboradoras para entender os gargalos operacionais e acolher a equipe. Como medir: estabilização ou aumento da média diária de marcações até 30/11.
-- **Líder do Comercial e Recepção SUS**: Alinhar metas e reforçar escalas nos dias de pico. Como medir: reduzir a diferença frente a outubro para menos de −10% no fechamento do mês.
+- Administração: mapear e cadastrar os 12 colaboradores de "Sem equipe" em seus setores correspondentes. Como medir: zerar as marcações sem equipe no fechamento de dezembro.
+- Líder da Recepção: realizar reunião de alinhamento e acompanhamento com os 2 colaboradores da Recepção Particular para apoiar o fluxo de guichê e agendamento. Como medir: estabilização do volume no próximo ciclo comparativo.
+- Líder do Comercial: reorganizar o atendimento nos dias de maior procura para recuperar o volume diário. Como medir: alcançar média diária que aproxime as marcações da meta de 12.000 no fechamento consolidado de novembro.
 
 ## Dados usados
 | Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 5.549 (01/11 a 16/11) | 6.846 (01/10 a 16/10) | −18,9% |
-| Projeção total (fim do mês vs mês anterior) | 10.636 (novembro inteiro) | 12.134 (outubro inteiro) | −12,3% |
-| Comercial - Marcações | 2.288 (01/11 a 16/11) | 2.817 (01/10 a 16/10) | −18,8% |
-| Sem equipe - Marcações | 1.896 (01/11 a 16/11) | 2.221 (01/10 a 16/10) | −14,6% |
-| Recepção SUS - Marcações | 1.164 (01/11 a 16/11) | 1.560 (01/10 a 16/10) | −25,4% |
-| Recepção Particular - Marcações | 201 (01/11 a 16/11) | 248 (01/10 a 16/10) | −19,0% |
-| Comercial - R$ gerado | R$ 42.110,40 (01/11 a 16/11) | Sem dado | - |
-| Recepção SUS - R$ gerado | R$ 22.227,74 (01/11 a 16/11) | Sem dado | - |
-| Recepção Particular - R$ gerado | R$ 8.696,35 (01/11 a 16/11) | Sem dado | - |
-| Sem equipe - R$ gerado | R$ 7.702,16 (01/11 a 16/11) | Sem dado | - |
+| Marcações totais | 01/11 a 17/11/2026 (5.956) | 01/10 a 17/10/2026 (7.274) | −18,1% |
+| Projeção de marcações | Novembro/2026 proj. (10.538) | Outubro/2026 cheio (12.134) | −13,2% (conta: (10.538 − 12.134) ÷ 12.134) |
+| Marcações Comercial | 01/11 a 17/11/2026 (2.444) | 01/10 a 17/10/2026 (2.837) | −13,9% |
+| Marcações Sem equipe | 01/11 a 17/11/2026 (2.074) | 01/10 a 17/10/2026 (2.599) | −20,2% |
+| Marcações Recepção SUS | 01/11 a 17/11/2026 (1.226) | 01/10 a 17/10/2026 (1.582) | −22,5% |
+| Marcações Recepção Particular | 01/11 a 17/11/2026 (212) | 01/10 a 17/10/2026 (256) | −17,2% |

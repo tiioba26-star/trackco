@@ -8,44 +8,50 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: mesmo período de 2025 (01/10/2025 a 31/10/2025)
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:59:39.878Z
-assinatura: 7b91661c
-tokens_entrada: 11167
-tokens_saida: 10873
+gerado_em: 2026-11-18T08:39:56.037Z
+assinatura: dab61109
+tokens_entrada: 11210
+tokens_saida: 17196
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-A clínica fechou outubro com 1.197 marcações no Particular (−21,1% vs 1.518 em outubro de 2025). A retração geral decorre da redução em Sem equipe (−92,7% vs 422 em outubro de 2025), enquanto a Recepção SUS cresceu 226,9% (255 vs 78 em outubro de 2025) e a Recepção Particular avançou 2,0% (302 vs 296 em outubro de 2025). O Comercial manteve 50,9% de participação, mas acumula dois meses seguidos em queda (−15,7% vs 722 em outubro de 2025).
+Em outubro de 2026, as marcações no recorte Particular somaram 1.196 atendimentos (−21,2% vs 1.518 em outubro de 2025). A queda geral decorre da retração do Comercial (−15,7% vs out/2025) e de Sem equipe (−92,9%), atenuada pelo crescimento da Recepção SUS (+226,9%) e estabilidade da Recepção Particular (+2,0%). O Comercial concentrou 50,9% das marcações e gerou R$ 74.670,00 em outubro, mas acumula 2 meses seguidos em queda.
 
 ## O que os números mostram
-- Ritmo geral: No dia 31, a clínica acumulou 1.197 marcações particulares (−21,1% vs 1.518 no mesmo dia de 2025).
-- Comercial: Obteve 609 marcações (−15,7% vs 722 em outubro de 2025 e −0,3% vs 611 em setembro de 2026), 50,9% de participação, 57,6% virando consulta e R$ 73.350,00 gerados (comparativos de conversão e receita não informados no relatório).
-- Recepção SUS no Particular: Somou 255 marcações (+226,9% vs 78 em outubro de 2025), com alta pontual de 44,9% vs 176 em setembro de 2026, 58,4% virando consulta e R$ 32.050,00 gerados.
-- Recepção Particular: Registrou 302 marcações (+2,0% vs 296 em outubro de 2025), subindo 2 meses seguidos (+2,7% vs 294 em setembro de 2026; sequência ago 236, set 294, out 302), com 46,0% virando consulta e R$ 33.320,00 gerados.
-- Sem equipe: Teve 31 marcações (−92,7% vs 422 em outubro de 2025), caindo 3 meses seguidos (−49,2% vs 61 em setembro de 2026; sequência ago 119, set 61, out 31), com 25,8% virando consulta e R$ 1.910,00 gerados.
+- **Ritmo total**: A clínica fechou o dia 31 de outubro com 1.196 marcações acumuladas (−21,2% vs 1.518 no mesmo dia de outubro de 2025).
+- **Comercial**: Somou 609 marcações (−15,7% vs 722 em out/2025; −0,3% vs set/2026), gerando R$ 74.670,00, com 50,9% de participação e 58,5% virando consulta (comparações não informadas); os números mostram queda por 2 meses seguidos (setembro 611, outubro 609).
+- **Recepção Particular**: Teve 302 marcações (+2,0% vs 296 em out/2025; +2,7% vs set/2026), gerando R$ 34.040,00, com 25,3% de participação e 47,4% virando consulta (comparações não informadas); os números mostram alta por 2 meses seguidos (setembro 294, outubro 302).
+- **Recepção SUS**: Obteve 255 marcações (+226,9% vs 78 em out/2025), gerando R$ 32.050,00, com 21,3% de participação e 58,4% virando consulta (comparações não informadas).
+- **Sem equipe**: Registrou 30 marcações (−92,9% vs 422 em out/2025; −50,8% vs set/2026), gerando R$ 1.910,00, com 2,5% de participação e 26,7% virando consulta (comparações não informadas); os números mostram queda por 3 meses seguidos (agosto 119, setembro 61, outubro 30).
 
 ## Pontos de atenção
-- **Comercial**: Caiu 2 meses seguidos (ago 680, set 611, out 609), com −15,7% vs 722 em outubro de 2025 e −6,9% vs média de 3 meses. Os números mostram perda de ritmo; uma explicação possível é sobrecarga nos dias de pico (confirmar com líder do Comercial). Ação: alinhar escalas e dar apoio operacional à equipe.
-- **Recepção Particular**: Teve conversão de 46,0% em consultas em outubro (comparativo não informado), abaixo da Recepção SUS (58,4%) e do Comercial (57,6%). Os números mostram menor efetivação; uma explicação possível é agendamentos sem confirmação ativa (confirmar com recepção). Ação: treinamento em confirmação e acolhimento.
-- **Sem equipe**: Registrou 31 marcações de 6 colaboradores em outubro (−92,7% vs 422 em outubro de 2025). Os números mostram saneamento cadastral, mas ainda há operadores sem setor; uma explicação possível é pendência cadastral no Klingo (confirmar com administração). Ação: cadastrar os colaboradores pendentes.
+- **Comercial**: Registrou 609 marcações em outubro (−15,7% vs 722 em out/2025) e está há 2 meses seguidos em queda. Uma explicação possível é perda de ritmo em dias de pico (confirmar com o líder do Comercial); cabe alinhar metas e apoiar a equipe.
+- **Recepção Particular**: Apresentou 47,4% de marcações virando consulta em outubro (comparação não informada), abaixo das demais equipes. Uma explicação possível é falha no processo de confirmação de consultas (confirmar com a recepção); cabe oferecer treinamento e acompanhamento fraterno.
+- **Sem equipe**: Há 6 pessoas sem equipe cadastrada que somaram 30 marcações em outubro (−92,9% vs 422 em out/2025; 3 meses seguidos em queda). Uma explicação possível é atraso no cadastro no sistema (confirmar com a administração); cabe cadastrar a equipe de quem está sem.
 
 ## O que fazer
-- Apoiar o Comercial: Líder do Comercial deve mapear gargalos nos dias de pico e redistribuir demandas. Medir no próximo período pela interrupção da queda, superando 609 marcações.
-- Treinar Recepção Particular: Supervisão de atendimento deve capacitar a equipe em confirmação ativa. Medir no próximo período pela elevação da conversão acima de 50,0%.
-- Regularizar cadastros: Administração deve associar os 6 colaboradores aos seus setores no sistema. Medir no próximo período por 0 marcações em Sem equipe.
+- **Líder do Comercial**: Alinhar metas e reorganizar a equipe nos dias de pico. Medir pela reversão da queda de marcações em novembro de 2026.
+- **Recepção**: Treinar a Recepção Particular na confirmação ativa de consultas. Medir pelo aumento das consultas efetivadas em novembro de 2026.
+- **Administração**: Cadastrar a equipe dos 6 colaboradores sem vínculo. Medir por zero marcações em Sem equipe em novembro de 2026.
 
 ## Dados usados
 | Indicador | Período (out/2026) | Comparação (out/2025) | Variação |
-| Total de marcações | 1.197 | 1.518 | −21,1% |
+| :--- | :--- | :--- | :--- |
+| Marcações totais | 1.196 | 1.518 | −21,2% |
+| Ritmo acumulado no dia 31 | 1.196 | 1.518 | −21,2% |
 | Marcações Comercial | 609 | 722 | −15,7% |
 | Marcações Recepção Particular | 302 | 296 | +2,0% |
 | Marcações Recepção SUS | 255 | 78 | +226,9% |
-| Marcações Sem equipe | 31 | 422 | −92,7% |
-| Comercial vs mês anterior | 609 | 611 (set/2026) | −0,3% |
-| Recepção Particular vs mês anterior | 302 | 294 (set/2026) | +2,7% |
-| Recepção SUS vs mês anterior | 255 | 176 (set/2026) | +44,9% |
-| Sem equipe vs mês anterior | 31 | 61 (set/2026) | −49,2% |
+| Marcações Sem equipe | 30 | 422 | −92,9% |
+| R$ gerado Comercial | R$ 74.670,00 | Não informado | Não calculada |
+| R$ gerado Recepção Particular | R$ 34.040,00 | Não informado | Não calculada |
+| R$ gerado Recepção SUS | R$ 32.050,00 | Não informado | Não calculada |
+| R$ gerado Sem equipe | R$ 1.910,00 | Não informado | Não calculada |
+| Viraram consulta Comercial | 58,5% | Não informado | Não calculada |
+| Viraram consulta Recepção Particular | 47,4% | Não informado | Não calculada |
+| Viraram consulta Recepção SUS | 58,4% | Não informado | Não calculada |
+| Viraram consulta Sem equipe | 26,7% | Não informado | Não calculada |

@@ -4,49 +4,53 @@ periodo: mes
 comparacao: anterior
 recorte: todas
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: outubro até o dia 16
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: outubro até o dia 17
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:04:17.948Z
-assinatura: 65e7d950
-tokens_entrada: 12038
-tokens_saida: 11948
+gerado_em: 2026-11-18T08:07:11.544Z
+assinatura: 056d7931
+tokens_entrada: 12101
+tokens_saida: 18018
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 01/11 a 16/11, a taxa de faltas geral ficou em 39,8% (−3,8 p.p. vs 43,6% em outubro parcial), totalizando 1.921 ausências em um período em andamento que ainda vai mudar. As perdas concentram-se nas agendas de Glaucoma, com destaque para Entrega de Colírios que registrou 98,5% de faltas (1.215 faltas em 1.233 consultas). O SUS gerou 88,6% das marcações e 84,9% do faturamento (R$ 338.445,88), enquanto o Particular respondeu por R$ 60.330,00 (15,1% do faturamento).
+Em novembro até o dia 17 (período parcial em andamento), a taxa de falta geral da clínica foi de 39,4%, queda pontual de 3,3 p.p. frente a outubro até o dia 17 (42,7%). As perdas concentram-se no SUS, que responde por 88,5% das marcações e 84,6% do faturamento. A taxa de cancelamento permaneceu estável em 2,3% (+0,3 p.p. vs 2,0%), com 58,3% dos cancelamentos registrados sob a opção genérica "Outros".
 
 ## O que os números mostram
-- A taxa de faltas foi de 39,8% em novembro parcial (−3,8 p.p. vs 43,6% em outubro parcial), caracterizando queda pontual de −1,4 p.p. vs outubro fechado (39,7%); os cancelamentos ficaram em 2,4% (+0,6 p.p. vs 1,8%) e as remarcações em 11,1% (+0,5 p.p. vs 10,6%).
-- Dos 115 cancelamentos, "Outros" liderou com 59,1% (68 casos vs 70 em outubro parcial), seguido por solicitação do paciente/família com 29,6% (34 vs 25); "Sem motivo registrado" somou 2,6% (3 vs 4).
-- As agendas de Entrega de Colírios (98,5% de faltas) e Glaucoma (83,6%) concentram perdas severas; em contrapartida, Mauricio Mateus manteve taxa de falta de 3,8% em 820 consultas no período parcial.
-- O procedimento ENTREGA DE COLIRIOS teve 1.215 faltas, seguido por CAMPIMETRIA DO PROJETO GLAUCOMA com 239 faltas e 99 remarcações.
-- Maiane Fiais Ramos Albuquerque (481) e Ana Luiza Batista Teles (346) somam os maiores volumes absolutos de faltas; faltam dados do total de marcações de cada atendente para apurar taxas individuais.
-- O SUS representou 88,6% das marcações (4.917) e 84,9% do faturamento (R$ 338.445,88 vs 79,5% na comparação); o Particular teve 11,4% das marcações (632) e 15,1% da receita (R$ 60.330,00 vs 20,5% na comparação).
+- A taxa de falta atingiu 39,4% de 01/11 a 17/11 (−3,3 p.p. vs 42,7% em outubro até o dia 17), somando 2.089 faltas em 6.042 consultas; o período é parcial e ainda vai mudar.
+- A taxa de cancelamento foi de 2,3% (+0,3 p.p. vs 2,0% em outubro), com 120 ocorrências, e a de remarcação ficou em 11,1% (+0,2 p.p. vs 10,9%).
+- O motivo "Outros" somou 58,3% dos cancelamentos (70 casos vs 75 na comparação) e pedido do paciente 30,0% (36 casos vs 35); "Sem motivo registrado" representou 2,5% (3 casos vs 5).
+- Entrega de Colírios (98,7% de falta, 1.346 faltas em 1.364 consultas), Glaucoma (83,6%, 230 faltas em 275) e Campo Visual (41,2%, 238 faltas em 577) tiveram as maiores perdas (comparação não disponível no relatório).
+- Dr. Mauricio Mateus registrou taxa de falta de apenas 3,4% (32 faltas em 938 consultas), destacando-se positivamente com alto volume de atendimento.
+- O SUS representou 88,5% das marcações (−2,0 p.p. vs 90,5%) e R$ 374.774,23 do faturamento (+0,6 p.p. vs 84,0%); o Particular teve 11,5% das marcações (+2,0 p.p. vs 9,5%) e R$ 68.160,00 (−0,6 p.p. vs 16,0%).
 
 ## Pontos de atenção
-- **Entrega de Colírios e Glaucoma**: somam 1.424 faltas no período parcial de 01/11 a 16/11 (taxas de 98,5% e 83,6%), patamar alto que persiste há meses. Uma explicação possível é a ausência de confirmação ativa dos pacientes SUS (confirmar com a recepção). Ação: estruturar confirmação por telefone na véspera.
-- **Cancelamentos como "Outros"**: concentram 59,1% das desistências no período parcial (68 casos), mantendo o padrão de outubro parcial (70 casos). Uma explicação possível é a carência de opções específicas ou hábito da recepção no Klingo (confirmar com a equipe). Ação: reciclagem e padronização no registro dos motivos.
-- **Receita do Particular**: a fatia de faturamento caiu para 15,1% no período parcial (R$ 60.330,00 vs 20,5% na comparação), apesar do ganho na fatia de marcações (11,4% vs 9,9%). Uma explicação possível é a realização de procedimentos de menor valor ou defasagem no faturamento (confirmar com o setor de faturamento). Ação: auditoria dos atendimentos particulares realizados.
+- **Agendas de Glaucoma e Entrega de Colírios**: somam 1.576 faltas em novembro parcial, com taxas de 98,7% e 83,6%. Uma explicação possível é o formato de dispensação pública de colírios gerar agendamentos automáticos (confirmar com coordenação médica). Ação: alinhar o fluxo administrativo para não gerar agendamento fictício no Klingo.
+- **Cancelamentos classificados como "Outros"**: representaram 58,3% dos cancelamentos no período parcial (70 de 120). Uma explicação possível é o registro rápido sem seleção da causa real (confirmar com a recepção). Ação: orientar e acompanhar a equipe para o preenchimento da justificativa correta.
+- **Colaboradoras Maiane Albuquerque e Ana Luiza Teles**: registraram 529 e 372 faltas em novembro parcial. Faltam dados no relatório sobre o total marcado por colaboradora para apurar taxas individuais. Uma explicação possível é a escala em agendas SUS de alto absenteísmo histórico (confirmar com líder de marcação). Ação: acolher com acompanhamento e treinamento.
 
 ## O que fazer
-- Confirmação ativa na véspera para agendas de Glaucoma e Entrega de Colírios. Quem faz: Recepção. Como medir: taxa de faltas dessas agendas no próximo período.
-- Orientação da equipe para detalhar os cancelamentos no Klingo e reduzir o uso de "Outros". Quem faz: Líder da Recepção. Como medir: fatia da categoria "Outros" no fechamento de novembro.
-- Conciliação dos procedimentos e consultas particulares realizados. Quem faz: Administração e Faturamento. Como medir: participação percentual do Particular no faturamento final de novembro.
+- **Recepção e Call Center**: implantar confirmação ativa na véspera em Campo Visual e Glaucoma. Medição: taxa de falta de Campo Visual abaixo de 35% e Glaucoma abaixo de 75% no próximo período.
+- **Líder do Comercial**: orientar os operadores a restringir a opção "Outros" no Klingo. Medição: "Outros" abaixo de 30% dos cancelamentos no próximo período.
+- **Administração**: revisar com a diretoria médica o processo da agenda "Entrega de Colírios" no Klingo. Medição: redução expressiva de faltas nominais no relatório de dezembro.
 
 ## Dados usados
-| indicador | período | comparação | variação |
+| Indicador | Período (01 a 17/11) | Comparação (01 a 17/10) | Variação |
 | :--- | :--- | :--- | :--- |
-| Taxa de faltas | 39,8% (01/11 a 16/11) | 43,6% (01/10 a 16/10) | −3,8 p.p. |
-| Taxa de cancelamentos | 2,4% (01/11 a 16/11) | 1,8% (01/10 a 16/10) | +0,6 p.p. |
-| Taxa de remarcações | 11,1% (01/11 a 16/11) | 10,6% (01/10 a 16/10) | +0,5 p.p. |
-| Cancelamentos por "Outros" | 59,1% (68 de 115) | 66,0% (70 de 106) | −6,9 p.p. |
-| Fatia de marcações SUS | 88,6% (4.917) | 90,1% | −1,5 p.p. |
-| Fatia de marcações Particular | 11,4% (632) | 9,9% | +1,5 p.p. |
-| Faturamento SUS | R$ 338.445,88 (84,9%) | 79,5% (fatia) | +5,4 p.p. |
-| Faturamento Particular | R$ 60.330,00 (15,1%) | 20,5% (fatia) | −5,4 p.p. |
+| Taxa de falta | 39,4% | 42,7% | −3,3 p.p. |
+| Taxa de cancelamento | 2,3% | 2,0% | +0,3 p.p. |
+| Taxa de remarcação | 11,1% | 10,9% | +0,2 p.p. |
+| Consultas marcadas | 6.042 | 6.974 | −13,4% (conta: (6.042−6.974)/6.974) |
+| Faltas totais | 2.089 | 2.611 | −20,0% (conta: (2.089−2.611)/2.611) |
+| Cancelamentos totais | 120 | 125 | −4,0% (conta: (120−125)/125) |
+| Fatia cancelamento "Outros" | 58,3% (70) | 60,0% (75/125) | −1,7 p.p. |
+| Cancelamentos sem motivo | 2,5% (3) | 4,0% (5/125) | −1,5 p.p. |
+| Fatia marcações SUS | 88,5% | 90,5% | −2,0 p.p. |
+| Fatia marcações Particular | 11,5% | 9,5% | +2,0 p.p. |
+| Fatia faturamento SUS | 84,6% | 84,0% | +0,6 p.p. |
+| Fatia faturamento Particular | 15,4% | 16,0% | −0,6 p.p. |

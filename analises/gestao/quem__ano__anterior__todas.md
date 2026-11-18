@@ -4,49 +4,49 @@ periodo: ano
 comparacao: anterior
 recorte: todas
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:52:30.745Z
-assinatura: d548658c
-tokens_entrada: 13766
-tokens_saida: 10165
+gerado_em: 2026-11-18T08:27:51.990Z
+assinatura: 697a045c
+tokens_entrada: 13805
+tokens_saida: 8157
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 2026 até agora (01/01 a 16/11, com números que ainda vão mudar), as marcações mostram expansão em Curva Tensional Diária (+70,3% vs mesmo período de 2025) e Dr. Gustavo Gomes (+58,8% vs 2025), contra retração de 32,5% na Dra. Maria Maeve (7.036 vs 10.423 em 2025). O cenário exige acompanhamento do comparecimento de 59,9% no Dr. André Born e do risco de dependência na Retinografia, onde Eliene Maria da Silva Farias concentra 71,4% das marcações.
+No período de 01/01 a 17/11/2026 (parcial e em andamento), as marcações para Dr. Gustavo Gomes (9.077 em 2026; +58,3% vs 2025: 5.733) e Dr. Mauricio Mateus (12.797 em 2026; +55,8% vs 2025: 8.213) cresceram expressivamente, enquanto Dra. Maria Maeve caiu 32,1% (7.094 em 2026 vs 2025: 10.453). Há risco de dependência em Retinografia, onde Eliene Maria da Silva Farias responde por 71,3% de todas as marcações. Além disso, o Dr. André Born destoa com comparecimento de 59,9% em 2026, lembrando que os números parciais ainda vão mudar.
 
 ## O que os números mostram
-- Crescimento expressivo: Dr. Gustavo Gomes atingiu 9.074 marcações (+58,8% vs 5.715 no mesmo período de 2025), Dr. Mauricio Mateus alcançou 12.682 (+55,8% vs 8.142) e Curva Tensional Diária somou 7.030 (+70,3% vs 4.127).
-- Retração médica e exames: Dra. Maria Maeve registrou 7.036 marcações (−32,5% vs 10.423 no mesmo período de 2025), enquanto Retinografia teve 3.021 marcações (−22,8% vs 3.914).
-- Risco de dependência: a agenda de Retinografia tem 71,4% de suas marcações realizadas por Eliene Maria da Silva Farias em 2026 até agora.
-- Dispersão de comparecimento: enquanto Dr. Mauricio Mateus (95,3%) e Dr. Gustavo Gomes (93,1%) mantêm patamares altos, o Dr. André Born registra 59,9% em 2026 até agora.
-- Evolução no mix individual: Murilo Damasceno de Abreu expandiu sua fatia para Glaucoma de 22,2% em 2025 para 36,2% em 2026 até agora, liderando o volume geral com 16.035 marcações.
+* Os números mostram forte expansão em Curva Tensional Diaria (7.051 em 2026; +70,5% vs 2025: 4.136) e Glaucoma (14.719 em 2026; +47,2% vs 2025: 9.998).
+* Consultórios médicos registraram alta expressiva: Dr. Gustavo Gomes obteve 9.077 marcações em 2026 (+58,3% vs 2025: 5.733) e Dr. Mauricio Mateus alcançou 12.797 (+55,8% vs 2025: 8.213).
+* Houve retração relevante na procura de Dra. Maria Maeve, com 7.094 marcações em 2026 (−32,1% vs 2025: 10.453), e de Retinografia, com 3.025 marcações (−22,7% vs 2025: 3.915).
+* Murilo Damasceno de Abreu realizou 16.117 marcações em 2026, figurando como o principal marcador de 6 das 11 agendas analisadas.
+* Dr. André Born registrou taxa de comparecimento de 59,9% em 2026 (2.260 marcações), enquanto os demais médicos mantêm taxas superiores a 88,0%.
 
 ## Pontos de atenção
-- **Retinografia e Eliene Maria da Silva Farias**: concentração de 71,4% das marcações da agenda em uma só pessoa em 2026 até agora (parcial). Uma explicação possível é hábito operacional de direcionamento (confirmar com recepção); ação: treinar e distribuir a marcação.
-- **Maria Maeve**: queda de 32,5% nas marcações em 2026 até agora (7.036 vs 10.423 em 2025). Uma explicação possível é redução na grade médica (confirmar com gestão médica); ação: avaliar disponibilidade de consultório.
-- **André Born**: comparecimento de 59,9% em 2026 até agora, distante dos pares médicos (acima de 88,0%). Uma explicação possível é agendamento com antecedência excessiva (confirmar com Comercial); ação: revisar confirmação de presença.
-- **Glaucoma e Entrega de Colírios**: comparecimento nominal de 8,3% e 1,0% em 2026 até agora. Uma explicação possível é fluxo administrativo de medicação sem validação no sistema (confirmar com recepção); ação: auditar lançamentos.
+* **Retinografia e Eliene Maria da Silva Farias**: Eliene concentra 71,3% das 3.025 marcações do exame em 2026 (2.158 feitas por ela). Essa dependência expõe o setor a riscos em caso de ausências; uma hipótese é a centralização de regras técnicas do exame (confirmar com líder de atendimento), sendo necessário treinar outros operadores.
+* **Maria Maeve**: registrou 7.094 marcações em 2026 (−32,1% vs 2025: 10.453). A queda ocorre no acumulado do ano; uma explicação possível é a redução na grade de vagas ofertadas (confirmar com gestão médica), demandando alinhamento da oferta de horários.
+* **André Born**: comparecimento de 59,9% sobre 2.260 marcações em 2026 (−5,7% vs 2025: 2.397). O índice destoa da clínica; uma hipótese é o agendamento com datas muito distantes (confirmar com recepção), cabendo intensificar o contato de confirmação prévia.
 
 ## O que fazer
-- Distribuir a marcação de Retinografia capacitando outros marcadores; quem faz: líder do Comercial; como medir no próximo período: fatia de Eliene abaixo de 50,0%.
-- Alinhar com a gestão médica a situação da grade da Dra. Maria Maeve; quem faz: administração; como medir no próximo período: relatório de ocupação da agenda médica no próximo mês.
-- Avaliar motivos de absenteísmo nas consultas do Dr. André Born; quem faz: líder do Comercial; como medir no próximo período: comparecimento superior a 75,0%.
-- Auditar fluxo de baixa de presença em Glaucoma e Entrega de Colírios; quem faz: recepção; como medir no próximo período: regularização do indicador no sistema.
+* 1. Líder do Comercial e Recepção: treinar outros operadores para marcação de Retinografia, reduzindo a sobrecarga em Eliene. Medição: fatia de Eliene no exame abaixo de 50,0% no próximo fechamento.
+* 2. Administração: alinhar com a gestão médica a grade de atendimento da Dra. Maria Maeve. Medição: volume de vagas ofertadas e marcações no relatório do próximo mês.
+* 3. Recepção: auditar o fluxo de confirmação de consultas do Dr. André Born. Medição: taxa de comparecimento do profissional atingindo 75,0% no próximo período.
 
 ## Dados usados
-| Indicador | Período | Comparação | Variação |
+| Indicador | Período (2026 até 17/11) | Comparação (2025 até 17/11) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações Dr. Gustavo Gomes | 9.074 em 2026 até agora | 5.715 em 2025 | +58,8% |
-| Marcações Dr. Mauricio Mateus | 12.682 em 2026 até agora | 8.142 em 2025 | +55,8% |
-| Marcações Curva Tensional Diária | 7.030 em 2026 até agora | 4.127 em 2025 | +70,3% |
-| Marcações Dra. Maria Maeve | 7.036 em 2026 até agora | 10.423 em 2025 | −32,5% |
-| Marcações Retinografia | 3.021 em 2026 até agora | 3.914 em 2025 | −22,8% |
-| Dependência Retinografia (Eliene) | 71,4% em 2026 até agora | Sem dado | N/A |
-| Comparecimento Dr. André Born | 59,9% em 2026 até agora | Sem dado | N/A |
+| Curva Tensional Diaria | 7.051 | 4.136 | +70,5% |
+| Gustavo Gomes | 9.077 | 5.733 | +58,3% |
+| Mauricio Mateus | 12.797 | 8.213 | +55,8% |
+| Glaucoma | 14.719 | 9.998 | +47,2% |
+| Retinografia | 3.025 | 3.915 | −22,7% |
+| Maria Maeve | 7.094 | 10.453 | −32,1% |
+| André Born (marcações) | 2.260 | 2.397 | −5,7% |
+| André Born (comparecimento) | 59,9% | Não informado | N/D |
+| Concentração Retinografia (Eliene) | 71,3% (2.158) | Não informado | N/D |

@@ -8,49 +8,47 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: setembro
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:09:24.244Z
-assinatura: 1dfdf673
-tokens_entrada: 13504
-tokens_saida: 6504
+gerado_em: 2026-11-18T08:09:21.555Z
+assinatura: 6b836cdc
+tokens_entrada: 13550
+tokens_saida: 5555
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-Em outubro, Entrega de Colírios (3.297 marcações, −4,7% vs setembro) e Glaucoma (3.168 marcações, +9,6% vs setembro) lideraram o volume da clínica. As agendas do Dr. Mauricio Mateus (467 marcações, −46,3% vs setembro) e da Dra. Maria Maeve (424 marcações, −36,0% vs setembro) sofreram quedas pontuais expressivas, enquanto a Dra. Lorena Campos Wen estreou com 362 marcações. Além disso, identificamos dependência operacional na agenda da Dra. Uyara Queiroz, que teve 54,2% de suas marcações realizadas por uma única colaboradora.
+Em outubro, o volume geral foi liderado por Entrega de Colírios (3.297 marcações, −4,7% vs setembro) e Glaucoma (3.165 marcações, +13,2% vs setembro). Os números mostram dependência operacional na agenda da Dra. Uyara Queiroz, concentrada em uma única colaboradora, além de quedas pontuais expressivas na procura pelos médicos Dr. Mauricio Mateus (−49,9% vs setembro) e Dra. Maria Maeve (−38,2% vs setembro). Por fim, as agendas de Glaucoma, Entrega de Colírios e Campo Visual apresentaram taxas de comparecimento atipicamente baixas quando comparadas às consultas médicas.
 
 ## O que os números mostram
-- A agenda da Dra. Uyara Queiroz cresceu para 576 marcações em outubro (+15,2% vs setembro), porém 54,2% desse volume dependeu de Ana Paula Franca.
-- O mix de agendamento de Ana Paula Franca mudou bruscamente: direcionou 97,5% de suas marcações para Dra. Uyara Queiroz em outubro (vs 52,4% em setembro) e reduziu Dr. Mauricio Mateus de 46,2% em setembro para 0,3% em outubro.
-- As agendas de Dr. Mauricio Mateus (467 marcações, −46,3% vs setembro) e Dra. Maria Maeve (424 marcações, −36,0% vs setembro) apresentaram queda pontual expressiva de marcações.
-- Houve recuo nas agendas de exames: Curva Tensional Diária registrou 723 marcações em outubro (−18,8% vs setembro) e Campo Visual somou 1.080 marcações (−15,6% vs setembro).
-- As taxas de comparecimento registradas para Entrega de Colírios (0,6%) e Glaucoma (2,3%) em outubro ficaram atipicamente abaixo das demais agendas da clínica, que variaram de 32,1% a 97,2%.
+- Entrega de Colírios (3.297 marcações, −4,7% vs setembro) e Glaucoma (3.165 marcações, +13,2% vs setembro) representam o maior volume da clínica.
+- O Dr. Mauricio Mateus registrou 469 marcações em outubro (−49,9% vs setembro), e a Dra. Maria Maeve teve 426 marcações (−38,2% vs setembro), ambas quedas pontuais no mês.
+- A Dra. Lorena Campos Wen iniciou atendimentos com 362 marcações em outubro (sem histórico em setembro) e comparecimento de 97,2%.
+- A agenda da Dra. Uyara Queiroz apresentou dependência direta: 54,2% de suas 576 marcações vieram de Ana Paula Franca.
+- As agendas de Entrega de Colírios (0,6%), Glaucoma (1,9%) e Campo Visual (32,6%) tiveram comparecimento muito abaixo da média das consultas médicas, que ficaram entre 64,8% e 97,2%.
 
 ## Pontos de atenção
-- **Dra. Uyara Queiroz e Ana Paula Franca**: 54,2% das marcações da médica foram feitas por Ana Paula Franca em outubro. O dado reflete uma concentração pontual deste mês. Uma explicação possível é o direcionamento de demandas específicas ou fluxo preferencial de atendimento (confirmar com a supervisão). Ação: orientar e distribuir a marcação da médica entre mais pessoas da equipe para mitigar riscos de ausência.
-- **Dr. Mauricio Mateus**: queda pontual de 46,3% nas marcações em outubro (467 vs 870 em setembro). Uma explicação possível é redução na oferta de turnos na escala médica ou redistribuição da demanda para a nova médica Dra. Lorena Campos Wen (confirmar com a gestão médica). Ação: alinhar a escala médica e orientar o agendamento.
-- **Comparecimento em Entrega de Colírios e Glaucoma**: taxas de comparecimento de 0,6% e 2,3% em outubro. O dado é pontual deste mês. Uma explicação possível é falha operacional no registro de presença ou baixa no sistema Klingo na recepção desses pacientes (confirmar com recepção). Ação: auditar o processo de recepção dessas linhas.
+- **Dependência na agenda de Uyara Queiroz**: Ana Paula Franca realizou 312 marcações para a médica em outubro, correspondendo a 54,2% do total da profissional e 97,5% da produção individual de Ana Paula (que era de 52,4% em setembro). Uma explicação possível é o direcionamento exclusivo dessa carteira para a colaboradora (confirmar com a liderança Comercial). Ação: treinar outros membros da equipe para distribuir as marcações.
+- **Quedas na marcação médica**: Dr. Mauricio Mateus teve 469 marcações em outubro (−49,9% vs setembro) e Dra. Maria Maeve teve 426 marcações (−38,2% vs setembro), quedas pontuais observadas neste mês. Uma explicação possível é redução de dias disponíveis na grade ou férias dos médicos (confirmar com a gestão médica). Ação: verificar disponibilidade de agenda com os profissionais.
+- **Comparecimento de Glaucoma e exames**: O comparecimento em outubro foi de 0,6% em Entrega de Colírios, 1,9% em Glaucoma e 32,6% em Campo Visual. Uma explicação possível é falha de registro de presença no sistema ou agendamento com data muito distante (confirmar com recepção). Ação: auditar o fluxo de baixa de presença.
 
 ## O que fazer
-- Líder do Comercial: orientar e capacitar os demais operadores para marcarem consultas para a Dra. Uyara Queiroz, diluindo a concentração atual. Medir no fechamento de novembro pela fatia da principal marcadora (meta: abaixo de 40%).
-- Gestão médica: checar com Dr. Mauricio Mateus e Dra. Maria Maeve as escalas e disponibilidade de vagas para entender a retração na procura. Medir em novembro pela evolução no total de marcações de ambos.
-- Recepção e Administração: auditar o fluxo de baixa de presença no sistema Klingo para as agendas de Entrega de Colírios e Glaucoma. Medir no próximo período pelo comparecimento_pct de ambas as agendas.
+- **Líder do Comercial**: Treinar a equipe e redistribuir as marcações da Dra. Uyara Queiroz entre mais pessoas. Medir pela fatia de Ana Paula Franca no total da médica em novembro (meta: abaixo de 40%).
+- **Administração**: Verificar com a gestão médica se houve alteração de grade para Dr. Mauricio Mateus e Dra. Maria Maeve. Medir pelo volume de marcações em novembro.
+- **Recepção e TI**: Auditar o lançamento de presença nos serviços de Entrega de Colírios, Glaucoma e Campo Visual. Medir pela evolução da taxa de comparecimento dessas agendas em novembro.
 
 ## Dados usados
-| Indicador | Outubro | Setembro | Variação |
+| Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações Entrega de Colírios | 3.297 | 3.458 | −4,7% |
-| Marcações Glaucoma | 3.168 | 2.890 | +9,6% |
-| Marcações Campo Visual | 1.080 | 1.280 | −15,6% |
-| Marcações Curva Tensional Diária | 723 | 890 | −18,8% |
-| Marcações Dra. Uyara Queiroz | 576 | 500 | +15,2% |
-| Marcações Dr. Mauricio Mateus | 467 | 870 | −46,3% |
-| Marcações Dra. Maria Maeve | 424 | 662 | −36,0% |
-| Marcações Dra. Lorena Campos Wen | 362 | 0 | – |
-| Dependência Dra. Uyara Queiroz (Ana Paula) | 54,2% | – | – |
-| Fatia Uyara no mix de Ana Paula Franca | 97,5% | 52,4% | +45,1 p.p. |
-| Fatia Mauricio no mix de Ana Paula Franca | 0,3% | 46,2% | −45,9 p.p. |
-| Comparecimento Entrega de Colírios | 0,6% | – | – |
-| Comparecimento Glaucoma | 2,3% | – | – |
+| Marcações Entrega de Colírios | 3.297 (outubro) | 3.458 (setembro) | −4,7% |
+| Marcações Glaucoma | 3.165 (outubro) | 2.796 (setembro) | +13,2% |
+| Marcações Campo Visual | 1.080 (outubro) | 1.280 (setembro) | −15,6% |
+| Marcações Uyara Queiroz | 576 (outubro) | 500 (setembro) | +15,2% |
+| Marcações Mauricio Mateus | 469 (outubro) | 937 (setembro) | −49,9% |
+| Marcações Maria Maeve | 426 (outubro) | 689 (setembro) | −38,2% |
+| Marcações Lorena Campos Wen | 362 (outubro) | 0 (setembro) | Sem dado anterior |
+| Fatia de Ana Paula Franca em Uyara Queiroz | 54,2% (outubro) | Não informado | Sem dado anterior |
+| Comparecimento Entrega de Colírios | 0,6% (outubro) | Não informado | Sem dado anterior |
+| Comparecimento Glaucoma | 1,9% (outubro) | Não informado | Sem dado anterior |
+| Comparecimento Campo Visual | 32,6% (outubro) | Não informado | Sem dado anterior |

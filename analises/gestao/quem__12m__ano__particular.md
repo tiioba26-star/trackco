@@ -8,45 +8,46 @@ janela_fim: 2026-10-31
 janela_nome: Últimos 12 meses fechados
 janela_datas: 01/11/2025 a 31/10
 base_nome: mesmo período de 2024 (01/11/2024 a 31/10/2025)
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:37:25.919Z
-assinatura: 55e40802
-tokens_entrada: 13593
-tokens_saida: 5528
+gerado_em: 2026-11-18T08:10:54.472Z
+assinatura: 16d546a0
+tokens_entrada: 13640
+tokens_saida: 4882
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-Nos últimos 12 meses fechados (01/11/2025 a 31/10/2026), as agendas de Mauricio Mateus (2.134 marcações; +133,5% vs 914 na comparação) e Gustavo Gomes (1.841 marcações; +79,3% vs 1.027) puxaram o crescimento particular, enquanto Fabiana Morais registrou queda pontual de 43,7% (1.114 vs 1.980). A operação apresenta risco de concentração na agenda de Mauricio Trindade, que teve 61,9% das suas 433 marcações feitas por Jady dos Passos Medrado, somada a uma taxa crítica de comparecimento de 1,2%.
+Nos últimos 12 meses fechados, as marcações no Particular registraram forte crescimento para Mauricio Mateus (2.134 marcações, +133,5% vs período anterior) e Gustavo Gomes (1.841 marcações, +79,3%), enquanto Fabiana Morais teve queda expressiva (−43,7%). Foi detectado risco de dependência na agenda de Mauricio Trindade, que concentra 61,9% das marcações em Jady dos Passos Medrado e tem taxa de comparecimento crítica de 1,2%. A distribuição geral de marcações segue muito concentrada em Igor Luis Soares de Jesus da Silva, que responde pelo maior volume em 9 dos 11 profissionais avaliados.
 
 ## O que os números mostram
-- Mauricio Mateus tornou-se o profissional mais demandado no Particular, alcançando 2.134 marcações (+133,5% vs 914 no período anterior), acompanhado por Gustavo Gomes com 1.841 marcações (+79,3% vs 1.027).
-- Fabiana Morais apresentou forte retração de 43,7% no volume particular, passando de 1.980 marcações na comparação para 1.114 no período analisado.
-- Igor Luis Soares de Jesus da Silva (Comercial) lidera a geração interna com 3.062 marcações, sendo o maior emissor para 8 das 11 agendas do recorte.
-- A agenda de Mauricio Trindade somou 433 marcações (sem registro na comparação), mas converteu apenas 1,2% em comparecimento efetivo.
-- André Born manteve volume estável com 2.088 marcações (−2,4% vs 2.139), contudo seu comparecimento de 52,0% figura bem abaixo de pares de volume similar, como Mauricio Mateus (68,6%) e Gustavo Gomes (67,1%).
+- Mauricio Mateus e Gustavo Gomes puxaram a alta do período, totalizando 2.134 marcações (+133,5% vs 914) e 1.841 marcações (+79,3% vs 1.027), respectivamente.
+- Fabiana Morais perdeu volume relevante no Particular, passando de 1.980 para 1.114 marcações (−43,7%).
+- Há dependência severa na agenda nova de Mauricio Trindade (433 marcações vs 0): Jady dos Passos Medrado responde por 61,9% das marcações (268 agendamentos) e Rina Souza Costa direcionou 100% de suas 120 marcações a ele.
+- Duas agendas apresentam comparecimento atípico: Mauricio Trindade registrou 1,2% e André Born teve 52,0%, taxa muito inferior aos exames de OCT (79,4%) e Curva Tensional (77,6%).
+- Igor Luis Soares de Jesus da Silva lidera amplamente as marcações com 3.062 agendamentos, sendo o principal originador para 9 dos 11 profissionais.
 
 ## Pontos de atenção
-- **Mauricio Trindade**: somou 433 marcações no período de 12 meses, com 61,9% originadas de uma única pessoa (Jady dos Passos Medrado) e comparecimento de 1,2%. Uma explicação possível é falha de comunicação de preparo ou abertura de agenda muito distante (confirmar com recepção e TI); cabe treinar a equipe para distribuir o agendamento e validar o fluxo de confirmação.
-- **Fabiana Morais**: redução de 43,7% nas marcações em 12 meses (1.114 vs 1.980). Uma explicação possível é redução na grade de horários disponibilizada pela médica (confirmar com gestão médica); cabe alinhar a disponibilidade com a profissional.
-- **André Born**: comparecimento de 52,0% em 2.088 marcações nos últimos 12 meses (−2,4% vs 2.139). Uma explicação possível é tempo elevado de espera entre marcação e consulta (confirmar com líder do Comercial); cabe acolher a equipe com reciclagem sobre reforço de confirmação.
+- **Mauricio Trindade**: agenda nova com 433 marcações e comparecimento de apenas 1,2%, com dependência de 61,9% em Jady dos Passos Medrado. Uma explicação possível é erro de parametrização no Klingo, agendamentos em lote para datas distantes ou falha de registro de presença (confirmar com a recepção e TI).
+- **Fabiana Morais**: redução contínua de volume (−43,7% nos últimos 12 meses fechados). Uma hipótese é a diminuição na oferta de turnos da médica ou redirecionamento involuntário da equipe (confirmar com a gestão médica).
+- **André Born**: taxa de comparecimento de 52,0% em 2.088 marcações (−2,4% vs 2.139). Uma hipótese é tempo excessivo de espera entre a marcação e o atendimento, gerando desistência sem cancelamento formal.
 
 ## O que fazer
-- Líder do Comercial: orientar e redistribuir os agendamentos da agenda de Mauricio Trindade entre outros colaboradores, reduzindo a dependência sobre Jady dos Passos Medrado; medir no próximo período a fatia do principal marcador (meta: abaixo de 50%).
-- Recepção Particular e Comercial: revisar a régua de confirmação prévia e orientações aos pacientes de André Born e Mauricio Trindade; medir no próximo período a taxa de comparecimento_pct de ambos (meta: superar 65%).
-- Administração: consultar a gestão médica para entender a causa da retração da oferta ou procura da agenda de Fabiana Morais; medir no próximo período a variação percentual de marcações da profissional.
+- Administração: auditar com urgência o cadastro e os atendimentos de Mauricio Trindade para verificar o comparecimento de 1,2%; medir a correção da taxa no fechamento do próximo mês.
+- Líder do Comercial: orientar Jady dos Passos Medrado e a equipe a distribuir melhor as marcações de Mauricio Trindade entre outros atendentes; medir a redução da fatia de Jady para menos de 40% no próximo ciclo.
+- Recepção Particular: implementar confirmação ativa prévia de consultas para André Born; medir se a taxa de comparecimento alcança pelo menos 65% nos próximos 60 dias.
+- Administração: consultar a gestão médica sobre a disponibilidade da agenda de Fabiana Morais para averiguar os motivos da retração de 43,7%.
 
 ## Dados usados
 | Indicador | Período (01/11/2025 a 31/10/2026) | Comparação (01/11/2024 a 31/10/2025) | Variação |
 | :--- | :--- | :--- | :--- |
 | Marcações Mauricio Mateus | 2.134 | 914 | +133,5% |
+| Marcações André Born | 2.088 | 2.139 | −2,4% |
 | Marcações Gustavo Gomes | 1.841 | 1.027 | +79,3% |
 | Marcações Fabiana Morais | 1.114 | 1.980 | −43,7% |
-| Marcações André Born | 2.088 | 2.139 | −2,4% |
-| Comparecimento André Born | 52,0% | Não informado | — |
-| Marcações Mauricio Trindade | 433 | 0 | — |
-| Comparecimento Mauricio Trindade | 1,2% | Não informado | — |
-| Dependência Mauricio Trindade (Jady) | 61,9% | Não informado | — |
-| Marcações Igor Luis | 3.062 | Não informado | — |
+| Marcações Mauricio Trindade | 433 | 0 | Sem base |
+| Comparecimento Mauricio Trindade | 1,2% | Sem dados | Sem base |
+| Comparecimento André Born | 52,0% | Sem dados | Sem base |
+| Dependência Mauricio Trindade (Jady Medrado) | 61,9% | 0,0% | Sem base |
+| Marcações Igor Luis Soares | 3.062 | Sem dados | Sem base |

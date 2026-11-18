@@ -4,50 +4,46 @@ periodo: mes
 comparacao: ano
 recorte: particular
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: mesmo período de 2025 (01/11/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: mesmo período de 2025 (01/11/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:55:11.039Z
-assinatura: ab3b0517
-tokens_entrada: 11248
-tokens_saida: 8963
+gerado_em: 2026-11-18T08:30:29.282Z
+assinatura: 980e2800
+tokens_entrada: 11291
+tokens_saida: 6520
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No recorte Particular, a clínica registrou 632 marcações de 01/11 a 16/11 (−2,6% vs 649 no mesmo período de 2025), mantendo ritmo estável em período parcial. A projeção para o encerramento do mês indica 1.211 marcações, superando o mês anterior inteiro (+1,2% vs 1.197 em outubro). O Comercial responde pela maior parte do volume (51,4%) e por R$ 22.645,00 gerados, apesar de registrar dois meses seguidos em leve recuo.
+No recorte Particular, a clínica registrou 682 marcações entre 01/11 e 17/11/2026, situando-se 2,7% abaixo das 701 marcações de 01/11 a 17/11/2025. Pela projeção baseada no ritmo dos dias úteis, o mês deve encerrar em 1.207 marcações, superando o mês anterior inteiro (1.196 marcações em outubro de 2026). O Comercial segue na liderança de volume com 51,6% de participação, embora as equipes de recepção tenham ganhado espaço no período.
 
 ## O que os números mostram
-- O ritmo geral acumulado até 16/11 soma 632 marcações contra 649 na comparação (−2,6%). Pelo ritmo dos 12 dias úteis transcorridos, a projeção é fechar novembro em 1.211 marcações (+1,2% vs 1.197 de outubro inteiro); por ser período em andamento, o volume final ainda vai mudar.
-- O Comercial realizou 325 marcações (−11,7% vs 368 na comparação), gerando R$ 22.645,00 e mantendo 51,4% de participação, embora tenha perdido espaço relativo. Teve 33,2% de conversão em consulta, mas registra 2 meses seguidos de queda (setembro 611 e outubro 609, variando −0,3% vs mês anterior).
-- A Recepção SUS fez 160 marcações (+661,9% vs 21 na comparação), alcançando 25,3% de participação e R$ 7.170,00 gerados, com 20,6% virando consulta. A equipe ganhou participação e teve alta pontual no último mês (+44,9% em outubro).
-- A Recepção Particular somou 120 marcações (+41,2% vs 85 na comparação), gerando R$ 7.680,00 e 19,0% de participação, com 25,0% virando consulta. O setor ganhou participação e subiu 2 meses seguidos (setembro 294 e outubro 302, variando +2,7% em outubro).
-- A categoria "Sem equipe" teve 27 marcações (−84,6% vs 175 na comparação), gerando R$ 130,00 e 4,3% de participação, com 3,7% virando consulta. O volume perdeu participação e caiu 3 meses seguidos (agosto 119, setembro 61 e outubro 31).
+- O total geral atingiu 682 marcações no período de 01/11 a 17/11/2026 (−2,7% vs 701 em 2025); por ser um período em andamento, os dados são parciais e ainda vão mudar.
+- No ritmo acumulado por dia útil, a projeção aponta 1.207 marcações ao término de novembro, o que fecharia acima das 1.196 marcações de outubro de 2026 (mês anterior inteiro).
+- O Comercial realizou 352 marcações (−12,0% vs 400 em 2025), gerou R$ 24.915,00 e teve 34,4% convertidas em consulta, mas perdeu participação (51,6%) e acumula 2 meses seguidos em queda no volume mensal.
+- A Recepção Particular somou 128 marcações (+29,3% vs 99 em 2025), gerou R$ 7.970,00 com 24,2% virando consulta, ganhou participação (18,8%) e registra 2 meses seguidos em alta.
+- A Recepção SUS alcançou 169 marcações particulares (+634,8% vs 23 em 2025), gerou R$ 8.650,00, converteu 23,1% em consultas e elevou sua participação para 24,8%.
+- O grupo Sem equipe teve 33 marcações (−81,6% vs 179 em 2025), gerou R$ 130,00 com 3,0% virando consulta, mantendo 3 meses seguidos em queda.
 
 ## Pontos de atenção
-- **Comercial**: registrou 325 marcações no período parcial (−11,7% vs 368 de 2025) e apresenta queda há 2 meses seguidos no fechamento mensal. Uma explicação possível é sobrecarga de rotina ou gargalo de prospecção (confirmar com o líder do Comercial), cabendo conversa de alinhamento e suporte.
-- **Sem equipe**: há 7 colaboradores marcando sem equipe cadastrada no Klingo, somando 27 marcações. Embora o volume venha caindo há 3 meses seguidos, a pendência impede o acompanhamento correto do trabalho de cada pessoa e direcionamento de capacitação.
-- **Recepção SUS**: gerou 160 marcações particulares, mas sua conversão em consulta (20,6%) ficou abaixo da Recepção Particular (25,0%). Uma explicação possível é falta de alinhamento quanto ao preparo do paciente e confirmação da consulta particular (confirmar com a liderança da recepção).
+- **Comercial**: registrou queda de 12,0% nas marcações (352 vs 400) e apresenta 2 meses seguidos em queda no consolidado mensal (setembro 611 e outubro 609). Uma explicação possível é sobrecarga de rotina ou oscilação nos canais de contato (confirmar com a liderança), demandando sentar com a equipe para ouvir dificuldades e alinhar suporte.
+- **Sem equipe**: apesar da redução de 81,6% no volume (33 vs 179) e de 3 meses seguidos em queda, ainda há 7 pessoas marcando sem equipe cadastrada. Uma explicação possível é desatualização cadastral no Klingo após admissões ou transferências (confirmar com TI/administração), exigindo regularização no sistema.
 
 ## O que fazer
-- Líder do Comercial: alinhar a rotina dos 5 colaboradores para identificar dificuldades no fluxo de contato e reforçar a captação. Medir pelo ritmo de marcações na segunda quinzena de novembro.
-- Administração: identificar os 7 colaboradores com cadastro pendente e vinculá-los às equipes no Klingo. Medir pela redução a zero das marcações "Sem equipe" no fechamento do mês.
-- Recepção: promover treinamento integrado entre Recepção SUS e Particular sobre orientações ao paciente particular para aumentar o comparecimento. Medir pela evolução do percentual de marcações que viram consulta no próximo período.
+- Apoiar a equipe Comercial: o líder do Comercial deve reunir o time para acolher necessidades, revisar a distribuição de tarefas nos horários de pico e apoiar a retomada do ritmo. Medição: acompanhar se a equipe estagna a queda e retoma o crescimento no fechamento consolidado de novembro.
+- Regularizar cadastro de colaboradores: a administração deve identificar as 7 pessoas que constam em "Sem equipe" e vinculá-las aos seus setores corretos no Klingo. Medição: zerar marcações do grupo "Sem equipe" no próximo relatório parcial.
+- Acompanhar conversão das recepções: o líder de Recepção deve monitorar o percentual de marcações que viram consulta na Recepção SUS (23,1%) e Particular (24,2%). Medição: verificar se o índice de consultas realizadas se aproxima do patamar do Comercial (34,4%) até o encerramento do mês.
 
 ## Dados usados
-| Indicador | Período (01/11 a 16/11/2026) | Comparação (01/11 a 16/11/2025) | Variação |
+| Indicador | Período (01/11 a 17/11/2026) | Comparação (01/11 a 17/11/2025) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 632 | 649 | −2,6% |
-| Projeção fim do mês (vs out/26) | 1.211 | 1.197 | +1,2% |
-| Marcações Comercial | 325 | 368 | −11,7% |
-| R$ gerado Comercial | R$ 22.645,00 | Não informado | - |
-| Marcações Recepção SUS | 160 | 21 | +661,9% |
-| R$ gerado Recepção SUS | R$ 7.170,00 | Não informado | - |
-| Marcações Recepção Particular | 120 | 85 | +41,2% |
-| R$ gerado Recepção Particular | R$ 7.680,00 | Não informado | - |
-| Marcações Sem equipe | 27 | 175 | −84,6% |
-| R$ gerado Sem equipe | R$ 130,00 | Não informado | - |
+| Marcações totais | 682 | 701 | −2,7% |
+| Projeção de marcações | 1.207 (proj. fim de nov/2026) | 1.196 (out/2026 inteiro) | +0,9% |
+| Comercial: marcações | 352 | 400 | −12,0% |
+| Recepção SUS: marcações | 169 | 23 | +634,8% |
+| Recepção Particular: marcações | 128 | 99 | +29,3% |
+| Sem equipe: marcações | 33 | 179 | −81,6% |

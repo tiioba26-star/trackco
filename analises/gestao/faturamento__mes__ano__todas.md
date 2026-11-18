@@ -4,54 +4,52 @@ periodo: mes
 comparacao: ano
 recorte: todas
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: mesmo período de 2025 (01/11/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: mesmo período de 2025 (01/11/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:56:27.083Z
-assinatura: 76cef6da
-tokens_entrada: 12689
-tokens_saida: 7138
+gerado_em: 2026-11-18T08:34:14.465Z
+assinatura: d12e49a9
+tokens_entrada: 12754
+tokens_saida: 18614
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-O faturamento parcial da IOBA alcançou R$ 398.775,88 de 01/11 a 16/11/2026 (+47,6% vs R$ 270.124,19 no mesmo período de 2025), impulsionado diretamente pelo aumento do tíquete médio. Esse crescimento decorre da realização de cirurgias no período, que não ocorreram na comparação do ano anterior. Como o período está em andamento, os valores são parciais e sofrerão alterações até o fechamento do mês.
+De 01/11 a 17/11/2026 (período parcial em andamento), o faturamento da clínica somou R$ 442.934,23, com alta de 48,0% em relação ao mesmo período de 2025 (R$ 299.201,29). O resultado foi impulsionado pelo aumento de 43,7% no valor médio por procedimento (de R$ 61,87 para R$ 88,89), puxado pela inserção de cirurgias e expansão da receita no SUS. Como se trata de período em andamento, os valores parciais ainda sofrerão alterações até o encerramento do mês.
 
 ## O que os números mostram
-- O faturamento avançou R$ 128.651,69 (+47,6% vs 2025); a decomposição revela que o efeito valor médio gerou R$ 109.799,87 do total, o efeito dias de atendimento somou R$ 22.510,35 (13 dias vs 12 dias em 2025), enquanto o efeito procedimentos por dia recuou R$ 3.658,53 (347,8 vs 352,3 por dia).
-- O valor médio por procedimento subiu para R$ 88,19 (+38,0% vs R$ 63,90 em 2025), puxado pela categoria Cirurgia, que faturou R$ 97.411,65 (fatia de 24,4% vs R$ 0,00 em 2025), com destaque para facoemulsificação (R$ 92.592,00 vs R$ 0,00 em 2025).
-- No mês fechado de outubro de 2026, a receita atingiu R$ 824.400,33 (+5,2% vs setembro de 2026 e +29,0% vs outubro de 2025), marcando 1 mês em alta após queda pontual em setembro; o índice de sazonalidade de novembro (1,03) indica um mês historicamente alinhado à média anual.
-- O ganho está concentrado em dois médicos: Cristiano Pinheiro (R$ 82.751,25 vs R$ 0,00 em 2025) e Lorena Campos Wen (R$ 65.961,10 vs R$ 0,00 em 2025), que juntos somam R$ 148.712,35, superando a variação líquida total da clínica.
-- Na composição por operadora, o SUS respondeu por 84,9% da receita (R$ 338.445,88, alta de +55,6% vs R$ 217.574,19 em 2025), enquanto o Particular representou 15,1% (R$ 60.330,00, alta de +14,8% vs R$ 52.550,00 em 2025).
+- **KPIs e decomposição**: O faturamento subiu 48,0% com 14 dias de atendimento (+7,7% vs 13 dias) e 4.983 procedimentos (+3,0% vs 4.836). A decomposição demonstra que o efeito valor médio explica a maior parte do ganho (+R$ 134.638,12 dos R$ 143.732,94 adicionais); os dias a mais somaram R$ 23.015,48 e os procedimentos por dia tiveram efeito de −R$ 13.920,66.
+- **Série mensal e sazonalidade**: No mês fechado de outubro/2026, a clínica faturou R$ 824.400,33, registrando alta pontual de 5,2% vs setembro (+2,4% vs média dos últimos 3 meses e +29,0% vs outubro/2025). O índice de sazonalidade histórico de novembro é de 1,03, apontando um mês ligeiramente superior à média anual.
+- **Concentração médica**: A alta esteve concentrada em Cristiano Pinheiro (R$ 82.751,25 vs R$ 0,00) e Lorena Campos Wen (R$ 69.768,13 vs R$ 0,00), que somaram R$ 152.519,38, superando a variação líquida total da clínica. Em contrapartida, Fabiana Morais recuou R$ 84.804,99 (R$ 7.360,00 vs R$ 92.164,99).
+- **Mix por categoria**: A linha de Cirurgia gerou R$ 97.411,65 (fatia de 22,0% vs R$ 0,00 em 2025), impulsionada por facoemulsificação (R$ 92.592,00). Por outro lado, Consultas recuaram 10,1% (R$ 29.580,00 vs R$ 32.920,00) e Exames caíram 7,6% (R$ 27.112,47 vs R$ 29.334,96).
+- **Operadoras**: O SUS respondeu por 84,6% da receita, atingindo R$ 374.774,23 (+57,8% vs R$ 237.501,29). O segmento Particular representou 15,4%, somando R$ 68.160,00 (+10,5% vs R$ 61.700,00).
 
 ## Pontos de atenção
-- **Fabiana Morais**: faturou R$ 6.570,00 de 01/11 a 16/11/2026 (−91,1% vs R$ 73.911,69 em 2025), uma queda pontual de R$ 67.341,69 que concentra a maior perda do corpo clínico; uma explicação possível é férias, licença ou alteração na agenda cirúrgica (confirmar com a recepção para alinhamento e acolhimento).
-- **Uyara Queiroz e Thais Ximenes Farias**: Uyara faturou R$ 225,54 (−98,8% vs R$ 18.977,27 em 2025) e Thais faturou R$ 0,00 (−100,0% vs R$ 17.362,55 em 2025) no período parcial; a hipótese é remanejamento ou bloqueio de agenda (confirmar com a coordenação para suporte à equipe).
-- **Consultas**: categoria recuou para R$ 26.090,00 (−11,1% vs R$ 29.360,00 em 2025); uma explicação possível é o deslocamento de espaço físico ou equipe para a demanda cirúrgica (confirmar com a liderança do Comercial).
+- **Fabiana Morais**: Queda pontual de R$ 84.804,99 no período de 01/11 a 17/11/2026 (R$ 7.360,00 vs R$ 92.164,99 em 2025). Uma explicação possível é alteração em sua escala ou licença (confirmar com a recepção). Ação: administração conversar com a médica para entender suas necessidades e reorganizar os horários.
+- **Uyara Queiroz e Thais Ximenes Farias**: Queda pontual no período de 01/11 a 17/11/2026, com Uyara faturando R$ 225,54 vs R$ 18.977,27 (−R$ 18.751,73) e Thais R$ 0,00 vs R$ 17.362,55 (−R$ 17.362,55). Uma explicação possível é bloqueio temporário de grade (confirmar com a recepção). Ação: recepção verificar bloqueios para planejar o acolhimento e a reabertura das agendas.
+- **Consultas e exames**: Queda pontual de 10,1% em consultas e 7,6% em exames no período parcial vs 2025. Uma explicação possível é priorização de cirurgias no fluxo de marcação (confirmar com o comercial). Ação: líder do Comercial alinhar com a recepção a rotina de marcações ambulatoriais.
 
 ## O que fazer
-- A administração deve verificar a grade e a situação das escalas de Fabiana Morais, Uyara Queiroz e Thais Ximenes Farias junto à recepção, acompanhando o volume de atendimentos na segunda metade de novembro.
-- A liderança do Comercial deve alinhar com os médicos de maior crescimento (Cristiano Pinheiro e Lorena Campos Wen) a manutenção da capacidade de atendimento cirúrgico, medindo pela receita gerada no fechamento do mês.
-- A recepção deve monitorar o fluxo de agendamento de consultas clínicas para reequilibrar o ambulatório, avaliando pela variação percentual de consultas no próximo fechamento parcial.
+- **Administração**: Realizar conversa de acolhimento com Fabiana Morais, Uyara Queiroz e Thais Ximenes para entender disponibilidades e ajustar escalas. Medir pelo faturamento das três profissionais no fechamento de novembro/2026.
+- **Recepção**: Garantir abertura de horários e suporte operacional para Cristiano Pinheiro e Lorena Campos Wen. Medir pelos procedimentos realizados por ambos até o encerramento de novembro/2026.
+- **Líder do Comercial**: Conduzir busca ativa e checar bloqueios de agenda na recepção para recuperar o volume de consultas e exames. Medir pelo faturamento ambulatorial consolidado de novembro/2026.
 
 ## Dados usados
-| Indicador | Período (01/11 a 16/11/2026) | Comparação (01/11 a 16/11/2025) | Variação |
+| Indicador | Período (01/11 a 17/11/2026) | Comparação (01/11 a 17/11/2025) | Variação |
 | :--- | :--- | :--- | :--- |
-| Faturamento total | R$ 398.775,88 | R$ 270.124,19 | +47,6% |
-| Procedimentos | 4.522 | 4.227 | +7,0% |
-| Valor médio | R$ 88,19 | R$ 63,90 | +38,0% |
-| Dias de atendimento | 13 | 12 | +8,3% |
-| Efeito valor médio | R$ 109.799,87 | - | - |
-| SUS | R$ 338.445,88 | R$ 217.574,19 | +55,6% |
-| Particular | R$ 60.330,00 | R$ 52.550,00 | +14,8% |
-| Cirurgia | R$ 97.411,65 | R$ 0,00 | - |
-| Consultas | R$ 26.090,00 | R$ 29.360,00 | −11,1% |
-| Facoemulsificação | R$ 92.592,00 | R$ 0,00 | - |
-| Cristiano Pinheiro | R$ 82.751,25 | R$ 0,00 | - |
-| Lorena Campos Wen | R$ 65.961,10 | R$ 0,00 | - |
-| Fabiana Morais | R$ 6.570,00 | R$ 73.911,69 | −91,1% |
-| Faturamento Outubro/2026 | R$ 824.400,33 | R$ 639.039,62 | +29,0% |
+| Faturamento total | R$ 442.934,23 | R$ 299.201,29 | +48,0% |
+| Procedimentos | 4.983 | 4.836 | +3,0% |
+| Valor médio | R$ 88,89 | R$ 61,87 | +43,7% |
+| Dias de atendimento | 14 | 13 | +7,7% |
+| Faturamento SUS | R$ 374.774,23 | R$ 237.501,29 | +57,8% |
+| Faturamento Particular | R$ 68.160,00 | R$ 61.700,00 | +10,5% |
+| Cirurgias | R$ 97.411,65 | R$ 0,00 | - |
+| Consultas | R$ 29.580,00 | R$ 32.920,00 | −10,1% |
+| Exames | R$ 27.112,47 | R$ 29.334,96 | −7,6% |
+| Cristiano Pinheiro | R$ 82.751,25 | R$ 0,00 | +R$ 82.751,25 |
+| Lorena Campos Wen | R$ 69.768,13 | R$ 0,00 | +R$ 69.768,13 |
+| Fabiana Morais | R$ 7.360,00 | R$ 92.164,99 | −R$ 84.804,99 |

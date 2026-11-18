@@ -4,47 +4,46 @@ periodo: ano
 comparacao: anterior
 recorte: particular
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:47:48.679Z
-assinatura: 4e7ca71b
-tokens_entrada: 22403
-tokens_saida: 7103
+gerado_em: 2026-11-18T08:21:38.187Z
+assinatura: 014e4d54
+tokens_entrada: 22817
+tokens_saida: 6251
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 2026 (01/01 a 16/11), o segmento Particular gerou R$ 1.323.397,48 (+12,0% vs mesmo período de 2025), impulsionado pelo avanço da taxa de comparecimento para 67,2% (+1,8 p.p.) e do valor médio por consulta para R$ 208,21 (+7,5%). As marcações alcançaram 12.015 (+5,0% vs 11.445 em 2025), resultando em 6.356 atendimentos realizados (+4,2% vs 6.100). Por ser um período em andamento, os indicadores ainda sofrerão atualizações até o fechamento definitivo do ano.
+No recorte Particular de 2026 até agora (01/01 a 17/11, em andamento), o faturamento gerado cresceu 12,0%, alcançando R$ 1.329.477,48 contra R$ 1.186.843,70 no mesmo período de 2025. O avanço é sustentado pela alta no volume de consultas realizadas (6.385 atendimentos, +4,1% vs 6.133 em 2025) e pela evolução da taxa de comparecimento para 67,1% (+1,7 p.p. vs 65,4%), acompanhada de um tíquete médio de R$ 208,22 (+7,6% vs R$ 193,52). A operação apresenta bom dinamismo de receita, porém registra oscilações recentes de ritmo individual no Comercial e na Recepção que demandam acompanhamento gerencial.
 
 ## O que os números mostram
-- O funil de agendamento avançou em todas as etapas: 12.015 consultas marcadas geraram 9.459 conferíveis e 6.356 consultas realizadas (+4,2% vs 6.100 atendimentos em 2025).
-- A taxa de comparecimento geral da clínica no Particular subiu de 65,4% para 67,2% (+1,8 p.p.), elevando a eficiência de conversão das vagas médicas.
-- O valor gerado por consulta cresceu de R$ 193,63 para R$ 208,21 (+7,5%), agregando R$ 142.260,57 adicionais de receita frente ao mesmo período de 2025.
-- Maiane Fiais destacou-se no Comercial pelo alto volume e qualidade: 1.873 marcações, comparecimento de 72,1% (acima da mediana de 70,1% da equipe) e R$ 228.233,38 gerados.
-- Ana Luiza Teles manteve entrega consistente no Comercial, alcançando 73,7% de comparecimento (acima da mediana de 70,1%) e R$ 195.989,13 gerados em 1.616 marcações.
-- Ariane Souza Cruz registrou melhora no comparecimento por 2 meses seguidos na Recepção SUS (ago 61,5%, set 63,5%, out 74,6%), gerando R$ 91.271,70 no Particular.
+- O funil geral cresceu de ponta a ponta: 12.064 consultas marcadas (+4,9% vs 11.497 em 2025) geraram 6.385 atendimentos realizados (+4,1% vs 6.133), com R$ 1.329.477,48 em receita gerada (+12,0% vs R$ 1.186.843,70).
+- A eficiência de conversão subiu: a taxa de comparecimento avançou de 65,4% para 67,1% (+1,7 p.p.) e o valor médio gerado por atendimento aumentou para R$ 208,22 (+7,6% vs R$ 193,52).
+- No Comercial, Maiane Fiais (1.882 marcações e R$ 229.463,38 gerados) e Ana Luiza Teles (1.626 marcações e R$ 198.449,13 gerados) combinam alto volume com comparecimento de 71,9% e 73,6%, ambos acima da mediana da equipe (67,7%).
+- Na Recepção SUS com atuação no Particular, Ariane Souza gerou R$ 92.331,70 (+34,3% em marcações vs 2025), com o comparecimento subindo há 2 meses seguidos (63,5% em setembro e 71,4% em outubro).
+- Colaboradores sem equipe cadastrada somam volumes pontuais com interrupção recente de agendamentos, como Nathalia Monte e Angela Conceição, que zeraram marcações em outubro.
 
 ## Pontos de atenção
-- **Igor Luis Soares**: acumulou 2.469 marcações no período (+171,9% vs 2025), mas suas marcações caíram 3 meses seguidos (ago 259, set 236, out 123; -47,9% em outubro vs setembro), e o comparecimento acumulado de 60,1% está abaixo da mediana do Comercial (70,1%). Hipótese: agendamento com datas muito distantes ou ausência de contato prévio com novos pacientes (confirmar com o colaborador).
-- **Isabela Dias Sena**: aumentou o volume de marcações por 3 meses seguidos (ago 71, set 111, out 144), porém seu comparecimento caiu por 2 meses seguidos (ago 75,9%, set 66,7%, out 56,1%; perda de 10,6 p.p. em outubro vs setembro). Hipótese: necessidade de reforço nas orientações de preparo ou confirmação tardia na véspera (confirmar com a colaboradora).
-- **Leticia dos Santos Esquivel**: integra o grupo dos 25% maiores volumes (1.473 marcações), mas seu comparecimento caiu para 49,6% em outubro (-12,3 p.p. vs setembro, quando atingiu 61,9%). Hipótese: pico de demanda física no balcão dificultando a realização de contatos ativos (confirmar com a colaboradora).
+- **Igor Luis Soares (Comercial)**: Lidera o volume acumulado (2.469 marcações e R$ 247.819,21 gerados), mas acumula 3 meses seguidos de queda em marcações (ago 259, set 236 e out 123, sendo −47,9% vs mês anterior); seu comparecimento de 60,1% está 7,6 p.p. abaixo da mediana do Comercial (67,7%) e caiu por 2 meses seguidos (set 69,5% e out 68,3%). Hipótese: acúmulo de agendamentos em datas muito distantes ou rotina de confirmação sobrecarregada (confirmar em conversa individual).
+- **Isabela Dias Sena (Recepção Particular)**: Apresenta expansão de volume por 3 meses seguidos (ago 71, set 111 e out 144 marcações), contudo o comparecimento caiu 2 meses seguidos (ago 75,9%, set 66,7% e out 56,5%, recuo de 10,2 p.p. no último mês). Hipótese: dificuldade de realizar confirmações na véspera diante do aumento de marcações (confirmar com a colaboradora).
+- **Angela Conceição (Recepção Particular)**: Apresenta queda de marcações há 3 meses seguidos (ago 86, set 26 e out 0, variação de −33,5% vs 2025) e comparecimento acumulado de 56,4% (abaixo da mediana da equipe, de 63,4%). Hipótese: afastamento, férias ou mudança funcional (confirmar com RH/Recepção).
 
 ## O que fazer
-- Líder do Comercial: realizar conversa individual e acolhedora com Igor Luis para compreender a rotina e formar dupla temporária com Ana Luiza Teles para troca de práticas. Medição: evolução do comparecimento em direção à mediana da equipe (70,1%) em novembro.
-- Líder da Recepção Particular: alinhar com Leticia Esquivel e Isabela Sena uma rotina estruturada de confirmação por mensagem e ligação na véspera. Medição: retorno do comparecimento mensal de ambas acima da mediana de 64,2% no fechamento de novembro.
-- Administração: acompanhar a conversão final do funil e a estabilidade do ticket médio de R$ 208,21 até o encerramento do exercício. Medição: relatório quinzenal de fechamento do faturamento Particular via Klingo.
+1. **Líder do Comercial**: Realizar conversa individual de acolhimento com Igor Luis para compreender as causas da redução recente e revisar métodos de confirmação na véspera. Medir pela reversão da queda de agendamentos e comparecimento acima de 65,0% no fechamento seguinte.
+2. **Líder da Recepção**: Alinhar com Isabela Dias o fluxo de confirmações prévias e técnicas de agendamento em datas próximas, testando pareamento temporário com colega de comparecimento alto. Medir pela recuperação do comparecimento acima da mediana da equipe (63,4%).
+3. **Administração**: Verificar com Recursos Humanos a situação cadastral e de escala dos colaboradores com produção zerada em outubro (Angela Conceição e Nathalia Monte) para ajustar metas e registros. Medir pela regularização do quadro até o encerramento de novembro.
 
 ## Dados usados
-| Indicador | Período (01/01 a 16/11/2026) | Comparação (01/01 a 16/11/2025) | Variação |
+| Indicador | Período (2026 até 17/11) | Comparação (2025 até 17/11) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações | 12.015 | 11.445 | +5,0% |
-| Consultas conferíveis | 9.459 | 9.333 | +1,3% |
-| Consultas realizadas | 6.356 | 6.100 | +4,2% |
-| Taxa de comparecimento | 67,2% | 65,4% | +1,8 p.p. |
-| R$ gerado | R$ 1.323.397,48 | R$ 1.181.136,91 | +12,0% |
-| R$ por consulta | R$ 208,21 | R$ 193,63 | +7,5% |
+| Consultas marcadas | 12.064 | 11.497 | +4,9% |
+| Consultas conferíveis | 9.517 | 9.377 | +1,5% |
+| Consultas realizadas | 6.385 | 6.133 | +4,1% |
+| Taxa de comparecimento | 67,1% | 65,4% | +1,7 p.p. |
+| R$ gerado | R$ 1.329.477,48 | R$ 1.186.843,70 | +12,0% |
+| R$ por consulta realizada | R$ 208,22 | R$ 193,52 | +7,6% |

@@ -4,49 +4,48 @@ periodo: mes
 comparacao: ano
 recorte: particular
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: mesmo período de 2025 (01/11/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: mesmo período de 2025 (01/11/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:55:11.326Z
-assinatura: 461b9a4a
-tokens_entrada: 11946
-tokens_saida: 5874
+gerado_em: 2026-11-18T08:31:58.326Z
+assinatura: 5a884702
+tokens_entrada: 12000
+tokens_saida: 11721
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 01/11 a 16/11/2026, a taxa de faltas no Particular ficou em 28,7%, estável frente aos 29,2% do mesmo período de 2025 (−0,5 p.p.), com alta pontual de 1,1 p.p. em relação a outubro de 2026. Os cancelamentos caíram para 4,0% (vs 8,7% em 2025), mas a fatia do Particular no faturamento geral recuou de 19,5% para 15,1% (R$ 60.330,00). Por ser um período em andamento, os resultados parciais ainda vão se alterar até o fechamento do mês.
+No período parcial de 01/11 a 17/11/2026, a taxa de faltas no Particular ficou estável em 29,4% (+0,1 p.p. vs mesmo período de 2025), enquanto os cancelamentos caíram para 3,5% (−4,4 p.p. vs 2025). As perdas concentram-se em consultas gerais e agendas médicas específicas, com o Particular reduzindo sua fatia no faturamento total da clínica para 15,4% (−5,2 p.p. vs 2025). Como o período está em andamento, os números finais ainda vão mudar até o fechamento do mês.
 
 ## O que os números mostram
-- As faltas no Particular totalizaram 121 consultas de 514 marcadas (28,7%), contra 29,2% em 2025 (−0,5 p.p.), com alta pontual de 1,1 p.p. sobre o mês anterior (29,3% em outubro).
-- A taxa de cancelamentos reduziu-se para 4,0% no período parcial, contra 8,7% no mesmo intervalo de 2025 (−4,7 p.p.), somando 17 desmarcações.
-- As categorias "Outros" e "A pedido do paciente ou da família" responderam juntas por 58,8% dos cancelamentos (5 casos cada); desmarcações "Sem motivo registrado" somaram 11,8% (2 casos, contra 0% em 2025).
-- As ausências concentram-se principalmente nas agendas do Dr. Gustavo Gomes (45,2%), Dra. Isis Alice (36,4%) e Dr. Mauricio Mateus (34,9%), enquanto a Dra. Maria Rita Widmer registrou 14,8%.
-- No mix geral da clínica, o Particular perdeu participação nas marcações, passando de 13,2% para 11,4%, e no faturamento, caindo de 19,5% para 15,1% (R$ 60.330,00 de R$ 398.775,88 apurados).
+- **Taxas e desfechos**: Das 580 consultas marcadas no Particular de 01/11 a 17/11/2026, 322 aconteceram, com 141 faltas (29,4% vs 29,3% em 2025), 17 cancelamentos (3,5% vs 7,9% em 2025) e 78 remarcações (13,4% vs 24,8% em 2025).
+- **Tendências**: A taxa de faltas teve alta pontual de 1,1 p.p. contra outubro (29,3%), mas fica 2,5 p.p. abaixo da média de 3 meses; o cancelamento subiu 0,6 p.p. vs outubro, mantendo patamar baixo.
+- **Motivos de cancelamento**: Dos 17 cancelamentos, "Outros" e "A pedido do paciente ou da família" somam 58,8% (5 casos cada); "Sem motivo registrado" representou 11,8% (2 casos vs 0 em 2025), apontando falha de processo na recepção.
+- **Onde ocorrem**: A Consulta Geral lidera as faltas em volume absoluto (74 faltas e 5 cancelamentos). Nas agendas com volume, Gustavo Gomes (45,2%) e Isis Alice (40,0%) tiveram as maiores taxas de falta; Maria Rita Widmer destacou-se positivamente com 14,8%. A agenda de Luciana Arrais tem poucos dados (14 consultas) para conclusões sobre taxa.
+- **Mix de operadoras**: O Particular recuou para 11,5% das marcações (vs 12,9% em 2025) e 15,4% do faturamento (R$ 68.160,00 vs 20,6% em 2025). O SUS absorve 88,5% das marcações e 84,6% do faturamento (R$ 374.774,23). Faltam dados sobre convênios no relatório.
 
 ## Pontos de atenção
-- **Gustavo Gomes**: apresentou taxa de faltas de 45,2% (14 faltas em 31 consultas) neste período parcial. Uma explicação possível é falha de contato ou dificuldade de agenda; ação de suporte e confirmação reforçada pelo Comercial.
-- **Registro de cancelamentos**: 11,8% das desmarcações (2 ocorrências) ficaram sem justificativa no sistema no período parcial (eram 0% em 2025). A hipótese é falta de exigência da justificativa no Klingo; alinhar orientação e acompanhamento com a recepção.
-- **Mix Particular**: a receita particular recuou de 19,5% para 15,1% no faturamento total frente a 2025 neste período parcial. Uma explicação provável é menor captação ativa ou maior ocupação pelo SUS; cabe à administração revisar a oferta de horários.
-- **Luciana Arrais**: possui apenas 14 consultas registradas neste período parcial, volume insuficiente para conclusões sobre sua taxa de faltas (poucos dados).
+- **Gustavo Gomes e Isis Alice**: Apresentaram taxas de faltas de 45,2% (14 faltas) e 40,0% (16 faltas) na parcial de novembro. Uma explicação possível é necessidade de reforço no contato prévio (confirmar com a recepção); cabe alinhar apoio e acompanhamento individual.
+- **Registro de cancelamentos**: 11,8% dos cancelamentos (2 casos) estão sem justificativa em novembro (vs 0% em 2025). Uma explicação possível é sobrecarga na recepção; cabe orientar a equipe com acolhimento sobre a importância do registro.
+- **Mix Particular**: O faturamento Particular caiu para 15,4% (queda de 5,2 p.p. vs 2025). Uma explicação possível é menor procura ou escassez de vagas (confirmar com o Comercial).
 
 ## O que fazer
-- Confirmação ativa reforçada: líder do Comercial orienta contato telefônico prévio em até 24h para agendas acima de 30% de falta (Gustavo Gomes, Isis Alice e Mauricio Mateus). Medir pela redução da taxa de falta no fechamento de novembro.
-- Justificativa obrigatória no Klingo: recepção passa a registrar o motivo de 100% dos cancelamentos. Medir pela redução da fatia "Sem motivo registrado" para 0% no próximo relatório.
-- Gestão de encaixes e lista de espera: recepção utiliza lista de espera imediata para preencher cancelamentos em exames como Curva Tensional e consultas gerais. Medir pelo número de encaixes realizados no período seguinte.
-- Avaliação da captação Particular: administração revisa a grade de horários e a divulgação particular para equilibrar o mix. Medir pela fatia de receita particular no fechamento do mês.
+1. **Recepção**: Realizar confirmação ativa na véspera para agendas com faltas acima de 35% (Gustavo Gomes e Isis Alice). Medir pela taxa_falta_pct quinzenal.
+2. **Recepção**: Cobrar o preenchimento obrigatório do motivo ao cancelar no Klingo. Medir pela fatia de "Sem motivo registrado", com meta de 0% no fechamento do mês.
+3. **Líder do Comercial**: Organizar lista de espera para preencher desistências no Particular. Medir pela fatia do Particular no faturamento em dezembro.
 
 ## Dados usados
-| Indicador | Período (01/11 a 16/11/2026) | Comparação (01/11 a 16/11/2025) | Variação |
-|---|---|---|---|
-| Consultas marcadas no Particular | 514 | 646 | −20,4% |
-| Taxa de faltas no Particular | 28,7% | 29,2% | −0,5 p.p. |
-| Taxa de cancelamento no Particular | 4,0% | 8,7% | −4,7 p.p. |
-| Taxa de remarcação no Particular | 14,4% | 26,6% | −12,2 p.p. |
-| Cancelamentos sem motivo registrado | 11,8% | 0,0% | +11,8 p.p. |
-| Fatia do Particular nas marcações | 11,4% | 13,2% | −1,8 p.p. |
-| Fatia do Particular no faturamento | 15,1% (R$ 60.330,00) | 19,5% | −4,4 p.p. |
+| Indicador | Período (01 a 17/11/2026) | Comparação (01 a 17/11/2025) | Variação |
+| :--- | :--- | :--- | :--- |
+| Taxa de faltas (Particular) | 29,4% | 29,3% | +0,1 p.p. |
+| Taxa de cancelamentos | 3,5% | 7,9% | −4,4 p.p. |
+| Taxa de remarcações | 13,4% | 24,8% | −11,4 p.p. |
+| Cancelamento sem motivo | 11,8% | 0,0% | +11,8 p.p. |
+| Fatia Particular (faturamento) | 15,4% (R$ 68.160,00) | 20,6% | −5,2 p.p. |
+| Fatia Particular (marcações) | 11,5% (682) | 12,9% | −1,4 p.p. |
+| Fatia SUS (faturamento) | 84,6% (R$ 374.774,23) | 79,4% | +5,2 p.p. |
+| Fatia SUS (marcações) | 88,5% (5.274) | 87,1% | +1,4 p.p. |

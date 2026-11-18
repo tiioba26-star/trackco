@@ -4,47 +4,49 @@ periodo: ano
 comparacao: ano
 recorte: todas
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:20:22.266Z
-assinatura: 3be022db
-tokens_entrada: 12302
-tokens_saida: 18384
+gerado_em: 2026-11-18T09:06:19.018Z
+assinatura: d7f9eb84
+tokens_entrada: 12322
+tokens_saida: 12454
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 01/01 a 16/11/2026, a taxa de faltas recuou para 42,5% (−12,3 p.p. vs 54,8% no mesmo período de 2025), com 60.035 consultas realizadas (+56,1% vs 38.470). Os cancelamentos ficaram em 1,9% (−0,9 p.p. vs 2,8% em 2025 parcial), com perdas concentradas em Glaucoma e Entrega de Colírios. Como o período está em andamento, os indicadores parciais ainda sofrerão alterações até o fechamento.
+No período em andamento de 2026 (01/01 a 17/11), a taxa de faltas recuou para 42,5% (−12,3 p.p. vs 54,8% no mesmo período de 2025), e os cancelamentos para 1,9% (−0,9 p.p. vs 2,8%). As consultas realizadas cresceram para 60.333 (+55,9% vs 38.708), mas as perdas seguem concentradas no fluxo de Glaucoma e colírios. No faturamento, o SUS subiu para 82,9% (R$ 6.481.386,75 vs 69,0% em 2025), reduzindo o Particular para 17,1% (R$ 1.340.510,50 vs 31,0%).
 
 ## O que os números mostram
-- **Taxas e tendências parciais**: A taxa de faltas foi de 42,5% em 2026 parcial (−12,3 p.p. vs 54,8% em 2025 parcial), com queda pontual em outubro (−1,4 p.p. vs setembro, para 39,7%). Cancelamentos foram 1,9% (−0,9 p.p. vs 2,8% em 2025 parcial) e remarcações 11,9% (−0,8 p.p. vs 12,7% em 2025 parcial).
-- **Motivos de cancelamento**: Houve 2.022 cancelamentos em 2026 parcial (−21,1% vs 2.564 em 2025 parcial). A categoria "Outros" somou 48,3% (977 casos vs 1.376 em 2025 parcial) e pedidos de paciente/família 37,1% (751 casos vs 931); sem motivo registrado somou 0,6% (13 casos vs zero).
-- **Perdas por agenda e procedimento**: A agenda "Entrega de Colirios" registrou 98,5% de faltas (29.627 faltas em 30.075 consultas marcadas) e "Campo Visual" 65,3% (7.113 faltas em 10.885). Nos procedimentos, Entrega de Colírios (29.628 faltas) e Campimetria (7.011 faltas) lideraram as perdas em 2026 parcial.
-- **Operadoras e faturamento**: O SUS respondeu por 90,5% das marcações (+0,3 p.p. vs 90,2% em 2025 parcial) e faturou R$ 6.445.171,25 (82,9% da receita vs 69,0% em 2025 parcial). O Particular teve 9,5% das marcações (−0,3 p.p. vs 9,8% em 2025 parcial) e faturou R$ 1.332.680,50 (17,1% vs 31,0% em 2025 parcial).
-- **Médicos com alta adesão**: Dr. Mauricio Mateus obteve 3,8% de faltas em 13.644 consultas em 2026 parcial, Dra. Maria Maeve teve 4,1% em 7.126 consultas e Dr. Gustavo Gomes alcançou 5,6% em 9.631 consultas.
+- A taxa de faltas acumulada atingiu 42,5% em 2026 até agora vs 54,8% em 2025; em outubro/2026 registrou 39,7%, uma queda pontual de 1,4 p.p. frente a setembro/2026 (41,1%).
+- A taxa de cancelamentos foi de 1,9% em 2026 até agora vs 2,8% em 2025; a opção "Outros" concentrou 48,3% das justificativas (979 de 2.027) e "Sem motivo registrado" somou 0,6% (13 casos).
+- As maiores perdas estão no Glaucoma: a agenda "Entrega de Colirios" teve 98,5% de faltas (29.758 faltas em 30.206 consultas) e "Glaucoma" teve 84,3% (3.284 faltas em 3.896) em 2026.
+- Nas agendas médicas em 2026, Dr. Mauricio Trindade teve 94,9% de faltas (429 faltas em 452 consultas) e Dr. André Born 36,1% (680 faltas em 1.883), enquanto Dr. Mauricio Mateus teve 3,8% (518 em 13.762).
+- No faturamento de 2026 até agora, o SUS gerou R$ 6.481.386,75 (82,9% do total vs 69,0% em 2025) e o Particular R$ 1.340.510,50 (17,1% vs 31,0% em 2025), em apuração parcial.
 
 ## Pontos de atenção
-- **Dr. Mauricio Trindade**: Registrou 94,9% de faltas (429 faltas em 452 consultas) no acumulado de 2026 parcial. Uma explicação possível é o agendamento de consultas de cortesia sem confirmação prévia (confirmar com o médico e recepção); ação: alinhar o fluxo com o profissional.
-- **Agendas de Entrega de Colírios e Glaucoma**: Apresentam perdas críticas em 2026 parcial, com 98,5% de faltas em Colírios (29.627 faltas) e 84,3% em Glaucoma (3.263 faltas em 3.871 consultas). Uma explicação possível é a marcação em lote sem comparecimento real do paciente (confirmar com coordenação SUS); ação: revisar o fluxo de agendamento.
-- **Cancelamentos como "Outros"**: Somou 48,3% dos cancelamentos em 2026 parcial (977 casos). Uma explicação possível é a seleção rápida na recepção sem detalhar o motivo real (confirmar com a equipe); ação: orientar registro específico no Klingo.
-- **Volume de faltas por marcadora**: Maiane Fiais Ramos Albuquerque (10.001 faltas) e Ana Luiza Batista Teles (7.754 faltas) concentram as faltas absolutas em 2026 parcial. Faltam dados do total de marcações de cada uma para calcular a taxa individual; uma explicação possível é a alocação em agendas SUS críticas (confirmar com supervisão); ação: levantar volume total para acompanhamento justo.
+- **Entrega de Colirios e Campo Visual**: somaram 29.758 faltas (98,5%) e 7.104 faltas (64,9%) em 2026 até agora, quadro que vem desde janeiro. Hipótese: falta de confirmação ativa ou regulação externa automática (confirmar com coordenação do SUS). Ação: alinhar contato prévio.
+- **Dr. Mauricio Trindade**: apresentou 94,9% de faltas (429 faltas em 452 consultas) em 2026 até agora. Hipótese: agendamento de retorno administrativo ou cortesia não assistencial (confirmar com médico e recepção). Ação: revisar a parametrização da agenda.
+- **Categoria "Outros" nos cancelamentos**: reuniu 48,3% dos cancelamentos (979 registros) em 2026 até agora vs 1.377 em 2025. O alto volume inespecífico perdura no ano e oculta a causa raiz. Ação: capacitar a recepção no Klingo.
+- **Faltas por atendente**: Maiane Fiais registrou 10.049 faltas e Ana Luiza 7.780 faltas em 2026 até agora. Faltam dados do total marcado por profissional para calcular a taxa individual. Ação: acolher a equipe e auditar as agendas operadas.
 
 ## O que fazer
-1. **Confirmação ativa para exames críticos**: Líder da Recepção implanta contato na véspera para pacientes de Campo Visual e Glaucoma; medir pela redução da taxa de faltas de Campo Visual no próximo mês.
-2. **Qualificação dos cancelamentos**: Supervisão de Atendimento treina a equipe para reduzir o uso de "Outros" no Klingo; medir pela fatia de "Outros" abaixo de 20% no próximo fechamento.
-3. **Mapeamento de marcações por atendente**: Coordenação Administrativa apura o volume total marcado por colaboradora; medir pelo acompanhamento das taxas reais no próximo relatório.
+- Recepção e coordenação do Glaucoma: implantar confirmação ativa na véspera para Entrega de Colirios e Campo Visual. Medição: taxa de faltas dessas agendas em dezembro/2026.
+- Líder da recepção: treinar os atendentes para detalhar o motivo real de cancelamento no Klingo. Medição: fatia de "Outros" no fechamento do próximo mês.
+- Administração: verificar com o Dr. Mauricio Trindade a regra de marcação e uso de sua agenda. Medição: taxa de faltas da agenda em dezembro/2026.
+- Líder do Comercial: emitir relatório com total de marcações por colaboradora para apurar taxas relativas. Medição: acompanhamento percentual individual no próximo período.
 
 ## Dados usados
-| Indicador | Período (2026 parcial) | Comparação (2025 parcial) | Variação |
+| Indicador | Período (2026 até 17/11) | Comparação (2025 até 17/11) | Variação |
 | :--- | :--- | :--- | :--- |
-| Consultas marcadas | 123.996 | 107.092 | +15,8% |
-| Consultas realizadas | 60.035 | 38.470 | +56,1% |
-| Taxa de falta geral | 42,5% | 54,8% | −12,3 p.p. |
+| Consultas marcadas | 124.533 | 107.635 | +15,7% |
+| Consultas realizadas | 60.333 | 38.708 | +55,9% |
+| Taxa de falta | 42,5% | 54,8% | −12,3 p.p. |
 | Taxa de cancelamento | 1,9% | 2,8% | −0,9 p.p. |
-| Faturamento SUS | R$ 6.445.171,25 (82,9%) | 69,0% da receita | +13,9 p.p. na fatia |
-| Faturamento Particular | R$ 1.332.680,50 (17,1%) | 31,0% da receita | −13,9 p.p. na fatia |
+| Taxa de remarcação | 11,9% | 12,7% | −0,8 p.p. |
+| Fatia faturamento SUS | R$ 6.481.386,75 (82,9%) | 69,0% | +13,9 p.p. |
+| Fatia faturamento Particular | R$ 1.340.510,50 (17,1%) | 31,0% | −13,9 p.p. |

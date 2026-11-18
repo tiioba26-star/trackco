@@ -4,50 +4,49 @@ periodo: ano
 comparacao: ano
 recorte: particular
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:15:24.050Z
-assinatura: 4e7ca71b
-tokens_entrada: 22391
-tokens_saida: 10543
+gerado_em: 2026-11-18T08:59:59.902Z
+assinatura: 014e4d54
+tokens_entrada: 22818
+tokens_saida: 8776
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 2026 (01/01 a 16/11), a receita no Particular foi de R$ 1.323.397,48 (+12,0% vs R$ 1.181.136,91 no mesmo período de 2025). O avanço decorre da taxa de comparecimento de 67,2% (+1,8 p.p. vs 65,4% em 2025) e do valor por consulta de R$ 208,21 (+7,5% vs R$ 193,63 em 2025). Por ser período em andamento, os números ainda sofrerão alterações.
+No período de 01/01 a 17/11/2026 (em andamento), a receita gerada no Particular alcançou R$ 1.329.477,48 (+12,0% vs R$ 1.186.843,70 no mesmo período de 2025), impulsionada pela alta de 4,9% nas consultas marcadas e melhora na taxa de comparecimento (67,1% vs 65,4%). Como o período é parcial, os números ainda sofrerão alterações até o encerramento do mês. O principal desafio está na desaceleração recente de marcações e comparecimento em colaboradores com grande peso no volume da clínica.
 
 ## O que os números mostram
-- **Funil geral:** De 12.015 marcações em 2026 (+5,0% vs 11.445 em 2025), 9.459 tornaram-se conferíveis e 6.356 consultas aconteceram (+4,2% vs 6.100 em 2025).
-- **Receita por consulta:** O valor médio gerado por atendimento subiu para R$ 208,21 em 2026 (+7,5% vs R$ 193,63 em 2025).
-- **Destaques no Comercial:** Maiane Fiais gerou R$ 228.233,38 com 1.873 marcações e comparecimento de 72,1% (acima da mediana da equipe, de 70,1%). Ana Luiza Teles atingiu 73,7% de comparecimento em 1.616 marcações (−12,6% vs 1.849 em 2025), também superando a mediana.
-- **Retomada pontual:** Brisa Souza fez 50 marcações em outubro (+733,3% vs 6 em setembro) com 82,5% de comparecimento no mês, embora acumule 248 marcações no ano (−55,1% vs 552 em 2025).
-- **Avanço no SUS:** Ariane Cruz somou 761 marcações (+33,5% vs 570 em 2025), com comparecimento em alta há 2 meses seguidos (setembro 63,5% e outubro 74,6%).
+- O funil avançou no período: 12.064 consultas marcadas (+4,9% vs 11.497 em 2025), 9.517 conferíveis (+1,5% vs 9.377 em 2025) e 6.385 que aconteceram (+4,1% vs 6.133 em 2025).
+- A taxa de comparecimento geral subiu para 67,1% (+1,7 p.p. vs 65,4% no período de 2025).
+- O valor médio por consulta realizada cresceu 7,6%, atingindo R$ 208,22 em 2026 (vs R$ 193,52 em 2025).
+- Maiane Fiais gerou R$ 229.463,38 com 1.882 marcações em 2026 (sem base em 2025) e comparecimento de 71,9%, ficando acima da mediana da equipe Comercial (67,7%).
+- Ana Luiza Teles gerou R$ 198.449,13 com 1.626 marcações (−12,9% vs 1.866 em 2025) e comparecimento de 73,6%, também acima da mediana Comercial (67,7%).
+- Ariane Souza Cruz (Recepção SUS) gerou R$ 92.331,70 e elevou o comparecimento por 2 meses seguidos (ago 61,5%, set 63,5%, out 71,4%; +7,9 p.p. em outubro vs setembro).
 
 ## Pontos de atenção
-- **Igor Luis Soares de Jesus da Silva:** Gerou R$ 247.819,21 com 2.469 marcações no ano (+171,9% vs 908 em 2025), mas caiu 3 meses seguidos em marcações (agosto 259, setembro 236 e outubro 123, sendo −47,9% vs setembro). Seu comparecimento geral de 60,1% está abaixo da mediana do Comercial (70,1%), com queda há 2 meses seguidos (setembro 69,5% e outubro 68,9%). Uma explicação possível é o agendamento em datas distantes ou falhas na confirmação (confirmar com o colaborador).
-- **Isabela Dias Sena:** Teve 3 meses seguidos de alta nas marcações (agosto 71, setembro 111 e outubro 144), mas o comparecimento caiu 2 meses seguidos (agosto 75,9%, setembro 66,7% e outubro 56,1%), abaixo da mediana da Recepção Particular (64,2%). Uma explicação possível é o aumento de pacientes de primeira vez sem preparo (confirmar com a colaboradora).
-- **Leticia dos Santos Esquivel:** Registrou 1.473 marcações no ano (−9,7% vs 1.631 em 2025) e comparecimento de 64,2%. Apresentou queda pontual em outubro, atingindo 49,6% (−12,3 p.p. vs 61,9% em setembro). Uma explicação possível é a concentração de agendamentos em horários com maior absenteísmo (confirmar com a colaboradora).
+- **Igor Luis Soares de Jesus da Silva**: gerou R$ 247.819,21 com 2.469 marcações no ano (+167,5% vs 923 em 2025), mas suas marcações caíram 3 meses seguidos (ago 259, set 236, out 123; −47,9% em out vs set) e o comparecimento caiu 2 meses seguidos (ago 73,1%, set 69,5%, out 68,3%), acumulando 60,1% no ano (abaixo da mediana do Comercial de 67,7%). Uma explicação possível é o agendamento de horários muito distantes da data ou redução no contato de confirmação na véspera (confirmar com Igor).
+- **Isabela Dias Sena**: aumentou as marcações por 3 meses seguidos (ago 71, set 111, out 144; +29,7% em out vs set), porém seu comparecimento caiu 2 meses seguidos (ago 75,9%, set 66,7%, out 56,5%; −10,2 p.p. em out vs set), fechando outubro abaixo da mediana da Recepção Particular (63,4%). Uma explicação possível é a dificuldade de reforçar o preparo dos exames devido ao aumento de volume (confirmar com Isabela).
 
 ## O que fazer
-- **Líder do Comercial:** Conversar individualmente com Igor Silva para acolher a rotina e alinhar técnicas de confirmação na véspera; medir pela estabilização do volume e comparecimento acima de 65,0% no próximo mês.
-- **Recepção Particular:** Alinhar com Leticia Esquivel e Isabela Sena práticas de confirmação ativa e reforço de horários; medir pelo retorno do comparecimento de ambas para a mediana de 64,2%.
-- **Administração:** Reconhecer em reunião o desempenho de Maiane Fiais e Ana Luiza Teles, promovendo troca de práticas com a equipe.
+- Líder do Comercial: realizar conversa individual com Igor Luis para ouvir suas dificuldades, revisar a rotina de confirmação e apoiar na retomada do ritmo; medir pela recuperação do volume mensal acima de 200 marcações e comparecimento superior a 67,7% no próximo período.
+- Recepção Particular: alinhar com Isabela Sena o processo de contato na véspera e pareá-la com um colega experiente para troca de práticas; medir pelo retorno do comparecimento acima de 63,4% no próximo fechamento.
+- Administração: reconhecer o empenho e consistência de Maiane Fiais e Ariane Souza Cruz; medir pela manutenção de suas taxas acima da mediana das respectivas equipes.
 
 ## Dados usados
-| Indicador | Período (2026 parcial) | Comparação (2025 parcial) | Variação |
+| Indicador | Período (01/01 a 17/11/2026) | Comparação (01/01 a 17/11/2025) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 12.015 | 11.445 | +5,0% |
-| Consultas conferíveis | 9.459 | 9.333 | +1,3% |
-| Consultas realizadas | 6.356 | 6.100 | +4,2% |
-| Taxa de comparecimento | 67,2% | 65,4% | +1,8 p.p. |
-| R$ gerado total | R$ 1.323.397,48 | R$ 1.181.136,91 | +12,0% |
-| R$ por consulta | R$ 208,21 | R$ 193,63 | +7,5% |
-| Igor Silva (marcações) | 2.469 | 908 | +171,9% |
-| Leticia Esquivel (marcações) | 1.473 | 1.631 | −9,7% |
-| Ariane Cruz (marcações) | 761 | 570 | +33,5% |
-| Brisa Oliveira (marcações) | 248 | 552 | −55,1% |
+| Marcações | 12.064 | 11.497 | +4,9% |
+| Consultas conferíveis | 9.517 | 9.377 | +1,5% |
+| Consultas que aconteceram | 6.385 | 6.133 | +4,1% |
+| Comparecimento | 67,1% | 65,4% | +1,7 p.p. |
+| R$ gerado | R$ 1.329.477,48 | R$ 1.186.843,70 | +12,0% |
+| R$ por consulta | R$ 208,22 | R$ 193,52 | +7,6% |
+| Igor Silva (marcações) | 2.469 | 923 | +167,5% |
+| Ana Luiza Teles (marcações) | 1.626 | 1.866 | −12,9% |
+| Ariane Souza Cruz (marcações) | 768 | 572 | +34,3% |

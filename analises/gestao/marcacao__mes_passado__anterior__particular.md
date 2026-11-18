@@ -8,47 +8,50 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: setembro
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:06:23.477Z
-assinatura: 8a26c35d
-tokens_entrada: 16353
-tokens_saida: 18120
+gerado_em: 2026-11-18T08:07:15.653Z
+assinatura: 9c9fdc85
+tokens_entrada: 16392
+tokens_saida: 18733
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No recorte Particular, as marcações subiram para 1.197 em outubro (+4,8% vs 1.142 em setembro), mas o faturamento gerado recuou para R$ 140.630,00 (−6,7% vs R$ 150.712,00 em setembro). A perda de conversão explica o recuo: a taxa de comparecimento caiu para 66,2% em outubro (−4,6 p.p. vs 70,8% em setembro), resultando em 647 consultas realizadas (−7,7% vs 701 em setembro). O valor médio por atendimento realizado permaneceu estável em R$ 217,36 em outubro (+1,1% vs R$ 215,00 em setembro).
+Em outubro, as marcações do Particular subiram para 1.196 (+4,7% vs setembro de 1.142), mas a receita gerada recuou para R$ 142.670,00 (−5,3% vs setembro de R$ 150.712,00). O recuo ocorreu pela redução no comparecimento geral para 67,0% (−3,8 p.p. vs setembro de 70,8%), resultando em 656 consultas realizadas (−6,4% vs setembro de 701). O valor médio por atendimento realizado ficou em R$ 217,48 (+1,2% vs setembro de R$ 215,00).
 
 ## O que os números mostram
-- **Funil geral**: Apesar do aumento de marcações (+4,8%), o comparecimento menor reduziu as consultas para 647 em outubro (−7,7% vs 701 em setembro) e a receita gerada para R$ 140.630,00 (−6,7% vs R$ 150.712,00 em setembro).
-- **Destaques do Comercial**: Ana Luiza Batista Teles liderou com 228 marcações em outubro (+9,1% vs 209 em setembro) e comparecimento de 70,2% (−2,2 p.p. vs setembro), igual à mediana da equipe (70,2%). Maiane Fiais Ramos Albuquerque alcançou 190 marcações (+25,0% vs 152 em setembro).
-- **Evolução de presença**: Ariane Souza Cruz teve alta no comparecimento por 2 meses seguidos (61,5% em agosto, 63,5% em setembro e 71,4% em outubro, alta de 11,1 p.p. vs setembro), próxima à mediana da Recepção SUS (73,3%).
-- **Pouco volume**: Colaboradores como Bianca Vitorio Nascimento (18 marcações) e Caio Constantino Silva Lima Souza (17 marcações) têm poucos dados no mês para conclusões estatísticas sobre taxas.
+- O funil registrou 1.196 marcações (+4,7% vs setembro de 1.142), 979 conferíveis (−1,1% vs setembro de 990) e 656 atendimentos realizados (−6,4% vs setembro de 701), somando R$ 142.670,00 (−5,3% vs setembro de R$ 150.712,00).
+- Ana Luiza liderou o volume com 228 marcações (+9,1% vs setembro de 209), gerando R$ 26.795,00 (sem comparação de receita em setembro) e comparecimento de 70,3% (−3,9 p.p. vs setembro de 74,2%), alinhada à mediana do Comercial (70,7%).
+- Brisa Souza elevou as marcações para 50 (+733,3% vs setembro de 6), com comparecimento de 81,0% (sem dado em setembro), superando a mediana do Comercial (70,7%).
+- Ariane Cruz subiu o comparecimento pelo 2º mês seguido para 70,4% (+7,9 p.p. vs setembro de 63,5%), próxima à mediana da Recepção SUS (73,3%), com 88 marcações (−5,4% vs setembro de 93).
+- Cinco colaboradores registraram menos de 20 marcações (Bianca 18, Caio 17, eas 12, Michele 8 e Yasmin 6); por conterem poucos dados, suas taxas não sustentam conclusões.
 
 ## Pontos de atenção
-- **Igor Luis Soares de Jesus da Silva**: registrou 123 marcações em outubro contra 236 em setembro (−47,9%), acumulando 3 meses seguidos de queda (259 em agosto, 236 em setembro e 123 em outubro). O comparecimento foi de 69,6% (−0,6 p.p. vs setembro), perto da mediana do Comercial (70,2%). Uma explicação possível é afastamento temporário ou redistribuição de canais (confirmar com o colaborador). Ação: conversa individual da liderança para acolher e entender o cenário.
-- **Isabela Dias Sena**: marcou 144 vezes em outubro (+29,7% vs 111 em setembro), em alta por 3 meses seguidos, mas o comparecimento caiu por 2 meses seguidos (75,9% em agosto, 66,7% em setembro e 57,0% em outubro, queda de 10,6 p.p. vs setembro). Uma explicação possível é o agendamento de datas distantes sem confirmação na véspera (confirmar processo). Ação: alinhamento das rotinas de confirmação.
+- **Igor Luis Soares de Jesus da Silva**: os números mostram 123 marcações em outubro contra 236 em setembro (−47,9%), em queda há 3 meses seguidos (agosto 259, setembro 236, outubro 123). Uma explicação possível é afastamento temporário ou alteração de canal (confirmar com a liderança do Comercial).
+- **Isabela Dias Sena**: os números mostram comparecimento de 57,9% em outubro contra 66,7% em setembro (−10,2 p.p.), em queda há 2 meses seguidos (agosto 75,9%, setembro 66,7%). Uma explicação possível é agendamento com data distante ou falha na confirmação (confirmar com a colaboradora).
+- **Leticia dos Santos Esquivel**: os números mostram queda pontual no comparecimento para 53,7% em outubro contra 61,9% em setembro (−11,2 p.p.), abaixo da mediana da Recepção Particular (55,8%). Uma explicação possível é falha no contato de confirmação na véspera (confirmar com a colaboradora).
 
 ## O que fazer
-- **Líder do Comercial**: conversar individualmente com Igor Luis Soares de Jesus da Silva para acolher, diagnosticar a causa da queda de volume e apoiar o colaborador. Medir pelas marcações de novembro.
-- **Líder da Recepção Particular**: alinhar com Isabela Dias Sena o processo de contato prévio e confirmação de presença na véspera. Medir pela taxa de comparecimento de novembro.
-- **Líderes de Equipe**: reconhecer em reunião de equipe Ana Luiza Batista Teles pelo volume e Ariane Souza Cruz pelo avanço no comparecimento. Medir pela manutenção do engajamento em novembro.
+- **Líder do Comercial**: conversar individualmente com Igor Luis para compreender a redução de marcações e apoiar sua rotina. Medir pela retomada do volume em novembro (meta: superar 200 marcações).
+- **Líder da Recepção Particular**: alinhar rotinas de confirmação de véspera com Isabela Dias e Leticia dos Santos. Medir pelo comparecimento de ambas acima da mediana da equipe (55,8%) em novembro.
+- **Líder do Comercial**: reconhecer Brisa Souza pela taxa de 81,0% e pareá-la com colegas para troca de práticas. Medir pela estabilidade do volume acima de 50 marcações em novembro.
 
 ## Dados usados
 | Indicador | Período (outubro) | Comparação (setembro) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 1.197 | 1.142 | +4,8% |
-| Consultas conferíveis | 977 | 990 | −1,3% |
-| Consultas que aconteceram | 647 | 701 | −7,7% |
-| Taxa de comparecimento geral | 66,2% | 70,8% | −4,6 p.p. |
-| R$ gerado total | R$ 140.630,00 | R$ 150.712,00 | −6,7% |
-| R$ por consulta | R$ 217,36 | R$ 215,00 | +1,1% |
+| Marcações totais | 1.196 | 1.142 | +4,7% |
+| Consultas conferíveis | 979 | 990 | −1,1% |
+| Consultas realizadas | 656 | 701 | −6,4% |
+| Taxa de comparecimento geral | 67,0% | 70,8% | −3,8 p.p. |
+| R$ gerado total | R$ 142.670,00 | R$ 150.712,00 | −5,3% |
+| R$ por consulta realizada | R$ 217,48 | R$ 215,00 | +1,2% |
 | Marcações – Ana Luiza Teles | 228 | 209 | +9,1% |
-| Comparecimento – Ana Luiza Teles | 70,2% | 74,2% | −2,2 p.p. |
-| Marcações – Maiane Albuquerque | 190 | 152 | +25,0% |
-| Comparecimento – Ariane Cruz | 71,4% | 63,5% | +11,1 p.p. |
-| Marcações – Igor Silva | 123 | 236 | −47,9% |
-| Marcações – Isabela Sena | 144 | 111 | +29,7% |
-| Comparecimento – Isabela Sena | 57,0% | 66,7% | −10,6 p.p. |
+| Comparecimento – Ana Luiza Teles | 70,3% | 74,2% | −3,9 p.p. |
+| Marcações – Brisa Souza | 50 | 6 | +733,3% |
+| Marcações – Ariane Cruz | 88 | 93 | −5,4% |
+| Comparecimento – Ariane Cruz | 70,4% | 63,5% | +7,9 p.p. |
+| Marcações – Igor Luis | 123 | 236 | −47,9% |
+| Comparecimento – Isabela Dias | 57,9% | 66,7% | −10,2 p.p. |
+| Comparecimento – Leticia Esquivel | 53,7% | 61,9% | −11,2 p.p. |

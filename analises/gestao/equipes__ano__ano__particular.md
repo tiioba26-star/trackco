@@ -4,49 +4,45 @@ periodo: ano
 comparacao: ano
 recorte: particular
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:15:35.591Z
-assinatura: 40c31f6a
-tokens_entrada: 11192
-tokens_saida: 5678
+gerado_em: 2026-11-18T08:59:08.675Z
+assinatura: 2bc284a1
+tokens_entrada: 11231
+tokens_saida: 8969
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No acumulado de 2026 até 16/11 (período parcial em andamento), a clínica registrou 12.015 marcações no Particular, situando-se 5,0% acima das 11.445 marcações do mesmo intervalo de 2025. O resultado geral é sustentado pelo Comercial, que avançou 92,4% (6.366 marcações) e gerou R$ 712.178,42, respondendo por 53,0% de todo o volume. Como o campo de projeção não está disponível nos dados, constata-se apenas o ritmo positivo no 320º dia do ano.
+No período de 01/01 a 17/11/2026 (em andamento), a clínica soma 12.064 marcações no Particular, operando 4,9% acima do mesmo período de 2025 (11.497 marcações). O avanço decorre da equipe Comercial, que realizou 6.393 marcações (+91,3% vs 3.341 em 2025), gerando R$ 715.768,42 e respondendo por 53,0% do volume total. Como o dado de projeção não foi informado no relatório, não é possível estimar o fechamento anual.
 
 ## O que os números mostram
-- **Ritmo geral**: No 320º dia de 2026, a clínica soma 12.015 marcações contra 11.445 no mesmo dia de 2025 (+5,0% vs período anterior equivalente).
-- **Comercial**: Lidera a participação com 53,0% (6.366 marcações vs 3.309 em 2025, alta de 92,4%), converteu 54,9% em consultas e gerou R$ 712.178,42.
-- **Recepção Particular**: Registrou 2.397 marcações no ano (−2,0% vs 2.447 em 2025), gerou R$ 276.690,93 (20,0% de participação) e virou 52,6% em consultas, apresentando alta de 2 meses seguidos (294 em setembro e 302 em outubro, +2,7% em outubro vs setembro).
-- **Recepção SUS no Particular**: Realizou 1.398 marcações particulares (+145,3% vs 570 em 2025), com R$ 162.292,96 gerados, 11,6% de participação e 54,1% convertidas em consulta.
-- **Sem equipe**: Acumula 1.854 marcações no ano (−63,8% vs 5.119 em 2025) e R$ 172.235,17 gerados, mas caiu 3 meses seguidos (julho 308, agosto 119, setembro 61 e outubro 31).
+- No ritmo acumulado até o dia 321, a clínica registra 12.064 marcações contra 11.497 em 2025 (+4,9%), lembrando que o período em andamento ainda vai mudar.
+- O Comercial ganhou participação (53,0% do total) com 6.393 marcações em 2026 (+91,3% vs 3.341 em 2025), gerando R$ 715.768,42 e convertendo 55,0% em consultas.
+- A Recepção SUS cresceu 146,0% nas marcações do Particular (1.407 vs 572 em 2025), alcançando 11,7% de participação e R$ 163.772,96 gerados.
+- A Recepção Particular teve 2.405 marcações em 2026 (−2,3% vs 2.461 em 2025), gerando R$ 277.700,93 (19,9% de participação) e acumulando 2 meses seguidos em alta (setembro e outubro).
+- O grupo "Sem equipe" perdeu participação ao registrar 1.859 marcações (−63,7% vs 5.123 em 2025) e acumula queda por 3 meses seguidos (agosto 119, setembro 61, outubro 30), mas ainda reúne 20 pessoas e R$ 172.235,17 gerados.
 
 ## Pontos de atenção
-- **Comercial**: Os números mostram queda de 2 meses seguidos no volume mensal (680 em agosto, 611 em setembro e 609 em outubro; −0,3% em outubro vs setembro e −6,9% vs média de 3 meses). Uma explicação possível é oscilação sazonal de demanda ou sobrecarga da equipe (confirmar com a liderança comercial). Cabe acompanhar os dias de pico para apoiar os colaboradores.
-- **Sem equipe**: Há 20 pessoas marcando sem equipe cadastrada no sistema, somando 15,4% das marcações de 2026 e a menor conversão em consultas (45,7%). Embora o volume venha caindo há 3 meses consecutivos, a falta de atribuição dificulta o acompanhamento e o suporte individual.
-- **Recepção Particular**: Acumula retração de 2,0% vs 2025 (2.397 vs 2.447 marcações), perdendo espaço no total da clínica. A recuperação recente (2 meses em alta) deve ser monitorada para verificar se o ritmo se consolida.
+- **Comercial**: os números mostram queda por 2 meses seguidos no fechamento mensal (setembro 611, outubro 609; −0,3% vs mês anterior e −6,9% vs média de 3 meses). Uma explicação possível é perda de tração após o pico de agosto com 680 marcações (confirmar com líder do Comercial). Ação: acompanhar a escala semanal de contatos para estabilizar o volume.
+- **Marcações sem equipe**: os números mostram 20 colaboradores operando sem equipe cadastrada em 2026, com 1.859 marcações e a menor taxa de conversão em consulta (45,6%). Uma explicação possível é pendência no cadastro de novos acessos no sistema (confirmar com TI e RH). Ação: mapear os colaboradores e regularizar seus cadastros.
 
 ## O que fazer
-- **Administração e Recepção**: Identificar e cadastrar no sistema as 20 pessoas alocadas em "Sem equipe". Medir no fechamento de novembro pela redução desse grupo para zero marcações.
-- **Líder do Comercial**: Realizar conversa de alinhamento com os 6 colaboradores para entender a desaceleração de setembro e outubro e distribuir a carga nos horários de pico. Medir pelo volume de marcações de novembro superar a média móvel trimestral (633 marcações).
-- **Líder da Recepção Particular**: Acompanhar o fluxo presencial com os 3 colaboradores para sustentar a sequência de alta dos últimos 2 meses. Medir pelo fechamento de novembro acima de 302 marcações.
+- Administração e TI: cadastrar a equipe de quem está sem vínculo no sistema para as 20 pessoas listadas. Medir pela redução para menos de 10 marcações em "Sem equipe" no fechamento do próximo mês.
+- Líder do Comercial: avaliar a perda de ritmo recente e apoiar a equipe na recuperação das conversões. Medir pela superação da média de 633 marcações mensais no fechamento de novembro.
+- Líder da Recepção Particular: acompanhar o fluxo de guichê para sustentar os 2 meses seguidos de alta. Medir pela reversão da variação negativa acumulada (−2,3% vs 2025) até o fim do ano.
 
 ## Dados usados
-
 | Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 12.015 (01/01 a 16/11/2026) | 11.445 (01/01 a 16/11/2025) | +5,0% |
-| Comercial (marcações) | 6.366 (01/01 a 16/11/2026) | 3.309 (01/01 a 16/11/2025) | +92,4% |
-| Comercial (outubro vs setembro) | 609 (outubro/2026) | 611 (setembro/2026) | −0,3% |
-| Recepção Particular (marcações) | 2.397 (01/01 a 16/11/2026) | 2.447 (01/01 a 16/11/2025) | −2,0% |
-| Recepção Particular (outubro vs setembro) | 302 (outubro/2026) | 294 (setembro/2026) | +2,7% |
-| Sem equipe (marcações) | 1.854 (01/01 a 16/11/2026) | 5.119 (01/01 a 16/11/2025) | −63,8% |
-| Sem equipe (outubro vs setembro) | 31 (outubro/2026) | 61 (setembro/2026) | −49,2% |
-| Recepção SUS (marcações) | 1.398 (01/01 a 16/11/2026) | 570 (01/01 a 16/11/2025) | +145,3% |
+| Marcações totais | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | 4,9% |
+| Ritmo acumulado (dia 321) | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | 4,9% |
+| Marcações Comercial | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | 91,3% |
+| Marcações Recepção SUS | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | 146,0% |
+| Marcações Recepção Particular | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | −2,3% |
+| Marcações Sem equipe | 01/01 a 17/11/2026 | 01/01 a 17/11/2025 | −63,7% |

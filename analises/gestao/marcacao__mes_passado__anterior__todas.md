@@ -8,46 +8,47 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: setembro
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:10:05.845Z
-assinatura: af53962d
-tokens_entrada: 19169
-tokens_saida: 22685
+gerado_em: 2026-11-18T08:08:33.046Z
+assinatura: 1efc83ef
+tokens_entrada: 19209
+tokens_saida: 10478
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-Em outubro, a clínica gerou R$ 403.572,25 (−2,4% vs setembro), apesar da retração de 16,0% nas consultas realizadas (3.050 em outubro vs 3.632 em setembro). O resultado financeiro foi sustentado pelo aumento de 16,3% no valor médio por consulta, que subiu de R$ 113,79 em setembro para R$ 132,32 em outubro, com taxa de comparecimento estável em 75,8% (+0,6 p.p. vs setembro, quando fechou em 75,2%).
+Em outubro, a clínica gerou R$ 407.372,53 em consultas realizadas (−5,7% vs R$ 431.829,02 em setembro), com 12.134 marcações (−3,0% vs 12.512 em setembro) e comparecimento estável em 75,6% (−0,1 p.p. vs 75,7% em setembro). O valor médio por consulta subiu 15,1% no período (R$ 132,61 vs R$ 115,22 em setembro), atenuando o recuo de 18,0% nas consultas efetivadas (3.072 vs 3.748 em setembro). A receita foi sustentada pelo tíquete médio, apontando necessidade de atenção aos volumes de agendamento em postos específicos.
 
 ## O que os números mostram
-- **Funil geral**: os números mostram 12.134 marcações em outubro (−3,0% vs setembro, com 12.512), 4.026 consultas conferíveis (−16,7% vs setembro, com 4.832) e 3.050 realizadas (−16,0% vs setembro, com 3.632).
-- **Receita e ticket médio**: o faturamento gerado somou R$ 403.572,25 em outubro (−2,4% vs R$ 413.299,19 em setembro), enquanto o valor médio por consulta atingiu R$ 132,32 (+16,3% vs R$ 113,79 em setembro).
-- **Destaque no Comercial**: Ana Luiza Batista Teles realizou 1.723 marcações em outubro (+2,1% vs setembro, com 1.687), em alta há 2 meses seguidos (ago 1.641, set 1.687, out 1.723), com comparecimento de 75,5% em outubro (acima da mediana de 71,3% da equipe).
-- **Destaque na Recepção SUS**: Ariane Souza Cruz registrou 830 marcações em outubro (+9,2% vs setembro, com 760), em alta há 2 meses seguidos (ago 666, set 760, out 830), com comparecimento de 82,1% em outubro (acima da mediana de 81,5% da equipe).
-- **Pouco volume conferível**: Murilo Damasceno de Abreu (1.779 marcações) e Esmeralda Pinto da Silva (658 marcações) têm menos de 20 consultas conferíveis; faltam dados para avaliar suas taxas de comparecimento.
+- O funil geral registrou 12.134 marcações em outubro (−3,0% vs 12.512 em setembro), 3.072 consultas realizadas (−18,0% vs 3.748 em setembro) e faturamento gerado de R$ 407.372,53 (−5,7% vs R$ 431.829,02 em setembro).
+- No Comercial, Ana Luiza Batista Teles gerou R$ 72.934,07 com 1.723 marcações (+2,1% vs 1.687 em setembro), e Maiane Fiais Ramos gerou R$ 66.657,62 com 1.815 marcações (−0,8% vs 1.830 em setembro), ambas mantendo-se no quartil superior da clínica.
+- Na Recepção SUS, Ariane Souza Cruz teve alta de marcações pelo segundo mês consecutivo, somando 830 em outubro (+9,2% vs 760 em setembro), com comparecimento de 81,4% (acima da mediana de 80,3% da equipe).
+- Brisa Souza de Oliveira avançou em marcações pelo segundo mês seguido no Comercial, com 323 agendamentos (+178,4% vs 116 em setembro).
+- Murilo Damasceno de Abreu (1.779 marcações) e Esmeralda Pinto da Silva (658 marcações) registraram poucos dados conferíveis no período, não sendo possível avaliar suas taxas de comparecimento.
 
 ## Pontos de atenção
-- **Igor Luis Soares de Jesus da Silva** (Comercial): queda pontual de 44,5% nas marcações em outubro (566 vs 1.020 em setembro) e comparecimento em queda há 2 meses seguidos (set 36,7%, out 34,0%), ficando em 69,1% no mês (mediana da equipe: 71,3%). Uma explicação possível é ausência temporária ou entrave operacional (confirmar com líder do Comercial). Ação: conversa individual para acolher e entender o cenário.
-- **Isabela Dias Sena** (Recepção Particular): marcações em queda há 2 meses seguidos (ago 810, set 605, out 242), marcando 242 em outubro (−60,0% vs setembro, com 605). Uma explicação possível é remanejamento de escala ou foco presencial (confirmar com coordenação). Ação: escuta com a colaboradora para alinhar as rotinas.
-- **Michele Pereira de Souza** (Sem equipe): comparecimento em queda há 3 meses seguidos (ago 68,7%, set 52,2%, out 42,2%, sendo −10,0 p.p. vs setembro), fechando em 67,5% em outubro (mediana da equipe: 76,9%), apesar das 555 marcações (+14,4% vs setembro, com 485). Uma explicação possível é agendamento distante sem confirmação prévia (confirmar com coordenação). Ação: reforço no treinamento de confirmação na véspera.
+- **Igor Luis Soares de Jesus da Silva**: registrou 566 marcações em outubro (−44,5% vs 1.020 em setembro), queda pontual expressiva acima de 20%, além de comparecimento em queda há 2 meses seguidos (−2,8 p.p. vs setembro). Uma explicação possível é período de afastamento ou remanejamento de carteira (confirmar com líder do Comercial).
+- **Isabela Dias Sena**: somou 242 marcações em outubro (−60,0% vs 605 em setembro), acumulando queda há 2 meses seguidos (810 em agosto, 605 em setembro). Uma explicação possível é férias ou redistribuição da escala de guichê (confirmar com recepção).
+- **Caio Constantino Silva Lima Souza**: somou 325 marcações em outubro (−9,5% vs 359 em setembro), em queda há 3 meses seguidos (445 em julho, 367 em agosto, 359 em setembro), apesar de manter comparecimento de 87,0% (acima da mediana de 80,3% do SUS). Uma explicação possível é menor liberação de cotas de agendas públicas (confirmar com recepção).
 
 ## O que fazer
-- **Alinhamento com Igor Luis**: líder do Comercial realiza escuta com o colaborador. Como medir no próximo período: marcações acima de 700 e comparecimento acima de 71,3% em novembro.
-- **Revisão de rotina com Isabela Dias**: coordenação da Recepção Particular avalia escala e fluxo. Como medir no próximo período: volume acima de 350 marcações em novembro.
-- **Treinamento de confirmação com Michele Pereira**: coordenação de atendimento acompanha contato na véspera. Como medir no próximo período: comparecimento acima de 76,9% em novembro.
-- **Troca de práticas**: líder do Comercial organiza compartilhamento de técnicas com Ana Luiza Teles. Como medir no próximo período: comparecimento do Comercial mantido acima de 72,0% em novembro.
+- Líder do Comercial: acolher Igor em conversa individual para entender os motivos da queda nas marcações e apoiar sua rotina. Medir pelo retorno ao patamar acima de 800 marcações em novembro.
+- Líder da Recepção: alinhar com Isabela e Caio eventuais dificuldades de escala ou fluxo de guichê. Medir pela estabilização ou alta das marcações de ambos em novembro.
+- Líder da Recepção: promover troca de práticas de confirmação entre Ariane Souza Cruz e os demais membros do SUS. Medir pela manutenção do comparecimento da equipe acima de 80,0% em novembro.
+- Administração: verificar com a equipe de sistemas a parametrização das agendas que apresentaram poucos dados conferíveis. Medir pela regularização dos relatórios no fechamento de novembro.
 
 ## Dados usados
-| Indicador | Período (outubro) | Comparação (setembro) | Variação |
+| Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações totais | 12.134 | 12.512 | −3,0% |
-| Consultas conferíveis | 4.026 | 4.832 | −16,7% |
-| Consultas realizadas | 3.050 | 3.632 | −16,0% |
-| Taxa de comparecimento | 75,8% | 75,2% | +0,6 p.p. |
-| R$ gerado total | R$ 403.572,25 | R$ 413.299,19 | −2,4% |
-| R$ por consulta | R$ 132,32 | R$ 113,79 | +16,3% |
-| Marcações Igor Luis Silva | 566 | 1.020 | −44,5% |
-| Marcações Isabela Dias Sena | 242 | 605 | −60,0% |
-| Marcações Michele Pereira | 555 | 485 | +14,4% |
+| Marcações totais | 12.134 (outubro) | 12.512 (setembro) | −3,0% |
+| Consultas realizadas | 3.072 (outubro) | 3.748 (setembro) | −18,0% |
+| Taxa de comparecimento | 75,6% (outubro) | 75,7% (setembro) | −0,1 p.p. |
+| R$ gerado total | R$ 407.372,53 (outubro) | R$ 431.829,02 (setembro) | −5,7% |
+| R$ por consulta | R$ 132,61 (outubro) | R$ 115,22 (setembro) | +15,1% |
+| Marcações Ana Luiza Teles | 1.723 (outubro) | 1.687 (setembro) | +2,1% |
+| Marcações Ariane Cruz | 830 (outubro) | 760 (setembro) | +9,2% |
+| Marcações Igor Silva | 566 (outubro) | 1.020 (setembro) | −44,5% |
+| Marcações Isabela Sena | 242 (outubro) | 605 (setembro) | −60,0% |
+| Marcações Caio Souza | 325 (outubro) | 359 (setembro) | −9,5% |

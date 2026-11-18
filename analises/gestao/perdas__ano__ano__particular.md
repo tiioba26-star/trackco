@@ -4,52 +4,51 @@ periodo: ano
 comparacao: ano
 recorte: particular
 janela_inicio: 2026-01-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: 2026 até agora
-janela_datas: 01/01 a 16/11
-base_nome: mesmo período de 2025 (01/01/2025 a 16/11/2025)
-dados_ate: 2026-11-16
+janela_datas: 01/01 a 17/11
+base_nome: mesmo período de 2025 (01/01/2025 a 17/11/2025)
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T12:17:15.502Z
-assinatura: ad72f687
-tokens_entrada: 12168
-tokens_saida: 12035
+gerado_em: 2026-11-18T09:04:13.309Z
+assinatura: f524db28
+tokens_entrada: 12210
+tokens_saida: 16530
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No recorte Particular de 2026 até agora (01/01 a 16/11, parcial em andamento), a taxa de falta subiu para 32,0% (+2,8 p.p. vs 29,2% no mesmo período de 2025), enquanto o cancelamento recuou para 3,9% (−1,4 p.p. vs 5,3%). As perdas concentram-se nas agendas do Dr. Mauricio Trindade, com 95,8% de faltas (406 faltas em 424 consultas), e do Dr. André Born, com 42,0% (646 faltas em 1.537 consultas). A fatia do Particular no faturamento caiu para 17,1% (−13,9 p.p. vs 31,0% em 2025). Por ser período em andamento, os números ainda vão mudar até o fechamento.
+No período parcial de 2026 (01/01 a 17/11), as perdas por faltas no Particular subiram para 32,0% (+2,8 p.p. vs 29,2% no mesmo período de 2025), enquanto os cancelamentos caíram para 3,9% (−1,4 p.p. vs 5,3%). A participação do Particular no faturamento da clínica recuou para 17,1% (−13,9 p.p. vs 31,0%), somando R$ 1.340.510,50 (valor de 2025 não informado). Por se tratar de período em andamento, os indicadores parciais ainda sofrerão alterações até o fechamento anual.
 
 ## O que os números mostram
-- As marcações do Particular somam 11.841 no período (+7,9% vs 10.973 em 2025), com 6.471 atendimentos realizados (+9,1% vs 5.929).
-- A taxa de falta apresentou alta pontual em outubro, atingindo 29,3% (+1,1 p.p. vs 28,2% em setembro), após registrar quedas em agosto (29,7%) e setembro (28,2%).
-- A taxa de remarcação caiu para 12,3% (−2,1 p.p. vs 14,4%), e a taxa de cancelamento ficou em 3,9% (−1,4 p.p. vs 5,3%).
-- O principal motivo de cancelamento foi a pedido do paciente ou da família, com 45,7% (182 de 398); a categoria "Sem motivo registrado" somou 2,3% (9 casos vs 0 em 2025), indicando boa rotina de registro pela recepção.
-- No faturamento geral, o Particular somou R$ 1.332.680,50, recuando para 17,1% de fatia (−13,9 p.p. vs 31,0%), enquanto o SUS gerou R$ 6.445.171,25 (82,9% de fatia, +13,9 p.p. vs 69,0%). Faltam dados sobre convênios na base.
-- Reconhece-se o desempenho da Dra. Maria Rita Widmer, que obteve a menor taxa de faltas entre os médicos de maior volume: 16,5% (76 faltas em 462 consultas).
+- **Perdas no Particular**: Em 2026 até 17/11, as faltas somaram 32,0% (+2,8 p.p. vs 29,2% em 2025), cancelamentos caíram para 3,9% (−1,4 p.p. vs 5,3% em 2025) e remarcações recuaram para 12,3% (−2,1 p.p. vs 14,4% em 2025).
+- **Comportamento mensal**: A taxa de falta teve alta pontual de 1,1 p.p. em outubro vs setembro de 2026 (29,3% vs 28,2%), ficando 2,5 p.p. abaixo da média do trimestre anterior (julho 37,4%, agosto 29,7%, setembro 28,2%).
+- **Motivos de cancelamento**: Pedido do paciente ou família representou 45,7% dos cancelamentos em 2026 (182 casos vs 191 em 2025) e "Outros" respondeu por 24,6% (98 casos vs 158 em 2025); registros sem motivo somaram 2,3% (9 casos vs 0 em 2025).
+- **Agendas e procedimentos**: Mauricio Trindade registrou 95,8% de faltas em 2026 (406 faltas em 424 consultas; sem comparação de 2025), mesmo volume do procedimento Consulta Geral - Cortesia (406 faltas); André Born teve 42,0% de faltas (646 em 1.537 consultas; sem base de 2025).
+- **Mix de operadoras**: O Particular manteve 9,5% das marcações em 2026 (−0,3 p.p. vs 9,8% em 2025), mas caiu para 17,1% no faturamento (−13,9 p.p. vs 31,0% em 2025), enquanto o SUS representou 82,9% da receita (+13,9 p.p. vs 69,0% em 2025).
 
 ## Pontos de atenção
-- **Dr. Mauricio Trindade**: registrou taxa de falta de 95,8% em 2026 parcial (406 faltas em 424 consultas), volume idêntico às faltas em consultas cortesia especializada (406 faltas). Uma explicação possível é reserva automática sem confirmação prévia com o paciente (confirmar com a recepção). Ação: conversa e alinhamento de fluxo entre o profissional e a recepção.
-- **Dr. André Born**: acumulou taxa de falta de 42,0% em 2026 parcial (646 faltas em 1.537 consultas), distante da mediana dos colegas de volume semelhante (Dr. Gustavo Gomes com 29,5% e Dr. Mauricio Mateus com 27,2%). Uma explicação possível é incompatibilidade de horários ofertados (confirmar com o médico). Ação: confirmação ativa na véspera e lista de espera.
-- **Igor Luis Soares de Jesus da Silva**: concentra o maior volume de perdas nas marcações de 2026 parcial, com 740 faltas e 96 cancelamentos. Uma explicação possível é atuação em canais de agendamento com maior absenteísmo natural (confirmar com o operador). Ação: treinamento e acompanhamento de confirmação com o líder do Comercial.
+- **Mauricio Trindade**: taxa de falta de 95,8% (406 faltas em 424 consultas) no período parcial de 2026 (sem base em 2025). Uma explicação possível é que consultas marcadas como cortesia especializada estão sendo inseridas sem presença real (confirmar com recepção). Ação: alinhar o fluxo com o médico e recepção.
+- **André Born**: taxa de falta de 42,0% (646 faltas em 1.537 consultas) em 2026 até 17/11 (sem base em 2025), superior à média de 32,0% do Particular. Uma explicação possível é falha na régua de confirmação prévia (confirmar com atendimento). Ação: intensificar a confirmação ativa na véspera.
+- **Registro de cancelamentos**: 9 ocorrências sem justificativa em 2026 até 17/11 (2,3% do total vs 0% em 2025). Uma explicação possível é falta de trava no sistema Klingo (confirmar com recepção). Ação: orientar a equipe e solicitar bloqueio do campo à TI.
+- **Igor Luis Soares de Jesus da Silva**: vinculado a 741 faltas em 2026 até 17/11 (sem base em 2025). Faltam dados no relatório sobre o total de marcações feitas por ele para apurar sua taxa real de perda. Ação: apurar seu volume total para avaliar necessidade de apoio técnico.
 
 ## O que fazer
-- **Recepção**: implantar confirmação ativa na véspera por WhatsApp e ligação para as agendas do Dr. André Born e Dr. Mauricio Trindade. Medir pela redução da taxa de falta mensal no próximo período.
-- **Líder do Comercial**: orientar e acompanhar os operadores com maior volume de faltas marcadas (em especial Igor Luis), reforçando orientações ao paciente. Medir pelo comparecimento das marcações no próximo mês.
-- **Administração**: auditar no Klingo o fluxo de marcação das consultas de cortesia para sanar distorções cadastrais. Medir pelo saneamento das faltas na agenda de cortesia no próximo fechamento.
+- **Recepção**: aplicar confirmação ativa na véspera para os pacientes particulares das agendas de André Born e Uyara Queiroz. Como medir: taxa de falta de André Born abaixo de 35,0% no próximo fechamento.
+- **Administração**: auditar os critérios de agendamento de consultas cortesia junto a Mauricio Trindade e recepção. Como medir: taxa de falta nessa agenda abaixo de 20,0% no próximo fechamento.
+- **Supervisão de Atendimento**: orientar a equipe a registrar a justificativa real de cancelamento no Klingo. Como medir: zero cancelamentos sem motivo registrado no próximo mês.
 
 ## Dados usados
-| Indicador | Período (2026 parcial) | Comparação (2025 parcial) | Variação |
+| Indicador | Período (2026 até 17/11) | Comparação (2025 até 17/11) | Variação |
 | :--- | :--- | :--- | :--- |
-| Consultas marcadas (Particular) | 11.841 | 10.973 | +7,9% |
-| Consultas atendidas (Particular) | 6.471 | 5.929 | +9,1% |
 | Taxa de falta (Particular) | 32,0% | 29,2% | +2,8 p.p. |
 | Taxa de cancelamento (Particular) | 3,9% | 5,3% | −1,4 p.p. |
 | Taxa de remarcação (Particular) | 12,3% | 14,4% | −2,1 p.p. |
-| Cancelamentos sem motivo | 2,3% (9) | 0,0% (0) | +2,3 p.p. |
-| Faturamento Particular | R$ 1.332.680,50 (17,1%) | 31,0% (fatia) | −13,9 p.p. |
-| Faturamento SUS | R$ 6.445.171,25 (82,9%) | 69,0% (fatia) | +13,9 p.p. |
-| Taxa de falta - Dr. Mauricio Trindade | 95,8% (406 de 424) | Não informado | N/D |
-| Taxa de falta - Dr. André Born | 42,0% (646 de 1.537) | Não informado | N/D |
-| Taxa de falta - Dra. Maria Rita Widmer | 16,5% (76 de 462) | Não informado | N/D |
+| Taxa de falta em outubro/2026 | 29,3% | 28,2% (set/2026) | +1,1 p.p. |
+| Cancelamentos sem motivo registrado | 2,3% (9) | 0,0% (0) | +2,3 p.p. |
+| Fatia Particular nas marcações | 9,5% | 9,8% | −0,3 p.p. |
+| Fatia Particular no faturamento | 17,1% | 31,0% | −13,9 p.p. |
+| Faturamento Particular | R$ 1.340.510,50 | Não informado | N/A |
+| Taxa de falta André Born | 42,0% (646) | Não informado | N/A |
+| Taxa de falta Mauricio Trindade | 95,8% (406) | Não informado | N/A |

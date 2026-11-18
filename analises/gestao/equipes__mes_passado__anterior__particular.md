@@ -8,43 +8,49 @@ janela_fim: 2026-10-31
 janela_nome: Outubro (mês passado)
 janela_datas: 01/10 a 31/10
 base_nome: setembro
-dados_ate: 2026-11-16
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:06:00.893Z
-assinatura: e333bff3
-tokens_entrada: 11093
-tokens_saida: 7474
+gerado_em: 2026-11-18T08:07:55.795Z
+assinatura: 5635210c
+tokens_entrada: 11143
+tokens_saida: 16376
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-Em outubro, as marcações particulares somaram 1.197 atendimentos (+4,8% vs setembro), impulsionadas pela alta expressiva da Recepção SUS. O Comercial liderou o volume com 609 marcações (−0,3% vs setembro), mas acumula dois meses consecutivos de retração. O grupo Sem equipe recuou para 31 marcações (−49,2% vs setembro), mantendo a tendência de redução nas pendências cadastrais.
+O volume de marcações no Particular fechou outubro em 1.196 atendimentos (+4,7% vs 1.142 em setembro). O crescimento foi puxado pela Recepção SUS, que ampliou produção e ganhou participação no mês. O Comercial manteve a liderança da receita gerada, mas acumulou o segundo mês seguido de queda nas marcações.
 
 ## O que os números mostram
-- O total da clínica no recorte Particular atingiu 1.197 marcações em outubro (+4,8% vs 1.142 em setembro).
-- O Comercial registrou 609 marcações em outubro (−0,3% vs 611 em setembro), concentrando 50,9% de participação e gerando R$ 73.350,00, porém acumula dois meses seguidos em queda (agosto 680, setembro 611, outubro 609).
-- A Recepção SUS teve alta de +44,9% em outubro (255 marcações vs 176 em setembro), alcançando 21,3% de participação, R$ 32.050,00 gerados e a maior taxa de conversão em consultas (58,4%).
-- A Recepção Particular totalizou 302 marcações em outubro (+2,7% vs 294 em setembro), com dois meses seguidos em alta (agosto 236, setembro 294, outubro 302), gerando R$ 33.320,00, mas com a menor conversão em consultas (46,0%).
-- A categoria Sem equipe registrou 31 marcações em outubro (−49,2% vs 61 em setembro), caindo há 3 meses seguidos (agosto 119, setembro 61, outubro 31), gerando R$ 1.910,00 e 25,8% virando consulta.
-- Faltam dados no relatório sobre o acumulado diário de setembro para analisar a diferença percentual de ritmo.
+- A clínica fechou outubro com 1.196 marcações particulares (+4,7% vs 1.142 em setembro). O mês foi encerrado no dia 31, sem projeção a calcular; o acumulado diário comparativo não consta no JSON.
+- O Comercial somou 609 marcações em outubro (−0,3% vs 611 em setembro), caindo pelo 2º mês seguido. Sua participação recuou para 50,9% (vs 53,5% em setembro: 611 ÷ 1.142). Converteu 58,5% em consultas e gerou R$ 74.670,00 em outubro (sem comparações no JSON).
+- A Recepção SUS teve alta pontual com 255 marcações particulares em outubro (+44,9% vs 176 em setembro), elevando sua participação para 21,3% (vs 15,4% em setembro: 176 ÷ 1.142). Converteu 58,4% em consultas e gerou R$ 32.050,00 em outubro (sem comparações no JSON).
+- A Recepção Particular fez 302 marcações em outubro (+2,7% vs 294 em setembro), em alta pelo 2º mês seguido. Teve participação de 25,3% (vs 25,7% em setembro: 294 ÷ 1.142), 47,4% de conversão em consultas e R$ 34.040,00 gerados em outubro (sem comparações no JSON).
+- O grupo Sem equipe teve 30 marcações em outubro (−50,8% vs 61 em setembro), caindo pelo 3º mês seguido. Teve participação de 2,5% (vs 5,3% em setembro: 61 ÷ 1.142), 26,7% de conversão e R$ 1.910,00 gerados por 6 pessoas em outubro (sem comparações no JSON).
 
 ## Pontos de atenção
-- **Comercial**: somou 609 marcações em outubro (−0,3% vs setembro) e caiu 2 meses seguidos (agosto 680, setembro 611, outubro 609). Uma explicação possível é sobrecarga de atendimentos ou migração de ligações para a recepção (confirmar com o time). Ação: alinhamento fraterno de processos e apoio à equipe.
-- **Conversão da Recepção Particular**: obteve 46,0% de marcações convertidas em consulta em outubro (302 marcações e R$ 33.320,00 gerados), patamar inferior ao Comercial (57,6%) e SUS (58,4%). Uma explicação possível é desistência antes do atendimento ou falta de confirmação prévia (confirmar com a recepção). Ação: treinamento de confirmação de presença.
-- **Sem equipe**: contabilizou 31 marcações em outubro (−49,2% vs setembro) e 25,8% virando consulta, com 6 pessoas cadastradas sem setor. Embora caia há 3 meses seguidos (agosto 119, setembro 61, outubro 31), ainda há atendentes sem perfil alocado no sistema.
+- **Comercial**: dois meses seguidos em queda nas marcações particulares (−0,3% em outubro vs setembro e −6,9% vs média de 3 meses), perdendo participação. Uma hipótese é sobrecarga ou redistribuição interna de tarefas (confirmar com líder do Comercial).
+- **Recepção Particular**: registrou a menor conversão em consultas da clínica em outubro com 47,4% (sem comparação no JSON), abaixo do Comercial (58,5%) e do SUS (58,4%). Uma hipótese é cancelamento ou falha no contato de confirmação (confirmar com recepção).
+- **Sem equipe**: 6 colaboradores continuam agendando sem equipe cadastrada, apesar da retração de 50,8% nas marcações em outubro. Uma hipótese é pendência cadastral no sistema Klingo (confirmar com administração).
 
 ## O que fazer
-- Líder do Comercial: reunir os 5 colaboradores para identificar gargalos operacionais e apoiar o time na retomada do crescimento. Medir pela variação de marcações em novembro.
-- Liderança de Recepção: acompanhar os 2 colaboradores da Recepção Particular com foco em treinamento de confirmação de agendamentos. Medir pelo percentual de consultas efetivadas em novembro.
-- Administração: regularizar no Klingo o cadastro das 6 pessoas que ainda constam no grupo Sem equipe. Medir pela redução a zero das marcações sem equipe em novembro.
-- Líder da Recepção SUS: mapear os fluxos que possibilitaram o salto para 255 marcações particulares em outubro (+44,9% vs setembro) e compartilhar com a Recepção Particular. Medir pela manutenção do volume e taxa de comparecimento em novembro.
+- Líder do Comercial: acolher os 5 colaboradores para identificar gargalos operacionais e apoiar o ritmo de marcação. Medir pela reversão da queda em novembro.
+- Supervisão da recepção: realizar alinhamento e treinamento com a Recepção Particular focado na confirmação prévia de consultas. Medir pela elevação da taxa de conversão em novembro.
+- Administração: atualizar o cadastro dos 6 colaboradores alocados em Sem equipe. Medir pela ausência de marcações nessa categoria em novembro.
 
 ## Dados usados
-| Indicador | Período (outubro) | Comparação (setembro) | Variação |
+| Indicador | Período | Comparação | Variação |
 | :--- | :--- | :--- | :--- |
-| Total de marcações | 1.197 | 1.142 | +4,8% |
-| Marcações Comercial | 609 | 611 | −0,3% |
-| Marcações Recepção Particular | 302 | 294 | +2,7% |
-| Marcações Recepção SUS | 255 | 176 | +44,9% |
-| Marcações Sem equipe | 31 | 61 | −49,2% |
+| Marcações totais | 1.196 (outubro) | 1.142 (setembro) | +4,7% |
+| Marcações Comercial | 609 (outubro) | 611 (setembro) | −0,3% |
+| Marcações Recepção SUS | 255 (outubro) | 176 (setembro) | +44,9% |
+| Marcações Recepção Particular | 302 (outubro) | 294 (setembro) | +2,7% |
+| Marcações Sem equipe | 30 (outubro) | 61 (setembro) | −50,8% |
+| Participação Comercial | 50,9% (outubro) | 53,5% (setembro) | −2,6 p.p. |
+| Participação Recepção SUS | 21,3% (outubro) | 15,4% (setembro) | +5,9 p.p. |
+| Participação Recepção Particular | 25,3% (outubro) | 25,7% (setembro) | −0,4 p.p. |
+| Participação Sem equipe | 2,5% (outubro) | 5,3% (setembro) | −2,8 p.p. |
+| R$ gerado Comercial | R$ 74.670,00 (outubro) | Não informado | Não informado |
+| R$ gerado Recepção Particular | R$ 34.040,00 (outubro) | Não informado | Não informado |
+| R$ gerado Recepção SUS | R$ 32.050,00 (outubro) | Não informado | Não informado |
+| R$ gerado Sem equipe | R$ 1.910,00 (outubro) | Não informado | Não informado |

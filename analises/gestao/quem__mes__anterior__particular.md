@@ -4,53 +4,51 @@ periodo: mes
 comparacao: anterior
 recorte: particular
 janela_inicio: 2026-11-01
-janela_fim: 2026-11-16
+janela_fim: 2026-11-17
 janela_nome: Novembro até agora
-janela_datas: 01/11 a 16/11
-base_nome: outubro até o dia 16
-dados_ate: 2026-11-16
+janela_datas: 01/11 a 17/11
+base_nome: outubro até o dia 17
+dados_ate: 2026-11-17
 modelo: gemini-3.8-flash-high
 esforco: high
-gerado_em: 2026-11-17T11:36:21.861Z
-assinatura: 01e5004c
-tokens_entrada: 12736
-tokens_saida: 11512
+gerado_em: 2026-11-18T08:03:49.565Z
+assinatura: 6e6c97ca
+tokens_entrada: 12789
+tokens_saida: 8327
 custo_equivalente_usd: 0.0000
 ---
 
 ## Resumo
-No período parcial de 01/11 a 16/11, as marcações do Particular mantiveram estabilidade no topo com Mauricio Mateus (120 marcações, −3,2% vs outubro até dia 16) e avanço de Fabiana Morais (49 marcações, +58,1%). O recuo mais relevante foi de Gustavo Gomes, com queda pontual de 60,8% (49 marcações vs 125 em outubro até dia 16). Por ser período em andamento, os números ainda vão mudar.
+No período parcial de 01/11 a 17/11, as marcações do Particular mantiveram alta para Dr. Mauricio Mateus com 132 agendamentos (+6,5% vs 124 em out/17) e Curva Tensional Diária com 92 agendamentos (+24,3% vs 74 em out/17). A principal variação negativa foi a queda pontual de Dr. Gustavo Gomes, que somou 52 marcações (−58,4% vs 125 em out/17). Não há dependência crítica de marcação acima de 50% concentrada em uma única colaboradora, garantindo estabilidade operacional.
 
 ## O que os números mostram
-- Mauricio Mateus lidera com 120 marcações parciais (−3,2% vs 124 em outubro até dia 16), seguido por Curva Tensional Diaria com 84 (+18,3% vs 71) e André Born com 70 (+2,9% vs 68).
-- Fabiana Morais subiu 58,1% (49 marcações vs 31 em outubro até dia 16) e atingiu comparecimento de 84,0%.
-- Gustavo Gomes registrou queda pontual de 60,8% (49 marcações vs 125 em outubro até dia 16); Uyara Queiroz teve −40,0% (27 vs 45) e Maria Maeve −26,8% (30 vs 41).
-- Luciana Arrais (34 marcações) e Biometria e Microscopia (31 marcações) surgiram sem marcações no período de comparação.
-- Maiane Fiais Ramos Albuquerque (114 marcações) e Ana Luiza Batista Teles (108 marcações) concentram sua maior fatia em Mauricio Mateus (28,1% e 25,0%).
-- Nenhuma agenda apresenta dependência crítica de uma única colaboradora (todas abaixo de 50%).
+- Liderança de volume: Dr. Mauricio Mateus registrou 132 marcações em novembro (+6,5% vs 124 em out/17), seguido por Curva Tensional Diária com 92 (+24,3% vs 74 em out/17) e Dr. André Born com 84 (+23,5% vs 68 em out/17).
+- Crescimento expressivo: Dra. Fabiana Morais subiu para 49 marcações em novembro (+58,1% vs 31 em out/17), com apoio relevante de Ana Luiza Batista Teles e Isabela Dias Sena.
+- Quedas pontuais: Dr. Gustavo Gomes teve retração para 52 marcações em novembro (−58,4% vs 125 em out/17), e Dra. Uyara Queiroz recuou para 29 marcações (−35,6% vs 45 em out/17).
+- Novos serviços no período: Biometria e Microscopia obteve 35 marcações e Dra. Luciana Arrais alcançou 34 marcações (ambas sem marcações registradas no mesmo período de out/17).
+- Mix das colaboradoras: Maiane Fiais Ramos Albuquerque liderou as marcações com 123 agendamentos, direcionando 28,5% para Dr. Mauricio Mateus (vs 16,5% em out/17).
+- Comparecimento: a Tomografia OCT registrou 80,0% de presença, enquanto a Curva Tensional Diária marcou 64,3% e Dr. Mauricio Mateus 68,7% (dado não informado para os demais profissionais).
 
 ## Pontos de atenção
-- **Gustavo Gomes**: registrou 49 marcações contra 125 em outubro até dia 16 (queda pontual de 60,8%). Uma explicação possível é redução de grade (confirmar com a gestão médica); a ação é checar a disponibilidade de horários.
-- **Leticia dos Santos Esquivel**: a fatia de Gustavo Gomes no seu mix caiu de 29,3% para 8,8% (6 marcações em novembro). Uma explicação possível é menor procura no balcão (confirmar com a recepção); a ação é acompanhar o direcionamento.
-- **Mauricio Mateus**: comparecimento de 63,6% em novembro, o menor entre os apurados. Uma explicação possível é agendamento distante ou confirmação pendente (confirmar com o Comercial); a ação é revisar a confirmação.
+- **Gustavo Gomes**: registrou 52 marcações em novembro (−58,4% vs 125 em out/17). Uma explicação possível é redução na grade de dias ofertados ou bloqueios pontuais (confirmar com a gestão médica).
+- **Uyara Queiroz**: queda pontual para 29 marcações em novembro (−35,6% vs 45 em out/17). Uma explicação possível é alteração de escala ou redistribuição da demanda para outras agendas (confirmar com a liderança do Comercial).
+- **Curva Tensional Diária**: comparecimento de 64,3% em novembro, abaixo dos 80,0% observados na OCT. Uma explicação possível é desistência decorrente do tempo prolongado do teste ou dúvidas no preparo (confirmar com a recepção e enfermagem).
 
 ## O que fazer
-- Líder do Comercial: orientar Leticia dos Santos Esquivel sobre a oferta das agendas e revisar confirmações de Mauricio Mateus. Medição: comparecimento e volume de Gustavo Gomes até 30/11.
-- Administração: verificar com a gestão médica se houve corte de horários para Gustavo Gomes, Uyara Queiroz e Maria Maeve. Medição: grade liberada no sistema.
-- Líder do Comercial: acompanhar a demanda das novas agendas de Luciana Arrais e Biometria e Microscopia. Medição: volume de marcações na próxima quinzena.
+- Gestão médica: checar a disponibilidade de horários e eventuais bloqueios de agenda de Dr. Gustavo Gomes e Dra. Uyara Queiroz. Medição no próximo período: comparar marcações e vagas ofertadas no fechamento de novembro.
+- Líder do Comercial: alinhar a equipe sobre a divulgação das agendas de Dra. Luciana Arrais e Biometria e Microscopia para manter o mix equilibrado. Medição no próximo período: percentual de participação dessas agendas nas marcações de dezembro.
+- Recepção Particular e Recepção SUS: reforçar aos pacientes as orientações e horários de chegada para o exame de Curva Tensional Diária no momento da marcação. Medição no próximo período: taxa de comparecimento do exame no fim de novembro.
 
 ## Dados usados
-| Indicador | Período (01/11 a 16/11) | Comparação (01/10 a 16/10) | Variação |
+| Indicador | Período (01 a 17/11) | Comparação (01 a 17/10) | Variação |
 | :--- | :--- | :--- | :--- |
-| Marcações Mauricio Mateus | 120 | 124 | −3,2% |
-| Marcações Curva Tensional Diaria | 84 | 71 | +18,3% |
-| Marcações André Born | 70 | 68 | +2,9% |
-| Marcações Gustavo Gomes | 49 | 125 | −60,8% |
-| Marcações Fabiana Morais | 49 | 31 | +58,1% |
-| Marcações Luciana Arrais | 34 | 0 | - |
-| Marcações Biometria e Microscopia | 31 | 0 | - |
-| Marcações Maria Maeve | 30 | 41 | −26,8% |
-| Marcações Uyara Queiroz | 27 | 45 | −40,0% |
-| Comparecimento Mauricio Mateus | 63,6% | Não informado | - |
-| Comparecimento Fabiana Morais | 84,0% | Não informado | - |
-| Mix Gustavo Gomes (Leticia) | 8,8% | 29,3% | −20,5 p.p. |
+| Mauricio Mateus (marcações) | 132 | 124 | +6,5% |
+| Curva Tensional Diária (marcações) | 92 | 74 | +24,3% |
+| André Born (marcações) | 84 | 68 | +23,5% |
+| Gustavo Gomes (marcações) | 52 | 125 | −58,4% |
+| Fabiana Morais (marcações) | 49 | 31 | +58,1% |
+| Uyara Queiroz (marcações) | 29 | 45 | −35,6% |
+| Biometria e Microscopia (marcações) | 35 | 0 | Sem base |
+| Luciana Arrais (marcações) | 34 | 0 | Sem base |
+| Comparecimento Tomografia OCT | 80,0% | Dado não informado | Dado não informado |
+| Comparecimento Curva Tensional | 64,3% | Dado não informado | Dado não informado |
