@@ -351,7 +351,8 @@ def cruzar(marcacoes: list[dict], producao: list[dict], hoje: date, cancelamento
                 casadas.append([b, restantes.pop(i)[1]])
             elif para < hoje:  # dia já passou e não houve atendimento (desta operadora)
                 resultado.append({"chave": b["chave"], "atendido": False, "valor": None, "data_realizacao": None})
-            # para == hoje sem produção ainda: fica pendente (null)
+            elif para == hoje:  # hoje sem produção (ainda, ou o faturamento foi estornado): volta a pendente
+                resultado.append({"chave": b["chave"], "atendido": None, "valor": None, "data_realizacao": None})
         if casadas and restantes:  # itens feitos a mais na visita (mesma operadora) ficam com a primeira marcação
             casadas[0][1] += sum(v for _, v, op in restantes if not operadoras_conflitam(op, casadas[0][0].get("operadora")))
         for b, v in casadas:
@@ -590,7 +591,8 @@ def main() -> int:
         avisos.append("recálculo não pedido: TRACKCO_URL/TRACKCO_RECALC_TOKEN ausentes")
     else:
         detalhes["recalculo"] = {}
-        for comp in meses_ate(hoje, n_ag if args.desde else 2)[::-1]:  # um pedido por mês (limite de 60 s da Vercel)
+        # os mesmos meses que acabaram de ser sincronizados (de madrugada, 4), um pedido por mês (limite de 60 s da Vercel)
+        for comp in meses_ag[::-1]:
             try:
                 req = urllib.request.Request(f"{url.rstrip('/')}/api/recalcular", data=json.dumps({"competencia": comp}).encode(),
                                              method="POST", headers={"authorization": f"Bearer {token}",

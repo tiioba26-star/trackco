@@ -54,7 +54,7 @@ export default async function PaginaDados() {
     <div className="space-y-6">
       <CabecalhoPagina
         titulo="Dados e lançamentos"
-        descricao={`Fonte principal: Klingo (agendamentos e faturamento), sincronizado de hora em hora em horário comercial. ${totalLinhas ?? 0} agendamentos na base.`}
+        descricao={`Fonte principal: Klingo (agendamentos e faturamento), sincronizado de hora em hora, das 7h às 19h, de segunda a sábado. ${totalLinhas ?? 0} agendamentos na base.`}
         acoes={
           <BotaoAcao acao={recalcularAgora} sucesso="Recalculado." data-tour="dados-recalc">
             <RefreshCw /> Recalcular agora
@@ -66,7 +66,7 @@ export default async function PaginaDados() {
         <Card data-tour="dados-sync">
           <CardHeader>
             <CardTitle>Sincronizações com o Klingo</CardTitle>
-            <CardDescription>Rodam sozinhas de hora em hora. Uma falha não apaga dados: a próxima execução completa o que faltou.</CardDescription>
+            <CardDescription>Rodam sozinhas de hora em hora, das 7h às 19h, de segunda a sábado; de madrugada refazem os últimos 4 meses. Uma falha não apaga dados: a próxima execução completa o que faltou.</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <Table>

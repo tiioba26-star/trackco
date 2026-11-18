@@ -101,7 +101,7 @@ export default async function PaginaComoEContado() {
           </h3>
           <p className="max-w-3xl text-sm text-muted-foreground">
             O Trackco mostra o resultado do trabalho de cada pessoa e de cada equipe da IOBA: quantas consultas foram marcadas, quantas
-            aconteceram e quanto falta para a meta. Os números vêm do Klingo e se atualizam sozinhos, de hora em hora.
+            aconteceram e quanto falta para a meta. Os números vêm do Klingo e se atualizam sozinhos, de hora em hora, das 7h às 19h, de segunda a sábado.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -149,7 +149,7 @@ export default async function PaginaComoEContado() {
         <h2 className="text-xl font-semibold tracking-tight">Como é contado</h2>
         <p className="max-w-3xl text-sm text-muted-foreground">
           Cada número do Trackco, de onde vem e o que entra nele. Tudo vem do Klingo, por quem aparece como responsável pelo agendamento, e
-          atualiza sozinho de hora em hora{sync?.finalizado_em ? ` (última vez: ${fmtDataHora(sync.finalizado_em)})` : ""}.
+          atualiza sozinho de hora em hora, das 7h às 19h, de segunda a sábado{sync?.finalizado_em ? ` (última vez: ${fmtDataHora(sync.finalizado_em)})` : ""}.
         </p>
       </div>
 
@@ -316,7 +316,7 @@ export default async function PaginaComoEContado() {
                     compensa um indicador fraco com outro exagerado.
                   </li>
                   <li>
-                    <b className="text-foreground">Férias, folgas e feriados:</b> a meta diminui na proporção dos dias em que você não trabalhou.
+                    <b className="text-foreground">Férias e folgas:</b> a meta diminui na proporção dos dias em que você não trabalhou.
                   </li>
                 </ul>
               </CardContent>
@@ -389,7 +389,7 @@ export default async function PaginaComoEContado() {
                 ["Consulta de hoje", "Só entra no comparecimento amanhã: o dia ainda não terminou."],
                 [
                   "Remarcação depois que o mês acabou",
-                  "Se um agendamento de outubro for remarcado em novembro, os válidos de outubro diminuem. O fechamento do mês congela os números.",
+                  "Se um agendamento de outubro for remarcado em novembro, os válidos de outubro diminuem. A conferência da madrugada refaz os últimos 4 meses; depois disso, ou quando o mês é fechado, os números ficam como estão.",
                 ],
               ].map(([t, d]) => (
                 <li key={t} className="flex gap-3">

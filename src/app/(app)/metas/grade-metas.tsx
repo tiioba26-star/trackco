@@ -10,7 +10,9 @@ import { Dica } from "@/components/ajuda/dica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Switch } from "@/components/ui/switch";
 import type { HistoricoMeta, MapaHistorico } from "@/lib/dados/sugestoes";
+import { distribuirMeta, incoerencia, participacoes, type ModoMeta } from "@/lib/metas/distribuir";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { metasDoMesAnterior, salvarMetas, type LinhaMeta } from "./actions";
 
@@ -59,6 +61,22 @@ function DicaHistorico({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; u
 }
 
 const chave = (metrica: string, colab: string | null) => `${metrica}|${colab ?? "equipe"}`;
+const numero = (v: string | undefined) => {
+  if (v === undefined || v.trim() === "") return null;
+  const n = Number(v.replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+};
+
+/** Como cada métrica começa: com meta da equipe salva → pela equipe; só com metas por pessoa → por pessoa. */
+function modosIniciais(metricas: Props["metricas"], iniciais: LinhaMeta[], membros: Set<string>): Record<string, ModoMeta> {
+  return Object.fromEntries(
+    metricas.map((m) => {
+      const temEquipe = iniciais.some((l) => l.metrica_id === m.id && l.colaborador_id === null && l.valor !== null);
+      const temPessoa = iniciais.some((l) => l.metrica_id === m.id && l.colaborador_id && membros.has(l.colaborador_id));
+      return [m.id, !temEquipe && temPessoa ? "pessoa" : "equipe"];
+    }),
+  );
+}
 
 export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais, historico, nMeses }: Props) {
   const router = useRouter();
@@ -75,14 +93,82 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
   );
   const [salvando, setSalvando] = useState(false);
   const set = (k: string, v: string) => setValores((s) => ({ ...s, [k]: v }));
+  const membros = pessoas.filter((x) => x.funcao === "membro");
+  const lideres = pessoas.filter((x) => x.funcao !== "membro");
+  const [modo, setModo] = useState<Record<string, ModoMeta>>(() =>
+    modosIniciais(metricas, iniciais, new Set(membros.map((x) => x.id))),
+  );
+  // o que já estava salvo e não batia (meta da equipe × soma das pessoas): avisa até salvar de novo
+  const [conflitos] = useState(() =>
+    metricas
+      .map((m) => {
+        const eq = iniciais.find((l) => l.metrica_id === m.id && l.colaborador_id === null)?.valor ?? null;
+        const ps = iniciais
+          .filter((l) => l.metrica_id === m.id && l.colaborador_id && membros.some((x) => x.id === l.colaborador_id))
+          .map((l) => Number(l.valor));
+        const problema = incoerencia(eq, ps, m.unidade);
+        return problema ? `${m.nome}: ${problema}` : null;
+      })
+      .filter((x): x is string => x !== null),
+  );
+
+  const pesos = (metricaId: string) =>
+    membros.map((p) => ({ id: p.id, peso: historico[chave(metricaId, p.id)]?.referencia ?? null }));
+  /** meta da equipe dividida entre os membros (modo "pela equipe") */
+  const divisao = (m: Props["metricas"][number]) => {
+    const total = numero(valores[chave(m.id, null)]);
+    return total === null ? null : distribuirMeta(total, pesos(m.id), m.unidade);
+  };
+  const somaOuMedia = (m: Props["metricas"][number]) => {
+    const vs = membros.map((p) => numero(valores[chave(m.id, p.id)])).filter((v): v is number => v !== null);
+    if (!vs.length) return null;
+    const s = vs.reduce((a, b) => a + b, 0);
+    return m.unidade === "%" ? Math.round((s / vs.length) * 10) / 10 : s;
+  };
+
+  function trocarModo(m: Props["metricas"][number], porPessoa: boolean) {
+    if (porPessoa) {
+      // parte da divisão atual, para só ajustar quem precisa
+      const d = divisao(m);
+      setValores((s) => {
+        const n = { ...s };
+        if (d) for (const p of membros) n[chave(m.id, p.id)] = String(d[p.id]);
+        delete n[chave(m.id, null)];
+        return n;
+      });
+    } else {
+      const total = somaOuMedia(m);
+      setValores((s) => {
+        const n = { ...s };
+        if (total !== null) n[chave(m.id, null)] = String(total);
+        for (const p of membros) delete n[chave(m.id, p.id)];
+        return n;
+      });
+    }
+    setModo((s) => ({ ...s, [m.id]: porPessoa ? "pessoa" : "equipe" }));
+  }
 
   async function salvar() {
     setSalvando(true);
     const linhas: LinhaMeta[] = [];
     for (const m of metricas) {
-      for (const p of [...pessoas.map((x) => x.id), null]) {
-        const v = valores[chave(m.id, p)];
-        if (v !== undefined && v.trim() !== "") linhas.push({ metrica_id: m.id, colaborador_id: p, valor: Number(v.replace(",", ".")) });
+      // líder: o que estiver digitado (os indicadores do líder usam a meta da equipe)
+      for (const p of lideres) {
+        const v = numero(valores[chave(m.id, p.id)]);
+        if (v !== null) linhas.push({ metrica_id: m.id, colaborador_id: p.id, valor: v });
+      }
+      if (modo[m.id] === "pessoa") {
+        for (const p of membros) {
+          const v = numero(valores[chave(m.id, p.id)]);
+          if (v !== null) linhas.push({ metrica_id: m.id, colaborador_id: p.id, valor: v });
+        }
+      } else {
+        const total = numero(valores[chave(m.id, null)]);
+        const d = divisao(m);
+        if (total !== null && d) {
+          linhas.push({ metrica_id: m.id, colaborador_id: null, valor: total });
+          for (const p of membros) linhas.push({ metrica_id: m.id, colaborador_id: p.id, valor: d[p.id] });
+        }
       }
     }
     const r = await salvarMetas(equipeId, competencia, metricas.map((m) => m.id), linhas);
@@ -107,11 +193,15 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     if (base === "anterior") return copiarMesAnterior();
     const novos: Record<string, string> = {};
     for (const m of metricas) {
-      for (const p of pessoas.filter((x) => x.funcao === "membro")) {
-        const v = sugerir(historico[chave(m.id, p.id)], crescimento, m.unidade);
-        if (v !== null) novos[chave(m.id, p.id)] = String(v);
+      if (modo[m.id] === "pessoa") {
+        for (const p of membros) {
+          const v = sugerir(historico[chave(m.id, p.id)], crescimento, m.unidade);
+          if (v !== null) novos[chave(m.id, p.id)] = String(v);
+        }
+      } else {
+        const v = sugerir(historico[chave(m.id, null)], crescimento, m.unidade);
+        if (v !== null) novos[chave(m.id, null)] = String(v);
       }
-      // meta da equipe: vazia = soma das individuais (o cálculo já faz isso), então não preenche
     }
     setValores((s) => ({ ...s, ...novos }));
     toast.success("Sugestões preenchidas. Revise e clique em Salvar metas.");
@@ -132,9 +222,14 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     if (!r.ok) return toast.error(r.erro);
     if (!r.linhas?.length) return toast.info("O mês anterior não tem metas para copiar.");
     const unidade = (id: string) => metricas.find((m) => m.id === id)?.unidade ?? "un";
+    // métrica que tinha meta da equipe no mês anterior volta pela equipe (e é redividida); a que não tinha, por pessoa
+    const comEquipe = new Set(r.linhas.filter((l) => l.colaborador_id === null).map((l) => l.metrica_id));
+    setModo(Object.fromEntries(metricas.map((m) => [m.id, comEquipe.has(m.id) ? "equipe" : "pessoa"])));
     setValores(
       Object.fromEntries(
-        r.linhas.map((l) => [chave(l.metrica_id, l.colaborador_id), String(comCrescimento(Number(l.valor), crescimento, unidade(l.metrica_id)))]),
+        r.linhas
+          .filter((l) => !comEquipe.has(l.metrica_id) || !membros.some((p) => p.id === l.colaborador_id))
+          .map((l) => [chave(l.metrica_id, l.colaborador_id), String(comCrescimento(Number(l.valor), crescimento, unidade(l.metrica_id)))]),
       ),
     );
     toast.success(crescimento ? `Metas do mês anterior +${crescimento}% preenchidas. Revise e salve.` : "Metas do mês anterior copiadas. Revise e salve.");
@@ -151,15 +246,10 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
     if (v === null) return;
     setValores((s) => {
       const n = { ...s };
-      for (const p of pessoas.filter((x) => x.funcao === "membro")) n[chave(metricaId, p.id)] = v;
+      for (const p of membros) n[chave(metricaId, p.id)] = v;
       return n;
     });
   }
-
-  const somaMembros = (metricaId: string) =>
-    pessoas
-      .filter((p) => p.funcao === "membro")
-      .reduce((s, p) => s + (Number((valores[chave(metricaId, p.id)] ?? "").replace(",", ".")) || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -194,6 +284,20 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
           <Save /> {salvando ? "Salvando…" : "Salvar metas"}
         </Button>
       </div>
+      {conflitos.length > 0 && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <div className="font-medium">As metas salvas deste mês não batem entre si</div>
+          <ul className="mt-1 list-disc pl-5 text-muted-foreground">
+            {conflitos.map((c) => (
+              <li key={c}>{c}.</li>
+            ))}
+          </ul>
+          <p className="mt-1 text-muted-foreground">
+            A grade agora mostra a meta da equipe dividida pela participação de cada pessoa. Ao salvar, é isso que fica. Para
+            manter as metas por pessoa, ligue &quot;por pessoa&quot; na coluna.
+          </p>
+        </div>
+      )}
       <div className="overflow-x-auto rounded-xl border bg-card" data-tour="metas-grade">
         <Table>
           <TableHeader>
@@ -205,10 +309,22 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                     <span>
                       {m.nome} <span className="text-xs font-normal text-muted-foreground">({m.unidade})</span>
                     </span>
-                    <Button variant="ghost" size="icon-xs" aria-label={`Aplicar a todos: ${m.nome}`} onClick={() => aplicarATodos(m.id)}>
-                      <Wand2 />
-                    </Button>
+                    {modo[m.id] === "pessoa" && (
+                      <Button variant="ghost" size="icon-xs" aria-label={`Aplicar a todos: ${m.nome}`} onClick={() => aplicarATodos(m.id)}>
+                        <Wand2 />
+                      </Button>
+                    )}
                   </div>
+                  <label className="mt-1 flex items-center gap-2 text-[11px] font-normal text-muted-foreground">
+                    <Switch
+                      size="sm"
+                      checked={modo[m.id] === "pessoa"}
+                      onCheckedChange={(v) => trocarModo(m, v)}
+                      aria-label={`Definir ${m.nome} por pessoa`}
+                    />
+                    {modo[m.id] === "pessoa" ? "por pessoa" : "pela equipe"}
+                    <Dica id="metas.modo" />
+                  </label>
                 </TableHead>
               ))}
             </TableRow>
@@ -220,18 +336,38 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                   <div className="font-medium">{p.nome}</div>
                   <div className="text-xs text-muted-foreground">{p.funcao === "lider" ? "líder" : "membro"}</div>
                 </TableCell>
-                {metricas.map((m) => (
-                  <TableCell key={m.id}>
-                    <Input
-                      inputMode="decimal"
-                      className="w-32 tabular-nums"
-                      value={valores[chave(m.id, p.id)] ?? ""}
-                      placeholder={p.funcao === "membro" ? String(sugerir(historico[chave(m.id, p.id)], crescimento, m.unidade) ?? "—") : "—"}
-                      onChange={(e) => set(chave(m.id, p.id), e.target.value)}
-                    />
-                    {p.funcao === "membro" && <DicaHistorico h={historico[chave(m.id, p.id)]} unidade={m.unidade} nMeses={nMeses} />}
-                  </TableCell>
-                ))}
+                {metricas.map((m) => {
+                  const derivado = p.funcao === "membro" && modo[m.id] === "equipe";
+                  const d = derivado ? divisao(m) : null;
+                  return (
+                    <TableCell key={m.id}>
+                      <Input
+                        inputMode="decimal"
+                        className="w-32 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground"
+                        readOnly={derivado}
+                        tabIndex={derivado ? -1 : undefined}
+                        value={derivado ? (d ? String(d[p.id]) : "") : (valores[chave(m.id, p.id)] ?? "")}
+                        placeholder={
+                          derivado
+                            ? "—"
+                            : p.funcao === "membro"
+                              ? String(sugerir(historico[chave(m.id, p.id)], crescimento, m.unidade) ?? "—")
+                              : "—"
+                        }
+                        onChange={(e) => set(chave(m.id, p.id), e.target.value)}
+                      />
+                      {derivado ? (
+                        <div className="mt-1 text-[11px] text-muted-foreground">
+                          {m.unidade === "%"
+                            ? "igual à da equipe"
+                            : `${Math.round((participacoes(pesos(m.id))[p.id] ?? 0) * 1000) / 10}% da equipe`}
+                        </div>
+                      ) : (
+                        p.funcao === "membro" && <DicaHistorico h={historico[chave(m.id, p.id)]} unidade={m.unidade} nMeses={nMeses} />
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
             <TableRow className="bg-muted/40">
@@ -239,27 +375,39 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                 <div className="flex items-center gap-1 font-medium">Meta da equipe <Dica id="metas.equipe" /></div>
                 <div className="text-xs text-muted-foreground">usada nos indicadores de escopo equipe (líder)</div>
               </TableCell>
-              {metricas.map((m) => (
-                <TableCell key={m.id}>
-                  <Input
-                    inputMode="decimal"
-                    className="w-32 tabular-nums"
-                    value={valores[chave(m.id, null)] ?? ""}
-                    placeholder={m.unidade === "%" ? "média" : `soma: ${somaMembros(m.id) || "—"}`}
-                    onChange={(e) => set(chave(m.id, null), e.target.value)}
-                  />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    histórico da equipe {fmt(historico[chave(m.id, null)]?.referencia ?? null, m.unidade)}
-                  </div>
-                </TableCell>
-              ))}
+              {metricas.map((m) => {
+                const porPessoa = modo[m.id] === "pessoa";
+                const total = porPessoa ? somaOuMedia(m) : null;
+                return (
+                  <TableCell key={m.id}>
+                    <Input
+                      inputMode="decimal"
+                      className="w-32 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground"
+                      readOnly={porPessoa}
+                      tabIndex={porPessoa ? -1 : undefined}
+                      value={porPessoa ? (total === null ? "" : String(total)) : (valores[chave(m.id, null)] ?? "")}
+                      placeholder={porPessoa ? "—" : String(sugerir(historico[chave(m.id, null)], crescimento, m.unidade) ?? "—")}
+                      onChange={(e) => set(chave(m.id, null), e.target.value)}
+                    />
+                    <div className="mt-1 text-[11px] text-muted-foreground">
+                      {porPessoa
+                        ? m.unidade === "%"
+                          ? "média das pessoas"
+                          : "soma das pessoas"
+                        : `histórico da equipe ${fmt(historico[chave(m.id, null)]?.referencia ?? null, m.unidade)}`}
+                    </div>
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableBody>
         </Table>
       </div>
       <p className="text-xs text-muted-foreground">
-        Deixe a meta da equipe vazia para usar automaticamente a soma das metas individuais (ou a média, para %). Metas são
-        reduzidas proporcionalmente às ausências lançadas quando o indicador estiver com &quot;meta proporcional&quot; ligada.
+        Pela equipe: você digita só a meta da equipe e ela é dividida pela participação de cada pessoa na média dos últimos
+        meses (taxas em % valem igual para todos). Por pessoa: você digita a de cada um e a da equipe vira a soma (ou a
+        média, para %). Metas são reduzidas proporcionalmente às ausências lançadas quando o indicador estiver com
+        &quot;meta proporcional&quot; ligada.
       </p>
     </div>
   );

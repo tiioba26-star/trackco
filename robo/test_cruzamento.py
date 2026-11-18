@@ -34,7 +34,9 @@ class TestCruzamento(unittest.TestCase):
         self.assertFalse(res["b"]["atendido"])
 
     def test_hoje_sem_producao_fica_pendente(self):
-        self.assertEqual(cruzar([m("a", "Ana", "2026-11-10")], [], self.HOJE), [])
+        # manda null de propósito: se o faturamento de hoje foi estornado, a marcação deixa de contar como realizada
+        self.assertEqual(cruzar([m("a", "Ana", "2026-11-10")], [], self.HOJE),
+                         [{"chave": "a", "atendido": None, "valor": None, "data_realizacao": None}])
 
     def test_mesmo_procedimento_primeiro_e_troca_na_hora(self):
         res = {r["chave"]: r for r in cruzar(

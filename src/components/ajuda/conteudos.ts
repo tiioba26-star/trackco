@@ -58,7 +58,7 @@ export const AJUDA: Record<string, Ajuda> = {
       "O Painel responde três perguntas: quanto foi feito, o que aconteceu com as consultas e se o ritmo está bom para a meta.",
       "Comece pelo PERÍODO no topo (Hoje, Últimos 7 dias, Mês, Mês passado ou outro mês). A linha 'Mostrando' diz exatamente quais datas estão sendo contadas, e todos os números da tela seguem essa escolha.",
       "Existem duas datas diferentes, e é isso que mais confunde: 'Agendou' conta pelo dia em que a pessoa MARCOU; 'Consultas marcadas para o período', 'Compareceram' e a taxa contam pelo DIA DA CONSULTA.",
-      "Os dados vêm do Klingo de hora em hora em horário comercial. O horário da última atualização fica no canto de cima.",
+      "Os dados vêm do Klingo de hora em hora, das 7h às 19h, de segunda a sábado. O horário da última atualização fica no canto de cima.",
       "Atendentes veem só os próprios números (e o próprio código da TV). Líderes e administradores veem também a equipe, pessoa por pessoa.",
     ],
     dicas: [
@@ -71,7 +71,7 @@ export const AJUDA: Record<string, Ajuda> = {
       ...PASSOS_MENU,
       { alvo: "retrospectiva", titulo: "Retrospectiva do mês", texto: "O fechamento do mês passado, em histórias: seus números, seu melhor dia, conquistas e recordes. Fica disponível o mês inteiro." },
       { alvo: "periodo", titulo: "1. De quando são os números", texto: "Escolha Hoje, Últimos 7 dias, Mês ou Mês passado. A linha 'Mostrando' mostra as datas exatas. Tudo abaixo segue esta escolha." },
-      { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora)." },
+      { alvo: "sync", titulo: "Atualização", texto: "Quando o robô buscou os dados no Klingo pela última vez (de hora em hora, das 7h às 19h, de segunda a sábado)." },
       { alvo: "codigo", titulo: "Seu código na TV", texto: "A TV não mostra nomes: cada pessoa aparece por um número de 4 dígitos, que muda todo dia. Este é o seu de hoje." },
       { alvo: "posicao", titulo: "Sua posição", texto: "Um ícone discreto: pódio para 1º, 2º e 3º lugar em agendamentos no período; medalha de menção honrosa do 4º em diante." },
       { alvo: "ritmo", titulo: "2. Ritmo da meta", texto: "Quanto já foi feito, onde deveria estar hoje (o tracinho) e quanto falta por dia útil para bater a meta do mês." },
@@ -240,7 +240,7 @@ export const AJUDA: Record<string, Ajuda> = {
   "/metas": {
     titulo: "Metas",
     resumo: [
-      "Metas mensais por pessoa (e, opcionalmente, da equipe). Se a meta da equipe ficar vazia, o sistema usa a soma das metas individuais.",
+      "Cada coluna tem uma chave: pela equipe (você digita só a meta da equipe e ela é dividida pela participação de cada pessoa nos últimos meses) ou por pessoa (você digita a de cada um e a da equipe vira a soma). As duas ao mesmo tempo não são aceitas.",
       "O painel calcula sozinho o ritmo diário necessário e a projeção de fechamento.",
       "Sugestão pelo histórico: embaixo de cada campo aparece a média dos últimos meses e o último mês da pessoa. Escolha a base (3 ou 6 meses) e o crescimento e clique em 'Preencher com sugestão'. Meses sem atividade (entrada recente, férias) não puxam a média para baixo; quem é novo recebe a média por pessoa da equipe.",
       "Nada é gravado até você clicar em Salvar metas.",

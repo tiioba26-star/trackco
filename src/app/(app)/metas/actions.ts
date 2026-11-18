@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { competenciaAnterior, inicioCompetencia } from "@/engine/datas";
 import { sessaoAcao } from "@/lib/auth";
+import { membrosDaEquipe } from "@/lib/calculo/carregar";
 import { recalcularParcial } from "@/lib/calculo/recalcular";
+import { incoerencia } from "@/lib/metas/distribuir";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 export interface LinhaMeta {
@@ -24,6 +26,19 @@ export async function salvarMetas(
     if (linhas.some((l) => l.valor !== null && (!Number.isFinite(l.valor) || l.valor < 0)))
       throw new Error("Metas precisam ser números positivos.");
     const db = await criarClienteServidor();
+    // meta da equipe e metas por pessoa ao mesmo tempo só se uma for a divisão da outra (a tela já faz assim)
+    const [{ data: mets }, membros] = await Promise.all([
+      db.from("metricas").select("id, nome, unidade").in("id", metricas),
+      membrosDaEquipe(db, equipeId, competencia),
+    ]);
+    const idsMembros = new Set(membros.filter((m) => m.funcao === "membro").map((m) => m.colaborador_id));
+    for (const m of mets ?? []) {
+      const daMetrica = linhas.filter((l) => l.metrica_id === m.id && l.valor !== null);
+      const equipe = daMetrica.find((l) => l.colaborador_id === null)?.valor ?? null;
+      const pessoas = daMetrica.filter((l) => l.colaborador_id && idsMembros.has(l.colaborador_id)).map((l) => l.valor!);
+      const problema = incoerencia(equipe, pessoas, String(m.unidade));
+      if (problema) throw new Error(`${m.nome}: ${problema}. Defina pela equipe ou por pessoa.`);
+    }
     const { error } = await db.rpc("salvar_metas", {
       p_equipe: equipeId,
       p_competencia: inicioCompetencia(competencia),

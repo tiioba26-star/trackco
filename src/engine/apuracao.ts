@@ -195,6 +195,8 @@ export function apurarEquipe(entrada: EntradaApuracao): ResultadoApuracao[] {
           meta_ajustada =
             ind.meta_proporcional && !ehTaxa ? arred(m.valor * dias.fator_proporcional, 2) : m.valor;
           origemMeta = "meta individual";
+          // ausente em todos os dias úteis do mês: nem a taxa (que não é proporcional) entra na nota
+          if (dias.disponiveis_total === 0) meta_ajustada = 0;
         }
       } else {
         const me = entrada.metas.find(
@@ -305,7 +307,9 @@ export function apurarEquipe(entrada: EntradaApuracao): ResultadoApuracao[] {
           : fmt(v.valor, met.unidade);
       let linha = `${nome} (${escopoTxt}, peso ${ind.peso}): apurado ${base}`;
       if (ajuste_total) linha += `; ajustes ${ajuste_total > 0 ? "+" : ""}${fmt(ajuste_total)} → ${fmt(realizado, met.unidade)}`;
-      if (sem_meta) {
+      if (sem_meta && meta !== null && ind.escopo === "individual" && dias.disponiveis_total === 0) {
+        linha += "; ausente em todos os dias úteis do mês (não entra na nota).";
+      } else if (sem_meta) {
         linha += "; sem meta cadastrada (não entra na nota).";
       } else {
         linha += `; ${origemMeta} ${fmt(meta, met.unidade)}`;

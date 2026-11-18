@@ -192,7 +192,22 @@ async function main() {
     for (const m of new Set([...usados].map(motorDe))) log(`${m === "claude" ? "Claude Code (Anthropic)" : "Antigravity agy (Google)"}: ${onde(m)}`);
   }
   log("Montando os dados…");
-  const { ref, trabalhos } = await montarTrabalhos(hoje, { secoes: secao ? [secao] : undefined });
+  // o banco às vezes corta uma consulta pesada (statement timeout) quando o robô do Klingo está gravando ao mesmo
+  // tempo; tenta de novo até 3 vezes, esperando 1 e depois 3 minutos, antes de desistir da rodada
+  const montar = () => montarTrabalhos(hoje, { secoes: secao ? [secao] : undefined });
+  let montado: Awaited<ReturnType<typeof montar>> | undefined;
+  for (const [n, espera] of [[1, 60], [2, 180], [3, 0]] as const) {
+    try {
+      montado = await montar();
+      break;
+    } catch (e) {
+      const msg = (e as Error).message ?? String(e);
+      if (n === 3 || !/timeout|fetch failed|ECONNRESET|503|502/i.test(msg)) throw e;
+      log(`Tentativa ${n} falhou (${msg}); nova tentativa em ${espera / 60} min`);
+      await new Promise((r) => setTimeout(r, espera * 1000));
+    }
+  }
+  const { ref, trabalhos } = montado!;
   mkdirSync(DADOS, { recursive: true });
   for (const t of trabalhos) writeFileSync(join(DADOS, `${t.arquivo}.json`), JSON.stringify(t.dados, null, 1), "utf8");
   log(`${trabalhos.length} análises possíveis · dados até ${formatarDataBR(ref.ontem)}${ref.virouMes ? " · virou o mês: refaz tudo o que fechou" : ""}`);

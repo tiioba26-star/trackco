@@ -263,6 +263,26 @@ describe("apuração da equipe", () => {
     expect(ag.ritmo_necessario_dia).toBe(0.3);
   });
 
+  it("ausente o mês todo fica sem nota, mesmo com meta de taxa", () => {
+    const plano: DefinicaoPlano = {
+      ...PLANO,
+      indicadores: [...PLANO.indicadores, { id: "i5", metrica_id: "m-cv", escopo: "individual", aplica_a: "membros", peso: 20, teto_pct: 120, meta_proporcional: false }],
+    };
+    const res = apurarEquipe(
+      entradaBase({
+        plano: { versao_id: "v3", definicao: plano },
+        metas: [...entradaBase().metas, { metrica_id: "m-cv", colaborador_id: "ana", valor: 70 }],
+        linhas: { klingo_agendamentos: linhasOut },
+        ausencias: [{ colaborador_id: "ana", inicio: "2026-10-01", fim: "2026-12-31" }],
+      }),
+    );
+    const ana = res.find((r) => r.colaborador_id === "ana")!;
+    expect(ana.dias.disponiveis_total).toBe(0);
+    expect(ana.indicadores.every((i) => i.sem_meta)).toBe(true);
+    expect(ana.nota_pct).toBeNull();
+    expect(ana.memorial.some((m) => m.includes("ausente em todos os dias úteis"))).toBe(true);
+  });
+
   it("membro que entrou no meio do mês tem meta proporcional", () => {
     const d = calcularDias(entradaBase(), { colaborador_id: "x", nome: "X", funcao: "membro", inicio: "2026-10-16", fim: null });
     expect(d.uteis_total).toBe(22);
