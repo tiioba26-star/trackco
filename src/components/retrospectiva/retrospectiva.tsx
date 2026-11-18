@@ -609,15 +609,15 @@ export function ConviteRetrospectiva({ mes, mesAtual, chave, equipe, abrir }: { 
           type="button"
           onClick={carregar}
           disabled={estado === "carregando"}
-          className="flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+          className="flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-[#1c5cab] via-[#4338ca] to-[#7c3aed] px-4 py-3 text-left text-white shadow-sm transition-opacity hover:opacity-95"
           data-tour="retrospectiva"
         >
-          <Sparkles className="size-4 shrink-0 text-primary" />
-          <span className="min-w-0 flex-1 truncate">
-            {equipe ? `Retrospectiva de ${mes} da equipe` : `Sua retrospectiva de ${mes}`}
-            <span className="text-muted-foreground"> · até o fim de {mesAtual}</span>
+          <Sparkles className="size-5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate font-semibold">{equipe ? `Retrospectiva de ${mes} da equipe` : `Sua retrospectiva de ${mes}`}</span>
+            <span className="block truncate text-xs text-white/80">Fica disponível até o fim de {mesAtual}</span>
           </span>
-          <span className="shrink-0 font-medium text-primary">{estado === "carregando" ? "Preparando…" : "Ver de novo"}</span>
+          <span className="shrink-0 rounded-md bg-white/20 px-3 py-1.5 text-sm font-medium">{estado === "carregando" ? "Preparando…" : "Ver de novo"}</span>
         </button>
         {historias}
       </>

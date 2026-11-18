@@ -72,6 +72,16 @@ async function ConteudoPainel(props: PageProps<"/">) {
 
   return (
     <div className="space-y-6">
+      {(minhaEquipe || equipeSel) && (
+        <ConviteRetrospectiva
+          mes={nomeMes(competenciaAnterior(competenciaDe(hoje)))}
+          mesAtual={nomeMes(competenciaDe(hoje))}
+          chave={`trackco:retro:${competenciaAnterior(competenciaDe(hoje))}:${s.colaborador.id}`}
+          equipe={!minhaEquipe}
+          abrir={sp.retro === "1"}
+        />
+      )}
+
       <div className="space-y-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <h2 className="text-2xl font-semibold tracking-tight">Olá, {s.colaborador.nome.split(" ")[0]}!</h2>
@@ -89,16 +99,6 @@ async function ConteudoPainel(props: PageProps<"/">) {
         personalizado={gestao}
         modo={janela.periodo !== "personalizado" ? "atalhos" : typeof sp.comp === "string" ? "mes" : "datas"}
       />
-
-      {(minhaEquipe || equipeSel) && (
-        <ConviteRetrospectiva
-          mes={nomeMes(competenciaAnterior(competenciaDe(hoje)))}
-          mesAtual={nomeMes(competenciaDe(hoje))}
-          chave={`trackco:retro:${competenciaAnterior(competenciaDe(hoje))}:${s.colaborador.id}`}
-          equipe={!minhaEquipe}
-          abrir={sp.retro === "1"}
-        />
-      )}
 
       {sp.erro === "restrito" && (
         <Alert>
