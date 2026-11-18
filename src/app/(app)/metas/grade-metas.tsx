@@ -299,12 +299,12 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         </div>
       )}
       <div className="overflow-x-auto rounded-xl border bg-card" data-tour="metas-grade">
-        <Table>
+        <Table fixarPrimeira={false}>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-48">Pessoa</TableHead>
+              <TableHead className="min-w-28 sm:min-w-48">Pessoa</TableHead>
               {metricas.map((m) => (
-                <TableHead key={m.id} className="min-w-40">
+                <TableHead key={m.id} className="min-w-32 align-top whitespace-normal sm:min-w-40">
                   <div className="flex items-center justify-between gap-2">
                     <span>
                       {m.nome} <span className="text-xs font-normal text-muted-foreground">({m.unidade})</span>
@@ -343,7 +343,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                     <TableCell key={m.id}>
                       <Input
                         inputMode="decimal"
-                        className="w-32 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground"
+                        className="w-24 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground sm:w-32"
                         readOnly={derivado}
                         tabIndex={derivado ? -1 : undefined}
                         value={derivado ? (d ? String(d[p.id]) : "") : (valores[chave(m.id, p.id)] ?? "")}
@@ -382,7 +382,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                   <TableCell key={m.id}>
                     <Input
                       inputMode="decimal"
-                      className="w-32 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground"
+                      className="w-24 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground sm:w-32"
                       readOnly={porPessoa}
                       tabIndex={porPessoa ? -1 : undefined}
                       value={porPessoa ? (total === null ? "" : String(total)) : (valores[chave(m.id, null)] ?? "")}

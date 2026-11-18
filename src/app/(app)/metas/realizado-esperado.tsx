@@ -222,10 +222,10 @@ export async function RealizadoEsperado({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table containerClassName="max-h-[460px] overflow-y-auto rounded-lg border">
+              <Table fixarPrimeira={false} containerClassName="max-h-[460px] overflow-y-auto rounded-lg border">
                 <TableHeader className="sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_var(--border)] [&_tr]:border-b-0">
                   <TableRow className="hover:bg-transparent">
-                    <TableHead rowSpan={2} className="sticky left-0 z-20 bg-card align-bottom">
+                    <TableHead rowSpan={2} className="align-bottom">
                       {f.ver === "mes" ? "Mês" : "Dia"}
                     </TableHead>
                     {indicadores.map((ind) => (
@@ -243,7 +243,7 @@ export async function RealizadoEsperado({
                 <TableBody>
                   {linhas.map((l, k) => (
                     <TableRow key={l.chave} className={l.futuro ? "text-muted-foreground" : ""}>
-                      <TableCell className="sticky left-0 z-[1] bg-card first-letter:uppercase">
+                      <TableCell className="first-letter:uppercase">
                         {f.ver === "dia" ? l.rotulo : nomeCompetencia(l.chave)}
                         {l.parcial ? (f.ver === "dia" ? " · hoje" : " · em andamento") : l.futuro ? " · a acontecer" : ""}
                       </TableCell>
