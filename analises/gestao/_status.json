@@ -1,39 +1,50 @@
 {
-  "gerado_em": "2026-11-18T08:00:45.469Z",
+  "gerado_em": "2026-11-18T16:00:40.697Z",
   "dados_ate": "2026-11-17",
-  "feitas": 75,
-  "sem_mudanca": 23,
+  "feitas": 0,
+  "sem_mudanca": 92,
   "falhas": [
     {
-      "arquivo": "equipes__12m__ano__todas.md",
-      "erro": "failed to start conversation: backend returned an empty conversation id"
+      "arquivo": "faturamento__mes_passado__anterior__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
     },
     {
       "arquivo": "equipes__12m__ano__particular.md",
-      "erro": "API error (attempt 5): UNAVAILABLE (code 503): No capacity available for model gemini-3.8-flash-high on the server"
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
+    },
+    {
+      "arquivo": "faturamento__12m__ano__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
+    },
+    {
+      "arquivo": "equipes__12m__ano__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
+    },
+    {
+      "arquivo": "faturamento__mes_passado__ano__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
+    },
+    {
+      "arquivo": "faturamento__12m__anterior__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
     },
     {
       "arquivo": "equipes__12m__anterior__todas.md",
-      "erro": "failed to start conversation: backend returned an empty conversation id"
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
+    },
+    {
+      "arquivo": "faturamento__3m__ano__todas.md",
+      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
     }
   ],
   "pendentes": [],
   "tokens": {
-    "entrada": 1126149,
-    "saida": 845178,
-    "pensamento": 737557,
+    "entrada": 0,
+    "saida": 0,
+    "pensamento": 0,
     "cache": 0
   },
-  "custo_equivalente_usd": 0.4501,
-  "por_modelo": {
-    "gemini-3.8-flash-high": {
-      "analises": 74,
-      "custo_equivalente_usd": 0
-    },
-    "claude-opus-5-5": {
-      "analises": 1,
-      "custo_equivalente_usd": 0.4501
-    }
-  },
+  "custo_equivalente_usd": 0,
+  "por_modelo": {},
   "limite_atingido": false
 }
