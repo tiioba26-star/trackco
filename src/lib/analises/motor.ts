@@ -21,6 +21,8 @@ export interface ConfigMotor {
   paralelo?: number;
   /** motor usado quando este bate no limite de uso (ex.: o Gemini acabou → segue no Claude Sonnet da cota do Google) */
   reserva?: Omit<ConfigMotor, "reserva">;
+  /** motivo para não escrever nada neste grupo por enquanto (as análises ficam pendentes; só nas seções) */
+  pausado?: string;
 }
 
 export interface ConfigAnalises {

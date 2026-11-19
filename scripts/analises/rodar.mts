@@ -273,11 +273,14 @@ async function main() {
     .sort((a, b) => prioridade(a.periodo!, a.comparacao!, a.recorte!) - prioridade(b.periodo!, b.comparacao!, b.recorte!));
   const semMudanca = trabalhos.filter((t) => t.tipo === "secao").length - devidas.length;
   // limite por rodada (cota): as mais importantes primeiro; o resto fica pendente e sai na próxima rodada
-  const maximo = Number(valor("--maximo") ?? config.maximo_por_rodada ?? 0) || Infinity;
+  // seções pausadas no config (ex.: a conta do motor foi bloqueada): nada sai, tudo fica pendente; a geral continua
+  const pausa = so || secao ? undefined : cfgSecoes.pausado;
+  if (pausa) log(`Seções pausadas no config: ${pausa}`);
+  const maximo = pausa ? 0 : Number(valor("--maximo") ?? config.maximo_por_rodada ?? 0) || Infinity;
   const secoes = devidas.slice(0, maximo);
   const adiadas = devidas.slice(secoes.length).map((t) => t.arquivo);
   log(
-    `${secoes.length} análises por seção para escrever (${semMudanca} sem mudança${adiadas.length ? `, ${adiadas.length} ficam para a próxima rodada pelo limite de ${maximo}` : ""}).`,
+    `${secoes.length} análises por seção para escrever (${semMudanca} sem mudança${adiadas.length ? `, ${adiadas.length} ficam para a próxima rodada ${pausa ? "pela pausa" : `pelo limite de ${maximo}`}` : ""}).`,
   );
 
   const grupoSecoes = new GrupoMotor(cfgSecoes, (m) => log(m));

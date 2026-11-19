@@ -3,7 +3,8 @@
     "motor": "antigravity",
     "modelo": "gemini-3.8-flash-high",
     "esforco": "high",
-    "reserva": { "motor": "antigravity", "modelo": "claude-sonnet-4-6", "esforco": "" }
+    "reserva": { "motor": "antigravity", "modelo": "claude-sonnet-4-6", "esforco": "" },
+    "pausado": "desde 18/11 13h o Google responde que o serviço foi desativado nesta conta por violação dos Termos de Serviço"
   },
   "geral": { "motor": "claude", "modelo": "opus", "esforco": "high" },
   "paralelo": 3
