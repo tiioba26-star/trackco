@@ -43,7 +43,7 @@ function membroAtivoNoPeriodo(m: MembroEquipe, inicio: string, fim: string): boo
 
 /** Dias úteis, ausências e fator proporcional da meta para um membro na competência. */
 export function calcularDias(
-  entrada: EntradaApuracao,
+  entrada: Pick<EntradaApuracao, "competencia" | "hoje" | "equipe" | "ausencias" | "feriados">,
   membro: MembroEquipe,
 ): DiasCompetencia {
   const ini = inicioCompetencia(entrada.competencia);
@@ -202,7 +202,26 @@ export function apurarEquipe(entrada: EntradaApuracao): ResultadoApuracao[] {
         const me = entrada.metas.find(
           (x) => x.metrica_id === met.id && x.equipe_id === entrada.equipe.id,
         );
-        if (me) {
+        const derivadas = conjunto
+          .map((m) => ({
+            m,
+            meta: entrada.metas.find((x) => x.metrica_id === met.id && x.colaborador_id === m.colaborador_id),
+          }))
+          .filter((x) => x.meta);
+        if (me && derivadas.length && ind.meta_proporcional && !ehTaxa) {
+          // meta da equipe dividida entre as pessoas (a tela salva as duas juntas): vale a soma do que vale para cada
+          // uma, já descontadas as ausências. A divisão já tirou quem estava ausente quando a meta foi salva; ausência
+          // lançada depois reduz a meta da pessoa e, junto, a da equipe.
+          meta = me.valor;
+          meta_ajustada = arred(
+            derivadas.reduce(
+              (s, x) => s + x.meta!.valor * (diasPorMembro.get(x.m.colaborador_id)?.fator_proporcional ?? 1),
+              0,
+            ),
+            2,
+          );
+          origemMeta = "meta da equipe, dividida entre as pessoas (descontadas as ausências)";
+        } else if (me) {
           meta = me.valor;
           if (ind.meta_proporcional && !ehTaxa) {
             const tot = conjunto.reduce((s, m) => s + (diasPorMembro.get(m.colaborador_id)?.uteis_total ?? 0), 0);

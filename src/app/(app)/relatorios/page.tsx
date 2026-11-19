@@ -100,7 +100,15 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
     }
     return ponto;
   });
-  const colunas = Array.from(new Map(membros.flatMap((l) => l.resultado.indicadores).map((i) => [i.indicador_id, i])).values());
+  // uma coluna por métrica (não por indicador): o mesmo indicador do plano já mediu o total num mês e os válidos em outro
+  const colunas = Array.from(
+    new Map(
+      membros
+        .flatMap((l) => l.resultado.indicadores)
+        .filter((i) => i.escopo === "individual")
+        .map((i) => [i.metrica_id, { metrica_id: i.metrica_id, nome: i.nome }]),
+    ).values(),
+  );
   const qs = new URLSearchParams({ de, ate, ...(equipeId ? { equipe: equipeId } : {}), ...(colaboradorId ? { pessoa: colaboradorId } : {}) });
 
   return (
@@ -190,7 +198,7 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
                 <TableHead>Nível</TableHead>
                 <TableHead className="text-right">Nota</TableHead>
                 {colunas.map((c) => (
-                  <TableHead key={c.indicador_id} className="text-right">
+                  <TableHead key={c.metrica_id} className="text-right">
                     {c.nome}
                   </TableHead>
                 ))}
@@ -211,9 +219,12 @@ export default async function PaginaRelatorios(props: PageProps<"/relatorios">) 
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{fmtPct(l.nota)}</TableCell>
                   {colunas.map((c) => {
-                    const i = l.resultado.indicadores.find((x) => x.indicador_id === c.indicador_id);
+                    // pessoa: o indicador individual; líder: o da equipe na mesma métrica
+                    const i =
+                      l.resultado.indicadores.find((x) => x.metrica_id === c.metrica_id && x.escopo === "individual") ??
+                      l.resultado.indicadores.find((x) => x.metrica_id === c.metrica_id);
                     return (
-                      <TableCell key={c.indicador_id} className="text-right tabular-nums">
+                      <TableCell key={c.metrica_id} className="text-right tabular-nums">
                         {i ? fmtValor(i.realizado, i.unidade) : "—"}
                         {i?.meta_ajustada != null && <span className="text-muted-foreground"> / {fmtValor(i.meta_ajustada, i.unidade)}</span>}
                       </TableCell>

@@ -42,7 +42,11 @@ export function CartaoIndicador({ ind, mesCorrente }: { ind: ResultadoIndicador;
         <BarraAtingimento pct={ind.atingimento_pct} />
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
           <span className={cn("font-medium", (ind.atingimento_pct ?? 0) >= 100 ? "text-up" : "text-foreground")}>
-            {ind.sem_meta ? "Sem meta definida" : `${fmtPct(ind.atingimento_pct)} da meta`}
+            {ind.sem_meta
+              ? ind.peso > 0
+                ? "Sem meta definida"
+                : "Só acompanhamento: não entra na nota"
+              : `${fmtPct(ind.atingimento_pct)} da meta`}
           </span>
           {mesCorrente && ind.ritmo_necessario_dia !== null && (
             <span className="text-muted-foreground">

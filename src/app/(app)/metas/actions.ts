@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { competenciaAnterior, inicioCompetencia } from "@/engine/datas";
 import { sessaoAcao } from "@/lib/auth";
-import { membrosDaEquipe } from "@/lib/calculo/carregar";
+import { fatoresDoMes, membrosDaEquipe } from "@/lib/calculo/carregar";
 import { recalcularParcial } from "@/lib/calculo/recalcular";
 import { incoerencia } from "@/lib/metas/distribuir";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -26,16 +26,20 @@ export async function salvarMetas(
     if (linhas.some((l) => l.valor !== null && (!Number.isFinite(l.valor) || l.valor < 0)))
       throw new Error("Metas precisam ser números positivos.");
     const db = await criarClienteServidor();
-    // meta da equipe e metas por pessoa ao mesmo tempo só se uma for a divisão da outra (a tela já faz assim)
-    const [{ data: mets }, membros] = await Promise.all([
+    // meta da equipe e metas por pessoa ao mesmo tempo só se uma for a divisão da outra (a tela já faz assim):
+    // o que vale para as pessoas, descontadas as ausências lançadas, precisa fechar com a da equipe
+    const [{ data: mets }, membros, fatores] = await Promise.all([
       db.from("metricas").select("id, nome, unidade").in("id", metricas),
       membrosDaEquipe(db, equipeId, competencia),
+      fatoresDoMes(db, equipeId, competencia),
     ]);
     const idsMembros = new Set(membros.filter((m) => m.funcao === "membro").map((m) => m.colaborador_id));
     for (const m of mets ?? []) {
       const daMetrica = linhas.filter((l) => l.metrica_id === m.id && l.valor !== null);
       const equipe = daMetrica.find((l) => l.colaborador_id === null)?.valor ?? null;
-      const pessoas = daMetrica.filter((l) => l.colaborador_id && idsMembros.has(l.colaborador_id)).map((l) => l.valor!);
+      const pessoas = daMetrica
+        .filter((l) => l.colaborador_id && idsMembros.has(l.colaborador_id))
+        .map((l) => ({ valor: l.valor!, fator: fatores[l.colaborador_id!] ?? 1 }));
       const problema = incoerencia(equipe, pessoas, String(m.unidade));
       if (problema) throw new Error(`${m.nome}: ${problema}. Defina pela equipe ou por pessoa.`);
     }

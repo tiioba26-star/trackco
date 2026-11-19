@@ -4,7 +4,7 @@ import { CabecalhoPagina, Vazio } from "@/components/app/blocos";
 import { SeletorCompetencia } from "@/components/app/seletor-competencia";
 import { competenciaAnterior, competenciaDe, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
 import { exigirAdmin } from "@/lib/auth";
-import { membrosDaEquipe, planoVigente } from "@/lib/calculo/carregar";
+import { fatoresDoMes, membrosDaEquipe, planoVigente } from "@/lib/calculo/carregar";
 import { competenciaValida } from "@/lib/formato";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -29,13 +29,17 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
 
   let conteudo: React.ReactNode = <Vazio icone={Target} titulo="Nenhuma equipe ativa" />;
   if (equipe) {
-    const [plano, membros, { data: todas }] = await Promise.all([
+    const [plano, membros, { data: todas }, fatores] = await Promise.all([
       planoVigente(db, equipe.id, comp),
       membrosDaEquipe(db, equipe.id, comp),
       db.from("metricas").select("id, codigo, nome, tipo, unidade, definicao").eq("ativo", true),
+      fatoresDoMes(db, equipe.id, comp),
     ]);
     const nMeses = sp.meses === "6" ? 6 : 3;
-    const idsPlano = Array.from(new Set(plano?.definicao.indicadores.map((i) => i.metrica_id) ?? []));
+    // só métricas que contam para a nota em algum indicador: as informativas (peso 0) não têm meta
+    const idsPlano = Array.from(
+      new Set(plano?.definicao.indicadores.filter((i) => i.peso > 0).map((i) => i.metrica_id) ?? []),
+    );
     // na ordem dos indicadores do plano: a mesma da seção "Realizado × esperado" e do Extrato
     const metricasPlano = ((todas ?? []) as Metrica[])
       .filter((m) => idsPlano.includes(m.id))
@@ -72,6 +76,7 @@ export default async function PaginaMetas(props: PageProps<"/metas">) {
         pessoas={membros.map((m) => ({ id: m.colaborador_id, nome: m.nome, funcao: m.funcao }))}
         iniciais={iniciais}
         historico={historico}
+        fatores={fatores}
         nMeses={nMeses}
       />
     );

@@ -220,6 +220,38 @@ describe("apuração da equipe", () => {
     expect(leo.faixa?.nivel).toBe("Quase lá");
   });
 
+  it("meta da equipe dividida: o líder vale a soma do que vale para as pessoas", () => {
+    // equipe 30 dividida em 20 (Ana) e 10 (Bia); a Ana sai de férias depois (12/22 dias): perde 9,09 e a equipe junto
+    const metas = [
+      { metrica_id: "m-ag", equipe_id: "eq", colaborador_id: null, valor: 30 },
+      { metrica_id: "m-ag", colaborador_id: "ana", valor: 20 },
+      { metrica_id: "m-ag", colaborador_id: "bia", valor: 10 },
+    ];
+    const semFerias = apurarEquipe(entradaBase({ linhas: { klingo_agendamentos: linhasOut }, metas }));
+    expect(semFerias.find((r) => r.colaborador_id === "leo")!.indicadores[0].meta_ajustada).toBe(30);
+    const comFerias = apurarEquipe(
+      entradaBase({
+        linhas: { klingo_agendamentos: linhasOut },
+        metas,
+        ausencias: [{ colaborador_id: "ana", inicio: "2026-10-19", fim: "2026-10-30" }],
+      }),
+    );
+    const ag = comFerias.find((r) => r.colaborador_id === "leo")!.indicadores[0];
+    expect(ag.meta).toBe(30);
+    expect(ag.meta_ajustada).toBe(20.91); // 20 × 12/22 + 10
+  });
+
+  it("meta só da equipe (sem as pessoas) continua proporcional aos dias da equipe", () => {
+    const res = apurarEquipe(
+      entradaBase({
+        linhas: { klingo_agendamentos: linhasOut },
+        metas: [{ metrica_id: "m-ag", equipe_id: "eq", colaborador_id: null, valor: 44 }],
+        ausencias: [{ colaborador_id: "ana", inicio: "2026-10-19", fim: "2026-10-30" }],
+      }),
+    );
+    expect(res.find((r) => r.colaborador_id === "leo")!.indicadores[0].meta_ajustada).toBe(34); // 44 × 34/44
+  });
+
   it("meta proporcional com férias e ajuste manual", () => {
     // Ana de férias de 19 a 30/10 (10 dias úteis) → 12/22 disponíveis
     const res = apurarEquipe(

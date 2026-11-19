@@ -55,9 +55,9 @@ export const DICAS = {
   "metas.base": "De onde vem a sugestão: a média dos últimos 3 ou 6 meses (meses sem atividade, como férias ou entrada recente, são ignorados) ou as metas do mês anterior, repetidas.",
   "metas.crescimento": "Quanto acima da média a sugestão fica. +5% sobre uma média de 200 sugere 210.",
   "metas.equipe":
-    "Meta do conjunto, usada nos indicadores de escopo Equipe (avaliação do líder). Pela equipe, é dividida entre as pessoas; por pessoa, é a soma das metas individuais (ou a média, para %).",
+    "Meta do conjunto, usada nos indicadores de escopo Equipe (avaliação do líder). Pela equipe, é dividida entre quem trabalha no mês; por pessoa, é a soma do que vale para cada um, já descontadas as ausências (ou a média, para %).",
   "metas.modo":
-    "Pela equipe: digite só a meta da equipe; cada pessoa fica com a parte que fez nos últimos meses (quem marcou 30% fica com 30%). Ligue 'por pessoa' para definir a meta de cada um à mão.",
+    "Pela equipe: digite só a meta da equipe; cada pessoa fica com a parte que fez nos últimos meses (quem marcou 30% fica com 30%). Quem tem ausência lançada no mês entra só pelos dias em que trabalha, e quem fica o mês todo fora não entra: a parte dele vai para os outros. Ligue 'por pessoa' para definir a meta de cada um à mão.",
 
   // ---------- Equipes ----------
   "eq.visibilidade":

@@ -1,5 +1,6 @@
 import "server-only";
 import type { Db } from "@/lib/supabase/tipos";
+import { calcularDias } from "@/engine/apuracao";
 import { fimCompetencia, hojeNoFuso, inicioCompetencia } from "@/engine/datas";
 import type {
   Ajuste,
@@ -255,6 +256,40 @@ export async function montarEntrada(db: Cliente, equipe: EquipeRow, op: OpcoesEn
     linhas: { klingo_agendamentos: linhasKlingoAtrib, lancamentos: linhasLanc },
   };
   return { entrada, plano, equipe };
+}
+
+/**
+ * Parte do mês em que cada pessoa da equipe trabalha (dias disponíveis ÷ dias úteis), com as ausências já lançadas:
+ * 1 = mês inteiro, 0 = ausente o mês todo. É o mesmo fator que o cálculo usa para reduzir a meta.
+ */
+export async function fatoresDoMes(db: Cliente, equipeId: string, competencia: string): Promise<Record<string, number>> {
+  const ini = inicioCompetencia(competencia);
+  const fim = fimCompetencia(competencia);
+  const [{ data: equipe, error }, membros, feriados] = await Promise.all([
+    db.from("equipes").select("id, nome, dias_trabalho").eq("id", equipeId).single(),
+    membrosDaEquipe(db, equipeId, competencia),
+    db
+      .from("feriados")
+      .select("data")
+      .gte("data", ini)
+      .lte("data", fim)
+      .then((r) => (r.data ?? []).map((f) => f.data as string)),
+  ]);
+  if (error || !equipe) throw new Error(error?.message ?? "Equipe não encontrada.");
+  const ids = membros.map((m) => m.colaborador_id);
+  const ausencias = ids.length
+    ? (((
+        await db.from("ausencias").select("colaborador_id, inicio, fim, tipo").in("colaborador_id", ids).lte("inicio", fim).gte("fim", ini)
+      ).data ?? []) as Ausencia[])
+    : [];
+  const base = {
+    competencia,
+    hoje: hojeNoFuso(),
+    equipe: { id: equipe.id as string, nome: equipe.nome as string, dias_trabalho: equipe.dias_trabalho as number[] },
+    ausencias,
+    feriados,
+  };
+  return Object.fromEntries(membros.map((m) => [m.colaborador_id, calcularDias(base, m).fator_proporcional]));
 }
 
 export async function equipesAtivas(db: Cliente, ids?: string[]): Promise<EquipeRow[]> {

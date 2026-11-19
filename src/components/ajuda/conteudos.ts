@@ -240,9 +240,10 @@ export const AJUDA: Record<string, Ajuda> = {
   "/metas": {
     titulo: "Metas",
     resumo: [
-      "Cada coluna tem uma chave: pela equipe (você digita só a meta da equipe e ela é dividida pela participação de cada pessoa nos últimos meses) ou por pessoa (você digita a de cada um e a da equipe vira a soma). As duas ao mesmo tempo não são aceitas.",
+      "Cada coluna tem uma chave: pela equipe (você digita só a meta da equipe e ela é dividida entre quem trabalha no mês, pela participação de cada pessoa nos últimos meses e pelos dias disponíveis) ou por pessoa (você digita a de cada um e a da equipe vira a soma do que vale para cada pessoa). As duas ao mesmo tempo não são aceitas.",
       "O painel calcula sozinho o ritmo diário necessário e a projeção de fechamento.",
       "Sugestão pelo histórico: embaixo de cada campo aparece a média dos últimos meses e o último mês da pessoa. Escolha a base (3 ou 6 meses) e o crescimento e clique em 'Preencher com sugestão'. Meses sem atividade (entrada recente, férias) não puxam a média para baixo; quem é novo recebe a média por pessoa da equipe.",
+      "Lance as férias em Ausências antes de salvar as metas: quem fica o mês todo fora não entra na divisão, e a parte dele vai para os outros.",
       "Nada é gravado até você clicar em Salvar metas.",
     ],
     passos: [

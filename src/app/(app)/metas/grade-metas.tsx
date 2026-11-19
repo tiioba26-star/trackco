@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Switch } from "@/components/ui/switch";
 import type { HistoricoMeta, MapaHistorico } from "@/lib/dados/sugestoes";
-import { distribuirMeta, incoerencia, participacoes, type ModoMeta } from "@/lib/metas/distribuir";
+import { distribuirMeta, incoerencia, participacoes, valeParaEquipe, type ModoMeta } from "@/lib/metas/distribuir";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { metasDoMesAnterior, salvarMetas, type LinhaMeta } from "./actions";
 
@@ -23,6 +23,8 @@ interface Props {
   pessoas: { id: string; nome: string; funcao: string }[];
   iniciais: LinhaMeta[];
   historico: MapaHistorico;
+  /** parte do mês em que cada pessoa trabalha, com as ausências lançadas (1 = mês todo, 0 = ausente o mês todo) */
+  fatores: Record<string, number>;
   nMeses: number;
 }
 
@@ -60,6 +62,32 @@ function DicaHistorico({ h, unidade, nMeses }: { h: HistoricoMeta | undefined; u
   );
 }
 
+/** Embaixo do campo: quanto da meta vale com as ausências lançadas no mês. */
+function AvisoAusencia({
+  fator,
+  valor,
+  unidade,
+  derivado,
+}: {
+  fator: number;
+  valor: number | null;
+  unidade: string;
+  derivado: boolean;
+}) {
+  if (fator >= 1) return null;
+  if (fator === 0)
+    return derivado ? null : (
+      <div className="mt-0.5 text-[11px] text-amber-700 dark:text-amber-400">ausente o mês todo: a meta não vale</div>
+    );
+  return (
+    <div className="mt-0.5 text-[11px] text-amber-700 dark:text-amber-400">
+      {valor !== null && unidade !== "%"
+        ? `vale ${fmt(Math.round(valor * fator * 10) / 10, unidade)} (${Math.round(fator * 100)}% do mês, por ausências)`
+        : `trabalha ${Math.round(fator * 100)}% do mês (ausências)`}
+    </div>
+  );
+}
+
 const chave = (metrica: string, colab: string | null) => `${metrica}|${colab ?? "equipe"}`;
 const numero = (v: string | undefined) => {
   if (v === undefined || v.trim() === "") return null;
@@ -78,7 +106,7 @@ function modosIniciais(metricas: Props["metricas"], iniciais: LinhaMeta[], membr
   );
 }
 
-export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais, historico, nMeses }: Props) {
+export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais, historico, fatores, nMeses }: Props) {
   const router = useRouter();
   const confirmar = useConfirmar();
   const pedirValor = usePedirValor();
@@ -95,6 +123,8 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
   const set = (k: string, v: string) => setValores((s) => ({ ...s, [k]: v }));
   const membros = pessoas.filter((x) => x.funcao === "membro");
   const lideres = pessoas.filter((x) => x.funcao !== "membro");
+  const fatorDe = (id: string) => fatores[id] ?? 1;
+  const algumaAusencia = membros.some((p) => fatorDe(p.id) < 1);
   const [modo, setModo] = useState<Record<string, ModoMeta>>(() =>
     modosIniciais(metricas, iniciais, new Set(membros.map((x) => x.id))),
   );
@@ -105,7 +135,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         const eq = iniciais.find((l) => l.metrica_id === m.id && l.colaborador_id === null)?.valor ?? null;
         const ps = iniciais
           .filter((l) => l.metrica_id === m.id && l.colaborador_id && membros.some((x) => x.id === l.colaborador_id))
-          .map((l) => Number(l.valor));
+          .map((l) => ({ valor: Number(l.valor), fator: fatorDe(l.colaborador_id!) }));
         const problema = incoerencia(eq, ps, m.unidade);
         return problema ? `${m.nome}: ${problema}` : null;
       })
@@ -113,17 +143,19 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
   );
 
   const pesos = (metricaId: string) =>
-    membros.map((p) => ({ id: p.id, peso: historico[chave(metricaId, p.id)]?.referencia ?? null }));
-  /** meta da equipe dividida entre os membros (modo "pela equipe") */
+    membros.map((p) => ({ id: p.id, peso: historico[chave(metricaId, p.id)]?.referencia ?? null, fator: fatorDe(p.id) }));
+  /** meta da equipe dividida entre quem trabalha no mês (modo "pela equipe") */
   const divisao = (m: Props["metricas"][number]) => {
     const total = numero(valores[chave(m.id, null)]);
     return total === null ? null : distribuirMeta(total, pesos(m.id), m.unidade);
   };
+  /** o que vale para a equipe pelas metas de cada pessoa: soma (já descontadas as ausências) ou média, para % */
   const somaOuMedia = (m: Props["metricas"][number]) => {
-    const vs = membros.map((p) => numero(valores[chave(m.id, p.id)])).filter((v): v is number => v !== null);
-    if (!vs.length) return null;
-    const s = vs.reduce((a, b) => a + b, 0);
-    return m.unidade === "%" ? Math.round((s / vs.length) * 10) / 10 : s;
+    const vs = membros
+      .map((p) => ({ valor: numero(valores[chave(m.id, p.id)]), fator: fatorDe(p.id) }))
+      .filter((x): x is { valor: number; fator: number } => x.valor !== null);
+    const v = valeParaEquipe(vs, m.unidade);
+    return v === null || m.unidade === "%" ? v : Math.round(v);
   };
 
   function trocarModo(m: Props["metricas"][number], porPessoa: boolean) {
@@ -132,7 +164,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
       const d = divisao(m);
       setValores((s) => {
         const n = { ...s };
-        if (d) for (const p of membros) n[chave(m.id, p.id)] = String(d[p.id]);
+        if (d) for (const p of membros) n[chave(m.id, p.id)] = d[p.id] === undefined ? "" : String(d[p.id]);
         delete n[chave(m.id, null)];
         return n;
       });
@@ -167,7 +199,9 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         const d = divisao(m);
         if (total !== null && d) {
           linhas.push({ metrica_id: m.id, colaborador_id: null, valor: total });
-          for (const p of membros) linhas.push({ metrica_id: m.id, colaborador_id: p.id, valor: d[p.id] });
+          // quem está ausente o mês todo fica fora da divisão (sem meta)
+          for (const p of membros)
+            if (d[p.id] !== undefined) linhas.push({ metrica_id: m.id, colaborador_id: p.id, valor: d[p.id] });
         }
       }
     }
@@ -346,7 +380,7 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                         className="w-24 tabular-nums read-only:bg-muted/50 read-only:text-muted-foreground sm:w-32"
                         readOnly={derivado}
                         tabIndex={derivado ? -1 : undefined}
-                        value={derivado ? (d ? String(d[p.id]) : "") : (valores[chave(m.id, p.id)] ?? "")}
+                        value={derivado ? (d?.[p.id] === undefined ? "" : String(d[p.id])) : (valores[chave(m.id, p.id)] ?? "")}
                         placeholder={
                           derivado
                             ? "—"
@@ -358,12 +392,22 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                       />
                       {derivado ? (
                         <div className="mt-1 text-[11px] text-muted-foreground">
-                          {m.unidade === "%"
-                            ? "igual à da equipe"
-                            : `${Math.round((participacoes(pesos(m.id))[p.id] ?? 0) * 1000) / 10}% da equipe`}
+                          {fatorDe(p.id) === 0
+                            ? "ausente o mês todo"
+                            : m.unidade === "%"
+                              ? "igual à da equipe"
+                              : `${Math.round((participacoes(pesos(m.id))[p.id] ?? 0) * 1000) / 10}% da equipe`}
                         </div>
                       ) : (
                         p.funcao === "membro" && <DicaHistorico h={historico[chave(m.id, p.id)]} unidade={m.unidade} nMeses={nMeses} />
+                      )}
+                      {p.funcao === "membro" && (
+                        <AvisoAusencia
+                          fator={fatorDe(p.id)}
+                          valor={derivado ? (d?.[p.id] ?? null) : numero(valores[chave(m.id, p.id)])}
+                          unidade={m.unidade}
+                          derivado={derivado}
+                        />
                       )}
                     </TableCell>
                   );
@@ -392,8 +436,10 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
                     <div className="mt-1 text-[11px] text-muted-foreground">
                       {porPessoa
                         ? m.unidade === "%"
-                          ? "média das pessoas"
-                          : "soma das pessoas"
+                          ? "média de quem trabalha no mês"
+                          : algumaAusencia
+                            ? "soma do que vale para as pessoas, descontadas as ausências"
+                            : "soma das pessoas"
                         : `histórico da equipe ${fmt(historico[chave(m.id, null)]?.referencia ?? null, m.unidade)}`}
                     </div>
                   </TableCell>
@@ -404,10 +450,12 @@ export function GradeMetas({ equipeId, competencia, metricas, pessoas, iniciais,
         </Table>
       </div>
       <p className="text-xs text-muted-foreground">
-        Pela equipe: você digita só a meta da equipe e ela é dividida pela participação de cada pessoa na média dos últimos
-        meses (taxas em % valem igual para todos). Por pessoa: você digita a de cada um e a da equipe vira a soma (ou a
-        média, para %). Metas são reduzidas proporcionalmente às ausências lançadas quando o indicador estiver com
-        &quot;meta proporcional&quot; ligada.
+        Pela equipe: você digita só a meta da equipe e ela é dividida entre quem trabalha no mês, pela participação de cada
+        pessoa na média dos últimos meses e pelos dias disponíveis (taxas em % valem igual para todos). Quem tem ausência
+        lançada fica com menos (ou sem meta, se ficar o mês todo fora) e a diferença vai para os outros. Por pessoa: você
+        digita a de cada um e a da equipe vira a soma do que vale para cada pessoa (ou a média, para %). Ausência lançada
+        depois de salvar reduz a meta da pessoa e a da equipe, quando o indicador estiver com &quot;meta proporcional&quot;
+        ligada.
       </p>
     </div>
   );
