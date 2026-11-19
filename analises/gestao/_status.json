@@ -1,307 +1,104 @@
 {
-  "gerado_em": "2026-11-19T08:00:40.205Z",
+  "gerado_em": "2026-11-19T16:02:03.890Z",
   "dados_ate": "2026-11-18",
-  "feitas": 1,
-  "sem_mudanca": 29,
-  "falhas": [
-    {
-      "arquivo": "faturamento__mes__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__mes__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__mes__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__mes__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__mes_passado__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes_passado__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes_passado__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes_passado__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__12m__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__12m__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__12m__ano__todas.md",
-      "erro": "código 0"
-    },
-    {
-      "arquivo": "marcacao__12m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__12m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__3m__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__12m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes_passado__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__3m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__3m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__3m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__3m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__ano__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__ano__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__ano__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__ano__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__ano__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__ano__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__ano__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__ano__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__ano__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__mes__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__ano__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__mes__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__mes__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__mes__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__mes_passado__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes_passado__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__mes_passado__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__mes_passado__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__mes_passado__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__12m__anterior__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__12m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__12m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__3m__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__12m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__3m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__3m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__3m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__3m__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__ano__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__ano__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__ano__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__12m__anterior__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__ano__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__ano__ano__particular.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "faturamento__ano__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "equipes__ano__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "marcacao__ano__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "perdas__ano__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    },
-    {
-      "arquivo": "quem__ano__ano__todas.md",
-      "erro": "This service has been disabled in this account for violation of Terms of Service. Please submit an appeal to continue using this product."
-    }
+  "feitas": 0,
+  "sem_mudanca": 14,
+  "falhas": [],
+  "pendentes": [
+    "faturamento__mes__anterior__particular.md",
+    "marcacao__mes__anterior__particular.md",
+    "equipes__mes__anterior__particular.md",
+    "quem__mes__anterior__particular.md",
+    "perdas__mes__anterior__particular.md",
+    "faturamento__mes__anterior__todas.md",
+    "marcacao__mes__anterior__todas.md",
+    "equipes__mes__anterior__todas.md",
+    "quem__mes__anterior__todas.md",
+    "perdas__mes__anterior__todas.md",
+    "marcacao__mes_passado__anterior__particular.md",
+    "equipes__mes_passado__anterior__particular.md",
+    "quem__mes_passado__anterior__particular.md",
+    "perdas__mes_passado__anterior__particular.md",
+    "faturamento__mes_passado__anterior__todas.md",
+    "marcacao__mes_passado__anterior__todas.md",
+    "equipes__mes_passado__anterior__todas.md",
+    "quem__mes_passado__anterior__todas.md",
+    "perdas__mes_passado__anterior__todas.md",
+    "marcacao__12m__ano__particular.md",
+    "equipes__12m__ano__particular.md",
+    "quem__12m__ano__particular.md",
+    "faturamento__12m__ano__todas.md",
+    "marcacao__12m__ano__todas.md",
+    "equipes__12m__ano__todas.md",
+    "quem__12m__ano__todas.md",
+    "marcacao__3m__anterior__particular.md",
+    "equipes__3m__anterior__particular.md",
+    "quem__3m__anterior__particular.md",
+    "faturamento__3m__anterior__todas.md",
+    "marcacao__3m__anterior__todas.md",
+    "equipes__3m__anterior__todas.md",
+    "quem__3m__anterior__todas.md",
+    "faturamento__ano__anterior__particular.md",
+    "marcacao__ano__anterior__particular.md",
+    "equipes__ano__anterior__particular.md",
+    "quem__ano__anterior__particular.md",
+    "perdas__ano__anterior__particular.md",
+    "faturamento__ano__anterior__todas.md",
+    "marcacao__ano__anterior__todas.md",
+    "equipes__ano__anterior__todas.md",
+    "quem__ano__anterior__todas.md",
+    "perdas__ano__anterior__todas.md",
+    "faturamento__mes__ano__particular.md",
+    "marcacao__mes__ano__particular.md",
+    "equipes__mes__ano__particular.md",
+    "quem__mes__ano__particular.md",
+    "perdas__mes__ano__particular.md",
+    "faturamento__mes__ano__todas.md",
+    "marcacao__mes__ano__todas.md",
+    "equipes__mes__ano__todas.md",
+    "quem__mes__ano__todas.md",
+    "perdas__mes__ano__todas.md",
+    "marcacao__mes_passado__ano__particular.md",
+    "equipes__mes_passado__ano__particular.md",
+    "quem__mes_passado__ano__particular.md",
+    "perdas__mes_passado__ano__particular.md",
+    "faturamento__mes_passado__ano__todas.md",
+    "marcacao__mes_passado__ano__todas.md",
+    "equipes__mes_passado__ano__todas.md",
+    "quem__mes_passado__ano__todas.md",
+    "perdas__mes_passado__ano__todas.md",
+    "marcacao__12m__anterior__particular.md",
+    "equipes__12m__anterior__particular.md",
+    "quem__12m__anterior__particular.md",
+    "faturamento__12m__anterior__todas.md",
+    "marcacao__12m__anterior__todas.md",
+    "equipes__12m__anterior__todas.md",
+    "quem__12m__anterior__todas.md",
+    "marcacao__3m__ano__particular.md",
+    "equipes__3m__ano__particular.md",
+    "quem__3m__ano__particular.md",
+    "faturamento__3m__ano__todas.md",
+    "marcacao__3m__ano__todas.md",
+    "equipes__3m__ano__todas.md",
+    "quem__3m__ano__todas.md",
+    "faturamento__ano__ano__particular.md",
+    "marcacao__ano__ano__particular.md",
+    "equipes__ano__ano__particular.md",
+    "quem__ano__ano__particular.md",
+    "perdas__ano__ano__particular.md",
+    "faturamento__ano__ano__todas.md",
+    "marcacao__ano__ano__todas.md",
+    "equipes__ano__ano__todas.md",
+    "quem__ano__ano__todas.md",
+    "perdas__ano__ano__todas.md"
   ],
-  "pendentes": [],
   "tokens": {
-    "entrada": 32003,
-    "saida": 10468,
-    "pensamento": 6892,
+    "entrada": 0,
+    "saida": 0,
+    "pensamento": 0,
     "cache": 0
   },
-  "custo_equivalente_usd": 0.4654,
-  "por_modelo": {
-    "claude-opus-5-5": {
-      "analises": 1,
-      "custo_equivalente_usd": 0.4654
-    }
-  },
+  "custo_equivalente_usd": 0,
+  "por_modelo": {},
   "limite_atingido": false
 }
