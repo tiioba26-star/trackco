@@ -1,7 +1,7 @@
 {
-  "gerado_em": "2026-11-22T16:00:40.817Z",
-  "dados_ate": "2026-11-21",
-  "feitas": 0,
+  "gerado_em": "2026-11-23T08:01:58.434Z",
+  "dados_ate": "2026-11-22",
+  "feitas": 1,
   "sem_mudanca": 14,
   "falhas": [],
   "pendentes": [
@@ -93,12 +93,17 @@
     "perdas__ano__ano__todas.md"
   ],
   "tokens": {
-    "entrada": 0,
-    "saida": 0,
-    "pensamento": 0,
+    "entrada": 33717,
+    "saida": 12451,
+    "pensamento": 8877,
     "cache": 0
   },
-  "custo_equivalente_usd": 0,
-  "por_modelo": {},
+  "custo_equivalente_usd": 0.5187,
+  "por_modelo": {
+    "claude-opus-5-5": {
+      "analises": 1,
+      "custo_equivalente_usd": 0.5187
+    }
+  },
   "limite_atingido": false
 }
