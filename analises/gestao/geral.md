@@ -1,99 +1,97 @@
 ---
 secao: geral
-dados_ate: 2026-11-24
+dados_ate: 2026-11-25
 modelo: claude-opus-5-5
 esforco: high
-gerado_em: 2026-11-25T08:02:19.014Z
-assinatura: 2ef99a84
-tokens_entrada: 33718
-tokens_saida: 10778
-custo_equivalente_usd: 0.4853
+gerado_em: 2026-11-26T08:02:40.719Z
+assinatura: d00bec62
+tokens_entrada: 33707
+tokens_saida: 13491
+custo_equivalente_usd: 0.5395
 ---
 
 ## Resumo
-Novembro, até o dia 24, está abaixo de outubro no mesmo ponto. A clínica toda faturou R$ 555.973,10 (−17,1%) e o Particular R$ 96.525,00 (−19,4%). O comparecimento melhorou nos dois recortes: Particular com 68,7% contra 66,7% e clínica toda com 77,4% contra 75,3%. No acumulado de 12 meses, a clínica mais que dobrou o faturamento (+112,8%). Piorou a ligação entre marcação e receita no Particular: as marcações caíram 2,9% e o faturamento caiu 19,4%, e os cancelamentos subiram em outubro e seguem em alta na parcial. O maior risco agora é fechar novembro em queda sem causa identificada nos dados. Soma-se a isso uma meta do Comercial que subiu 29,7% com um membro de férias até 31/12.
+
+Novembro está abaixo de outubro no faturamento. Até o dia 25, a clínica toda faturou R$ 587.511,95, queda de 12,4% sobre outubro até o dia 25. O Particular faturou R$ 105.875,00 (−11,6%). Duas coisas melhoraram: o comparecimento subiu nos dois recortes (Particular 67,8% contra 66,7%; clínica toda 76,7% contra 75,3%) e as marcações do Particular cresceram 4,9%. Duas pioraram: as marcações da clínica toda caíram 9,5% e a falta no Particular subiu pela segunda vez seguida, para 29,8%. O maior risco agora é a queda de faturamento fora do Particular, que responde pela maior parte da diferença e não tem explicação nos dados de hoje. Novembro é parcial e ainda vai mudar.
 
 ## O que mudou
-- **Faturamento.**
-  - Particular: R$ 96.525,00 de 01/11 a 24/11 (−19,4% vs outubro até o dia 24). Outubro fechou em R$ 147.265,00 (−3,9% vs setembro). Os dados trazem só esses dois períodos, então ainda não dá para falar em tendência. Se novembro fechar abaixo de outubro, serão 2 meses seguidos de queda.
-  - Clínica toda: R$ 555.973,10 na parcial (−17,1%), depois de outubro em alta (R$ 824.730,34, +5,2% vs setembro). É uma queda pontual, e o período ainda está em andamento.
-- **Marcações.**
-  - Particular: 890 na parcial (−2,9%), depois de outubro em alta (1.195, +4,6%).
-  - Clínica toda: 8.116 (−14,9%), após outubro já em queda (12.134, −3,0%). Se novembro confirmar, serão 2 meses de queda.
-- **Comparecimento.**
-  - Particular: 68,7% na parcial (+2,0 p.p.), após queda pontual em outubro (66,6% vs 70,7%).
-  - Clínica toda: 77,4% (+2,1 p.p.). Em 12 meses, 77,1% contra 60,5%.
-  - O R$ gerado cai mais que o faturamento: no Particular, R$ 69.450,00 contra R$ 115.040,00 (69.450 ÷ 115.040 = −39,6%). Parte disso são consultas ainda não conferíveis, e o número vai mudar.
-- **Perdas no Particular.**
-  - Falta: 29,1% na parcial contra 28,0%, após 29,3% contra 28,2% em outubro.
-  - Cancelamento: 4,7% contra 4,0%, após 3,6% contra 3,0% em outubro.
-  - As duas taxas sobem há 2 períodos, um fechado e um parcial.
-  - Na clínica toda, a falta caiu (38,8% vs 40,7%) e o cancelamento subiu (2,6% vs 2,2%).
-- **Peso do Particular.**
-  - Nos 12 meses, o Particular faturou R$ 1.470.230,00, que é 17,3% da clínica (1.470.230 ÷ 8.518.287,23).
-  - No período anterior foi 31,0% (1.241.365 ÷ 4.003.178,76).
-  - O Particular cresceu 18,4%, mas o SUS e os convênios cresceram muito mais.
-- **Equipe Comercial (líder Brisa).**
-  - Agendamentos válidos caíram 2 meses seguidos: agosto 565, setembro 541 (−4,2%), outubro 464 (−14,2%).
-  - Realizadas: 394 em agosto, 395 em setembro e 330 em outubro (−16,5% vs setembro).
 
-Os números mostram que o faturamento do Particular caiu muito mais que as marcações, mesmo com o comparecimento subindo. Uma explicação possível é menor oferta de agenda médica ou cirúrgica no período (confirmar no relatório 319 por médico). Os resumos por seção apontam médicos específicos, mas os DADOS de hoje não trazem esse corte, então não os cito.
+- **Faturamento.**
+  - Clínica toda: R$ 587.511,95 em novembro até o dia 25, contra R$ 670.500,42 em outubro até o dia 25 (−12,4%). Em outubro fechado, tinha subido 5,2% sobre setembro.
+  - Particular: R$ 105.875,00 contra R$ 119.775,00 (−11,6%), depois de cair 3,9% em outubro sobre setembro.
+  - De onde vem a diferença: são R$ 82.988,47 a menos na clínica. Desse total, R$ 13.900,00 vêm do Particular e R$ 69.088,47 das demais operadoras (SUS e convênios juntos). Essas operadoras somam R$ 481.636,95 contra R$ 550.725,42 (−12,5%).
+  - Os dados não trazem agosto, então ainda não dá para falar em tendência de meses fechados.
+  - Em 12 meses, o quadro segue forte: Particular +18,4% e clínica toda +112,8%.
+- **Marcações.** Os recortes andam em direções opostas.
+  - Particular: 962 contra 917 (+4,9%), após +4,7% em outubro (1.195 contra 1.141). São duas altas seguidas.
+  - Clínica toda: 8.635 contra 9.538 (−9,5%), após −3,0% em outubro (12.134 contra 12.512).
+  - Sem o Particular, ficam 7.673 contra 8.621 marcações (−11,0%).
+- **Comparecimento.**
+  - Particular: 67,8% contra 66,7%. É uma recuperação parcial, porque em outubro tinha caído para 66,8% (contra 70,8% em setembro).
+  - Clínica toda: 76,7% contra 75,3%. Em 12 meses, subiu de 60,5% para 77,1%.
+- **Perdas.**
+  - Particular: falta de 29,8% (contra 28,0%) e cancelamento de 4,5% (contra 4,0%). As duas taxas já tinham subido em outubro (29,3% contra 28,2%; 3,6% contra 3,0%). Em 12 meses, a falta foi de 32,2% contra 29,2%. É tendência de alta.
+  - Clínica toda: falta de 39,0% contra 40,7%, a segunda queda seguida (outubro: 39,7% contra 41,1%).
+- **R$ gerado.**
+  - Particular: R$ 77.710,00 contra R$ 115.330,00 (77.710 ÷ 115.330 = −32,6%).
+  - Clínica toda: R$ 162.058,95 contra R$ 330.417,36 (−51,0%).
+  - Uma explicação possível é que parte das marcações de novembro ainda não virou consulta. Não tratar como queda antes do fechamento.
+- **Equipes.** Os dados só trazem o Comercial.
+  - Agendamentos válidos: setembro 541, outubro 464 e novembro até o dia 25 433 (meta de 599; 72,3%).
+  - Consultas realizadas: 395, 330 e 263 (meta de 401).
+  - A soma bate com a dos membros (outubro: 195 + 16 + 104 + 149 = 464).
 
 ## Pessoas
+
+Ressalva antes de qualquer conversa: todas as notas estão como não oficiais e não há fechamento de outubro registrado. Os dados também não dizem se a meta de novembro é proporcional ao dia 25. Confirmar isso antes de falar com alguém sobre atingimento.
+
 **Destaques**
-- **Bianca Vitorio Nascimento**: a nota passou de 33,0% em setembro para 111,3% em outubro e 110,3% na parcial de novembro. São 2 meses de meta batida. O volume é pequeno (17 consultas em novembro), então não concluo nada sobre o comparecimento dela.
-- **Igor Luis Soares de Jesus da Silva**: em outubro foi "Destaque", com nota de 120,3%. Fez 96 consultas contra meta de 65 (147,7%), mesmo tendo saído de férias em 17/10.
-- **Maiane Fiais Ramos Albuquerque**: soma 156 agendamentos válidos até 24/11, já acima dos 149 de outubro inteiro.
-- **Vanessa Nogueira Seippel**: está no primeiro mês e fez 93 válidos contra meta de 90 (103,3%).
-- **Ana Luiza Batista Teles**: bateu a meta em setembro (117,9%) e em outubro (103,1%). Na parcial, o comparecimento é de 71,7%, contra meta de 66%.
-- **Brisa Souza de Oliveira**: a equipe bateu a meta em setembro (107,6%) e em outubro (105,2%). As marcações próprias subiram para 323 em outubro (+178,4% vs setembro). Uma hipótese é que ela tenha coberto a ausência do Igor (confirmar com ela).
+- **Bianca Vitorio Nascimento**: a nota subiu de 33,0% em setembro para 111,3% em outubro e 121,0% em novembro parcial. Fez 30 agendamentos válidos contra meta de 24, já acima de outubro inteiro (16). Com 17 consultas realizadas, ainda é cedo para concluir sobre o comparecimento dela.
+- **Maiane Fiais Ramos Albuquerque**: 170 válidos até o dia 25, acima dos 149 de outubro inteiro (+14,1%). Comparecimento de 68,8%, com meta de 66%.
+- **Ana Luiza Batista Teles**: os válidos no Particular subiram 4 meses seguidos (julho 156, agosto 181, setembro 186, outubro 195). Bateu a meta em setembro e outubro.
+- **Vanessa Nogueira Seippel**: no primeiro mês, fez 100 válidos contra meta de 90 (111,1%).
 
 **Pontos de atenção**
-- **Igor (não é ponto de desempenho)**: as marcações caíram 44,5% em outubro e estão zeradas em novembro. Ele está de férias de 17/10 a 31/12, e isso explica a queda. Não deve entrar em avaliação.
-- **Meta do Comercial em novembro**:
-  - A nota parcial da equipe é 63,5%. São 396 válidos contra meta de 599, e 244 realizadas contra meta de 401.
-  - A meta da equipe subiu de 462 para 599 (+29,7%). Ela é a soma das metas individuais, sem o Igor.
-  - Metas individuais de válidos: Ana Luiza de 189 para 269 (+42,3%) e Maiane de 159 para 216 (+35,8%).
-  - A queda de válidos do Igor em outubro (210 → 104, −106) foi maior que a da equipe (−77). Os números mostram que a equipe absorveu parte dessa perda.
-  - Não há comparação até o mesmo dia por pessoa, então não concluo queda individual de Ana Luiza ou Maiane.
-  - Ação: administração e líder revisam o critério da meta de novembro antes do fechamento.
-- **Vanessa Nogueira Seippel**:
-  - Comparecimento de 59,6% contra meta de 66%. Fica 10,8 p.p. abaixo da mediana da equipe, que é 70,4% (média de 69,1% e 71,7%).
-  - É o primeiro mês dela, então não há tendência.
-  - Hipótese: rotina de confirmação ainda em aprendizado (confirmar com ela).
-  - Ação: acompanhamento semanal com a líder e troca de prática com Ana Luiza, que tem 71,7% em 99 consultas.
-
-Os resumos citam pessoas da Recepção e médicos. Esses nomes não estão nos DADOS de hoje e não foram citados.
+- **Igor Luis Soares de Jesus da Silva**: não é questão de desempenho. Está de férias de 17/10 a 31/12, o que explica a queda de 44,5% nas marcações de outubro (566 contra 1.020) e o zero em novembro. Em outubro, entregou 104 válidos contra meta ajustada de 99. O ponto de atenção é a cobertura: esses 104 válidos foram repostos quase só pela Vanessa (100). A ação é a líder do Comercial redistribuir a carteira até 31/12.
+- **Vanessa Nogueira Seippel**: comparecimento de 60,0%, abaixo da meta de 66% e 10,2 pontos abaixo da mediana da equipe em novembro (70,2%, mediana entre 60,0%, 68,8%, 71,5% e 73,9%). É o primeiro mês, então não há tendência. Uma explicação possível é a rotina de confirmação ainda em aprendizado (confirmar com ela). A ação é acompanhamento de integração pela líder.
+- **Maiane e Ana Luiza**: notas de novembro parcial de 78,6% e 64,7%. A de Maiane vem caindo (101,4%, 95,9%, 78,6%). As consultas realizadas estão abaixo da meta (Maiane 99 contra 151; Ana Luiza 108 contra 186). Uma explicação possível é que essas consultas ainda vão acontecer, ou que a meta é do mês cheio. A ação é aguardar o fechamento e a regra da meta antes de conversar.
+- **Pistas não usadas**: as análises por seção citam outras pessoas da recepção e médicos. Esses dados não estão no JSON, então não foram confirmados nem usados.
 
 ## Operação e dados
-- **Cancelamentos sem motivo**: 4,4% em outubro. Os dados não trazem comparação.
-- **Cobertura do faturamento Particular**: 100% de agosto a novembro. Junho (101,6%) e julho (101,2%) ficaram acima de 100%. Uma explicação possível é atendimento ligado a mais de uma marcação (confirmar com o faturamento).
-- **Contestações**: 0 abertas e 0 respondidas nos últimos 30 dias.
-- **Sincronização**: 0 erros nos últimos 7 dias.
-- **Pessoas sem equipe**: 11 pessoas marcaram 4.027 vezes em outubro, ou 33,2% da clínica (4.027 ÷ 12.134).
-- **Fechamento**: não há fechamento de outubro registrado, e todas as notas aparecem como não oficiais.
-- **Pistas não confirmáveis**: os resumos apontam comparecimento perto de zero em Entrega de Colírios e Glaucoma. Isso não consta nos DADOS e precisa ser auditado.
+
+- **Cancelamentos sem motivo**: 4,4% em outubro. Não há comparação nos dados.
+- **Cobertura do faturamento Particular**: 100% de agosto a novembro. Junho (101,6%) e julho (101,2%) ficaram acima de 100%; uma explicação possível é ligação duplicada, já normalizada.
+- **Contestações**: nenhuma aberta e nenhuma respondida nos últimos 30 dias.
+- **Sincronização**: nenhum erro nos últimos 7 dias.
+- **Pessoas sem equipe**: 11 pessoas fizeram 4.027 marcações em outubro, 33,2% da clínica (4.027 ÷ 12.134). Sem isso, um terço do volume fica fora da leitura por equipe.
+- **Fechamento**: outubro não foi fechado.
+- **Definições a conferir**: na clínica toda, falta (39,0%) e comparecimento (76,7%) somam mais de 100%. Confirmar a base de cada taxa no Trackco.
 
 ## Plano de ação
+
 | prioridade | ação | responsável | prazo | como medir |
 |---|---|---|---|---|
-| 1 | Abrir o relatório 319 por médico e procedimento, de 01/11 a 24/11 contra outubro, e explicar a queda de 19,4% no Particular | administração e faturamento | 28/11 | causa documentada; faturamento de novembro fechado vs outubro |
-| 2 | Revisar o critério da meta de novembro do Comercial, considerando as férias do Igor e a entrada da Vanessa | administração e líder do Comercial | 28/11 | meta final aprovada antes do fechamento |
-| 3 | Fechar oficialmente outubro | administração | 30/11 | fechamentos_do_mes_passado preenchido |
-| 4 | Vincular as 11 pessoas sem equipe | administração e TI | 05/12 | 0 pessoas sem equipe em dezembro |
-| 5 | Reforçar a confirmação na véspera e o registro do motivo de cancelamento no Particular | líder do Comercial e recepção | 01/12 | falta abaixo de 28% e cancelamento sem motivo abaixo de 4,4% em dezembro |
+| 1 | Abrir a queda de R$ 69.088,47 das demais operadoras por médico e agenda no relatório 319 | administração com o faturamento | 28/11 | diferença explicada por agenda |
+| 2 | Plano de cobertura das férias de Igor até 31/12 | líder do Comercial | 01/12 | válidos da equipe em dezembro contra a meta |
+| 3 | Fechar outubro e confirmar se a meta de novembro é proporcional | administração | 03/12 | fechamento registrado e notas oficiais |
+| 4 | Confirmação na véspera em todas as consultas do Particular | recepção e Comercial | 01/12 | falta do Particular em dezembro abaixo de 28,0% |
+| 5 | Vincular as 11 pessoas sem equipe | administração com TI | 05/12 | pessoas sem equipe igual a 0 |
+| 6 | Tornar obrigatório o motivo de cancelamento | recepção | 10/12 | sem motivo abaixo de 4,4% |
 
 ## Evidências
+
 | conclusão | número | de onde veio |
 |---|---|---|
-| Faturamento Particular em queda na parcial | R$ 96.525,00 vs R$ 119.775,00 (−19,4%) | manchetes, Particular, 01/11–24/11 |
-| Faturamento da clínica em queda na parcial | R$ 555.973,10 vs R$ 670.500,42 (−17,1%) | manchetes, clínica toda, 01/11–24/11 |
-| Outubro Particular em queda | R$ 147.265,00 (−3,9% vs setembro) | manchetes, Particular, outubro |
-| Marcações da clínica em queda | 8.116 vs 9.538 (−14,9%) | manchetes, clínica toda, parcial |
-| Comparecimento em alta | 68,7% vs 66,7%; 77,4% vs 75,3% | manchetes, parcial |
-| Cancelamento Particular em alta | 4,7% vs 4,0%; outubro 3,6% vs 3,0% | manchetes, Particular |
-| Peso do Particular menor | 17,3% vs 31,0% do faturamento | manchetes, 12 meses (conta acima) |
-| Válidos do Comercial em queda | 565 → 541 → 464 | pessoas, Brisa, agosto a outubro |
-| Meta da equipe maior | 599 vs 462 (+29,7%) | pessoas, Brisa, outubro e novembro |
-| Igor de férias | 17/10 a 31/12 | ausencias_ultimos_3_meses |
-| Sem equipe | 11 pessoas, 4.027 marcações | operacao_e_dados, outubro |
+| Faturamento da clínica em queda | R$ 587.511,95 (−12,4%) | manchetes, clínica toda, novembro até o dia 25 |
+| Queda maior fora do Particular | −R$ 69.088,47 (−12,5%) | conta sobre as manchetes de novembro |
+| Particular em queda | R$ 105.875,00 (−11,6%); outubro −3,9% | manchetes, Particular |
+| Marcações do Particular sobem | 962 (+4,9%); outubro +4,7% | manchetes, Particular |
+| Marcações da clínica caem | 8.635 (−9,5%); outubro −3,0% | manchetes, clínica toda |
+| Falta do Particular sobe | 29,8% contra 28,0%; outubro 29,3% contra 28,2% | manchetes, Particular |
+| Comparecimento melhora | 67,8% e 76,7% | manchetes, novembro |
+| Ano forte | +18,4% e +112,8% | manchetes, 12 meses |
+| Comercial abaixo da meta | 433 contra 599 válidos | pessoas, Brisa, novembro |
+| Queda de Igor explicada por férias | 17/10 a 31/12; −44,5% | ausências; pessoas, outubro |
+| Bianca em alta | nota 121,0%; 30 contra 24 | pessoas, novembro |
+| Sem equipe relevante | 4.027 (33,2%) | operação, outubro |
+| Outubro não fechado | lista de fechamentos vazia | operação |
